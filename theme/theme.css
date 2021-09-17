@@ -1,0 +1,35 @@
+header .page-header__brand { 
+    background-image: url('https://vegaprotocol.github.io/jenkins-shared-library/theme/vega/vega-bg-noise.png'); 
+    -webkit-background-size: 600px;
+    -moz-background-size: 600px;
+    -o-background-size: 600px;
+    background-size: 600px;
+    background-color: rgb(223,255,11);
+}
+
+header #jenkins-head-icon {
+    background-image: url('https://vegaprotocol.github.io/jenkins-shared-library/theme/vega/vega-hixel-black.png') !important;
+    object-position: -99999px 99999px;  /* Hide image from src */
+    box-sizing: border-box;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    width: 50px;
+}
+
+header #jenkins-name-icon {
+    background-image: url('https://vegaprotocol.github.io/jenkins-shared-library/theme/vega/vega-name-black.png') !important;
+    object-position: -99999px 99999px;  /* Hide image from src */
+    box-sizing: border-box;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+#jenkins-home-link {
+    height: 100%;
+    padding: 5px;
+    background-color: rgb(223,255,11);
+}
