@@ -55,24 +55,20 @@ void call(Map config = [:]) {
 
     echo "System-Tests execution pipeline: ${st.absoluteUrl}"
 
-    sh label: 'remove old junit result file', script: '''#!/bin/bash -e
-        rm -f output/junit-report/system-tests.xml
-    '''
+    sh label: 'remove old junit result file', script: """#!/bin/bash -e
+        rm -f ${pipelineDefaults.art.systemTestsJunit}
+    """
 
     catchError(message: 'System Tests Failed', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
         copyArtifacts(
             projectName: systemTestsJob,
             selector: specific("${st.number}"),
             fingerprintArtifacts: true,
-            filter: 'output/junit-report/system-tests.xml'
+            filter: pipelineDefaults.art.systemTestsJunit
         )
 
         junit checksName: 'System Tests',
-            testResults: 'output/junit-report/system-tests.xml'
-
-        archiveArtifacts artifacts: 'output/junit-report/system-tests.xml',
-            allowEmptyArchive: true,
-            fingerprint: true
+            testResults: pipelineDefaults.art.systemTestsJunit
 
         // now fail
         if (st.result != 'SUCCESS') {
