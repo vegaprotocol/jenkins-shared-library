@@ -10,22 +10,22 @@ void call() {
     pipelineDockerisedVega.call([
         parameters: [
             string(
-                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: params.SYSTEM_TESTS_TEST_DIRECTORY ?: 'CoreTesting/bvt',
+                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.st.testDirectory,
                 description: 'Run tests from files in this directory and all sub-directories'),
             string(
-                name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: params.SYSTEM_TESTS_TEST_FUNCTION ?: '',
+                name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: pipelineDefaults.st.testFunction,
                 description: 'Run only a tests with a specified function name. This is actually a "pytest -k $TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
             string(
-                name: 'PROTOS_BRANCH', defaultValue: params.PROTOS_BRANCH ?: 'develop',
+                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
                 description: 'Git branch name of the vegaprotocol/protos repository'),
             string(
-                name: 'SYSTEM_TESTS_BRANCH', defaultValue: params.SYSTEM_TESTS_BRANCH ?: 'develop',
+                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.st.systemTestsBranch,
                 description: 'Git branch name of the vegaprotocol/system-tests repository'),
             booleanParam(
-                name: 'SYSTEM_TESTS_DEBUG', defaultValue: params.SYSTEM_TESTS_DEBUG ?: false,
+                name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
             text(
-                name: 'DV_GENESIS_JSON', defaultValue: params.DV_GENESIS_JSON ?: 'system-tests/docker/zero-genesis.json',
+                name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.st.genesisJSON,
                 description: 'Tendermint genesis overrides in JSON format'),
         ],
         git: [
@@ -85,14 +85,13 @@ void call() {
                           testResults: 'output/junit-report/system-tests.xml'
                     archiveArtifacts artifacts: 'output/junit-report/system-tests.xml',
                         allowEmptyArchive: true,
-                        fingerprint: true,
-                        onlyIfSuccessful: false
+                        fingerprint: true
                 }
             }
         },
         post: {
             slack.slackSendCIStatus name: 'System Tests',
-                slackChannel: '#qa-notify',
+                channel: '#qa-notify',
                 branch: currentBuild.displayName
             stage('Container logs') {
                 dir('system-tests/scripts') {
