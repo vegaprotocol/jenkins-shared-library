@@ -91,7 +91,9 @@ void call() {
             }
         },
         post: {
-            //String currentResult = currentBuild.result ?: 'SUCCESS'
+            slack.slackSendCIStatus name: 'System Tests',
+                slackChannel: '#qa-notify',
+                branch: currentBuild.displayName
             stage('Container logs') {
                 dir('system-tests/scripts') {
                     sh label: 'print logs from all the containers', script: '''#!/bin/bash -e
