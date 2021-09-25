@@ -10,6 +10,7 @@ String composeMessage(Map config) {
         if (prURL != null) {
             message += " » <${prURL}|GitHub PR #${prID}>"
         }
+        message += " (${currentBuild.durationString - ' and counting'})"
         return message
 }
 
@@ -33,4 +34,13 @@ void slackSendCIFailure(Map config) {
         color: 'danger',
         message: ":red_circle: ${message}",
     )
+}
+
+void slackSendCIStatus(Map config) {
+    String currentResult = currentBuild.result ?: 'SUCCESS'
+    if (currentResult == 'SUCCESS') {
+        slackSendCISuccess(config)
+    } else {
+        slackSendCIFailure(config)
+    }
 }
