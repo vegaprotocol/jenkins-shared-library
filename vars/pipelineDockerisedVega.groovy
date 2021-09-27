@@ -34,6 +34,7 @@ void call(Map config) {
             portbase: (env.EXECUTOR_NUMBER as int) * 1000 + 1000,
             buildShortName: buildShortName,
             dockerisedVegaPrefix: dockerisedVegaPrefix,
+            dockerisedVegaBasedir: "${env.WORKSPACE}/dockerisedvega-home",
             dockerImageVegaCore: "docker.pkg.github.com/vegaprotocol/vega/vega:${dockerisedVegaPrefix}",
             dockerImageDataNode: "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dockerisedVegaPrefix}",
             dockerImageGoWallet: "vegaprotocol/go-wallet:${dockerisedVegaPrefix}",
@@ -69,12 +70,14 @@ void call(Map config) {
                                 dockerImageGoWallet: vars.dockerImageGoWallet,
                                 dockerImageVegatools: vars.dockerImageVegatools
                             ],
+                            vars.dockerisedVegaBasedir,
                             vars.dockerCredentials
                         )
                     }
                     stage('Start Dockerised Vega') {
                         startDockerisedVega(
                             params,
+                            vars.dockerisedVegaBasedir,
                             vars.dockerisedVegaPrefix,
                             vars.portbase,
                             vars.dockerCredentials
@@ -231,6 +234,7 @@ void gitClone(Map params, List<Map> inputGitRepos) {
 void prepareEverything(
     Map<String,Closure> inputPrepareStages,
     Map<String,String> dockerImages,
+    String dockerisedVegaBasedir,
     Map<String,String> dockerCredentials
 ) {
     Map<String,Closure> concurrentStages = [:]
@@ -239,7 +243,7 @@ void prepareEverything(
     concurrentStages << getPrepareDataNodeStages(dockerImages.dockerImageDataNode, dockerCredentials)
     concurrentStages << getPrepareGoWalletStages(dockerImages.dockerImageGoWallet, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages(dockerImages.dockerImageVegatools, dockerCredentials)
-    concurrentStages << getPrepareDockerisedVegaStages(dockerCredentials)
+    concurrentStages << getPrepareDockerisedVegaStages(dockerisedVegaBasedir, dockerCredentials)
 
     concurrentStages << inputPrepareStages
 
@@ -415,8 +419,15 @@ Map<String,Closure> getPrepareVegatoolsStages(
 //
 // Prepare Dockerised Vega
 //
-Map<String,Closure> getPrepareDockerisedVegaStages(Map<String,String> dockerCredentials) {
+Map<String,Closure> getPrepareDockerisedVegaStages(
+    String dockerisedVegaBasedir,
+    Map<String,String> dockerCredentials
+) {
     return ['dv': {
+        stage('Setup') {
+            sh label: 'Create dockerised vega basedir',
+                script: "mkdir -p ${dockerisedVegaBasedir}"
+        }
         stage('Docker Pull') {
             retry(3) {
                 dir('devops-infra/scripts') {
@@ -434,6 +445,7 @@ Map<String,Closure> getPrepareDockerisedVegaStages(Map<String,String> dockerCred
 //
 void startDockerisedVega(
     Map params,
+    String dockerisedVegaBasedir,
     String dockerisedVegaPrefix,
     Integer portbase,
     Map<String,String> dockerCredentials
@@ -495,6 +507,7 @@ void startDockerisedVega(
                 withDockerRegistry(dockerCredentials) {
                     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
                         ./dockerisedvega.sh \
+                            --datadir "${dockerisedVegaBasedir}" \
                             --prefix "${dockerisedVegaPrefix}" \
                             --portbase "${portbase}" \
                             --validators "${validatorNodeCount}" \
