@@ -21,6 +21,7 @@ void call(Map config) {
 
     node(params.JENKINS_AGENT_LABEL) {
         skipDefaultCheckout()
+        cleanWs()
         //
         // Local variables
         //
@@ -115,50 +116,50 @@ void setupJobParameters(List inputParameters) {
     List dockerisedVegaParameters = [
         /* Branches */
         string(
-            name: 'VEGA_CORE_BRANCH', defaultValue: params.VEGA_CORE_BRANCH ?: 'develop',
+            name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.dv.vegaCoreBranch,
             description: 'Git branch name of the vegaprotocol/vega repository'),
         string(
-            name: 'DATA_NODE_BRANCH', defaultValue: params.DATA_NODE_BRANCH ?: 'develop',
+            name: 'DATA_NODE_BRANCH', defaultValue: pipelineDefaults.dv.dataNodeBranch,
             description: 'Git branch name of the vegaprotocol/data-node repository'),
         string(
-            name: 'GO_WALLET_BRANCH', defaultValue: params.GO_WALLET_BRANCH ?: 'develop',
+            name: 'GO_WALLET_BRANCH', defaultValue: pipelineDefaults.dv.goWalletBranch,
             description: 'Git branch name of the vegaprotocol/go-wallet repository'),
         string(
-            name: 'DEVOPS_INFRA_BRANCH', defaultValue: params.DEVOPS_INFRA_BRANCH ?: 'master',
+            name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dv.devopsInfraBranch,
             description: 'Git branch name of the vegaprotocol/devops-infra repository'),
         string(
-            name: 'VEGATOOLS_BRANCH', defaultValue: params.VEGATOOLS_BRANCH ?: 'develop',
+            name: 'VEGATOOLS_BRANCH', defaultValue: pipelineDefaults.dv.vegatoolsBranch,
             description: 'Git branch name of the vegaprotocol/vegatools repository'),
         /* Dockerised Vega Config */
         string(
-            name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: params.DV_VALIDATOR_NODE_COUNT ?: '2',
+            name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.validatorNodeCount,
             description: 'Number of validator nodes'),
         string(
-            name: 'DV_NON_VALIDATOR_NODE_COUNT', defaultValue: params.DV_NON_VALIDATOR_NODE_COUNT ?: '2',
+            name: 'DV_NON_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.nonValidatorNodeCount,
             description: 'Number of non-validator nodes and data-nodes'),
         /* Vega Network Config */
         text(
-            name: 'DV_GENESIS_JSON', defaultValue: params.DV_GENESIS_JSON ?: '',
+            name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.dv.genesisJSON,
             description: 'Tendermint genesis overrides in JSON format'),
         text(
-            name: 'DV_PROPOSALS_JSON', defaultValue: params.DV_PROPOSALS_JSON ?: '',
+            name: 'DV_PROPOSALS_JSON', defaultValue: pipelineDefaults.dv.proposalsJSON,
             description: 'Submit proposals, vote on them, wait for enactment. JSON format'),
         /* Debug options */
         string(
-            name: 'DV_TENDERMINT_LOG_LEVEL', defaultValue: params.DV_TENDERMINT_LOG_LEVEL ?: 'info',
+            name: 'DV_TENDERMINT_LOG_LEVEL', defaultValue: pipelineDefaults.dv.tendermintLogLevel,
             description: 'The Tendermint log level (debug, info, error)'),
         string(
-            name: 'DV_VEGA_CORE_LOG_LEVEL', defaultValue: params.DV_VEGA_CORE_LOG_LEVEL ?: 'Info',
+            name: 'DV_VEGA_CORE_LOG_LEVEL', defaultValue: pipelineDefaults.dv.vegaCoreLogLevel,
             description: ' The Vega core log level (Debug, Info, Warning, Error)'),
         booleanParam(
-            name: 'DV_VEGA_CORE_DLV', defaultValue: params.DV_VEGA_CORE_DLV != null ?: false,
+            name: 'DV_VEGA_CORE_DLV', defaultValue: pipelineDefaults.dv.vegaCoreDLV,
             description: 'Run vega nodes with dlv'),
         /* Pipeline Config */
         string(
-            name: 'JENKINS_AGENT_LABEL', defaultValue: params.JENKINS_AGENT_LABEL ?: 'system-tests',
+            name: 'JENKINS_AGENT_LABEL', defaultValue: pipelineDefaults.dv.agent,
             description: 'Specify Jenkins machine on which to run this pipeline'),
         string(
-            name: 'TIMEOUT', defaultValue: params.TIMEOUT ?: '100',
+            name: 'TIMEOUT', defaultValue: pipelineDefaults.dv.timeout,
             description: 'Number of minutes after which Pipeline will be force-stopped'),
     ]
 
@@ -173,6 +174,8 @@ void setupJobParameters(List inputParameters) {
             jobParameters += param
         }
     }
+
+    echo "params before=${params}"
 
     properties([parameters(jobParameters)])
 

@@ -37,7 +37,7 @@ void slackSendCIFailure(Map config) {
 }
 
 void slackSendCIStatus(Map config) {
-    String currentResult = currentBuild.result ?: 'SUCCESS'
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
     if (currentResult == 'SUCCESS') {
         slackSendCISuccess(config)
     } else {
