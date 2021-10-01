@@ -11,7 +11,6 @@ void call() {
     }
     pipelineDockerisedVega.call([
         parameters: [
-            // TODO: wip
             string(
                 name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.lnl.testDirectory,
                 description: 'Run tests from files in this directory and all sub-directories'),
