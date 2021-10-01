@@ -39,4 +39,28 @@ Map st = dv + [
     genesisJSON: 'system-tests/docker/zero-genesis.json'
 ]
 
+// System Tests LNL pipeline
+@Field
+Map lnl = st + [
+    testDirectory: 'LNL',
+    testFunctionCreate: 'create_data',
+    testFunctionAssert: 'assert_data'
+]
+
+@Field
+Map art = [
+    systemTestsJunit: 'output/junit-report/system-tests.xml',
+    checkpointEnd: 'output/network/checkpoint-at-the-end.json',
+    genesis: 'output/network/genesis.json',
+    genesisRestore: 'output/network/genesis-restore.json',
+    lnl: [
+        systemTestsCreateState: 'output/lnl/system-tests-1-create-state.xml',
+        systemTestsValidateState: 'output/lnl/system-tests-2-validate-state.xml',
+        checkpointRestore: 'output/lnl/checkpoint-1-restore.json',
+        checkpointEnd: 'output/lnl/checkpoint-2-end.json',
+        systemTestsState: 'output/system-tests-lnl-state',
+    ],
+    systemTestsState: 'output/system-tests-state',
+]
+
 return this

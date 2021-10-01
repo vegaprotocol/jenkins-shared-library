@@ -1,5 +1,8 @@
+/* groovylint-disable DuplicateStringLiteral */
+/* groovylint-disable DuplicateNumberLiteral */
 /* groovylint-disable MethodSize */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+import io.vegaprotocol.DockerisedVega
 
 void call() {
     echo "buildCauses=${currentBuild.buildCauses}"
@@ -34,6 +37,12 @@ void call() {
         ],
         prepareStages: [
             'st': {
+                stage('General setup') {
+                    sh label: 'Create directories', script: """#!/bin/bash -e
+                        mkdir -p "\$(dirname ${pipelineDefaults.art.systemTestsJunit})"
+                        mkdir -p "${pipelineDefaults.art.systemTestsState}"
+                    """
+                }
                 stage('build system-tests docker image') {
                     dir('system-tests/scripts') {
                         sh label: 'build system-tests container', script: '''#!/bin/bash -e
@@ -51,15 +60,18 @@ void call() {
             }
         ],
         mainStage: { Map vars ->
+            DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
-                "VALIDATOR_NODE_COUNT=${vars.params.DV_VALIDATOR_NODE_COUNT}",
-                "NON_VALIDATOR_NODE_COUNT=${vars.params.DV_NON_VALIDATOR_NODE_COUNT}",
-                "TEST_FUNCTION=${vars.params.SYSTEM_TESTS_TEST_FUNCTION}",
-                "TEST_DIRECTORY=${vars.params.SYSTEM_TESTS_TEST_DIRECTORY}",
-                "SYSTEM_TESTS_PORTBASE=${vars.portbase}",
-                "SYSTEM_TESTS_DEBUG=${vars.params.SYSTEM_TESTS_DEBUG}",
+                "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
+                "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
+                "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
+                "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
+                "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
+                "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
+                "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsState}",
             ]) {
                 stage('Check setup') {
+                    sh 'printenv'
                     echo "vars=${vars.inspect()}"
                     dir('system-tests/scripts') {
                         sh label: 'check setup', script: '''#!/bin/bash -e
@@ -74,16 +86,18 @@ void call() {
                         '''
                     }
                 }
-                stage('Store junit results') {
-                    sh label: 'copy system-tests junit result file to output directory', script: '''#!/bin/bash -e
-                        mkdir -p output/junit-report
+                stage('Store results') {
+                    sh label: 'copy system-tests junit result as Jenkins artefact', script: """#!/bin/bash -e
                         cp \
                             system-tests/build/test-reports/system-test-results.xml \
-                            output/junit-report/system-tests.xml
-                    '''
+                            "${pipelineDefaults.art.systemTestsJunit}"
+                    """
                     junit checksName: 'System Tests',
-                          testResults: 'output/junit-report/system-tests.xml'
-                    archiveArtifacts artifacts: 'output/junit-report/system-tests.xml',
+                          testResults: pipelineDefaults.art.systemTestsJunit
+                    archiveArtifacts artifacts: pipelineDefaults.art.systemTestsJunit,
+                        allowEmptyArchive: true,
+                        fingerprint: true
+                    archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/*",
                         allowEmptyArchive: true,
                         fingerprint: true
                 }
@@ -93,13 +107,6 @@ void call() {
             slack.slackSendCIStatus name: 'System Tests',
                 channel: '#qa-notify',
                 branch: currentBuild.displayName
-            stage('Container logs') {
-                dir('system-tests/scripts') {
-                    sh label: 'print logs from all the containers', script: '''#!/bin/bash -e
-                        make logs
-                    '''
-                }
-            }
         }
     ])
 }
