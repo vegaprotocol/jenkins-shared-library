@@ -143,9 +143,12 @@ void call() {
                     archiveArtifacts artifacts: pipelineDefaults.art.lnl.systemTestsAssertState,
                         allowEmptyArchive: true,
                         fingerprint: true
-                    archiveArtifacts artifacts: "${pipelineDefaults.art.lnl.systemTestsState}/*",
+                    archiveArtifacts artifacts: "${pipelineDefaults.art.lnl.systemTestsState}/**/*",
                         allowEmptyArchive: true,
                         fingerprint: true
+                    sh label: 'list all files in SYSTEM_TESTS_LNL_STATE directory', script: """#!/bin/bash -e
+                        ls -lah "${pipelineDefaults.art.lnl.systemTestsState}"
+                    """
                 }
             }
         },
