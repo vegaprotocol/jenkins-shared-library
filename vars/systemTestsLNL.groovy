@@ -60,7 +60,7 @@ void call(Map config = [:]) {
 
     sh label: 'remove old junit result file', script: """#!/bin/bash -e
         rm -f ${pipelineDefaults.art.lnl.systemTestsCreateState}
-        rm -f ${pipelineDefaults.art.lnl.systemTestsValidateState}
+        rm -f ${pipelineDefaults.art.lnl.systemTestsAssertState}
     """
 
     catchError(message: 'System Tests Failed', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
@@ -74,14 +74,14 @@ void call(Map config = [:]) {
             projectName: systemTestsLNLJob,
             selector: specific("${st.number}"),
             fingerprintArtifacts: true,
-            filter: pipelineDefaults.art.lnl.systemTestsValidateState
+            filter: pipelineDefaults.art.lnl.systemTestsAssertState
         )
 
         junit checksName: 'System Tests Create',
             testResults: pipelineDefaults.art.lnl.systemTestsCreateState
 
         junit checksName: 'System Tests Assert',
-            testResults: pipelineDefaults.art.lnl.systemTestsCreateState
+            testResults: pipelineDefaults.art.lnl.systemTestsAssertState
 
         // now fail
         if (st.result != 'SUCCESS') {

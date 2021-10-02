@@ -42,7 +42,7 @@ void call() {
                 stage('General setup') {
                     sh label: 'Create directories', script: """#!/bin/bash -e
                         mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsCreateState})"
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsValidateState})"
+                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsAssertState})"
                         mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointRestore})"
                         mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointEnd})"
                         mkdir -p "${pipelineDefaults.art.lnl.systemTestsState}"
@@ -136,11 +136,11 @@ void call() {
                     sh label: 'copy system-tests junit result file to output directory', script: """#!/bin/bash -e
                         cp \
                             system-tests/build/test-reports/system-test-results.xml \
-                            "${pipelineDefaults.art.lnl.systemTestsValidateState}"
+                            "${pipelineDefaults.art.lnl.systemTestsAssertState}"
                     """
                     junit checksName: 'System Tests',
-                          testResults: pipelineDefaults.art.lnl.systemTestsValidateState
-                    archiveArtifacts artifacts: pipelineDefaults.art.lnl.systemTestsValidateState,
+                          testResults: pipelineDefaults.art.lnl.systemTestsAssertState
+                    archiveArtifacts artifacts: pipelineDefaults.art.lnl.systemTestsAssertState,
                         allowEmptyArchive: true,
                         fingerprint: true
                     archiveArtifacts artifacts: "${pipelineDefaults.art.lnl.systemTestsState}/*",
