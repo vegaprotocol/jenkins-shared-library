@@ -176,11 +176,13 @@ void call(Map config) {
                         }*/
                         // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                         // i.e. `currentResult` is not set properly in the finally block
-                        currentBuild.currentResult ?= 'SUCCESS'
+                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                        currentBuild.result = 'SUCCESS'
                     } catch (e) {
                         // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                         // i.e. `currentResult` is not set properly in the finally block
-                        currentBuild.currentResult ?= 'ERROR'
+                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                        currentBuild.result = 'FAILURE'
                         throw e
                     } finally {
                         if (inputPost) {
