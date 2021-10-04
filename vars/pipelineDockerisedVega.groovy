@@ -2,6 +2,8 @@
 /* groovylint-disable DuplicateNumberLiteral */
 /* groovylint-disable NestedBlockDepth */
 /* groovylint-disable MethodSize */
+import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
+
 import io.vegaprotocol.DockerisedVega
 
 void call(Map config) {
@@ -174,6 +176,20 @@ void call(Map config) {
                                 vars.dockerImageGoWallet
                             ])
                         }*/
+                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                        // i.e. `currentResult` is not set properly in the finally block
+                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                        currentBuild.result = currentBuild.result ?: 'SUCCESS'
+                        // result can be SUCCESS or UNSTABLE
+                    } catch (FlowInterruptedException e) {
+                        currentBuild.result = 'ABORTED'
+                        throw e
+                    } catch (e) {
+                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                        // i.e. `currentResult` is not set properly in the finally block
+                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                        currentBuild.result = 'FAILURE'
+                        throw e
                     } finally {
                         if (inputPost) {
                             retry(3) {
