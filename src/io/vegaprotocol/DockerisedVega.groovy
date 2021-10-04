@@ -18,10 +18,12 @@ dlv
 vegaCoreVersion
 dataNodeVersion
 goWalletVersion
+ethereumEventForwarderVersion
 
 dockerImageVegaCore
 dockerImageDataNode
 dockerImageGoWallet
+dockerImageEthereumEventForwarder
 
 vegatoolsScript
 
@@ -48,10 +50,12 @@ void init(Map config=[:]) {
     vegaCoreVersion = config.vegaCoreVersion ?: prefix
     dataNodeVersion = config.dataNodeVersion ?: prefix
     goWalletVersion = config.goWalletVersion ?: prefix
+    ethereumEventForwarderVersion = config.ethereumEventForwarder ?: prefix
 
     dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
     dockerImageGoWallet = "vegaprotocol/go-wallet:${goWalletVersion}"
+    dockerImageEthereumEventForwarder = "vegaprotocol/ethereum-event-forwarder:${ethereumEventForwarderVersion}"
 
     assert config.vegatoolsScript : 'vegatoolsScript is required'
     vegatoolsScript = config.vegatoolsScript
@@ -69,8 +73,10 @@ String toString() {
         "genesisFile: \"${genesisFile}\", marketProposalsFile: \"${marketProposalsFile}\", " +
         "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
         "goWalletVersion: \"${goWalletVersion}\", " +
-        "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\"" +
-        "dockerImageGoWallet=\"${dockerImageGoWallet}\", vegatoolsScript=\"${vegatoolsScript}\"" +
+        "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
+        "dockerImageGoWallet=\"${dockerImageGoWallet}\", " +
+        "dockerImageEthereumEventForwarder=\"${dockerImageEthereumEventForwarder}\", " +
+        "vegatoolsScript=\"${vegatoolsScript}\"" +
         "tendermintLogLevel=\"${tendermintLogLevel}\", vegaCoreLogLevel=\"${vegaCoreLogLevel}\")"
 }
 
@@ -99,6 +105,7 @@ void run(String command, boolean resume = false) {
             --vega-version "${vegaCoreVersion}" \
             --datanode-version "${dataNodeVersion}" \
             --vegawallet-version "${goWalletVersion}" \
+            --eef-version "${ethereumEventForwarderVersion}" \
             --tendermint-loglevel "${tendermintLogLevel}" \
             --vega-loglevel "${vegaCoreLogLevel}" \
             ${extraArguments} \

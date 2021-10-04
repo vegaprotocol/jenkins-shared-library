@@ -2,11 +2,14 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
     String systemTestsJob = 'system-tests/system-tests'
+    Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
             string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.st.vegaCoreBranch),
             string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.st.dataNodeBranch),
             string(name: 'GO_WALLET_BRANCH', value: config.goWallet ?: pipelineDefaults.st.goWalletBranch),
+            string(name: 'ETHEREUM_EVENT_FORWARDER_BRANCH',
+                   value: config.ethereumEventForwarder ?: pipelineDefaults.st.ethereumEventForwarderBranch),
             string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?: pipelineDefaults.st.vegatoolsBranch),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.st.devopsInfraBranch),
             string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.st.protosBranch),
@@ -53,13 +56,13 @@ void call(Map config = [:]) {
         parameters: buildParameters
     )
 
-    echo "System-Tests execution pipeline: ${st.absoluteUrl}"
+    try {
+        echo "System-Tests execution pipeline: ${st.absoluteUrl}"
 
-    sh label: 'remove old junit result file', script: """#!/bin/bash -e
-        rm -f ${pipelineDefaults.art.systemTestsJunit}
-    """
+        sh label: 'remove old junit result file', script: """#!/bin/bash -e
+            rm -f ${pipelineDefaults.art.systemTestsJunit}
+        """
 
-    catchError(message: 'System Tests Failed', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
         copyArtifacts(
             projectName: systemTestsJob,
             selector: specific("${st.number}"),
@@ -70,9 +73,28 @@ void call(Map config = [:]) {
         junit checksName: 'System Tests',
             testResults: pipelineDefaults.art.systemTestsJunit
 
-        // now fail
-        if (st.result != 'SUCCESS') {
-            unstable("System Tests ${st.result}")
+    } catch (e) {
+        echo "Ignoring error in gathering results from downstream build: ${e}"
+    }
+
+    // now fail
+    if (st.result != 'SUCCESS') {
+        if (ignoreFailure) {
+            // workaround to:
+            // - change status of current stage to not successful
+            // - don't change build status, keep it as it was outside of this stage
+            catchError(message: 'System Tests Failed', buildResult: null, stageResult: st.result) {
+                error("Ignore failure and keep job green, but mark stage as ${st.result}")
+            }
+        } else {
+            if (st.result == 'UNSTABLE') {
+                unstable('UNSTABLE - System Tests')
+            } else if (st.result == 'ABORTED') {
+                currentBuild.result = 'ABORTED'
+                error('ABORTED - System Tests')
+            } else {
+                error("${st.result} - System Tests")
+            }
         }
     }
 }

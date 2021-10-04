@@ -1,12 +1,17 @@
+/* groovylint-disable DuplicateStringLiteral */
+/* groovylint-disable MethodSize */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
     String systemTestsLNLJob = 'system-tests/LNL-create-restore'
+    Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
             string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.lnl.vegaCoreBranch),
             string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.lnl.dataNodeBranch),
             string(name: 'GO_WALLET_BRANCH', value: config.goWallet ?: pipelineDefaults.lnl.goWalletBranch),
+            string(name: 'ETHEREUM_EVENT_FORWARDER_BRANCH',
+                   value: config.ethereumEventForwarder ?: pipelineDefaults.lnl.ethereumEventForwarderBranch),
             string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?: pipelineDefaults.lnl.vegatoolsBranch),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.lnl.devopsInfraBranch),
             string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.lnl.protosBranch),
@@ -16,9 +21,9 @@ void call(Map config = [:]) {
             string(name: 'SYSTEM_TESTS_TEST_DIRECTORY',
                    value: config.testDirectory ?: pipelineDefaults.lnl.testDirectory),
             string(name: 'SYSTEM_TESTS_TEST_FUNCTION_CREATE',
-                    value: config.testFunction ?: pipelineDefaults.lnl.testFunctionCreate),
+                    value: config.testFunctionCreate ?: pipelineDefaults.lnl.testFunctionCreate),
             string(name: 'SYSTEM_TESTS_TEST_FUNCTION_ASSERT',
-                    value: config.testFunction ?: pipelineDefaults.lnl.testFunctionAssert),
+                    value: config.testFunctionAssert ?: pipelineDefaults.lnl.testFunctionAssert),
 
             // Network config
             string(name: 'DV_VALIDATOR_NODE_COUNT',
@@ -56,20 +61,21 @@ void call(Map config = [:]) {
         parameters: buildParameters
     )
 
-    echo "System-Tests execution pipeline: ${st.absoluteUrl}"
+    try {
+        echo "LNL System-Tests execution pipeline: ${st.absoluteUrl}"
 
-    sh label: 'remove old junit result file', script: """#!/bin/bash -e
-        rm -f ${pipelineDefaults.art.lnl.systemTestsCreateState}
-        rm -f ${pipelineDefaults.art.lnl.systemTestsAssertState}
-    """
+        sh label: 'remove old junit result file', script: """#!/bin/bash -e
+            rm -f ${pipelineDefaults.art.lnl.systemTestsCreateState}
+            rm -f ${pipelineDefaults.art.lnl.systemTestsAssertState}
+        """
 
-    catchError(message: 'System Tests Failed', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
         copyArtifacts(
             projectName: systemTestsLNLJob,
             selector: specific("${st.number}"),
             fingerprintArtifacts: true,
             filter: pipelineDefaults.art.lnl.systemTestsCreateState
         )
+
         copyArtifacts(
             projectName: systemTestsLNLJob,
             selector: specific("${st.number}"),
@@ -77,15 +83,34 @@ void call(Map config = [:]) {
             filter: pipelineDefaults.art.lnl.systemTestsAssertState
         )
 
-        junit checksName: 'System Tests Create',
+        junit checksName: 'LNL System Tests Create',
             testResults: pipelineDefaults.art.lnl.systemTestsCreateState
 
-        junit checksName: 'System Tests Assert',
+        junit checksName: 'LNL System Tests Assert',
             testResults: pipelineDefaults.art.lnl.systemTestsAssertState
 
-        // now fail
-        if (st.result != 'SUCCESS') {
-            unstable("System Tests ${st.result}")
+    } catch (e) {
+        echo "Ignoring error in gathering results from downstream build: ${e}"
+    }
+
+    // now fail
+    if (st.result != 'SUCCESS') {
+        if (ignoreFailure) {
+            // workaround to:
+            // - change status of current stage to not successful
+            // - don't change build status, keep it as it was outside of this stage
+            catchError(message: 'LNL System Tests Failed', buildResult: null, stageResult: st.result) {
+                error("Ignore failure and keep job green, but mark stage as ${st.result}")
+            }
+        } else {
+            if (st.result == 'UNSTABLE') {
+                unstable('UNSTABLE - LNL System Tests')
+            } else if (st.result == 'ABORTED') {
+                currentBuild.result = 'ABORTED'
+                error('ABORTED - LNL System Tests')
+            } else {
+                error("${st.result} - LNL System Tests")
+            }
         }
     }
 }

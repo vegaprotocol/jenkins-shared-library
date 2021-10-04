@@ -81,7 +81,7 @@ void call(Map config) {
                     stage('Prepare') {
                         // run various preparation steps for dockerised vega
                         // and run preparation stages provided by functon caller
-                        prepareEverything(inputPrepareStages, dockerisedVega, vars.dockerCredentials)
+                        prepareEverything(inputPrepareStages, dockerisedVega, vars.dockerCredentials, vars)
                     }
                     if (inputMainStage) {
                         stage('Start Dockerised Vega') {
@@ -149,6 +149,20 @@ void call(Map config) {
                         }
                     }
                 }
+                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                // i.e. `currentResult` is not set properly in the finally block
+                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                currentBuild.result = currentBuild.result ?: 'SUCCESS'
+                // result can be SUCCESS or UNSTABLE
+            } catch (FlowInterruptedException e) {
+                currentBuild.result = 'ABORTED'
+                throw e
+            } catch (e) {
+                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                // i.e. `currentResult` is not set properly in the finally block
+                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                currentBuild.result = 'FAILURE'
+                throw e
             } finally {
                 stage('Cleanup') {
                     try {
@@ -157,6 +171,8 @@ void call(Map config) {
                             timeout(time: 2, unit: 'MINUTES') {
                                 dockerisedVega.waitForNextCheckpoint()
                             }
+                        } else {
+                            echo 'Skip waiting for next checkpoint - no node is running'
                         }
                         retry(3) {
                             dockerisedVega.stop()
@@ -165,10 +181,14 @@ void call(Map config) {
                         if (inputAfterCheckpointRestoreStage) {
                             artifactLastCheckpoint = pipelineDefaults.art.lnl.checkpointEnd
                         }
-                        dockerisedVega.saveLatestCheckpointToFile(artifactLastCheckpoint)
-                        archiveArtifacts artifacts: artifactLastCheckpoint,
-                            allowEmptyArchive: true,
-                            fingerprint: true
+                        if (dockerisedVega.getLatestCheckpointFilepath()) {
+                            dockerisedVega.saveLatestCheckpointToFile(artifactLastCheckpoint)
+                            archiveArtifacts artifacts: artifactLastCheckpoint,
+                                allowEmptyArchive: true,
+                                fingerprint: true
+                        } else {
+                            echo 'Skip archiving last checkpoint - no checkpoint available'
+                        }
                         /*retry(3) {
                             removeDockerImages([
                                 vars.dockerImageVegaCore,
@@ -176,14 +196,6 @@ void call(Map config) {
                                 vars.dockerImageGoWallet
                             ])
                         }*/
-                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                        // i.e. `currentResult` is not set properly in the finally block
-                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                        currentBuild.result = currentBuild.result ?: 'SUCCESS'
-                        // result can be SUCCESS or UNSTABLE
-                    } catch (FlowInterruptedException e) {
-                        currentBuild.result = 'ABORTED'
-                        throw e
                     } catch (e) {
                         // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                         // i.e. `currentResult` is not set properly in the finally block
@@ -210,19 +222,22 @@ void setupJobParameters(List inputParameters) {
         /* Branches */
         string(
             name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.dv.vegaCoreBranch,
-            description: 'Git branch name of the vegaprotocol/vega repository'),
+            description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
         string(
             name: 'DATA_NODE_BRANCH', defaultValue: pipelineDefaults.dv.dataNodeBranch,
-            description: 'Git branch name of the vegaprotocol/data-node repository'),
+            description: 'Git branch, tag or hash of the vegaprotocol/data-node repository'),
         string(
             name: 'GO_WALLET_BRANCH', defaultValue: pipelineDefaults.dv.goWalletBranch,
-            description: 'Git branch name of the vegaprotocol/go-wallet repository'),
+            description: 'Git branch, tag or hash of the vegaprotocol/go-wallet repository'),
+        string(
+            name: 'ETHEREUM_EVENT_FORWARDER_BRANCH', defaultValue: pipelineDefaults.dv.ethereumEventForwarderBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/ethereum-event-forwarder repository'),
         string(
             name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dv.devopsInfraBranch,
-            description: 'Git branch name of the vegaprotocol/devops-infra repository'),
+            description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
         string(
             name: 'VEGATOOLS_BRANCH', defaultValue: pipelineDefaults.dv.vegatoolsBranch,
-            description: 'Git branch name of the vegaprotocol/vegatools repository'),
+            description: 'Git branch, tag or hash of the vegaprotocol/vegatools repository'),
         /* Dockerised Vega Config */
         string(
             name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.validatorNodeCount,
@@ -290,6 +305,9 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         [   name: 'go-wallet',
             branch: params.GO_WALLET_BRANCH,
         ],
+        [   name: 'ethereum-event-forwarder',
+            branch: params.ETHEREUM_EVENT_FORWARDER_BRANCH,
+        ],
         [   name: 'vegatools',
             branch: params.VEGATOOLS_BRANCH,
         ],
@@ -308,9 +326,10 @@ void gitClone(Map params, List<Map> inputGitRepos) {
             stage(repoName) {
                 retry(3) {
                     dir(localDir) {
-                        git branch: repoBranch,
-                            credentialsId: 'vega-ci-bot',
-                            url: repoURL
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: repoBranch]],
+                            userRemoteConfigs: [[url: repoURL, credentialsId: 'vega-ci-bot']]])
                     }
                 }
             }
@@ -324,17 +343,24 @@ void gitClone(Map params, List<Map> inputGitRepos) {
 void prepareEverything(
     Map<String,Closure> inputPrepareStages,
     DockerisedVega dockerisedVega,
-    Map<String,String> dockerCredentials
+    Map<String,String> dockerCredentials,
+    Map vars
 ) {
     Map<String,Closure> concurrentStages = [:]
 
     concurrentStages << getPrepareVegaCoreStages(dockerisedVega.dockerImageVegaCore, dockerCredentials)
     concurrentStages << getPrepareDataNodeStages(dockerisedVega.dockerImageDataNode, dockerCredentials)
     concurrentStages << getPrepareGoWalletStages(dockerisedVega.dockerImageGoWallet, dockerCredentials)
+    concurrentStages << getPrepareEthereumEventForwarderStages(
+                            dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
     concurrentStages << getPrepareDockerisedVegaStages(dockerisedVega, dockerCredentials)
 
-    concurrentStages << inputPrepareStages
+    concurrentStages << inputPrepareStages.collectEntries { name, c ->
+        [name, {
+            c(vars)
+        }]
+    }
 
     withEnv([
         'CGO_ENABLED=0',
@@ -455,6 +481,27 @@ Map<String,Closure> getPrepareGoWalletStages(
                     }
                     sh label: 'Sanity check',
                         script: "docker run --rm '${goWalletDockerImage}' version --output json"
+                }
+            }
+        }
+    }]
+}
+
+//
+// Prepare Ethereum Event Forwarder
+//
+Map<String,Closure> getPrepareEthereumEventForwarderStages(
+    String ethereumEventForwarderDockerImage,
+    Map<String,String> dockerCredentials) {
+    return ['eef': {
+        stage('Build Ethereum Event Forwarder Docker Image') {
+            retry(3) {
+                dir('ethereum-event-forwarder') {
+                    withDockerRegistry(dockerCredentials) {
+                        sh label: 'docker build', script: """#!/bin/bash -e
+                            docker build --pull -t "${ethereumEventForwarderDockerImage}" .
+                        """
+                    }
                 }
             }
         }

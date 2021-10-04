@@ -1,4 +1,5 @@
 /* groovylint-disable DuplicateStringLiteral */
+/* groovylint-disable CouldBeSwitchStatement */
 
 String composeMessage(Map config) {
         String name = config.get('name', 'Unknown CI')
@@ -25,6 +26,28 @@ void slackSendCISuccess(Map config) {
     )
 }
 
+void slackSendCIUnstable(Map config) {
+    String slackChannel = config.get('channel', '#tradingcore-notify')
+    String message = composeMessage(config)
+
+    slackSend(
+        channel: slackChannel,
+        color: 'warning',
+        message: ":large_orange_circle: ${message}",
+    )
+}
+
+void slackSendCIAborted(Map config) {
+    String slackChannel = config.get('channel', '#tradingcore-notify')
+    String message = composeMessage(config)
+
+    slackSend(
+        channel: slackChannel,
+        color: '#000000',
+        message: ":black_circle: ${message}",
+    )
+}
+
 void slackSendCIFailure(Map config) {
     String slackChannel = config.get('channel', '#tradingcore-notify')
     String message = composeMessage(config)
@@ -38,7 +61,12 @@ void slackSendCIFailure(Map config) {
 
 void slackSendCIStatus(Map config) {
     String currentResult = currentBuild.result ?: currentBuild.currentResult
-    if (currentResult == 'SUCCESS') {
+    echo "result=${currentBuild.result}, currentResult=${currentBuild.currentResult}"
+    if (currentResult == 'UNSTABLE') {
+        slackSendCIUnstable(config)
+    } else if (currentResult == 'ABORTED') {
+        slackSendCIAborted(config)
+    } else if (currentResult == 'SUCCESS') {
         slackSendCISuccess(config)
     } else {
         slackSendCIFailure(config)
