@@ -174,6 +174,14 @@ void call(Map config) {
                                 vars.dockerImageGoWallet
                             ])
                         }*/
+                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                        // i.e. `currentResult` is not set properly in the finally block
+                        currentBuild.currentResult ?= 'SUCCESS'
+                    } catch (e) {
+                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                        // i.e. `currentResult` is not set properly in the finally block
+                        currentBuild.currentResult ?= 'ERROR'
+                        throw e
                     } finally {
                         if (inputPost) {
                             retry(3) {
