@@ -3,6 +3,7 @@
 /* groovylint-disable NestedBlockDepth */
 /* groovylint-disable MethodSize */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
+
 import io.vegaprotocol.DockerisedVega
 
 void call(Map config) {
