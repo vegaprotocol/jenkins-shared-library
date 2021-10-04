@@ -254,7 +254,7 @@ void setupJobParameters(List inputParameters) {
 
     echo "params before=${params}"
 
-    properties([parameters(jobParameters)])
+    properties([copyArtifactPermission('*'), parameters(jobParameters)])
 
     echo "params=${params}"
 }
