@@ -2,7 +2,6 @@
 /* groovylint-disable CompileStatic */
 package io.vegaprotocol
 
-import groovy.transform.Field
 import com.cloudbees.groovy.cps.NonCPS
 
 prefix
