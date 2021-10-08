@@ -560,7 +560,7 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
     return ['dv': {
         stage('Setup') {
             sh label: 'Create dockerised vega basedir',
-                script: "mkdir -p ${dockerisedVega.basedir}"
+                script: "mkdir -p '${dockerisedVega.basedir}'"
         }
         stage('Create config files') {
             if (dockerisedVega.genesisFile?.trim()) {
@@ -608,10 +608,8 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
         }
         stage('Docker Pull') {
             retry(3) {
-                dir('devops-infra/scripts') {
-                    withDockerRegistry(dockerCredentials) {
-                        dockerisedVega.pull()
-                    }
+                withDockerRegistry(dockerCredentials) {
+                    dockerisedVega.pull()
                 }
             }
         }

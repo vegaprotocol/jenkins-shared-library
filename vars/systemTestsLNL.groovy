@@ -65,8 +65,8 @@ void call(Map config = [:]) {
         echo "LNL System-Tests execution pipeline: ${st.absoluteUrl}"
 
         sh label: 'remove old junit result file', script: """#!/bin/bash -e
-            rm -f ${pipelineDefaults.art.lnl.systemTestsCreateState}
-            rm -f ${pipelineDefaults.art.lnl.systemTestsAssertState}
+            rm -f "${pipelineDefaults.art.lnl.systemTestsCreateState}"
+            rm -f "${pipelineDefaults.art.lnl.systemTestsAssertState}"
         """
 
         copyArtifacts(
