@@ -76,6 +76,11 @@ void call(Map config = [:]) {
             filter: pipelineDefaults.art.lnl.systemTestsCreateState
         )
 
+        junit checksName: 'LNL System Tests Create',
+              testResults: pipelineDefaults.art.lnl.systemTestsCreateState,
+              skipMarkingBuildUnstable: ignoreFailure,
+              skipPublishingChecks: ignoreFailure
+
         copyArtifacts(
             projectName: systemTestsLNLJob,
             selector: specific("${st.number}"),
@@ -83,11 +88,10 @@ void call(Map config = [:]) {
             filter: pipelineDefaults.art.lnl.systemTestsAssertState
         )
 
-        junit checksName: 'LNL System Tests Create',
-            testResults: pipelineDefaults.art.lnl.systemTestsCreateState
-
         junit checksName: 'LNL System Tests Assert',
-            testResults: pipelineDefaults.art.lnl.systemTestsAssertState
+              testResults: pipelineDefaults.art.lnl.systemTestsAssertState,
+              skipMarkingBuildUnstable: ignoreFailure,
+              skipPublishingChecks: ignoreFailure
 
     } catch (e) {
         echo "Ignoring error in gathering results from downstream build: ${e}"
