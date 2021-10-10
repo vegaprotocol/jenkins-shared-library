@@ -71,7 +71,9 @@ void call(Map config = [:]) {
         )
 
         junit checksName: 'System Tests',
-            testResults: pipelineDefaults.art.systemTestsJunit
+              testResults: pipelineDefaults.art.systemTestsJunit,
+              skipMarkingBuildUnstable: ignoreFailure,
+              skipPublishingChecks: ignoreFailure
 
     } catch (e) {
         echo "Ignoring error in gathering results from downstream build: ${e}"
