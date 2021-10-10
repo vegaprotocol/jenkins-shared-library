@@ -8,10 +8,10 @@ import groovy.transform.Field
 // Dockerised Vega pipeline
 @Field
 Map dv = [
-    vegaCoreBranch: 'develop',
-    dataNodeBranch: 'develop',
-    goWalletBranch: 'develop',
-    ethereumEventForwarderBranch: 'main',
+    vegaCoreBranch: '', // 'develop',
+    dataNodeBranch: '', // 'develop',
+    goWalletBranch: '', // 'develop',
+    ethereumEventForwarderBranch: '', // 'main',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
 

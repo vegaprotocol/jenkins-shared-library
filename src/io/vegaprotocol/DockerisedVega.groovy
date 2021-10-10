@@ -46,10 +46,10 @@ void init(Map config=[:]) {
     marketProposalsFile = config.marketProposalsFile
     dlv = config.dlv ?: false
 
-    vegaCoreVersion = config.vegaCoreVersion ?: prefix
-    dataNodeVersion = config.dataNodeVersion ?: prefix
-    goWalletVersion = config.goWalletVersion ?: prefix
-    ethereumEventForwarderVersion = config.ethereumEventForwarder ?: prefix
+    vegaCoreVersion = config.vegaCoreVersion
+    dataNodeVersion = config.dataNodeVersion
+    goWalletVersion = config.goWalletVersion
+    ethereumEventForwarderVersion = config.ethereumEventForwarder
 
     dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
@@ -81,6 +81,18 @@ String toString() {
 
 void run(String command, boolean resume = false) {
     String extraArguments = ''
+    if (vegaCoreVersion) {
+        extraArguments += " --vega-version \"${vegaCoreVersion}\""
+    }
+    if (dataNodeVersion) {
+        extraArguments += " --datanode-version \"${dataNodeVersion}\""
+    }
+    if (goWalletVersion) {
+        extraArguments += " --vegawallet-version \"${goWalletVersion}\""
+    }
+    if (ethereumEventForwarderVersion) {
+        extraArguments += " --eef-version \"${ethereumEventForwarderVersion}\""
+    }
     if (genesisFile) {
         extraArguments += " --genesis \"${genesisFile}\""
 
@@ -101,10 +113,6 @@ void run(String command, boolean resume = false) {
             --portbase "${portbase}" \
             --validators "${validators}" \
             --nonvalidators "${nonValidators}" \
-            --vega-version "${vegaCoreVersion}" \
-            --datanode-version "${dataNodeVersion}" \
-            --vegawallet-version "${goWalletVersion}" \
-            --eef-version "${ethereumEventForwarderVersion}" \
             --tendermint-loglevel "${tendermintLogLevel}" \
             --vega-loglevel "${vegaCoreLogLevel}" \
             ${extraArguments} \

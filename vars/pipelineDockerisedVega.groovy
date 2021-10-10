@@ -3,10 +3,11 @@
 /* groovylint-disable NestedBlockDepth */
 /* groovylint-disable MethodSize */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 import io.vegaprotocol.DockerisedVega
 
-void call(Map config) {
+void call(Map config=[:]) {
     //
     // Parse input arguments
     //
@@ -42,9 +43,10 @@ void call(Map config) {
             genesisFile: params.DV_GENESIS_JSON,
             marketProposalsFile: params.DV_PROPOSALS_JSON,
             dlv: params.DV_VEGA_CORE_DLV,
-            vegaCoreVersion: dockerisedVegaPrefix,
-            dataNodeVersion: dockerisedVegaPrefix,
-            goWalletVersion: dockerisedVegaPrefix,
+            vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
+            dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
+            goWalletVersion: params.GO_WALLET_BRANCH ? dockerisedVegaPrefix : null,
+            ethereumEventForwarderVersion: params.ETHEREUM_EVENT_FORWARDER_BRANCH ? dockerisedVegaPrefix : null,
             vegatoolsScript: "${env.WORKSPACE}/vegatools/build/vegatools-linux-amd64",
             tendermintLogLevel: params.DV_TENDERMINT_LOG_LEVEL,
             vegaCoreLogLevel: params.DV_VEGA_CORE_LOG_LEVEL,
@@ -222,16 +224,20 @@ void setupJobParameters(List inputParameters) {
         /* Branches */
         string(
             name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.dv.vegaCoreBranch,
-            description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
+            description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
+            e.g. "develop", "v0.44.0 or commit hash. Default empty: use latests published version.'''),
         string(
             name: 'DATA_NODE_BRANCH', defaultValue: pipelineDefaults.dv.dataNodeBranch,
-            description: 'Git branch, tag or hash of the vegaprotocol/data-node repository'),
+            description: '''Git branch, tag or hash of the vegaprotocol/data-node repository.
+            e.g. "develop", "v0.44.0" or commit hash. Default empty: use latests published version'''),
         string(
             name: 'GO_WALLET_BRANCH', defaultValue: pipelineDefaults.dv.goWalletBranch,
-            description: 'Git branch, tag or hash of the vegaprotocol/go-wallet repository'),
+            description: '''Git branch, tag or hash of the vegaprotocol/go-wallet repository.
+            e.g. "develop", "v0.9.0" or commit hash. Default empty: use latest published version.'''),
         string(
             name: 'ETHEREUM_EVENT_FORWARDER_BRANCH', defaultValue: pipelineDefaults.dv.ethereumEventForwarderBranch,
-            description: 'Git branch, tag or hash of the vegaprotocol/ethereum-event-forwarder repository'),
+            description: '''Git branch, tag or hash of the vegaprotocol/ethereum-event-forwarder repository.
+            e.g. "main", "v0.44.0" or commit hash. Default empty: use latest published version.'''),
         string(
             name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dv.devopsInfraBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
@@ -324,12 +330,17 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         String localDir = repo.get('dir', repoName)
         concurrentStages[repoName] = {
             stage(repoName) {
-                retry(3) {
-                    dir(localDir) {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: repoBranch]],
-                            userRemoteConfigs: [[url: repoURL, credentialsId: 'vega-ci-bot']]])
+                if (repoBranch == '' ) {
+                    echo "Skip git clone: empty branch for ${repoName}."
+                    Utils.markStageSkippedForConditional(repoName)
+                } else {
+                    retry(3) {
+                        dir(localDir) {
+                            checkout([
+                                $class: 'GitSCM',
+                                branches: [[name: repoBranch]],
+                                userRemoteConfigs: [[url: repoURL, credentialsId: 'vega-ci-bot']]])
+                        }
                     }
                 }
             }
@@ -380,31 +391,53 @@ Map<String,Closure> getPrepareVegaCoreStages(
     Map<String,String> dockerCredentials) {
     return ['v-core': {
         stage('Compile Vega Core') {
-            retry(3) {
-                dir('vega') {
-                    sh label: 'Compile', script: '''
-                        go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
-                    '''
-                    sh label: 'Sanity check', script: '''
-                        file ./cmd/vega/vega-linux-amd64
-                        ./cmd/vega/vega-linux-amd64 version
-                    '''
+            if (fileExists('vega')) {
+                retry(3) {
+                    dir('vega') {
+                        sh label: 'Compile', script: '''
+                            go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
+                        '''
+                        sh label: 'Sanity check', script: '''
+                            file ./cmd/vega/vega-linux-amd64
+                            ./cmd/vega/vega-linux-amd64 version
+                        '''
+                    }
                 }
+            } else {
+                echo "Skip Compile Vega Core: no directory 'vega' with source code."
+                Utils.markStageSkippedForConditional('Compile Vega Core')
             }
         }
         stage('Build Vega Core Docker Image') {
-            retry(3) {
-                dir('vega') {
-                    withDockerRegistry(dockerCredentials) {
-                        sh label: 'docker build', script: """#!/bin/bash -e
-                            rm -rf ./docker/bin
-                            mkdir -p ./docker/bin
-                            cp ./cmd/vega/vega-linux-amd64 ./docker/bin/vega
-                            docker build --pull -t "${vegaCoreDockerImage}" ./docker
-                        """
+            if (fileExists('vega')) {
+                retry(3) {
+                    dir('vega') {
+                        withDockerRegistry(dockerCredentials) {
+                            sh label: 'docker build', script: """#!/bin/bash -e
+                                rm -rf ./docker/bin
+                                mkdir -p ./docker/bin
+                                cp ./cmd/vega/vega-linux-amd64 ./docker/bin/vega
+                                docker build --pull -t "${vegaCoreDockerImage}" ./docker
+                            """
+                        }
+                        sh label: 'sanity check',
+                            script: "docker run --rm --entrypoint 'vega' '${vegaCoreDockerImage}' version"
                     }
-                    sh label: 'sanity check',
-                        script: "docker run --rm --entrypoint 'vega' '${vegaCoreDockerImage}' version"
+                }
+            } else {
+                echo "Skip Build Vega Core Docker Image: no directory 'vega' with source code."
+                Utils.markStageSkippedForConditional('Build Vega Core Docker Image')
+            }
+        }
+        stage('Pull latest Vega Core Docker Image') {
+            if (fileExists('data-node')) {
+                echo "Skip Pull latest Vega Core Docker Image: directory 'vega' with source code exists."
+                Utils.markStageSkippedForConditional('Pull latest Vega Core Docker Image')
+            } else {
+                withDockerRegistry(dockerCredentials) {
+                    sh label: 'Pull latest Vega Core Docker Image', script: """#!/bin/bash -e
+                        docker pull docker.pkg.github.com/vegaprotocol/vega/vega:develop
+                    """
                 }
             }
         }
@@ -420,31 +453,53 @@ Map<String,Closure> getPrepareDataNodeStages(
     Map<String,String> dockerCredentials) {
     return ['d-node': {
         stage('Compile Data-Node') {
-            retry(3) {
-                dir('data-node') {
-                    sh label: 'Compile', script: '''
-                        go build -o ./cmd/data-node/data-node-linux-amd64 ./cmd/data-node
-                    '''
-                    sh label: 'Sanity check', script: '''
-                        file ./cmd/data-node/data-node-linux-amd64
-                        ./cmd/data-node/data-node-linux-amd64 version
-                    '''
+            if (fileExists('data-node')) {
+                retry(3) {
+                    dir('data-node') {
+                        sh label: 'Compile', script: '''
+                            go build -o ./cmd/data-node/data-node-linux-amd64 ./cmd/data-node
+                        '''
+                        sh label: 'Sanity check', script: '''
+                            file ./cmd/data-node/data-node-linux-amd64
+                            ./cmd/data-node/data-node-linux-amd64 version
+                        '''
+                    }
                 }
+            } else {
+                echo "Skip Compile Data-Node: no directory 'data-node' with source code."
+                Utils.markStageSkippedForConditional('Compile Data-Node')
             }
         }
         stage('Build Data-Node Docker Image') {
-            retry(3) {
-                dir('data-node') {
-                    withDockerRegistry(dockerCredentials) {
-                        sh label: 'docker build', script: """#!/bin/bash -e
-                            rm -rf ./docker/bin
-                            mkdir -p ./docker/bin
-                            cp ./cmd/data-node/data-node-linux-amd64 ./docker/bin/data-node
-                            docker build --pull -t "${dataNodeDockerImage}" ./docker
-                        """
+            if (fileExists('data-node')) {
+                retry(3) {
+                    dir('data-node') {
+                        withDockerRegistry(dockerCredentials) {
+                            sh label: 'docker build', script: """#!/bin/bash -e
+                                rm -rf ./docker/bin
+                                mkdir -p ./docker/bin
+                                cp ./cmd/data-node/data-node-linux-amd64 ./docker/bin/data-node
+                                docker build --pull -t "${dataNodeDockerImage}" ./docker
+                            """
+                        }
+                        sh label: 'Sanity check',
+                            script: "docker run --rm '${dataNodeDockerImage}' version"
                     }
-                    sh label: 'Sanity check',
-                        script: "docker run --rm '${dataNodeDockerImage}' version"
+                }
+            } else {
+                echo "Skip Build Data-Node Docker Image: no directory 'data-node' with source code."
+                Utils.markStageSkippedForConditional('Build Data-Node Docker Image')
+            }
+        }
+        stage('Pull latest Data-Node Docker Image') {
+            if (fileExists('data-node')) {
+                echo "Skip Pull latest Data-Node Docker Image: directory 'data-node' with source code exists."
+                Utils.markStageSkippedForConditional('Pull latest Data-Node Docker Image')
+            } else {
+                withDockerRegistry(dockerCredentials) {
+                    sh label: 'ull latest Data-Node Docker Image', script: """#!/bin/bash -e
+                        docker pull docker.pkg.github.com/vegaprotocol/data-node/data-node:edge
+                    """
                 }
             }
         }
@@ -459,28 +514,50 @@ Map<String,Closure> getPrepareGoWalletStages(
     Map<String,String> dockerCredentials) {
     return ['wallet': {
         stage('Compile Go-Wallet') {
-            retry(3) {
-                dir('go-wallet') {
-                    sh label: 'Compile', script: '''
-                        go build -o ./build/gowallet-linux-amd64
-                    '''
-                    sh label: 'Sanity check', script: '''
-                        file ./build/gowallet-linux-amd64
-                        ./build/gowallet-linux-amd64 version --output json
-                    '''
+            if (fileExists('go-wallet')) {
+                retry(3) {
+                    dir('go-wallet') {
+                        sh label: 'Compile', script: '''
+                            go build -o ./build/gowallet-linux-amd64
+                        '''
+                        sh label: 'Sanity check', script: '''
+                            file ./build/gowallet-linux-amd64
+                            ./build/gowallet-linux-amd64 version --output json
+                        '''
+                    }
                 }
+            } else {
+                echo "Skip Compile Go-Wallet: no directory 'go-wallet' with source code."
+                Utils.markStageSkippedForConditional('Compile Go-Wallet')
             }
         }
         stage('Build Go-Wallet Docker Image') {
-            retry(3) {
-                dir('go-wallet') {
-                    withDockerRegistry(dockerCredentials) {
-                        sh label: 'docker build', script: """#!/bin/bash -e
-                            docker build --pull -t "${goWalletDockerImage}" .
-                        """
+            if (fileExists('go-wallet')) {
+                retry(3) {
+                    dir('go-wallet') {
+                        withDockerRegistry(dockerCredentials) {
+                            sh label: 'docker build', script: """#!/bin/bash -e
+                                docker build --pull -t "${goWalletDockerImage}" .
+                            """
+                        }
+                        sh label: 'Sanity check',
+                            script: "docker run --rm '${goWalletDockerImage}' version --output json"
                     }
-                    sh label: 'Sanity check',
-                        script: "docker run --rm '${goWalletDockerImage}' version --output json"
+                }
+            } else {
+                echo "Skip Build Go-Wallet Docker Image: no directory 'go-wallet' with source code."
+                Utils.markStageSkippedForConditional('Build Go-Wallet Docker Image')
+            }
+        }
+        stage('Pull latest Go-Wallet Docker Image') {
+            if (fileExists('go-wallet')) {
+                echo "Skip Pull latest Go-Wallet Docker Image: directory 'go-wallet' with source code exists."
+                Utils.markStageSkippedForConditional('Pull latest Go-Wallet Docker Image')
+            } else {
+                withDockerRegistry(dockerCredentials) {
+                    sh label: 'Pull latest Go-Wallet Docker Image', script: """#!/bin/bash -e
+                        docker pull vegaprotocol/go-wallet:latest
+                    """
                 }
             }
         }
@@ -495,13 +572,31 @@ Map<String,Closure> getPrepareEthereumEventForwarderStages(
     Map<String,String> dockerCredentials) {
     return ['eef': {
         stage('Build Ethereum Event Forwarder Docker Image') {
-            retry(3) {
-                dir('ethereum-event-forwarder') {
-                    withDockerRegistry(dockerCredentials) {
-                        sh label: 'docker build', script: """#!/bin/bash -e
-                            docker build --pull -t "${ethereumEventForwarderDockerImage}" .
-                        """
+            if (fileExists('ethereum-event-forwarder')) {
+                retry(3) {
+                    dir('ethereum-event-forwarder') {
+                        withDockerRegistry(dockerCredentials) {
+                            sh label: 'docker build', script: """#!/bin/bash -e
+                                docker build --pull -t "${ethereumEventForwarderDockerImage}" .
+                            """
+                        }
                     }
+                }
+            } else {
+                echo "Skip Build Ethereum Event Forwarder Docker Image: no directory 'ethereum-event-forwarder' with source code."
+                Utils.markStageSkippedForConditional('Build Ethereum Event Forwarder Docker Image')
+
+            }
+        }
+        stage('Pull latest Ethereum Event Forwarder Docker Image') {
+            if (fileExists('ethereum-event-forwarder')) {
+                echo "Skip Pull latest Ethereum Event Forwarder Docker Image: directory 'ethereum-event-forwarder' with source code exists."
+                Utils.markStageSkippedForConditional('Pull latest Ethereum Event Forwarder Docker Image')
+            } else {
+                withDockerRegistry(dockerCredentials) {
+                    sh label: 'Pull latest Ethereum Event Forwarder Docker Image', script: """#!/bin/bash -e
+                        docker pull vegaprotocol/ethereum-event-forwarder:latest
+                    """
                 }
             }
         }
