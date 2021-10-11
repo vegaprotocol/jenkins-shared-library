@@ -1,4 +1,5 @@
 /* groovylint-disable DuplicateStringLiteral */
+/* groovylint-disable DuplicateNumberLiteral */
 /* groovylint-disable CompileStatic */
 package io.vegaprotocol
 
@@ -107,7 +108,7 @@ void run(String command, boolean resume = false) {
         extraArguments += ' --resume'
     }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
-        ${dockerisedvagaScript} \
+        "${dockerisedvagaScript}" \
             --datadir "${basedir}" \
             --prefix "${prefix}" \
             --portbase "${portbase}" \
@@ -136,7 +137,7 @@ void stop(Map config) {
         extraArguments += ' --resume'
     }
     sh label: 'stop dockerised-vega', script: """#!/bin/bash -e
-        ${dockerisedvagaScript} \
+        "${dockerisedvagaScript}" \
             --prefix '${prefix}' \
             --portbase '${portbase}' \
             ${extraArguments} \
@@ -146,7 +147,7 @@ void stop(Map config) {
 
 void pull() {
     sh label: 'docker pull for dockerised-vega', script: """#!/bin/bash -e
-        ${dockerisedvagaScript} pull
+        "${dockerisedvagaScript}" pull
     """
 }
 
@@ -216,7 +217,7 @@ void saveLatestCheckpointToFile(String targetFile, int node=0) {
     String checkpointFile = getLatestCheckpointFilepath(node)
     sh label: 'Convert checkpoint to json format', script: """
         mkdir -p "\$(dirname ${targetFile})"
-        ${vegatoolsScript} checkpoint -v \
+        "${vegatoolsScript}" checkpoint -v \
             -f "${checkpointFile}" \
             -o "${targetFile}"
     """
@@ -228,4 +229,52 @@ void saveGenesisToFile(String targetFile, int node=0) {
         mkdir -p "\$(dirname ${targetFile})"
         cp "${genesisFile}" "${targetFile}"
     """
+}
+
+Map<String,Map<String,String>> getEndpointInformation(String ip) {
+    Map<String,Map<String,String>> result = [:]
+
+    for (int node = 0; node < validators; node++) {
+        result["validator node ${node}"] = [
+            'gRPC': "${ip}:${portbase + 10 * node + 2}",
+            'gql': "http://${ip}:${portbase + 10 * node + 3}",
+            'REST': "http://${ip}:${portbase + 10 * node + 4}"
+        ]
+    }
+    for (int node = validators; node < validators + nonValidators; node++) {
+        result["non-validator node ${node}"] = [
+            'gRPC': "${ip}:${portbase + 10 * node + 2}",
+            'gql': "http://${ip}:${portbase + 10 * node + 3}",
+            'REST': "http://${ip}:${portbase + 10 * node + 4}"
+        ]
+    }
+    for (int node = validators; node < validators + nonValidators; node++) {
+        result["data-node ${node}"] = [
+            'gRPC': "${ip}:${portbase + 100 + 10 * node + 7}",
+            'gql': "http://${ip}:${portbase + 100 + 10 * node + 8}",
+            'REST': "http://${ip}:${portbase + 100 + 10 * node + 9}"
+        ]
+    }
+    result['Ganache'] = [
+        'REST': "http://${ip}:${portbase + 545}"
+    ]
+    result['Smart contracts'] = [
+        'docs': "http://${ip}:${portbase + 80}"
+    ]
+    result['Vega faucet'] = [
+        'gRPC': "${ip}:${portbase + 790}"
+    ]
+    result['Vega wallet'] = [
+        'gRPC': "${ip}:${portbase + 789}"
+    ]
+
+    return result
+}
+
+Map<String,String> getUsefulLinks(String ip) {
+    Map<String,String> result = [:]
+
+    result['Network statistics'] = "http://${ip}:${portbase + 100 + 10 * validators + 9}/statistics"
+
+    return result
 }

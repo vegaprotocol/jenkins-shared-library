@@ -60,7 +60,7 @@ void call(Map config = [:]) {
         echo "System-Tests execution pipeline: ${st.absoluteUrl}"
 
         sh label: 'remove old junit result file', script: """#!/bin/bash -e
-            rm -f ${pipelineDefaults.art.systemTestsJunit}
+            rm -f "${pipelineDefaults.art.systemTestsJunit}"
         """
 
         copyArtifacts(
