@@ -80,11 +80,6 @@ void call() {
                 stage('Check setup') {
                     sh 'printenv'
                     echo "vars=${vars.inspect()}"
-                    dir('system-tests/scripts') {
-                        sh label: 'check setup', script: '''#!/bin/bash -e
-                            make check
-                        '''
-                    }
                 }
                 stage('Run system-tests LNL before restore') {
                     try {
@@ -123,11 +118,6 @@ void call() {
                 stage('Check setup') {
                     sh 'printenv'
                     echo "vars=${vars.inspect()}"
-                    dir('system-tests/scripts') {
-                        sh label: 'check setup', script: '''#!/bin/bash -e
-                            make check
-                        '''
-                    }
                 }
                 stage('Run system-tests LNL after restore') {
                     try {
