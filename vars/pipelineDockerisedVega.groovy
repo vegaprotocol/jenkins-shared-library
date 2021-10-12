@@ -667,9 +667,7 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                         cp "${genesis}" "${genesisFile}"
                     """
                 } else {
-                    sh label: 'create genesis file', script: """#!/bin/bash -e
-                        echo "${genesis}" > "${genesisFile}"
-                    """
+                    writeFile(file: genesisFile, text: genesis)
                 }
                 dockerisedVega.genesisFile = genesisFile
                 sh label: 'Custom genesis override file', script: """#!/bin/bash -e
@@ -688,9 +686,7 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                         cp "${marketProposals}" "${marketProposalsFile}"
                     """
                 } else {
-                    sh label: 'create market proposals file', script: """#!/bin/bash -e
-                        echo "${marketProposals}" > "${marketProposalsFile}"
-                    """
+                    writeFile(file: marketProposalsFile, text: marketProposals)
                 }
                 dockerisedVega.marketProposalsFile = marketProposalsFile
                 sh label: 'Custom market proposals file', script: """#!/bin/bash -e
