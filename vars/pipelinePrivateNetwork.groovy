@@ -58,10 +58,15 @@ void call() {
                 }
             }
 
-            timeout(time: params.TIMEOUT as int, unit: 'MINUTES') {
-                input message: 'Private network is ready', ok: 'Stop network',
-                    parameters: parameters
+            try {
+                timeout(time: params.TIMEOUT as int, unit: 'MINUTES') {
+                    input message: 'Private network is ready', ok: 'Stop network',
+                        parameters: parameters
+                }
+            } catch (e) {
+                echo "e=${e}"
             }
+
         }
     ])
 }
