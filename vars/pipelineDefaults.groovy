@@ -49,6 +49,14 @@ Map lnl = st + [
 ]
 
 @Field
+Map dev = [
+    vegaCoreVersion: '',
+    deployConfig: true,
+    restartNetwork: true,
+    devopsInfraBranch: 'master'
+]
+
+@Field
 Map stag = [
     reason: 'I want to restart the Stagnet, because ...',
     deployVegaCore: '',
