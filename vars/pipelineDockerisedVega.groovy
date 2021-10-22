@@ -45,7 +45,7 @@ void call(Map config=[:]) {
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
             dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
-            goWalletVersion: params.GO_WALLET_BRANCH ? dockerisedVegaPrefix : null,
+            vegaWalletVersion: params.VEGAWALLET_BRANCH ? dockerisedVegaPrefix : null,
             ethereumEventForwarderVersion: params.ETHEREUM_EVENT_FORWARDER_BRANCH ? dockerisedVegaPrefix : null,
             vegatoolsScript: "${env.WORKSPACE}/vegatools/build/vegatools-linux-amd64",
             tendermintLogLevel: params.DV_TENDERMINT_LOG_LEVEL,
@@ -195,7 +195,7 @@ void call(Map config=[:]) {
                             removeDockerImages([
                                 vars.dockerImageVegaCore,
                                 vars.dockerImageDataNode,
-                                vars.dockerImageGoWallet
+                                vars.dockerImageVegaWallet
                             ])
                         }*/
                     } catch (e) {
@@ -231,8 +231,8 @@ void setupJobParameters(List inputParameters) {
             description: '''Git branch, tag or hash of the vegaprotocol/data-node repository.
             e.g. "develop", "v0.44.0" or commit hash. Default empty: use latests published version'''),
         string(
-            name: 'GO_WALLET_BRANCH', defaultValue: pipelineDefaults.dv.goWalletBranch,
-            description: '''Git branch, tag or hash of the vegaprotocol/go-wallet repository.
+            name: 'VEGAWALLET_BRANCH', defaultValue: pipelineDefaults.dv.vegaWalletBranch,
+            description: '''Git branch, tag or hash of the vegaprotocol/vegawallet repository.
             e.g. "develop", "v0.9.0" or commit hash. Default empty: use latest published version.'''),
         string(
             name: 'ETHEREUM_EVENT_FORWARDER_BRANCH', defaultValue: pipelineDefaults.dv.ethereumEventForwarderBranch,
@@ -308,8 +308,8 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         [   name: 'data-node',
             branch: params.DATA_NODE_BRANCH,
         ],
-        [   name: 'go-wallet',
-            branch: params.GO_WALLET_BRANCH,
+        [   name: 'vegawallet',
+            branch: params.VEGAWALLET_BRANCH,
         ],
         [   name: 'ethereum-event-forwarder',
             branch: params.ETHEREUM_EVENT_FORWARDER_BRANCH,
@@ -361,7 +361,7 @@ void prepareEverything(
 
     concurrentStages << getPrepareVegaCoreStages(dockerisedVega.dockerImageVegaCore, dockerCredentials)
     concurrentStages << getPrepareDataNodeStages(dockerisedVega.dockerImageDataNode, dockerCredentials)
-    concurrentStages << getPrepareGoWalletStages(dockerisedVega.dockerImageGoWallet, dockerCredentials)
+    concurrentStages << getPreparevegaWalletStages(dockerisedVega.dockerImageVegaWallet, dockerCredentials)
     concurrentStages << getPrepareEthereumEventForwarderStages(
                             dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
@@ -507,56 +507,56 @@ Map<String,Closure> getPrepareDataNodeStages(
 }
 
 //
-// Prepare Go-Wallet
+// Prepare vegawallet
 //
-Map<String,Closure> getPrepareGoWalletStages(
-    String goWalletDockerImage,
+Map<String,Closure> getPreparevegaWalletStages(
+    String vegaWalletDockerImage,
     Map<String,String> dockerCredentials) {
     return ['wallet': {
-        stage('Compile Go-Wallet') {
-            if (fileExists('go-wallet')) {
+        stage('Compile vegawallet') {
+            if (fileExists('vegawallet')) {
                 retry(3) {
-                    dir('go-wallet') {
+                    dir('vegawallet') {
                         sh label: 'Compile', script: '''
-                            go build -o ./build/gowallet-linux-amd64
+                            go build -o ./build/vegawallet-linux-amd64
                         '''
                         sh label: 'Sanity check', script: '''
-                            file ./build/gowallet-linux-amd64
-                            ./build/gowallet-linux-amd64 version --output json
+                            file ./build/vegawallet-linux-amd64
+                            ./build/vegawallet-linux-amd64 version --output json
                         '''
                     }
                 }
             } else {
-                echo "Skip Compile Go-Wallet: no directory 'go-wallet' with source code."
-                Utils.markStageSkippedForConditional('Compile Go-Wallet')
+                echo "Skip Compile vegawallet: no directory 'vegawallet' with source code."
+                Utils.markStageSkippedForConditional('Compile vegawallet')
             }
         }
-        stage('Build Go-Wallet Docker Image') {
-            if (fileExists('go-wallet')) {
+        stage('Build vegawallet Docker Image') {
+            if (fileExists('vegawallet')) {
                 retry(3) {
-                    dir('go-wallet') {
+                    dir('vegawallet') {
                         withDockerRegistry(dockerCredentials) {
                             sh label: 'docker build', script: """#!/bin/bash -e
-                                docker build --pull -t "${goWalletDockerImage}" .
+                                docker build --pull -t "${vegaWalletDockerImage}" .
                             """
                         }
                         sh label: 'Sanity check',
-                            script: "docker run --rm '${goWalletDockerImage}' version --output json"
+                            script: "docker run --rm '${vegaWalletDockerImage}' version --output json"
                     }
                 }
             } else {
-                echo "Skip Build Go-Wallet Docker Image: no directory 'go-wallet' with source code."
-                Utils.markStageSkippedForConditional('Build Go-Wallet Docker Image')
+                echo "Skip Build vegawallet Docker Image: no directory 'vegawallet' with source code."
+                Utils.markStageSkippedForConditional('Build vegawallet Docker Image')
             }
         }
-        stage('Pull latest Go-Wallet Docker Image') {
-            if (fileExists('go-wallet')) {
-                echo "Skip Pull latest Go-Wallet Docker Image: directory 'go-wallet' with source code exists."
-                Utils.markStageSkippedForConditional('Pull latest Go-Wallet Docker Image')
+        stage('Pull latest vegawallet Docker Image') {
+            if (fileExists('vegawallet')) {
+                echo "Skip Pull latest vegawallet Docker Image: directory 'vegawallet' with source code exists."
+                Utils.markStageSkippedForConditional('Pull latest vegawallet Docker Image')
             } else {
                 withDockerRegistry(dockerCredentials) {
-                    sh label: 'Pull latest Go-Wallet Docker Image', script: """#!/bin/bash -e
-                        docker pull vegaprotocol/go-wallet:latest
+                    sh label: 'Pull latest vegawallet Docker Image', script: """#!/bin/bash -e
+                        docker pull vegaprotocol/vegawallet:latest
                     """
                 }
             }

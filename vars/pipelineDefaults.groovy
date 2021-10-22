@@ -10,7 +10,7 @@ import groovy.transform.Field
 Map dv = [
     vegaCoreBranch: '', // 'develop',
     dataNodeBranch: '', // 'develop',
-    goWalletBranch: '', // 'develop',
+    vegaWalletBranch: '', // 'develop',
     ethereumEventForwarderBranch: '', // 'main',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
