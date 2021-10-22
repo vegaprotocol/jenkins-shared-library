@@ -17,12 +17,12 @@ dlv
 
 vegaCoreVersion
 dataNodeVersion
-goWalletVersion
+vegaWalletVersion
 ethereumEventForwarderVersion
 
 dockerImageVegaCore
 dockerImageDataNode
-dockerImageGoWallet
+dockerImageVegaWallet
 dockerImageEthereumEventForwarder
 
 vegatoolsScript
@@ -49,12 +49,12 @@ void init(Map config=[:]) {
 
     vegaCoreVersion = config.vegaCoreVersion
     dataNodeVersion = config.dataNodeVersion
-    goWalletVersion = config.goWalletVersion
+    vegaWalletVersion = config.vegaWalletVersion
     ethereumEventForwarderVersion = config.ethereumEventForwarder
 
     dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
-    dockerImageGoWallet = "vegaprotocol/go-wallet:${goWalletVersion}"
+    dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion}"
     dockerImageEthereumEventForwarder = "vegaprotocol/ethereum-event-forwarder:${ethereumEventForwarderVersion}"
 
     assert config.vegatoolsScript : 'vegatoolsScript is required'
@@ -72,9 +72,9 @@ String toString() {
         "validators: ${validators}, nonValidators: ${nonValidators}, " +
         "genesisFile: \"${genesisFile}\", marketProposalsFile: \"${marketProposalsFile}\", " +
         "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
-        "goWalletVersion: \"${goWalletVersion}\", " +
+        "vegaWalletVersion: \"${vegaWalletVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
-        "dockerImageGoWallet=\"${dockerImageGoWallet}\", " +
+        "dockerImageVegaWallet=\"${dockerImageVegaWallet}\", " +
         "dockerImageEthereumEventForwarder=\"${dockerImageEthereumEventForwarder}\", " +
         "vegatoolsScript=\"${vegatoolsScript}\"" +
         "tendermintLogLevel=\"${tendermintLogLevel}\", vegaCoreLogLevel=\"${vegaCoreLogLevel}\")"
@@ -88,8 +88,8 @@ void run(String command, boolean resume = false) {
     if (dataNodeVersion) {
         extraArguments += " --datanode-version \"${dataNodeVersion}\""
     }
-    if (goWalletVersion) {
-        extraArguments += " --vegawallet-version \"${goWalletVersion}\""
+    if (vegaWalletVersion) {
+        extraArguments += " --vegawallet-version \"${vegaWalletVersion}\""
     }
     if (ethereumEventForwarderVersion) {
         extraArguments += " --eef-version \"${ethereumEventForwarderVersion}\""

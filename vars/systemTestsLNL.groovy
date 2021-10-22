@@ -9,7 +9,7 @@ void call(Map config = [:]) {
             // Different repos branches
             string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.lnl.vegaCoreBranch),
             string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.lnl.dataNodeBranch),
-            string(name: 'GO_WALLET_BRANCH', value: config.goWallet ?: pipelineDefaults.lnl.goWalletBranch),
+            string(name: 'VEGAWALLET_BRANCH', value: config.vegawallet ?: pipelineDefaults.lnl.vegaWalletBranch),
             string(name: 'ETHEREUM_EVENT_FORWARDER_BRANCH',
                    value: config.ethereumEventForwarder ?: pipelineDefaults.lnl.ethereumEventForwarderBranch),
             string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?: pipelineDefaults.lnl.vegatoolsBranch),
