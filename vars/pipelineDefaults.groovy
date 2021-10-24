@@ -49,6 +49,15 @@ Map lnl = st + [
 ]
 
 @Field
+Map stag = [
+    reason: 'I want to restart the Stagnet, because ...',
+    deployVegaCore: '',
+    deployConfig: true,
+    restartNetwork: true,
+    devopsInfraBranch: 'master'
+]
+
+@Field
 Map art = [
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',
