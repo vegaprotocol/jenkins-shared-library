@@ -187,7 +187,7 @@ void call() {
                             msg = "Successfully deployed `${params.DEPLOY_VEGA_CORE}` to `${params.NETWORK}`"
                         }
                         slackSend(
-                            channel: '#tradingcore',
+                            channel: '#tradingcore-notify',
                             color: 'good',
                             message: ":rocket: ${msg} :astronaut:",
                         )
@@ -198,7 +198,7 @@ void call() {
                         }
                         msg += ". Please check <${env.RUN_DISPLAY_URL}|CI logs> for details"
                         slackSend(
-                            channel: '#tradingcore',
+                            channel: '#tradingcore-notify',
                             color: 'danger',
                             message: ":boom: ${msg} :scream:",
                         )
