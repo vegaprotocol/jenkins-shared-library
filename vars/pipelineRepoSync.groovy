@@ -110,11 +110,7 @@ void call() {
                     dir("${params.REPO}-snapshots") {
                         sshagent(credentials: ['vega-ci-bot']) {
                             sh label: 'Git push branch', script: """#!/bin/bash -e
-                                git status
-                                echo "fetch"
-                                git fetch
-                                echo "pull"
-                                git pull
+                                git push origin "release/${params.VERSION_TAG}"
                             """
                         }
                     }
