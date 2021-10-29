@@ -84,6 +84,15 @@ void call() {
                     """
                 }
 
+                stage('Git config') {
+                    dir("${params.REPO}-snapshots") {
+                        sh label: 'Setup git config', script: """#!/bin/bash -e
+                            git config user.email '<>'
+                            git config user.name 'vega-ci-bot'
+                        """
+                    }
+                }
+
                 stage('Create branch and commit') {
                     dir("${params.REPO}-snapshots") {
                         sh label: 'Create branch and commit changes', script: """#!/bin/bash -e
