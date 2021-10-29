@@ -80,7 +80,7 @@ void call() {
 
                 stage('Diff') {
                     sh label: 'Diff directories', script: """#!/bin/bash -e
-                        diff -rq ./"${params.REPO}" ./"${params.REPO}-snapshots" | grep -v "/\.git/"
+                        diff -rq ./"${params.REPO}" ./"${params.REPO}-snapshots" | grep -v "/\\.git/"
                     """
                 }
 
