@@ -1,4 +1,7 @@
 /* groovylint-disable LineLength */
+/* groovylint-disable DuplicateStringLiteral */
+/* groovylint-disable NestedBlockDepth */
+/* groovylint-disable MethodSize */
 
 void call() {
 
@@ -105,13 +108,15 @@ void call() {
 
                 stage('Git push changes') {
                     dir("${params.REPO}-snapshots") {
-                        sh label: 'Git push branch', script: """#!/bin/bash -e
-                            git status
-                            echo "fetch"
-                            git fetch
-                            echo "pull"
-                            git pull
-                        """
+                        sshagent(credentials: ['vega-ci-bot']) {
+                            sh label: 'Git push branch', script: """#!/bin/bash -e
+                                git status
+                                echo "fetch"
+                                git fetch
+                                echo "pull"
+                                git pull
+                            """
+                        }
                     }
                 }
 
