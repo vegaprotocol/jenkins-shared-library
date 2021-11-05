@@ -40,6 +40,12 @@ Map st = dv + [
     genesisJSON: 'system-tests/docker/zero-genesis.json'
 ]
 
+// Beehive pipeline
+@Field
+Map bh = dv + [
+    beehiveBranch: 'develop'
+]
+
 // System Tests LNL pipeline
 @Field
 Map lnl = st + [
