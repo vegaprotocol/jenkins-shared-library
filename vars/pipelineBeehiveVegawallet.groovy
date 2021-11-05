@@ -48,7 +48,9 @@ void call() {
                 }
                 stage('get vegawallet binary') {
                     sh label: 'get vegawallet binary from docker image', script: """#!/bin/bash -e
-                        docker cp ${VEGAWALLET_DOCKER_IMAGE}:/usr/local/bin/vegawallet ${VEGAWALLET_PATH_TO_BINARY}
+                        container_id=\$(docker create ${VEGAWALLET_DOCKER_IMAGE})
+                        docker cp \${container_id}:/usr/local/bin/vegawallet ${VEGAWALLET_PATH_TO_BINARY}
+                        docker rm -v \${container_id}
                     """
                 }
                 stage('run beehive vegawallet tests') {
