@@ -40,6 +40,7 @@ void call() {
             withEnv([
                 "BEEHIVE_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "VEGAWALLET_PATH_TO_BINARY=${env.WORKSPACE}/beehive/vegawallet-binary",
+                "VEGAWALLET_DOCKER_IMAGE=${dockerisedVega.dockerImageVegaWallet}"
             ]) {
                 stage('Check setup') {
                     sh 'printenv'
@@ -47,7 +48,7 @@ void call() {
                 }
                 stage('get vegawallet binary') {
                     sh label: 'get vegawallet binary from docker image', script: """#!/bin/bash -e
-                        docker cp <containerId>:/usr/local/bin//vegawallet ${VEGAWALLET_PATH_TO_BINARY}
+                        docker cp ${VEGAWALLET_DOCKER_IMAGE}:/usr/local/bin/vegawallet ${VEGAWALLET_PATH_TO_BINARY}
                     """
                 }
                 stage('run beehive vegawallet tests') {

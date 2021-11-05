@@ -54,7 +54,7 @@ void init(Map config=[:]) {
 
     dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
-    dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion}"
+    dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion ?: 'latest'}"
     dockerImageEthereumEventForwarder = "vegaprotocol/ethereum-event-forwarder:${ethereumEventForwarderVersion}"
 
     assert config.vegatoolsScript : 'vegatoolsScript is required'
