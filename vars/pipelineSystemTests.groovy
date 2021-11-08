@@ -37,26 +37,31 @@ void call() {
         ],
         prepareStages: [
             'st': { Map vars ->
-                stage('General setup') {
-                    sh label: 'Create directories', script: """#!/bin/bash -e
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.systemTestsJunit})"
-                        mkdir -p "${pipelineDefaults.art.systemTestsState}"
-                    """
-                }
-                stage('build system-tests docker image') {
-                    dir('system-tests/scripts') {
-                        withDockerRegistry(vars.dockerCredentials) {
-                            sh label: 'build system-tests container', script: '''#!/bin/bash -e
-                                make prepare-test-docker-image
-                            '''
+                DockerisedVega dockerisedVega = vars.dockerisedVega
+                withEnv([
+                    "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
+                ]) {
+                    stage('General setup') {
+                        sh label: 'Create directories', script: """#!/bin/bash -e
+                            mkdir -p "\$(dirname ${pipelineDefaults.art.systemTestsJunit})"
+                            mkdir -p "${pipelineDefaults.art.systemTestsState}"
+                        """
+                    }
+                    stage('build system-tests docker image') {
+                        dir('system-tests/scripts') {
+                            withDockerRegistry(vars.dockerCredentials) {
+                                sh label: 'build system-tests container', script: '''#!/bin/bash -e
+                                    make prepare-test-docker-image
+                                '''
+                            }
                         }
                     }
-                }
-                stage('make proto for system-tests') {
-                    dir('system-tests/scripts') {
-                        sh label: 'make proto', script: '''#!/bin/bash -e
-                            make build-test-proto
-                        '''
+                    stage('make proto for system-tests') {
+                        dir('system-tests/scripts') {
+                            sh label: 'make proto', script: '''#!/bin/bash -e
+                                make build-test-proto
+                            '''
+                        }
                     }
                 }
             }
@@ -64,6 +69,7 @@ void call() {
         mainStage: { Map vars ->
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
+                "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",

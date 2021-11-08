@@ -39,29 +39,34 @@ void call() {
         ],
         prepareStages: [
             'st': { Map vars ->
-                stage('General setup') {
-                    sh label: 'Create directories', script: """#!/bin/bash -e
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsCreateState})"
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsAssertState})"
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointRestore})"
-                        mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointEnd})"
-                        mkdir -p "${pipelineDefaults.art.lnl.systemTestsState}"
-                    """
-                }
-                stage('build system-tests docker image') {
-                    dir('system-tests/scripts') {
-                        withDockerRegistry(vars.dockerCredentials) {
-                            sh label: 'build system-tests container', script: '''#!/bin/bash -e
-                                make prepare-test-docker-image
-                            '''
+                DockerisedVega dockerisedVega = vars.dockerisedVega
+                withEnv([
+                    "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
+                ]) {
+                    stage('General setup') {
+                        sh label: 'Create directories', script: """#!/bin/bash -e
+                            mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsCreateState})"
+                            mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.systemTestsAssertState})"
+                            mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointRestore})"
+                            mkdir -p "\$(dirname ${pipelineDefaults.art.lnl.checkpointEnd})"
+                            mkdir -p "${pipelineDefaults.art.lnl.systemTestsState}"
+                        """
+                    }
+                    stage('build system-tests docker image') {
+                        dir('system-tests/scripts') {
+                            withDockerRegistry(vars.dockerCredentials) {
+                                sh label: 'build system-tests container', script: '''#!/bin/bash -e
+                                    make prepare-test-docker-image
+                                '''
+                            }
                         }
                     }
-                }
-                stage('make proto for system-tests') {
-                    dir('system-tests/scripts') {
-                        sh label: 'make proto', script: '''#!/bin/bash -e
-                            make build-test-proto
-                        '''
+                    stage('make proto for system-tests') {
+                        dir('system-tests/scripts') {
+                            sh label: 'make proto', script: '''#!/bin/bash -e
+                                make build-test-proto
+                            '''
+                        }
                     }
                 }
             }
@@ -69,6 +74,7 @@ void call() {
         mainStage: { Map vars ->
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
+                "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
@@ -107,6 +113,7 @@ void call() {
         afterCheckpointRestoreStage: { Map vars ->
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
+                "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
