@@ -39,7 +39,7 @@ void call() {
         String networkID = 'UNKNOWN'
         if (params.NETWORK == 'Stagnet 1') {
             networkID = 'stagnet'
-        } else if (params.NETWORK == 'Stagnet 1') {
+        } else if (params.NETWORK == 'Stagnet 2') {
             networkID = 'stagnet2'
         } else {
             error("Unsupported network ${params.NETWORK}.")
@@ -47,7 +47,7 @@ void call() {
 
         // NOTE: environment variables PSSH_USER and PSSH_KEYFILE are used by veganet.sh script
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
-        def sshStagnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-stagnet',
+        def sshStagnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
                                                       keyFileVariable: 'PSSH_KEYFILE',
                                                      usernameVariable: 'PSSH_USER')
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
