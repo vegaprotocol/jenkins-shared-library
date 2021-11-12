@@ -53,6 +53,7 @@ Map dev = [
     vegaCoreVersion: '',
     deployConfig: true,
     restartNetwork: true,
+    createMarkets: true,
     devopsInfraBranch: 'master'
 ]
 

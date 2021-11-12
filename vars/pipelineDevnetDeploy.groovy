@@ -20,6 +20,9 @@ void call() {
             booleanParam(
                 name: 'RESTART_NETWORK', defaultValue: pipelineDefaults.dev.restartNetwork,
                 description: 'Restart the Network'),
+            booleanParam(
+                name: 'CREATE_MARKETS', defaultValue: pipelineDefaults.dev.createMarkets,
+                description: 'Create Markets'),
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dev.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
@@ -169,6 +172,24 @@ void call() {
                         } else {
                             echo 'Skip: RESTART_NETWORK is false'
                             Utils.markStageSkippedForConditional(restartStageName)
+                        }
+                    }
+                    //
+                    // CREATE markets
+                    //
+                    String createMarketsStageName = 'Create Markets'
+                    stage(createMarketsStageName) {
+                        if (params.CREATE_MARKETS) {
+                            dir('devops-infra') {
+                                withDockerRegistry(dockerCredentials) {
+                                    withCredentials([sshDevnetCredentials]) {
+                                        sh script: './veganet.sh devnet create_markets'
+                                    }
+                                }
+                            }
+                        } else {
+                            echo 'Skip: CREATE_MARKETS is false'
+                            Utils.markStageSkippedForConditional(createMarketsStageName)
                         }
                     }
                 }
