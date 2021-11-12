@@ -101,7 +101,7 @@ void slackSendDeployStatus(Map config) {
         color = '#000000'
     } else {
         msg = ":boom: Failed to ${msg}. @ops see details in <${jobURL}|Jenkins> :scream:"
-        color = 'good'
+        color = 'danger'
     }
 
     msg += " (${duration})"
