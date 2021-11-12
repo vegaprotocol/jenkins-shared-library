@@ -3,7 +3,7 @@
 /* groovylint-disable MethodSize */
 /* groovylint-disable NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
-import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
 
