@@ -89,7 +89,7 @@ void call() {
                         }
                     }
                     stage('Devnet: status') {
-                        dir('vega') {
+                        dir('devops-infra') {
                             withDockerRegistry(dockerCredentials) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh script: './veganet.sh devnet status'
@@ -103,7 +103,7 @@ void call() {
                             withEnv([
                                 "VEGA_CORE_BINARY=${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64",
                             ]) {
-                                dir('vega') {
+                                dir('devops-infra') {
                                     withDockerRegistry(dockerCredentials) {
                                         withCredentials([sshDevnetCredentials]) {
                                             sh script: './veganet.sh devnet pushvega'
@@ -119,7 +119,7 @@ void call() {
                     String deployConfigStageName = 'Deploy Vega Network Config'
                     stage(deployConfigStageName) {
                         if (params.DEPLOY_CONFIG) {
-                            dir('vega/ansible') {
+                            dir('devops-infra/ansible') {
                                 withCredentials([sshDevnetCredentials]) {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
@@ -144,7 +144,7 @@ void call() {
                     String restartStageName = 'Restart Network'
                     stage(restartStageName) {
                         if (params.RESTART_NETWORK) {
-                            dir('vega') {
+                            dir('devops-infra') {
                                 withDockerRegistry(dockerCredentials) {
                                     withCredentials([sshStagnetCredentials]) {
                                         sh script: './veganet.sh devnet bounce'
