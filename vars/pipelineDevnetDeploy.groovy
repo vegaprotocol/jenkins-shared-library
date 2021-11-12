@@ -146,7 +146,7 @@ void call() {
                         if (params.RESTART_NETWORK) {
                             dir('devops-infra') {
                                 withDockerRegistry(dockerCredentials) {
-                                    withCredentials([sshStagnetCredentials]) {
+                                    withCredentials([sshDevnetCredentials]) {
                                         sh script: './veganet.sh devnet bounce'
                                     }
                                 }
