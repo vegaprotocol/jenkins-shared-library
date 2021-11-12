@@ -29,9 +29,11 @@ void call() {
     echo "params=${params}"
 
     node {
-        SSHUserPrivateKey sshDevnetCredentials = sshUserPrivateKey( credentialsId: 'ssh-vega-network',
-                                                                    keyFileVariable: 'PSSH_KEYFILE',
-                                                                    usernameVariable: 'PSSH_USER')
+        // NOTE: environment variables PSSH_USER and PSSH_KEYFILE are used by veganet.sh script
+        /* groovylint-disable-next-line NoDef, VariableTypeRequired */
+        def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
+                                                     keyFileVariable: 'PSSH_KEYFILE',
+                                                    usernameVariable: 'PSSH_USER')
         Map dockerCredentials = [credentialsId: 'github-vega-ci-bot-artifacts',
                                            url: 'https://docker.pkg.github.com']
         skipDefaultCheckout()
@@ -124,6 +126,7 @@ void call() {
                                     sh label: 'ansible deploy run', script: """#!/bin/bash -e
                                         export ANSIBLE_FORCE_COLOR=true
                                         ansible-playbook \
+                                            --diff \
                                             -u "\${PSSH_USER}" \
                                             --private-key "\${PSSH_KEYFILE}" \
                                             -i hosts \
