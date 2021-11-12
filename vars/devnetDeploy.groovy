@@ -6,9 +6,18 @@ void call(Map config = [:]) {
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             string(name: 'VEGA_CORE_VERSION', value: config.vegaCore ?: pipelineDefaults.dev.vegaCoreVersion),
-            string(name: 'DEPLOY_CONFIG', value: config.deployConfig ?: pipelineDefaults.dev.deployConfig),
-            string(name: 'RESTART_NETWORK', value: config.restart ?: pipelineDefaults.dev.restartNetwork),
-            string(name: 'CREATE_MARKETS', value: config.createMarkets ?: pipelineDefaults.dev.createMarkets),
+            booleanParam(
+                name: 'DEPLOY_CONFIG',
+                value: config.deployConfig ? "${config.deployConfig}".toBoolean() : pipelineDefaults.dev.deployConfig
+            ),
+            booleanParam(
+                name: 'RESTART_NETWORK',
+                value: config.restart ? "${config.restart}".toBoolean() : pipelineDefaults.dev.restartNetwork
+            ),
+            booleanParam(
+                name: 'CREATE_MARKETS',
+                value: config.createMarkets ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
+            ),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.dev.devopsInfraBranch),
         ]
 
