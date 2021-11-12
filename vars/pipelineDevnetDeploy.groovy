@@ -47,6 +47,9 @@ void call() {
                         sh 'printenv'
                         echo "params=${params.inspect()}"
                     }
+                    //
+                    // GIT clone
+                    //
                     stage('Git Clone') {
                         parallel([
                             'devops-infra': {
@@ -66,6 +69,9 @@ void call() {
                             }
                         ])
                     }
+                    //
+                    // BUILD
+                    //
                     String buildStageName = 'Build Vega Core binary'
                     stage(buildStageName) {
                         if (params.VEGA_CORE_VERSION) {
@@ -74,7 +80,7 @@ void call() {
                                     script: 'git rev-parse HEAD|cut -b1-8',
                                     returnStdout: true,
                                 ).trim()
-                                String ldflags = "-X main.CLIVersion=develop -X main.CLIVersionHash=${hash}"
+                                String ldflags = "-X main.CLIVersion=dev-${hash} -X main.CLIVersionHash=${hash}"
                                 sh label: 'Compile vega core', script: """
                                     go build -v -o ./cmd/vega/vega-linux-amd64 -ldflags "${ldflags}" ./cmd/vega
                                 """
@@ -97,6 +103,9 @@ void call() {
                             }
                         }
                     }
+                    //
+                    // DEPLOY binary
+                    //
                     String deployStageName = 'Deploy Vega Core binary'
                     stage(deployStageName) {
                         if (params.VEGA_CORE_VERSION) {
@@ -116,6 +125,9 @@ void call() {
                             Utils.markStageSkippedForConditional(deployStageName)
                         }
                     }
+                    //
+                    // DEPLOY ansible config
+                    //
                     String deployConfigStageName = 'Deploy Vega Network Config'
                     stage(deployConfigStageName) {
                         if (params.DEPLOY_CONFIG) {
@@ -141,6 +153,9 @@ void call() {
                             Utils.markStageSkippedForConditional(deployConfigStageName)
                         }
                     }
+                    //
+                    // RESTART network
+                    //
                     String restartStageName = 'Restart Network'
                     stage(restartStageName) {
                         if (params.RESTART_NETWORK) {
