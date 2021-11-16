@@ -171,9 +171,7 @@ void call() {
                     stage(restartStageName) {
                         if (params.RESTART != pipelineDefaults.restartOptions.dontRestart) {
                             withEnv([
-                                "RESTORE_FROM_CHECKPOINT=${
-                                params.RESTART == pipelineDefaults.restartOptions.restartFromCheckpoint ? 'yes' : 'no'
-                                }",
+                                "RESTORE_FROM_CHECKPOINT=${params.RESTART == pipelineDefaults.restartOptions.restartFromCheckpoint ? 'yes' : 'no'}",
                             ]) {
                                 dir('devops-infra') {
                                     withDockerRegistry(dockerCredentials) {
