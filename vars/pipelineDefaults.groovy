@@ -49,11 +49,19 @@ Map lnl = st + [
 ]
 
 @Field
+Map restartOptions = [
+    restartOnly: 'Restart network',
+    restartFromCheckpoint: 'Restart from checkpoint',
+    dontRestart: 'Don\'t restart'
+]
+
+@Field
 Map dev = [
     vegaCoreVersion: '',
     deployConfig: true,
-    restartNetwork: true,
+    restart: restartOptions.restartOnly,
     createMarkets: true,
+    restartBots: true,
     devopsInfraBranch: 'master'
 ]
 

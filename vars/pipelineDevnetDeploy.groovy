@@ -13,16 +13,24 @@ void call() {
         parameters([
             string(
                 name: 'VEGA_CORE_VERSION', defaultValue: pipelineDefaults.dev.vegaCoreVersion,
-                description: 'Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core.'),
+                description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
+                Leave empty to not deploy a new version of vega core.'''),
             booleanParam(
                 name: 'DEPLOY_CONFIG', defaultValue: pipelineDefaults.dev.deployConfig,
                 description: 'Deploy some Vega Network config, e.g. genesis file'),
-            booleanParam(
-                name: 'RESTART_NETWORK', defaultValue: pipelineDefaults.dev.restartNetwork,
+            choice(
+                name: 'RESTART', choices: [
+                    pipelineDefaults.restartOptions.restartOnly,
+                    pipelineDefaults.restartOptions.restartFromCheckpoint,
+                    pipelineDefaults.restartOptions.dontRestart,
+                ],
                 description: 'Restart the Network'),
             booleanParam(
                 name: 'CREATE_MARKETS', defaultValue: pipelineDefaults.dev.createMarkets,
                 description: 'Create Markets'),
+            booleanParam(
+                name: 'RESTART_BOTS', defaultValue: pipelineDefaults.dev.restartBots,
+                description: 'Restart traderbot and liqbot at the end of the pipeline'),
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dev.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
@@ -161,16 +169,22 @@ void call() {
                     //
                     String restartStageName = 'Restart Network'
                     stage(restartStageName) {
-                        if (params.RESTART_NETWORK) {
-                            dir('devops-infra') {
-                                withDockerRegistry(dockerCredentials) {
-                                    withCredentials([sshDevnetCredentials]) {
-                                        sh script: './veganet.sh devnet bounce'
+                        if (params.RESTART != pipelineDefaults.restartOptions.dontRestart) {
+                            withEnv([
+                                "RESTORE_FROM_CHECKPOINT=${
+                                params.RESTART == pipelineDefaults.restartOptions.restartFromCheckpoint ? 'yes' : 'no'
+                                }",
+                            ]) {
+                                dir('devops-infra') {
+                                    withDockerRegistry(dockerCredentials) {
+                                        withCredentials([sshDevnetCredentials]) {
+                                            sh script: './veganet.sh devnet bounce'
+                                        }
                                     }
                                 }
                             }
                         } else {
-                            echo 'Skip: RESTART_NETWORK is false'
+                            echo "Skip: selected '{params.RESTART}' option"
                             Utils.markStageSkippedForConditional(restartStageName)
                         }
                     }
@@ -192,6 +206,24 @@ void call() {
                             Utils.markStageSkippedForConditional(createMarketsStageName)
                         }
                     }
+                    //
+                    // RESTART bots
+                    //
+                    String restartBotsStageName = 'Restart Bots'
+                    stage(restartBotsStageName) {
+                        if (params.RESTART_BOTS) {
+                            dir('devops-infra') {
+                                withDockerRegistry(dockerCredentials) {
+                                    withCredentials([sshDevnetCredentials]) {
+                                        sh script: './veganet.sh devnet restart_bots'
+                                    }
+                                }
+                            }
+                        } else {
+                            echo 'Skip: RESTART_BOTS is false'
+                            Utils.markStageSkippedForConditional(restartBotsStageName)
+                        }
+                    }
                 }
                 // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                 // i.e. `currentResult` is not set properly in the finally block
@@ -211,7 +243,7 @@ void call() {
                 stage('Cleanup') {
                     slack.slackSendDeployStatus network: 'Devnet',
                         version: params.VEGA_CORE_VERSION,
-                        restart: params.RESTART_NETWORK
+                        restart: params.RESTART != pipelineDefaults.restartOptions.dontRestart
                 }
             }
         }

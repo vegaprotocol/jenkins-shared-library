@@ -4,19 +4,31 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 void call(Map config = [:]) {
     String devnetDeployJob = 'cd/Devnet deploy'
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
+    String restart = pipelineDefaults.dev.restart
+    if (config.restart == true) {
+        restart = pipelineDefaults.restartOptions.restartOnly
+    } else if (config.restart == false) {
+        restart = pipelineDefaults.restartOptions.dontRestart
+    } else if (config.restart == 'checkpoint' || config.checkpoint == true) {
+        restart = pipelineDefaults.restartOptions.restartFromCheckpoint
+    } else if (config.restart) {
+        // not empty, but different than: true, false and 'checkpoint'
+        error("Wrong restart argument value: '${config.restart}'. Only: true, false and 'checkpoint' are allowed")
+    }
     List buildParameters = [
             string(name: 'VEGA_CORE_VERSION', value: config.vegaCore ?: pipelineDefaults.dev.vegaCoreVersion),
             booleanParam(
                 name: 'DEPLOY_CONFIG',
                 value: config.deployConfig ? "${config.deployConfig}".toBoolean() : pipelineDefaults.dev.deployConfig
             ),
-            booleanParam(
-                name: 'RESTART_NETWORK',
-                value: config.restart ? "${config.restart}".toBoolean() : pipelineDefaults.dev.restartNetwork
-            ),
+            string(name: 'RESTART', value: restart),
             booleanParam(
                 name: 'CREATE_MARKETS',
                 value: config.createMarkets ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
+            ),
+            booleanParam(
+                name: 'RESTART_BOTS',
+                value: config.restartBots ? "${config.restartBots}".toBoolean() : pipelineDefaults.dev.restartBots
             ),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.dev.devopsInfraBranch),
         ]
