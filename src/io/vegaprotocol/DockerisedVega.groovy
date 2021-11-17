@@ -157,6 +157,21 @@ void printAllContainers() {
     """
 }
 
+void printAllLogs() {
+    for (String containerName : getDockerContainerNames()) {
+        String longName = containerName
+        String shortName = longName - "${prefix}-"
+        sh label: "Logs from ${shortName}",
+            script: """#!/bin/bash -e
+            echo "==== DOCKER INSPECT '${longName}' ===="
+            docker inspect "${longName}"
+            echo "==== DOCKER LOGS '${longName}' ===="
+            docker logs -t --details ${longName}
+            echo "==== DOCKER END '${longName}' ====" ; \
+            """
+    }
+}
+
 void printAllCheckpoints(int node=0) {
     String nodeDataDir = "${basedir}/dockerised-${prefix}/vega/node${node}"
     String checkpointDir = "${nodeDataDir}/.local/state/vega/node/checkpoints"

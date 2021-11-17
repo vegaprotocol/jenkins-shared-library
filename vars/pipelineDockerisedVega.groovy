@@ -88,11 +88,17 @@ void call(Map config=[:]) {
                     if (inputMainStage) {
                         stage('Start Dockerised Vega') {
                             retry(2) {
-                                timeout(time: 5, unit: 'MINUTES') {
-                                    dockerisedVega.stop()
-                                    withDockerRegistry(vars.dockerCredentials) {
-                                        dockerisedVega.start()
+                                try {
+                                    timeout(time: 5, unit: 'MINUTES') {
+                                        dockerisedVega.stop()
+                                        withDockerRegistry(vars.dockerCredentials) {
+                                            dockerisedVega.start()
+                                        }
                                     }
+                                } catch (err) {
+                                    dockerisedVega.printAllContainers()
+                                    dockerisedVega.printAllLogs()
+                                    error("dockerised-vega failed to start: ${err.message}")
                                 }
                             }
                         }
