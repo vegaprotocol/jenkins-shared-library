@@ -72,3 +72,43 @@ void slackSendCIStatus(Map config) {
         slackSendCIFailure(config)
     }
 }
+
+void slackSendDeployStatus(Map config) {
+    String network = config.network
+    String version = config.version
+    Boolean restart = config.get('restart', false)
+    String slackChannel = config.get('channel', '#env-deploy')
+    String jobURL = config.get('jobURL', env.RUN_DISPLAY_URL)
+
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
+    String duration = currentBuild.durationString - ' and counting'
+    String msg = ''
+    String color = ''
+
+    if (version) {
+        msg = "deploy `${version}` to `${network}`"
+    } else if (restart) {
+        msg = "restart `${network}`"
+    } else {
+        msg = "apply changes to `${network}`"
+    }
+
+    if (currentResult == 'SUCCESS') {
+        msg = ":rocket: Successful ${msg} :astronaut:"
+        color = 'good'
+    } else if (currentResult == 'ABORTED') {
+        msg = ":black_circle: Aborted to ${msg}. See details in <${jobURL}|Jenkins>"
+        color = '#000000'
+    } else {
+        msg = ":boom: Failed to ${msg}. @ops see details in <${jobURL}|Jenkins> :scream:"
+        color = 'danger'
+    }
+
+    msg += " (${duration})"
+
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
+}
