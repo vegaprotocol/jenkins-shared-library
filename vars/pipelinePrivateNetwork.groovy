@@ -58,13 +58,11 @@ void call() {
                 }
             }
 
-            try {
+            catchError(message: 'Stopping Private Network', buildResult: null, stageResult: null) {
                 timeout(time: params.TIMEOUT as int, unit: 'MINUTES') {
                     input message: 'Private network is ready', ok: 'Stop network',
                         parameters: parameters
                 }
-            } catch (e) {
-                echo "e=${e}"
             }
 
         }
