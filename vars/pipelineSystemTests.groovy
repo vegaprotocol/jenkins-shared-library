@@ -104,6 +104,7 @@ void call() {
                         archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/**/*",
                             allowEmptyArchive: true,
                             fingerprint: true
+                        echo "System Tests has finished with state: ${currentBuild.result}"
                     }
                 }
             }

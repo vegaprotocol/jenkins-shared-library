@@ -106,6 +106,7 @@ void call() {
                                 allowEmptyArchive: true,
                                 fingerprint: true
                         }
+                        echo "LNL System Tests (before restore) has finished with state: ${currentBuild.result}"
                     }
                 }
             }
@@ -153,6 +154,7 @@ void call() {
                             echo "Full path SYSTEM_TESTS_LNL_STATE=${SYSTEM_TESTS_LNL_STATE}"
                             ls -lah "${SYSTEM_TESTS_LNL_STATE}"
                         """
+                        echo "LNL System Tests (after restore) has finished with state: ${currentBuild.result}"
                     }
                 }
             }

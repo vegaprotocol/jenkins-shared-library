@@ -51,16 +51,20 @@ void call(Map config = [:]) {
             // - change status of current stage to not successful
             // - don't change build status, keep it as it was outside of this stage
             catchError(message: 'Deploy to Devnet Failed', buildResult: null, stageResult: deployJob.result) {
-                error("Ignore failure and keep job green, but mark stage as ${deployJob.result}")
+                error("""Downstream 'Deploy to Devnet' pipeline failed, click for details: ${deployJob.absoluteUrl}.
+                Ignore failure and keep job green, but mark stage as ${deployJob.result}""")
             }
         } else {
             if (deployJob.result == 'UNSTABLE') {
-                unstable('UNSTABLE - Deploy to Devnet')
+                unstable("""UNSTABLE - Downstream 'Deploy to Devnet' pipeline failed.
+                    Click for details: ${deployJob.absoluteUrl}""")
             } else if (deployJob.result == 'ABORTED') {
                 currentBuild.result = 'ABORTED'
-                error('ABORTED - Deploy to Devnet')
+                error("""ABORTED - Downstream 'Deploy to Devnet' pipeline failed.
+                    Click for details: ${deployJob.absoluteUrl}""")
             } else {
-                error("${deployJob.result} - Deploy to Devnet")
+                error("""${deployJob.result} - Downstream 'Deploy to Devnet' pipeline failed.
+                    Click for details: ${deployJob.absoluteUrl}""")
             }
         }
     }

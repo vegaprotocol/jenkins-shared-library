@@ -176,8 +176,14 @@ void call(Map config=[:]) {
                     try {
                         if (dockerisedVega.isNodeRunning()) {
                             echo 'Waiting up to 2 min for next checkpoint'
-                            timeout(time: 2, unit: 'MINUTES') {
-                                dockerisedVega.waitForNextCheckpoint()
+                            catchError(
+                                message: 'No new checkpoint has been created in 2min',
+                                buildResult: null,
+                                stageResult: null,
+                            ) {
+                                timeout(time: 2, unit: 'MINUTES') {
+                                    dockerisedVega.waitForNextCheckpoint()
+                                }
                             }
                         } else {
                             echo 'Skip waiting for next checkpoint - no node is running'
