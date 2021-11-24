@@ -61,6 +61,7 @@ Map dev = [
     deployConfig: true,
     restart: restartOptions.restartOnly,
     createMarkets: true,
+    topupBots: true,
     restartBots: true,
     devopsInfraBranch: 'master'
 ]
