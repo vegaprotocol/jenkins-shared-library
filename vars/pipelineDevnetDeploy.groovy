@@ -29,6 +29,9 @@ void call() {
                 name: 'CREATE_MARKETS', defaultValue: pipelineDefaults.dev.createMarkets,
                 description: 'Create Markets'),
             booleanParam(
+                name: 'TOPUP_BOTS', defaultValue: pipelineDefaults.dev.topupBots,
+                description: 'Top up liqbot and traderbot with fake/ERC20 tokens'),
+            booleanParam(
                 name: 'RESTART_BOTS', defaultValue: pipelineDefaults.dev.restartBots,
                 description: 'Restart traderbot and liqbot at the end of the pipeline'),
             string(
@@ -202,6 +205,24 @@ void call() {
                         } else {
                             echo 'Skip: CREATE_MARKETS is false'
                             Utils.markStageSkippedForConditional(createMarketsStageName)
+                        }
+                    }
+                    //
+                    // TOP UP bots
+                    //
+                    String topupBotsStageName = 'Top Up Bots'
+                    stage(topupBotsStageName) {
+                        if (params.TOPUP_BOTS) {
+                            dir('devops-infra') {
+                                withDockerRegistry(dockerCredentials) {
+                                    withCredentials([sshDevnetCredentials]) {
+                                        sh script: './veganet.sh devnet topup_bots'
+                                    }
+                                }
+                            }
+                        } else {
+                            echo 'Skip: TOPUP_BOTS is false'
+                            Utils.markStageSkippedForConditional(topupBotsStageName)
                         }
                     }
                     //
