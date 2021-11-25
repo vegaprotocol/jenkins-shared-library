@@ -29,11 +29,8 @@ void call() {
                 name: 'CREATE_MARKETS', defaultValue: pipelineDefaults.dev.createMarkets,
                 description: 'Create Markets'),
             booleanParam(
-                name: 'TOPUP_BOTS', defaultValue: pipelineDefaults.dev.topupBots,
-                description: 'Top up liqbot and traderbot with fake/ERC20 tokens'),
-            booleanParam(
-                name: 'RESTART_BOTS', defaultValue: pipelineDefaults.dev.restartBots,
-                description: 'Restart traderbot and liqbot at the end of the pipeline'),
+                name: 'BOUNCE_BOTS', defaultValue: pipelineDefaults.dev.bounceBots,
+                description: 'Start & Top up liqbot and traderbot with fake/ERC20 tokens'),
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dev.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
@@ -208,39 +205,21 @@ void call() {
                         }
                     }
                     //
-                    // TOP UP bots
+                    // BOUNCE bots
                     //
-                    String topupBotsStageName = 'Top Up Bots'
-                    stage(topupBotsStageName) {
-                        if (params.TOPUP_BOTS) {
+                    String bounceBotsStageName = 'Bounce Bots'
+                    stage(bounceBotsStageName) {
+                        if (params.BOUNCE_BOTS) {
                             dir('devops-infra') {
                                 withDockerRegistry(dockerCredentials) {
                                     withCredentials([sshDevnetCredentials]) {
-                                        sh script: './veganet.sh devnet topup_bots'
+                                        sh script: './veganet.sh devnet bounce_bots'
                                     }
                                 }
                             }
                         } else {
-                            echo 'Skip: TOPUP_BOTS is false'
-                            Utils.markStageSkippedForConditional(topupBotsStageName)
-                        }
-                    }
-                    //
-                    // RESTART bots
-                    //
-                    String restartBotsStageName = 'Restart Bots'
-                    stage(restartBotsStageName) {
-                        if (params.RESTART_BOTS) {
-                            dir('devops-infra') {
-                                withDockerRegistry(dockerCredentials) {
-                                    withCredentials([sshDevnetCredentials]) {
-                                        sh script: './veganet.sh devnet restart_bots'
-                                    }
-                                }
-                            }
-                        } else {
-                            echo 'Skip: RESTART_BOTS is false'
-                            Utils.markStageSkippedForConditional(restartBotsStageName)
+                            echo 'Skip: BOUNCE_BOTS is false'
+                            Utils.markStageSkippedForConditional(bounceBotsStageName)
                         }
                     }
                 }
