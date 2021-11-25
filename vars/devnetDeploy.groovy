@@ -27,12 +27,8 @@ void call(Map config = [:]) {
                 value: config.createMarkets ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
             ),
             booleanParam(
-                name: 'TOPUP_BOTS',
-                value: config.topupBots ? "${config.topupBots}".toBoolean() : pipelineDefaults.dev.topupBots
-            ),
-            booleanParam(
-                name: 'RESTART_BOTS',
-                value: config.restartBots ? "${config.restartBots}".toBoolean() : pipelineDefaults.dev.restartBots
+                name: 'BOUNCE_BOTS',
+                value: config.bounceBots ? "${config.bounceBots}".toBoolean() : pipelineDefaults.dev.bounceBots
             ),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.dev.devopsInfraBranch),
         ]
