@@ -151,7 +151,7 @@ void call(Map config=[:]) {
                                 fingerprint: true
                         }
                         stage('Wait for bootstrap period to finish') {
-                            dockerisedVega.bootstrap_wait()
+                            dockerisedVega.bootstrapWait()
                         }
                         stage(' ') {
                             // start stages provided by function caller

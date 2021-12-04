@@ -151,9 +151,10 @@ void pull() {
     """
 }
 
-void bootstrap_wait() {
+void bootstrapWait() {
     sh label: 'wait for bootstrap to finish', script: """#!/bin/bash -e
         "${dockerisedvagaScript}" \
+            --datadir "${basedir}" \
             --prefix '${prefix}' \
             --portbase '${portbase}' \
             bootstrap-wait
