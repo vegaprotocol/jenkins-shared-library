@@ -150,6 +150,9 @@ void call(Map config=[:]) {
                                 allowEmptyArchive: true,
                                 fingerprint: true
                         }
+                        stage('Wait for bootstrap period to finish') {
+                            dockerisedVega.bootstrapWait()
+                        }
                         stage(' ') {
                             // start stages provided by function caller
                             // and in parallel stages: log tails of all the containers
