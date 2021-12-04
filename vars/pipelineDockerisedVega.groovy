@@ -89,7 +89,7 @@ void call(Map config=[:]) {
                         stage('Start Dockerised Vega') {
                             retry(2) {
                                 try {
-                                    timeout(time: 5, unit: 'MINUTES') {
+                                    timeout(time: 10, unit: 'MINUTES') {
                                         dockerisedVega.stop()
                                         withDockerRegistry(vars.dockerCredentials) {
                                             dockerisedVega.start()
@@ -137,7 +137,7 @@ void call(Map config=[:]) {
                     if (inputAfterCheckpointRestoreStage) {
                         stage('Restore Vega network from Checkpoint') {
                             retry(2) {
-                                timeout(time: 5, unit: 'MINUTES') {
+                                timeout(time: 10, unit: 'MINUTES') {
                                     withDockerRegistry(vars.dockerCredentials) {
                                         dockerisedVega.start(resume: true)
                                     }
