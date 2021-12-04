@@ -151,6 +151,15 @@ void pull() {
     """
 }
 
+void bootstrap_wait() {
+    sh label: 'wait for bootstrap to finish', script: """#!/bin/bash -e
+        "${dockerisedvagaScript}" \
+            --prefix '${prefix}' \
+            --portbase '${portbase}' \
+            bootstrap-wait
+    """
+}
+
 void printAllContainers() {
     sh label: 'list all the containers', script: """#!/bin/bash -e
         docker ps -a --filter "name=${prefix}"
