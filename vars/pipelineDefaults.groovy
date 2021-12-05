@@ -19,7 +19,6 @@ Map dv = [
     nonValidatorNodeCount: '1',
 
     genesisJSON: '',
-    proposalsJSON: '',
 
     tendermintLogLevel: 'info',
     vegaCoreLogLevel: 'Info',

@@ -41,7 +41,6 @@ void call(Map config=[:]) {
             validators: params.DV_VALIDATOR_NODE_COUNT as int,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
             genesisFile: params.DV_GENESIS_JSON,
-            marketProposalsFile: params.DV_PROPOSALS_JSON,
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
             dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
@@ -267,12 +266,22 @@ void setupJobParameters(List inputParameters) {
             name: 'DV_NON_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.nonValidatorNodeCount,
             description: 'Number of non-validator nodes and data-nodes'),
         /* Vega Network Config */
+        booleanParam(
+            name: 'DV_MAINNET', defaultValue: pipelineDefaults.dv.mainnet,
+            description: 'Run network as Mainnet.'),
         text(
             name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.dv.genesisJSON,
-            description: 'Tendermint genesis overrides in JSON format'),
+            description: '''Tendermint genesis overrides in JSON format, or path to a file.
+            For mainnet option leave thisi field empty and the Mainnet checkpoint will be used.
+            '''),
         text(
-            name: 'DV_PROPOSALS_JSON', defaultValue: pipelineDefaults.dv.proposalsJSON,
-            description: 'Submit proposals, vote on them, wait for enactment. JSON format'),
+            name: 'DV_CHECKPOINT', defaultValue: pipelineDefaults.dv.checkpoint,
+            description: '''Checkpoint to restore network from. A path to a cp file.
+            For mainnet option leave this field empty and the latest Mainnet checkpoint will be downloaded.
+            '''),
+        text(
+            name: 'DV_ETH_ENDPOINT', defaultValue: pipelineDefaults.dv.ethEndpointUrl,
+            description: 'Ethereum endpoint url, e.g. Infura. Leave empty to use Jenkins instance.'),
         /* Debug options */
         string(
             name: 'DV_TENDERMINT_LOG_LEVEL', defaultValue: pipelineDefaults.dv.tendermintLogLevel,
@@ -689,25 +698,6 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                     echo "Content of ${genesisFile}"
                     echo "----------------"
                     cat "${genesisFile}"
-                    echo "----------------"
-                """
-            }
-            if (dockerisedVega.marketProposalsFile?.trim()) {
-                // it contains either json or a path to a file
-                String marketProposals = dockerisedVega.marketProposalsFile.trim()
-                String marketProposalsFile = "/tmp/proposals-${dockerisedVega.prefix}.json"
-                if (fileExists(marketProposals)) {
-                    sh label: 'copy market proposals file', script: """#!/bin/bash -e
-                        cp "${marketProposals}" "${marketProposalsFile}"
-                    """
-                } else {
-                    writeFile(file: marketProposalsFile, text: marketProposals)
-                }
-                dockerisedVega.marketProposalsFile = marketProposalsFile
-                sh label: 'Custom market proposals file', script: """#!/bin/bash -e
-                    echo "Content of ${marketProposalsFile}"
-                    echo "----------------"
-                    cat "${marketProposalsFile}"
                     echo "----------------"
                 """
             }

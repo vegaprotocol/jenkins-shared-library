@@ -12,7 +12,6 @@ dockerisedvagaScript
 validators
 nonValidators
 genesisFile
-marketProposalsFile
 dlv
 
 vegaCoreVersion
@@ -44,7 +43,6 @@ void init(Map config=[:]) {
     nonValidators = config.nonValidators
 
     genesisFile = config.genesisFile
-    marketProposalsFile = config.marketProposalsFile
     dlv = config.dlv ?: false
 
     vegaCoreVersion = config.vegaCoreVersion
@@ -70,7 +68,7 @@ String toString() {
     return "DockerisedVega(prefix: \"${prefix}\", portbase: ${portbase}, " +
         "basedir: \"${basedir}\", dockerisedvagaScript: \"${dockerisedvagaScript}\", " +
         "validators: ${validators}, nonValidators: ${nonValidators}, " +
-        "genesisFile: \"${genesisFile}\", marketProposalsFile: \"${marketProposalsFile}\", " +
+        "genesisFile: \"${genesisFile}\", " +
         "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
         "vegaWalletVersion: \"${vegaWalletVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
@@ -97,9 +95,6 @@ void run(String command, boolean resume = false) {
     if (genesisFile) {
         extraArguments += " --genesis \"${genesisFile}\""
 
-    }
-    if (marketProposalsFile) {
-        extraArguments += " --proposals \"${marketProposalsFile}\""
     }
     if (dlv) {
         extraArguments += ' --dlv'
