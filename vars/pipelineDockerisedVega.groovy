@@ -423,7 +423,6 @@ void prepareEverything(
     concurrentStages << getPrepareVegatoolsStages()
     concurrentStages << getPrepareDockerisedVegaStages(
                             dockerisedVega, dockerCredentials, vars.sshCredentials)
-    concurrentStages << getPrepareMainnetStages(dockerisedVega)
 
     concurrentStages << inputPrepareStages.collectEntries { name, c ->
         [name, {
