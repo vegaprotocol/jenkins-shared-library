@@ -288,7 +288,7 @@ void setupJobParameters(List inputParameters) {
             description: '''Checkpoint to restore network from. A path to a cp file.
             For mainnet option leave this field empty and the latest Mainnet checkpoint will be downloaded.
             '''),
-        text(
+        string(
             name: 'DV_ETH_ENDPOINT', defaultValue: pipelineDefaults.dv.ethEndpointUrl,
             description: 'Ethereum endpoint url, e.g. Infura. Leave empty to use Jenkins instance.'),
         /* Debug options */
