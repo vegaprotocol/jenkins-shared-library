@@ -754,39 +754,36 @@ Map<String,Closure> getPrepareMainnetStages(
     return ['mainnet': {
         String setGetCheckpointStageName = 'Set path to mainnet genesis'
         stage(setGetCheckpointStageName) {
-            if (dockerisedVega.mainnet) {
-                if (!dockerisedVega.checkpointFile) {
-                    // TODO: download latest checkpoint from Mainnet
-                    dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
-                }
+            if (dockerisedVega.mainnet && !dockerisedVega.checkpointFile) {
+                // TODO: download latest checkpoint from Mainnet
+                dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
+                echo "Checkpoint file path: ${dockerisedVega.checkpointFile}"
             } else {
-                echo 'Skip setting Eth url: no mainnet setup.'
+                echo 'Skip setting default checkpoint filepath: no mainnet setup or manual checkpoint provided.'
                 Utils.markStageSkippedForConditional(setGetCheckpointStageName)
             }
         }
 
         String setGenesisFilepathStageName = 'Set path to mainnet genesis'
         stage(setGenesisFilepathStageName) {
-            if (dockerisedVega.mainnet) {
-                if (!dockerisedVega.genesisFile) {
-                    dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
-                }
+            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile) {
+                dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
+                echo "Genesis file path: ${dockerisedVega.genesisFile}"
             } else {
-                echo 'Skip setting Eth url: no mainnet setup.'
+                echo 'Skip setting default genesis filepath: no mainnet setup or manual genesis is provided.'
                 Utils.markStageSkippedForConditional(setGenesisFilepathStageName)
             }
         }
 
         String setEthURLStageName = 'Set Ethereum URL'
         stage(setEthURLStageName) {
-            if (dockerisedVega.mainnet) {
-                if (!dockerisedVega.ethEndpointUrl) {
-                    withCredentials([string(credentialsId: 'url-ethereum-node', variable: 'ethURL')]) {
-                        dockerisedVega.ethEndpointUrl = "${ethURL}"
-                    }
+            if (dockerisedVega.mainnet && !dockerisedVega.ethEndpointUrl) {
+                withCredentials([string(credentialsId: 'url-ethereum-node', variable: 'ethURL')]) {
+                    dockerisedVega.ethEndpointUrl = "${ethURL}"
                 }
+                echo 'Ethereum URL set'
             } else {
-                echo 'Skip setting Eth url: no mainnet setup.'
+                echo 'Skip setting default Eth url: no mainnet setup or Ethereum url is provided.'
                 Utils.markStageSkippedForConditional(setEthURLStageName)
             }
         }
