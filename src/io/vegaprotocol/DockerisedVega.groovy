@@ -323,7 +323,7 @@ Map<String,Map<String,String>> getEndpointInformation(String ip) {
     return result
 }
 
-Map<String,String> getUsefulLinks(String ip) {
+Map<String,String> getUsefulLinks(String ip, int node=0) {
     Map<String,String> result = [:]
 
     result['Network statistics'] = "http://${ip}:${portbase + 10 * node + 3}/statistics"
