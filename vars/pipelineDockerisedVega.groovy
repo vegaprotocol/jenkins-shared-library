@@ -40,7 +40,10 @@ void call(Map config=[:]) {
             dockerisedvagaScript: "${env.WORKSPACE}/devops-infra/scripts/dockerisedvega.sh",
             validators: params.DV_VALIDATOR_NODE_COUNT as int,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
+            mainnet: params.DV_MAINNET,
             genesisFile: params.DV_GENESIS_JSON,
+            checkpointFile: params.DV_CHECKPOINT,
+            ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
             dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
@@ -402,6 +405,7 @@ void prepareEverything(
                             dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
     concurrentStages << getPrepareDockerisedVegaStages(dockerisedVega, dockerCredentials)
+    concurrentStages << getPrepareMainnetStages(dockerisedVega)
 
     concurrentStages << inputPrepareStages.collectEntries { name, c ->
         [name, {
@@ -723,6 +727,60 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
         }
     }]
 }
+
+//
+// Prepare for Mainnet use-case
+//
+Map<String,Closure> getPrepareMainnetStages(
+    DockerisedVega dockerisedVega
+) {
+    return ['mainnet': {
+        String setGetCheckpointStageName = 'Set path to mainnet genesis'
+        stage(setGetCheckpointStageName) {
+            if (dockerisedVega.mainnet) {
+                if (!dockerisedVega.checkpointFile) {
+                    // TODO: download latest checkpoint from Mainnet
+                    dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
+
+                    dockerisedVega.saveResumeCheckpointToFile(pipelineDefaults.art.resumeCheckpoint)
+                    archiveArtifacts artifacts: pipelineDefaults.art.resumeCheckpoint,
+                        allowEmptyArchive: false,
+                        fingerprint: true
+                }
+            } else {
+                echo 'Skip setting Eth url: no mainnet setup.'
+                Utils.markStageSkippedForConditional(setGetCheckpointStageName)
+            }
+        }
+
+        String setGenesisFilepathStageName = 'Set path to mainnet genesis'
+        stage(setGenesisFilepathStageName) {
+            if (dockerisedVega.mainnet) {
+                if (!dockerisedVega.genesisFile) {
+                    dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
+                }
+            } else {
+                echo 'Skip setting Eth url: no mainnet setup.'
+                Utils.markStageSkippedForConditional(setGenesisFilepathStageName)
+            }
+        }
+
+        String setEthURLStageName = 'Set Ethereum URL'
+        stage(setEthURLStageName) {
+            if (dockerisedVega.mainnet) {
+                if (!dockerisedVega.ethEndpointUrl) {
+                    withCredentials([string(credentialsId: 'url-ethereum-node', variable: 'ethURL')]) {
+                        dockerisedVega.ethEndpointUrl = "${ethURL}"
+                    }
+                }
+            } else {
+                echo 'Skip setting Eth url: no mainnet setup.'
+                Utils.markStageSkippedForConditional(setEthURLStageName)
+            }
+        }
+    }]
+}
+
 
 /* void removeDockerImages(List<String> dockerImages) {
     for (String image : dockerImages) {

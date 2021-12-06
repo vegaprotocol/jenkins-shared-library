@@ -250,8 +250,8 @@ String waitForNextCheckpoint(int node=0) {
     }
 }
 
-void saveLatestCheckpointToFile(String targetFile, int node=0) {
-    String checkpointFile = getLatestCheckpointFilepath(node)
+void saveResumeCheckpointToFile(String targetFile) {
+    assert checkpointFile : 'Cannot save resume checkpoint: no checkpointFile specified at startup'
     sh label: 'Convert checkpoint to json format', script: """
         mkdir -p "\$(dirname ${targetFile})"
         "${vegatoolsScript}" checkpoint -v \
@@ -260,11 +260,21 @@ void saveLatestCheckpointToFile(String targetFile, int node=0) {
     """
 }
 
+void saveLatestCheckpointToFile(String targetFile, int node=0) {
+    String latestCheckpointFile = getLatestCheckpointFilepath(node)
+    sh label: 'Convert checkpoint to json format', script: """
+        mkdir -p "\$(dirname ${targetFile})"
+        "${vegatoolsScript}" checkpoint -v \
+            -f "${latestCheckpointFile}" \
+            -o "${targetFile}"
+    """
+}
+
 void saveGenesisToFile(String targetFile, int node=0) {
-    String genesisFile = "${basedir}/dockerised-${prefix}/tendermint/node${node}/config/genesis.json"
+    String generatedGenesisFile = "${basedir}/dockerised-${prefix}/tendermint/node${node}/config/genesis.json"
     sh label: "Copy genesis to ${targetFile}", script: """
         mkdir -p "\$(dirname ${targetFile})"
-        cp "${genesisFile}" "${targetFile}"
+        cp "${generatedGenesisFile}" "${targetFile}"
     """
 }
 
