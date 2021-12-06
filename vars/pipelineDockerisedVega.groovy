@@ -59,6 +59,9 @@ void call(Map config=[:]) {
             params: params,
             dockerCredentials: [credentialsId: 'github-vega-ci-bot-artifacts',
                                           url: 'https://docker.pkg.github.com'],
+            sshCredentials: sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
+                                                     keyFileVariable: 'PSSH_KEYFILE',
+                                                    usernameVariable: 'PSSH_USER'),
             dockerisedVega: dockerisedVega,
             jenkinsAgentPublicIP: null
         ]
@@ -418,7 +421,8 @@ void prepareEverything(
     concurrentStages << getPrepareEthereumEventForwarderStages(
                             dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
-    concurrentStages << getPrepareDockerisedVegaStages(dockerisedVega, dockerCredentials)
+    concurrentStages << getPrepareDockerisedVegaStages(
+                            dockerisedVega, dockerCredentials, vars.sshCredentials)
     concurrentStages << getPrepareMainnetStages(dockerisedVega)
 
     concurrentStages << inputPrepareStages.collectEntries { name, c ->
@@ -704,7 +708,8 @@ Map<String,Closure> getPrepareVegatoolsStages() {
 //
 Map<String,Closure> getPrepareDockerisedVegaStages(
     DockerisedVega dockerisedVega,
-    Map<String,String> dockerCredentials
+    Map<String,String> dockerCredentials,
+    def sshCredentials
 ) {
     return ['dv': {
         stage('Setup') {
@@ -739,11 +744,18 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                 }
             }
         }
-        String setGetCheckpointStageName = 'Set path to mainnet genesis'
+
+        String setGetCheckpointStageName = 'Mainnet checkpoint'
         stage(setGetCheckpointStageName) {
             if (dockerisedVega.mainnet && !dockerisedVega.checkpointFile?.trim()) {
-                // TODO: download latest checkpoint from Mainnet
-                dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
+                dir('checkpoint-store') {
+                    withCredentials([sshCredentials]) {
+                        dockerisedVega.checkpointFile = sh(
+                            script: './download-checkpoint.sh mainnet',
+                            returnStdout: true,
+                        ).trim()
+                    }
+                }
                 echo "Checkpoint file path: ${dockerisedVega.checkpointFile}"
             } else {
                 echo 'Skip setting default checkpoint filepath: no mainnet setup or manual checkpoint provided.'
