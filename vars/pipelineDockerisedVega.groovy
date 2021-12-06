@@ -104,12 +104,29 @@ void call(Map config=[:]) {
                                 }
                             }
                         }
-                        stage('Store genesis file') {
-                            dockerisedVega.saveGenesisToFile(pipelineDefaults.art.genesis)
-                            archiveArtifacts artifacts: pipelineDefaults.art.genesis,
-                                allowEmptyArchive: true,
-                                fingerprint: true
+
+                        stage('Store some config') {
+                            parallel([
+                                'Store genesis file': {
+                                    dockerisedVega.saveGenesisToFile(pipelineDefaults.art.genesis)
+                                    archiveArtifacts artifacts: pipelineDefaults.art.genesis,
+                                        allowEmptyArchive: true,
+                                        fingerprint: true
+                                },
+                                'Store resume checkpoint': {
+                                    if (dockerisedVega.checkpointFile) {
+                                        dockerisedVega.saveResumeCheckpointToFile(pipelineDefaults.art.resumeCheckpoint)
+                                        archiveArtifacts artifacts: pipelineDefaults.art.resumeCheckpoint,
+                                            allowEmptyArchive: false,
+                                            fingerprint: true
+                                    } else {
+                                        echo 'Skip storing resume checkpoint: no checkpoint file provided.'
+                                        Utils.markStageSkippedForConditional('Store resume checkpoint')
+                                    }
+                                }
+                            ])
                         }
+
                         stage(' ') {
                             // start stages provided by function caller
                             // and in parallel stages: log tails of all the containers
@@ -741,11 +758,6 @@ Map<String,Closure> getPrepareMainnetStages(
                 if (!dockerisedVega.checkpointFile) {
                     // TODO: download latest checkpoint from Mainnet
                     dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
-
-                    dockerisedVega.saveResumeCheckpointToFile(pipelineDefaults.art.resumeCheckpoint)
-                    archiveArtifacts artifacts: pipelineDefaults.art.resumeCheckpoint,
-                        allowEmptyArchive: false,
-                        fingerprint: true
                 }
             } else {
                 echo 'Skip setting Eth url: no mainnet setup.'
