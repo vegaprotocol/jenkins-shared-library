@@ -742,19 +742,9 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                 }
             }
         }
-    }]
-}
-
-//
-// Prepare for Mainnet use-case
-//
-Map<String,Closure> getPrepareMainnetStages(
-    DockerisedVega dockerisedVega
-) {
-    return ['mainnet': {
         String setGetCheckpointStageName = 'Set path to mainnet genesis'
         stage(setGetCheckpointStageName) {
-            if (dockerisedVega.mainnet && !dockerisedVega.checkpointFile) {
+            if (dockerisedVega.mainnet && !dockerisedVega.checkpointFile?.trim()) {
                 // TODO: download latest checkpoint from Mainnet
                 dockerisedVega.checkpointFile = 'checkpoint-store/Mainnet/v0.45.5/20211126102313-377988-d458a45f4667cd8ea4508f37701bb769ce07d70bab39b4ce56ce6d73c5b7a15c.cp'
                 echo "Checkpoint file path: ${dockerisedVega.checkpointFile}"
@@ -766,7 +756,7 @@ Map<String,Closure> getPrepareMainnetStages(
 
         String setGenesisFilepathStageName = 'Set path to mainnet genesis'
         stage(setGenesisFilepathStageName) {
-            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile) {
+            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile?.trim()) {
                 dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
                 echo "Genesis file path: ${dockerisedVega.genesisFile}"
             } else {
@@ -777,7 +767,7 @@ Map<String,Closure> getPrepareMainnetStages(
 
         String setEthURLStageName = 'Set Ethereum URL'
         stage(setEthURLStageName) {
-            if (dockerisedVega.mainnet && !dockerisedVega.ethEndpointUrl) {
+            if (dockerisedVega.mainnet && !dockerisedVega.ethEndpointUrl?.trim()) {
                 withCredentials([string(credentialsId: 'url-ethereum-node', variable: 'ethURL')]) {
                     dockerisedVega.ethEndpointUrl = "${ethURL}"
                 }
