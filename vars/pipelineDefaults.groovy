@@ -14,11 +14,16 @@ Map dv = [
     ethereumEventForwarderBranch: '', // 'main',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
+    networksBranch: 'master',
+    checkpointStoreBranch: 'main',
 
     validatorNodeCount: '2',
     nonValidatorNodeCount: '1',
 
+    mainnet: false,
     genesisJSON: '',
+    checkpoint: '',
+    ethEndpointUrl: '',
 
     tendermintLogLevel: 'info',
     vegaCoreLogLevel: 'Info',

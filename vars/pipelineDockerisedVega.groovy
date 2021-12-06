@@ -258,6 +258,12 @@ void setupJobParameters(List inputParameters) {
         string(
             name: 'VEGATOOLS_BRANCH', defaultValue: pipelineDefaults.dv.vegatoolsBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/vegatools repository'),
+        string(
+            name: 'NETWORKS_BRANCH', defaultValue: pipelineDefaults.dv.networksBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/networks repository'),
+        string(
+            name: 'CHECKPOINT_STORE_BRANCH', defaultValue: pipelineDefaults.dv.checkpointStoreBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository'),
         /* Dockerised Vega Config */
         string(
             name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.validatorNodeCount,
@@ -343,6 +349,12 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         ],
         [   name: 'devops-infra',
             branch: params.DEVOPS_INFRA_BRANCH,
+        ],
+        [   name: 'networks',
+            branch: params.NETWORKS_BRANCH,
+        ],
+        [   name: 'checkpoint-store',
+            branch: params.CHECKPOINT_STORE_BRANCH,
         ],
     ])
 

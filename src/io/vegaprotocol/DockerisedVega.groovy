@@ -11,8 +11,12 @@ basedir
 dockerisedvagaScript
 validators
 nonValidators
-genesisFile
 dlv
+
+mainnet
+genesisFile
+checkpointFile
+ethEndpointUrl
 
 vegaCoreVersion
 dataNodeVersion
@@ -42,7 +46,11 @@ void init(Map config=[:]) {
     assert config.nonValidators : 'nonValidators is required'
     nonValidators = config.nonValidators
 
+    mainnet = config.mainnet ?: false
     genesisFile = config.genesisFile
+    checkpointFile = config.checkpointFile
+    ethEndpointUrl = config.ethEndpointUrl
+
     dlv = config.dlv ?: false
 
     vegaCoreVersion = config.vegaCoreVersion
@@ -68,7 +76,8 @@ String toString() {
     return "DockerisedVega(prefix: \"${prefix}\", portbase: ${portbase}, " +
         "basedir: \"${basedir}\", dockerisedvagaScript: \"${dockerisedvagaScript}\", " +
         "validators: ${validators}, nonValidators: ${nonValidators}, " +
-        "genesisFile: \"${genesisFile}\", " +
+        "mainnet: \"${mainnet}\", genesisFile: \"${genesisFile}\", checkpointFile=\"${checkpointFile}\", " +
+        "ethEndpointUrl: \"${ethEndpointUrl}\", " +
         "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
         "vegaWalletVersion: \"${vegaWalletVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
@@ -92,9 +101,17 @@ void run(String command, boolean resume = false) {
     if (ethereumEventForwarderVersion) {
         extraArguments += " --eef-version \"${ethereumEventForwarderVersion}\""
     }
+    if (mainnet) {
+        extraArguments += ' --mainnet'
+    }
     if (genesisFile) {
         extraArguments += " --genesis \"${genesisFile}\""
-
+    }
+    if (checkpointFile) {
+        extraArguments += " --resume-checkpoint \"${checkpointFile}\""
+    }
+    if (ethEndpointUrl) {
+        extraArguments += " --eth-endpoint \"${ethEndpointUrl}\""
     }
     if (dlv) {
         extraArguments += ' --dlv'
