@@ -26,7 +26,6 @@ void call(Map config = [:]) {
             string(name: 'DV_NON_VALIDATOR_NODE_COUNT',
                    value: config.nonValidators ? "${config.nonValidators}" : pipelineDefaults.st.nonValidatorNodeCount),
             text(name: 'DV_GENESIS_JSON', value: config.genesis ?: pipelineDefaults.st.genesisJSON),
-            text(name: 'DV_PROPOSALS_JSON', value: config.proposals ?: pipelineDefaults.st.proposalsJSON),
 
             // Pipeline config
             string(name: 'JENKINS_AGENT_LABEL', value: config.agent ?: pipelineDefaults.st.agent),

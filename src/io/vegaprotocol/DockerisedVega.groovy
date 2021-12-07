@@ -11,9 +11,12 @@ basedir
 dockerisedvagaScript
 validators
 nonValidators
-genesisFile
-marketProposalsFile
 dlv
+
+mainnet
+genesisFile
+checkpointFile
+ethEndpointUrl
 
 vegaCoreVersion
 dataNodeVersion
@@ -43,8 +46,11 @@ void init(Map config=[:]) {
     assert config.nonValidators : 'nonValidators is required'
     nonValidators = config.nonValidators
 
+    mainnet = config.mainnet ?: false
     genesisFile = config.genesisFile
-    marketProposalsFile = config.marketProposalsFile
+    checkpointFile = config.checkpointFile
+    ethEndpointUrl = config.ethEndpointUrl
+
     dlv = config.dlv ?: false
 
     vegaCoreVersion = config.vegaCoreVersion
@@ -70,7 +76,8 @@ String toString() {
     return "DockerisedVega(prefix: \"${prefix}\", portbase: ${portbase}, " +
         "basedir: \"${basedir}\", dockerisedvagaScript: \"${dockerisedvagaScript}\", " +
         "validators: ${validators}, nonValidators: ${nonValidators}, " +
-        "genesisFile: \"${genesisFile}\", marketProposalsFile: \"${marketProposalsFile}\", " +
+        "mainnet: \"${mainnet}\", genesisFile: \"${genesisFile}\", checkpointFile=\"${checkpointFile}\", " +
+        "ethEndpointUrl: \"${ethEndpointUrl}\", " +
         "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
         "vegaWalletVersion: \"${vegaWalletVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
@@ -94,12 +101,17 @@ void run(String command, boolean resume = false) {
     if (ethereumEventForwarderVersion) {
         extraArguments += " --eef-version \"${ethereumEventForwarderVersion}\""
     }
+    if (mainnet) {
+        extraArguments += ' --mainnet'
+    }
     if (genesisFile) {
         extraArguments += " --genesis \"${genesisFile}\""
-
     }
-    if (marketProposalsFile) {
-        extraArguments += " --proposals \"${marketProposalsFile}\""
+    if (checkpointFile) {
+        extraArguments += " --resume-checkpoint \"${checkpointFile}\""
+    }
+    if (ethEndpointUrl) {
+        extraArguments += " --eth-endpoint \"${ethEndpointUrl}\""
     }
     if (dlv) {
         extraArguments += ' --dlv'
@@ -238,8 +250,8 @@ String waitForNextCheckpoint(int node=0) {
     }
 }
 
-void saveLatestCheckpointToFile(String targetFile, int node=0) {
-    String checkpointFile = getLatestCheckpointFilepath(node)
+void saveResumeCheckpointToFile(String targetFile) {
+    assert checkpointFile : 'Cannot save resume checkpoint: no checkpointFile specified at startup'
     sh label: 'Convert checkpoint to json format', script: """
         mkdir -p "\$(dirname ${targetFile})"
         "${vegatoolsScript}" checkpoint -v \
@@ -248,11 +260,21 @@ void saveLatestCheckpointToFile(String targetFile, int node=0) {
     """
 }
 
+void saveLatestCheckpointToFile(String targetFile, int node=0) {
+    String latestCheckpointFile = getLatestCheckpointFilepath(node)
+    sh label: 'Convert checkpoint to json format', script: """
+        mkdir -p "\$(dirname ${targetFile})"
+        "${vegatoolsScript}" checkpoint -v \
+            -f "${latestCheckpointFile}" \
+            -o "${targetFile}"
+    """
+}
+
 void saveGenesisToFile(String targetFile, int node=0) {
-    String genesisFile = "${basedir}/dockerised-${prefix}/tendermint/node${node}/config/genesis.json"
+    String generatedGenesisFile = "${basedir}/dockerised-${prefix}/tendermint/node${node}/config/genesis.json"
     sh label: "Copy genesis to ${targetFile}", script: """
         mkdir -p "\$(dirname ${targetFile})"
-        cp "${genesisFile}" "${targetFile}"
+        cp "${generatedGenesisFile}" "${targetFile}"
     """
 }
 
@@ -275,9 +297,14 @@ Map<String,Map<String,String>> getEndpointInformation(String ip) {
     }
     for (int node = validators; node < validators + nonValidators; node++) {
         result["data-node ${node}"] = [
-            'gRPC': "${ip}:${portbase + 100 + 10 * node + 7}",
-            'gql': "http://${ip}:${portbase + 100 + 10 * node + 8}",
-            'REST': "http://${ip}:${portbase + 100 + 10 * node + 9}"
+            'gRPC': "${ip}:${portbase + 10 * node + 7}",
+            'gql': "http://${ip}:${portbase + 10 * node + 8}",
+            'REST': "http://${ip}:${portbase + 10 * node + 9}"
+        ]
+    }
+    for (int node = 0; node < validators + nonValidators; node++) {
+        result["tendermint ${node}"] = [
+            'REST': "http://${ip}:${portbase + 10 * node + 1}"
         ]
     }
     result['Ganache'] = [
@@ -296,10 +323,13 @@ Map<String,Map<String,String>> getEndpointInformation(String ip) {
     return result
 }
 
-Map<String,String> getUsefulLinks(String ip) {
+Map<String,String> getUsefulLinks(String ip, int node=0) {
     Map<String,String> result = [:]
 
-    result['Network statistics'] = "http://${ip}:${portbase + 100 + 10 * validators + 9}/statistics"
+    result['Network statistics'] = "http://${ip}:${portbase + 10 * node + 3}/statistics"
+    result['Known parties'] = "http://${ip}:${portbase + 10 * node + 3}/parties"
+    result['Network parameters'] = "http://${ip}:${portbase + 10 * node + 3}/network/parameters"
+    result['Gensis'] = "http://${ip}:${portbase + 10 * node + 1}/genesis"
 
     return result
 }

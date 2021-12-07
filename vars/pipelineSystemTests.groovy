@@ -82,6 +82,9 @@ void call() {
                     sh 'printenv'
                     echo "vars=${vars.inspect()}"
                 }
+                stage('Wait for bootstrap period to finish') {
+                    dockerisedVega.bootstrapWait()
+                }
                 stage('Run system-tests') {
                     try {
                         dir('system-tests/scripts') {

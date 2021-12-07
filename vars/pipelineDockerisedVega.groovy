@@ -40,8 +40,10 @@ void call(Map config=[:]) {
             dockerisedvagaScript: "${env.WORKSPACE}/devops-infra/scripts/dockerisedvega.sh",
             validators: params.DV_VALIDATOR_NODE_COUNT as int,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
+            mainnet: params.DV_MAINNET,
             genesisFile: params.DV_GENESIS_JSON,
-            marketProposalsFile: params.DV_PROPOSALS_JSON,
+            checkpointFile: params.DV_CHECKPOINT,
+            ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
             dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
@@ -57,6 +59,9 @@ void call(Map config=[:]) {
             params: params,
             dockerCredentials: [credentialsId: 'github-vega-ci-bot-artifacts',
                                           url: 'https://docker.pkg.github.com'],
+            sshCredentials: sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
+                                                     keyFileVariable: 'PSSH_KEYFILE',
+                                                    usernameVariable: 'PSSH_USER'),
             dockerisedVega: dockerisedVega,
             jenkinsAgentPublicIP: null
         ]
@@ -102,12 +107,29 @@ void call(Map config=[:]) {
                                 }
                             }
                         }
-                        stage('Store genesis file') {
-                            dockerisedVega.saveGenesisToFile(pipelineDefaults.art.genesis)
-                            archiveArtifacts artifacts: pipelineDefaults.art.genesis,
-                                allowEmptyArchive: true,
-                                fingerprint: true
+
+                        stage('Store some config') {
+                            parallel([
+                                'Store genesis file': {
+                                    dockerisedVega.saveGenesisToFile(pipelineDefaults.art.genesis)
+                                    archiveArtifacts artifacts: pipelineDefaults.art.genesis,
+                                        allowEmptyArchive: true,
+                                        fingerprint: true
+                                },
+                                'Store resume checkpoint': {
+                                    if (dockerisedVega.checkpointFile) {
+                                        dockerisedVega.saveResumeCheckpointToFile(pipelineDefaults.art.resumeCheckpoint)
+                                        archiveArtifacts artifacts: pipelineDefaults.art.resumeCheckpoint,
+                                            allowEmptyArchive: false,
+                                            fingerprint: true
+                                    } else {
+                                        echo 'Skip storing resume checkpoint: no checkpoint file provided.'
+                                        Utils.markStageSkippedForConditional('Store resume checkpoint')
+                                    }
+                                }
+                            ])
                         }
+
                         stage(' ') {
                             // start stages provided by function caller
                             // and in parallel stages: log tails of all the containers
@@ -149,9 +171,6 @@ void call(Map config=[:]) {
                             archiveArtifacts artifacts: pipelineDefaults.art.genesisRestore,
                                 allowEmptyArchive: true,
                                 fingerprint: true
-                        }
-                        stage('Wait for bootstrap period to finish') {
-                            dockerisedVega.bootstrapWait()
                         }
                         stage(' ') {
                             // start stages provided by function caller
@@ -259,6 +278,12 @@ void setupJobParameters(List inputParameters) {
         string(
             name: 'VEGATOOLS_BRANCH', defaultValue: pipelineDefaults.dv.vegatoolsBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/vegatools repository'),
+        string(
+            name: 'NETWORKS_BRANCH', defaultValue: pipelineDefaults.dv.networksBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/networks repository'),
+        string(
+            name: 'CHECKPOINT_STORE_BRANCH', defaultValue: pipelineDefaults.dv.checkpointStoreBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository'),
         /* Dockerised Vega Config */
         string(
             name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.validatorNodeCount,
@@ -267,12 +292,22 @@ void setupJobParameters(List inputParameters) {
             name: 'DV_NON_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.nonValidatorNodeCount,
             description: 'Number of non-validator nodes and data-nodes'),
         /* Vega Network Config */
+        booleanParam(
+            name: 'DV_MAINNET', defaultValue: pipelineDefaults.dv.mainnet,
+            description: 'Run network as Mainnet.'),
         text(
             name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.dv.genesisJSON,
-            description: 'Tendermint genesis overrides in JSON format'),
+            description: '''Tendermint genesis overrides in JSON format, or path to a file.
+            For mainnet option leave thisi field empty and the Mainnet checkpoint will be used.
+            '''),
         text(
-            name: 'DV_PROPOSALS_JSON', defaultValue: pipelineDefaults.dv.proposalsJSON,
-            description: 'Submit proposals, vote on them, wait for enactment. JSON format'),
+            name: 'DV_CHECKPOINT', defaultValue: pipelineDefaults.dv.checkpoint,
+            description: '''Checkpoint to restore network from. A path to a cp file.
+            For mainnet option leave this field empty and the latest Mainnet checkpoint will be downloaded.
+            '''),
+        string(
+            name: 'DV_ETH_ENDPOINT', defaultValue: pipelineDefaults.dv.ethEndpointUrl,
+            description: 'Ethereum endpoint url, e.g. Infura. Leave empty to use Jenkins instance.'),
         /* Debug options */
         string(
             name: 'DV_TENDERMINT_LOG_LEVEL', defaultValue: pipelineDefaults.dv.tendermintLogLevel,
@@ -335,6 +370,12 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         [   name: 'devops-infra',
             branch: params.DEVOPS_INFRA_BRANCH,
         ],
+        [   name: 'networks',
+            branch: params.NETWORKS_BRANCH,
+        ],
+        [   name: 'checkpoint-store',
+            branch: params.CHECKPOINT_STORE_BRANCH,
+        ],
     ])
 
     Map<String,Closure> concurrentStages = [:]
@@ -380,7 +421,8 @@ void prepareEverything(
     concurrentStages << getPrepareEthereumEventForwarderStages(
                             dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
-    concurrentStages << getPrepareDockerisedVegaStages(dockerisedVega, dockerCredentials)
+    concurrentStages << getPrepareDockerisedVegaStages(
+                            dockerisedVega, dockerCredentials, vars.sshCredentials)
 
     concurrentStages << inputPrepareStages.collectEntries { name, c ->
         [name, {
@@ -665,7 +707,8 @@ Map<String,Closure> getPrepareVegatoolsStages() {
 //
 Map<String,Closure> getPrepareDockerisedVegaStages(
     DockerisedVega dockerisedVega,
-    Map<String,String> dockerCredentials
+    Map<String,String> dockerCredentials,
+    def sshCredentials
 ) {
     return ['dv': {
         stage('Setup') {
@@ -692,25 +735,6 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                     echo "----------------"
                 """
             }
-            if (dockerisedVega.marketProposalsFile?.trim()) {
-                // it contains either json or a path to a file
-                String marketProposals = dockerisedVega.marketProposalsFile.trim()
-                String marketProposalsFile = "/tmp/proposals-${dockerisedVega.prefix}.json"
-                if (fileExists(marketProposals)) {
-                    sh label: 'copy market proposals file', script: """#!/bin/bash -e
-                        cp "${marketProposals}" "${marketProposalsFile}"
-                    """
-                } else {
-                    writeFile(file: marketProposalsFile, text: marketProposals)
-                }
-                dockerisedVega.marketProposalsFile = marketProposalsFile
-                sh label: 'Custom market proposals file', script: """#!/bin/bash -e
-                    echo "Content of ${marketProposalsFile}"
-                    echo "----------------"
-                    cat "${marketProposalsFile}"
-                    echo "----------------"
-                """
-            }
         }
         stage('Docker Pull') {
             retry(3) {
@@ -719,8 +743,51 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                 }
             }
         }
+
+        String setGetCheckpointStageName = 'Mainnet checkpoint'
+        stage(setGetCheckpointStageName) {
+            if (dockerisedVega.mainnet && !dockerisedVega.checkpointFile?.trim()) {
+                dir('checkpoint-store') {
+                    withCredentials([sshCredentials]) {
+                        dockerisedVega.checkpointFile = sh(
+                            script: './download-checkpoint.sh mainnet',
+                            returnStdout: true,
+                        ).trim()
+                    }
+                }
+                echo "Checkpoint file path: ${dockerisedVega.checkpointFile}"
+            } else {
+                echo 'Skip setting default checkpoint filepath: no mainnet setup or manual checkpoint provided.'
+                Utils.markStageSkippedForConditional(setGetCheckpointStageName)
+            }
+        }
+
+        String setGenesisFilepathStageName = 'Set path to mainnet genesis'
+        stage(setGenesisFilepathStageName) {
+            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile?.trim()) {
+                dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
+                echo "Genesis file path: ${dockerisedVega.genesisFile}"
+            } else {
+                echo 'Skip setting default genesis filepath: no mainnet setup or manual genesis is provided.'
+                Utils.markStageSkippedForConditional(setGenesisFilepathStageName)
+            }
+        }
+
+        String setEthURLStageName = 'Set Ethereum URL'
+        stage(setEthURLStageName) {
+            if (dockerisedVega.mainnet && !dockerisedVega.ethEndpointUrl?.trim()) {
+                withCredentials([string(credentialsId: 'url-ethereum-node', variable: 'ethURL')]) {
+                    dockerisedVega.ethEndpointUrl = "${ethURL}"
+                }
+                echo 'Ethereum URL set'
+            } else {
+                echo 'Skip setting default Eth url: no mainnet setup or Ethereum url is provided.'
+                Utils.markStageSkippedForConditional(setEthURLStageName)
+            }
+        }
     }]
 }
+
 
 /* void removeDockerImages(List<String> dockerImages) {
     for (String image : dockerImages) {

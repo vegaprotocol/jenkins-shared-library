@@ -14,12 +14,16 @@ Map dv = [
     ethereumEventForwarderBranch: '', // 'main',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
+    networksBranch: 'master',
+    checkpointStoreBranch: 'main',
 
     validatorNodeCount: '2',
     nonValidatorNodeCount: '1',
 
+    mainnet: false,
     genesisJSON: '',
-    proposalsJSON: '',
+    checkpoint: '',
+    ethEndpointUrl: '',
 
     tendermintLogLevel: 'info',
     vegaCoreLogLevel: 'Info',
@@ -78,6 +82,7 @@ Map stag = [
 Map art = [
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',
+    resumeCheckpoint: 'output/network/checkpoint-resume.json',
     genesis: 'output/network/genesis.json',
     genesisRestore: 'output/network/genesis-restore.json',
     lnl: [
