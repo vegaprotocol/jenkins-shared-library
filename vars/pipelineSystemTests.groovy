@@ -19,6 +19,9 @@ void call() {
                 name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: pipelineDefaults.st.testFunction,
                 description: 'Run only a tests with a specified function name. This is actually a "pytest -k $TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
             string(
+                name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: pipelineDefaults.st.testMark,
+                description: 'Run only a tests with the specified mark(s). This is actually a "pytest -m $TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
+            string(
                 name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
             string(
@@ -74,6 +77,7 @@ void call() {
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
                 "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
+                "TEST_MARK=${params.SYSTEM_TESTS_TEST_MARK}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
                 "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsState}",

@@ -38,6 +38,7 @@ Map dv = [
 Map st = dv + [
     testDirectory: 'CoreTesting/bvt',
     testFunction: '',
+    testMark:'',
     protosBranch: 'develop',
     systemTestsBranch: 'develop',
     systemTestsDebug: false,
