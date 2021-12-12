@@ -19,6 +19,7 @@ void call(Map config = [:]) {
             string(name: 'SYSTEM_TESTS_TEST_DIRECTORY',
                    value: config.testDirectory ?: pipelineDefaults.st.testDirectory),
             string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.st.testFunction),
+            string(name: 'SYSTEM_TESTS_TEST_MARK', value: config.testMark ?: pipelineDefaults.st.testMark),
 
             // Network config
             string(name: 'DV_VALIDATOR_NODE_COUNT',
