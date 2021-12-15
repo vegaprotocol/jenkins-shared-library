@@ -56,7 +56,7 @@ void init(Map config=[:]) {
     vegaCoreVersion = config.vegaCoreVersion
     dataNodeVersion = config.dataNodeVersion
     vegaWalletVersion = config.vegaWalletVersion
-    ethereumEventForwarderVersion = config.ethereumEventForwarder
+    ethereumEventForwarderVersion = config.ethereumEventForwarderVersion
 
     dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
