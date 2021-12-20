@@ -81,6 +81,7 @@ void call() {
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
                 "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsState}",
+                "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
                     sh 'printenv'
