@@ -82,6 +82,7 @@ void call() {
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.lnl.systemTestsState}",
                 "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION_CREATE}",
+                "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
                     sh 'printenv'
@@ -125,6 +126,7 @@ void call() {
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.lnl.systemTestsState}",
                 "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION_ASSERT}",
+                "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
                     sh 'printenv'
