@@ -838,6 +838,8 @@ void runMainStages(Closure inputMainStage, DockerisedVega dockerisedVega, Map va
                     // it fails if container is stopped or does not exist
                     sh label: "Check if container is running ${shortName}",
                         script: """#!/bin/bash -e
+                        docker container inspect ${longName}
+                        docker ps -a --filter "name=${longName}"
                         docker top ${longName}
                         """
                 }
