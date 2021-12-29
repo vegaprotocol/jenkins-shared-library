@@ -48,6 +48,7 @@ void call() {
                         sh label: 'Create directories', script: """#!/bin/bash -e
                             mkdir -p "\$(dirname ${pipelineDefaults.art.systemTestsJunit})"
                             mkdir -p "${pipelineDefaults.art.systemTestsState}"
+                            mkdir -p "${pipelineDefaults.art.systemTestsLogs}"
                         """
                     }
                     stage('build system-tests docker image') {
@@ -81,6 +82,7 @@ void call() {
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
                 "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsState}",
+                "SYSTEM_TESTS_LOG_OUTPUT=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsLogs}"
                 "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
@@ -99,6 +101,7 @@ void call() {
                         }
                     } finally {
                         String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
+                        String testLogDirectory = 'system-tests/test_logs'
                         if (fileExists(junitReportFile)) {
                             sh label: 'copy junit report to artifact directory', script: """#!/bin/bash -e
                                 cp "${junitReportFile}" "${pipelineDefaults.art.systemTestsJunit}"
@@ -112,6 +115,14 @@ void call() {
                         archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/**/*",
                             allowEmptyArchive: true,
                             fingerprint: true
+                        if (directoryExists(testLogDirectory)) {
+                            sh label: 'copy test logs to artifact directory', script: """#!/bin/bash -e
+                                cp -r "${testLogDirectory}" "${pipelineDefaults.art.systemTestsLogs}"
+                            """
+                            archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsLogs}/**/*",
+                                allowEmptyArchive: true,
+                                fingerprint: true
+                        }
                         echo "System Tests has finished with state: ${currentBuild.result}"
                     }
                 }

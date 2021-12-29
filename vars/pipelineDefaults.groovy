@@ -82,6 +82,7 @@ Map stag = [
 @Field
 Map art = [
     systemTestsJunit: 'output/junit-report/system-tests.xml',
+    systemTestsLogs: 'output/test_logs'
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',
     resumeCheckpoint: 'output/network/checkpoint-resume.json',
     genesis: 'output/network/genesis.json',
