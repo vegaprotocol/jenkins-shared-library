@@ -115,7 +115,7 @@ void call() {
                         archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/**/*",
                             allowEmptyArchive: true,
                             fingerprint: true
-                        if (directoryExists(testLogDirectory)) {
+                        if (fileExists(testLogDirectory)) {
                             sh label: 'copy test logs to artifact directory', script: """#!/bin/bash -e
                                 cp -r "${testLogDirectory}" "${pipelineDefaults.art.systemTestsLogs}"
                             """
