@@ -82,7 +82,7 @@ void call() {
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
                 "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsState}",
-                "SYSTEM_TESTS_LOG_OUTPUT=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsLogs}"
+                "SYSTEM_TESTS_LOG_OUTPUT=${env.WORKSPACE}/${pipelineDefaults.art.systemTestsLogs}",
                 "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
