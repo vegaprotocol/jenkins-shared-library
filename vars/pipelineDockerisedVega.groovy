@@ -831,6 +831,18 @@ void runMainStages(Closure inputMainStage, DockerisedVega dockerisedVega, Map va
                     script: """#!/bin/bash -e
                     ${dockerLogsCommand} ${longName}
                     """
+                // catchError - ff the body throws an exception, mark the build 
+                // and stage as a failure, but nonetheless continue to execute the Pipeline
+                catchError(message: "${shortName} stopped", stageResult: 'FAILURE') {
+                    // docker top - displays the running processes of a container
+                    // it fails if container is stopped or does not exist
+                    sh label: "Check if container is running ${shortName}",
+                        script: """#!/bin/bash -e
+                        docker container inspect ${longName}
+                        docker ps -a --filter "name=${longName}"
+                        docker top ${longName}
+                        """
+                }
             }
         }
     }
