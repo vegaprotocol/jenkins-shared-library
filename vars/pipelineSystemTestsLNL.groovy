@@ -21,6 +21,9 @@ void call() {
                 name: 'SYSTEM_TESTS_TEST_FUNCTION_ASSERT', defaultValue: pipelineDefaults.lnl.testFunctionAssert,
                 description: 'Specify which tests should be run after the network restart. These should validate the network state after resume from checkpoint'),
             string(
+                name: 'SYSTEM_TESTS_LNL_LOAD_TIMEOUT', defaultValue: pipelineDefaults.lnl.testLnlLoadTimeout,
+                description: 'Override how long the LNL System tests will wait for the network to load from a checkpoint before failing.'),
+            string(
                 name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.lnl.protosBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
             string(

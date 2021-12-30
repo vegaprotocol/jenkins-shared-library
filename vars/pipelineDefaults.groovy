@@ -50,7 +50,8 @@ Map st = dv + [
 Map lnl = st + [
     testDirectory: 'LNL',
     testFunctionCreate: 'create_data',
-    testFunctionAssert: 'assert_data'
+    testFunctionAssert: 'assert_data',
+    testLnlLoadTimeout: ''
 ]
 
 @Field
