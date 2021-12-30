@@ -129,6 +129,7 @@ void call() {
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.lnl.systemTestsState}",
                 "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION_ASSERT}",
+                "SYSTEM_TESTS_LNL_LOAD_TIMEOUT=${params.SYSTEM_TESTS_LNL_LOAD_TIMEOUT}",
                 "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
             ]) {
                 stage('Check setup') {
