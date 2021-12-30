@@ -101,7 +101,7 @@ void call() {
                         }
                     } finally {
                         String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
-                        String testLogDirectory = 'system-tests/test_logs'
+                        String testLogDirectory = 'system-tests/test_logs/'
                         if (fileExists(junitReportFile)) {
                             sh label: 'copy junit report to artifact directory', script: """#!/bin/bash -e
                                 cp "${junitReportFile}" "${pipelineDefaults.art.systemTestsJunit}"
