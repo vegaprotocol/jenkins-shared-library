@@ -49,8 +49,8 @@ Map st = dv + [
 @Field
 Map lnl = st + [
     testDirectory: 'LNL',
-    testFunctionCreate: 'create_data',
-    testFunctionAssert: 'assert_data'
+    testFunctionCreate: 'create_data_test',
+    testFunctionAssert: 'assert_data_test'
 ]
 
 @Field
