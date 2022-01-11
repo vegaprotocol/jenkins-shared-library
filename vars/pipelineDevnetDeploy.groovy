@@ -46,7 +46,7 @@ void call() {
                                                      keyFileVariable: 'PSSH_KEYFILE',
                                                     usernameVariable: 'PSSH_USER')
         Map dockerCredentials = [credentialsId: 'github-vega-ci-bot-artifacts',
-                                           url: 'https://docker.pkg.github.com']
+                                           url: 'https://ghcr.io']
         skipDefaultCheckout()
         cleanWs()
 
