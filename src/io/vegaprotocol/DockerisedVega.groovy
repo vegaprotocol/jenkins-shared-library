@@ -8,6 +8,7 @@ import com.cloudbees.groovy.cps.NonCPS
 prefix
 portbase
 basedir
+homedir
 dockerisedvagaScript
 validators
 nonValidators
@@ -40,6 +41,7 @@ void init(Map config=[:]) {
     portbase = config.portbase
     assert config.basedir : 'basedir is required'
     basedir = config.basedir
+    homedir =  "${basedir}/dockerised-${prefix}"
     dockerisedvagaScript = config.dockerisedvagaScript ?: 'devops-infra/scripts/dockerisedvega.sh'
     assert config.validators : 'validators is required'
     validators = config.validators

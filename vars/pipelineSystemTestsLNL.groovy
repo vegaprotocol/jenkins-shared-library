@@ -75,7 +75,7 @@ void call() {
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.basedir}",
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
@@ -120,7 +120,7 @@ void call() {
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.basedir}",
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
