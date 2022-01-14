@@ -36,9 +36,9 @@ Map dv = [
 // System Tests pipeline
 @Field
 Map st = dv + [
-    testDirectory: 'CoreTesting/bvt',
+    testDirectory: '',
     testFunction: '',
-    testMark:'',
+    testMark:'smoke',
     protosBranch: 'develop',
     systemTestsBranch: 'develop',
     systemTestsDebug: false,
