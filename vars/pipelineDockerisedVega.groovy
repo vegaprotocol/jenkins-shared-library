@@ -33,12 +33,18 @@ void call(Map config=[:]) {
         String buildShortName = env.JOB_BASE_NAME.replaceAll('[^A-Za-z0-9\\._]', '-')
         String dockerisedVegaPrefix = "dv-${buildShortName}-${env.BUILD_NUMBER}-${env.EXECUTOR_NUMBER}"
 
+        int nodeCount = params.DV_VALIDATOR_NODE_COUNT as int
+
+        if (params.DV_MAINNET && nodeCount == pipelineDefaults.dv.validatorNodeCount) {
+            nodeCount = 13 // Hardcoded, cos currently there is no way to get this information
+        }
+
         DockerisedVega dockerisedVega = getDockerisedVega(
             prefix: dockerisedVegaPrefix,
             portbase: (env.EXECUTOR_NUMBER as int) * 1000 + 1000,
             basedir: "${env.WORKSPACE}/dockerisedvega-home",
             dockerisedvagaScript: "${env.WORKSPACE}/devops-infra/scripts/dockerisedvega.sh",
-            validators: params.DV_VALIDATOR_NODE_COUNT as int,
+            validators: nodeCount,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
             mainnet: params.DV_MAINNET,
             genesisFile: params.DV_GENESIS_JSON,
