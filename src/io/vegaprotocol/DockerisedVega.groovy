@@ -253,11 +253,15 @@ String waitForNextCheckpoint(int node=0) {
 }
 
 void saveResumeCheckpointToFile(String targetFile) {
-    assert checkpointFile : 'Cannot save resume checkpoint: no checkpointFile specified at startup'
+    String resumeCheckpointFile = checkpointFile
+    if (mainnet) {
+        resumeCheckpointFile = "${homedir}/vega/node0/checkpoint.cp"
+    }
+    assert resumeCheckpointFile : 'Cannot save resume checkpoint: no checkpointFile specified at startup'
     sh label: 'Convert checkpoint to json format', script: """
         mkdir -p "\$(dirname ${targetFile})"
         "${vegatoolsScript}" checkpoint -v \
-            -f "${checkpointFile}" \
+            -f "${resumeCheckpointFile}" \
             -o "${targetFile}"
     """
 }
