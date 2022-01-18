@@ -64,7 +64,7 @@ void call(Map config=[:]) {
         Map vars = [
             params: params,
             dockerCredentials: [credentialsId: 'github-vega-ci-bot-artifacts',
-                                          url: 'https://ghcr.io'],
+                                          url: 'https://docker.pkg.github.com'],
             sshCredentials: sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
                                                      keyFileVariable: 'PSSH_KEYFILE',
                                                     usernameVariable: 'PSSH_USER'),
@@ -499,7 +499,7 @@ Map<String,Closure> getPrepareVegaCoreStages(
             } else {
                 withDockerRegistry(dockerCredentials) {
                     sh label: 'Pull latest Vega Core Docker Image', script: """#!/bin/bash -e
-                        docker pull ghcr.io/vegaprotocol/vega/vega:develop
+                        docker pull docker.pkg.github.com/vegaprotocol/vega/vega:develop
                     """
                 }
             }
@@ -561,7 +561,7 @@ Map<String,Closure> getPrepareDataNodeStages(
             } else {
                 withDockerRegistry(dockerCredentials) {
                     sh label: 'ull latest Data-Node Docker Image', script: """#!/bin/bash -e
-                        docker pull ghcr.io/vegaprotocol/data-node/data-node:edge
+                        docker pull docker.pkg.github.com/vegaprotocol/data-node/data-node:edge
                     """
                 }
             }

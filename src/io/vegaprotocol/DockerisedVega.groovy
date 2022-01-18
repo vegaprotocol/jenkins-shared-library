@@ -60,8 +60,8 @@ void init(Map config=[:]) {
     vegaWalletVersion = config.vegaWalletVersion
     ethereumEventForwarderVersion = config.ethereumEventForwarderVersion
 
-    dockerImageVegaCore = "ghcr.io/vegaprotocol/vega/vega:${vegaCoreVersion}"
-    dockerImageDataNode = "ghcr.io/vegaprotocol/data-node/data-node:${dataNodeVersion}"
+    dockerImageVegaCore = "docker.pkg.github.com/vegaprotocol/vega/vega:${vegaCoreVersion}"
+    dockerImageDataNode = "docker.pkg.github.com/vegaprotocol/data-node/data-node:${dataNodeVersion}"
     dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion}"
     dockerImageEthereumEventForwarder = "vegaprotocol/ethereum-event-forwarder:${ethereumEventForwarderVersion}"
 

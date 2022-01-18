@@ -55,7 +55,7 @@ void call() {
                                                  passwordVariable: 'GITHUB_API_TOKEN',
                                                  usernameVariable: 'GITHUB_API_USER')
         Map dockerCredentials = [credentialsId: 'github-vega-ci-bot-artifacts',
-                                           url: 'https://ghcr.io']
+                                           url: 'https://docker.pkg.github.com']
 
         skipDefaultCheckout()
         cleanWs()
