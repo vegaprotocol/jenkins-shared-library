@@ -288,14 +288,14 @@ Map<String,Map<String,String>> getEndpointInformation(String ip) {
     Map<String,Map<String,String>> result = [:]
 
     for (int node = 0; node < validators; node++) {
-        result["validator node ${node}"] = [
+        result["validator vega core ${node}"] = [
             'gRPC': "${ip}:${portbase + 10 * node + 2}",
             'gql': "http://${ip}:${portbase + 10 * node + 3}",
             'REST': "http://${ip}:${portbase + 10 * node + 4}"
         ]
     }
     for (int node = validators; node < validators + nonValidators; node++) {
-        result["non-validator node ${node}"] = [
+        result["non-validator vega core ${node}"] = [
             'gRPC': "${ip}:${portbase + 10 * node + 2}",
             'gql': "http://${ip}:${portbase + 10 * node + 3}",
             'REST': "http://${ip}:${portbase + 10 * node + 4}"
@@ -303,9 +303,9 @@ Map<String,Map<String,String>> getEndpointInformation(String ip) {
     }
     for (int node = validators; node < validators + nonValidators; node++) {
         result["data-node ${node}"] = [
-            'gRPC': "${ip}:${portbase + 10 * node + 7}",
-            'gql': "http://${ip}:${portbase + 10 * node + 8}",
-            'REST': "http://${ip}:${portbase + 10 * node + 9}"
+            'gRPC': "${ip}:${portbase + 100 + 10 * node + 7}",
+            'gql': "http://${ip}:${portbase + 100 + 10 * node + 8}",
+            'REST': "http://${ip}:${portbase + 100 + 10 * node + 9}"
         ]
     }
     for (int node = 0; node < validators + nonValidators; node++) {
@@ -336,6 +336,7 @@ Map<String,String> getUsefulLinks(String ip, int node=0) {
     result['Known parties'] = "http://${ip}:${portbase + 10 * node + 3}/parties"
     result['Network parameters'] = "http://${ip}:${portbase + 10 * node + 3}/network/parameters"
     result['Gensis'] = "http://${ip}:${portbase + 10 * node + 1}/genesis"
+    result['More'] = 'https://github.com/vegaprotocol/protos/blob/develop/sources/data-node/grpc-rest-bindings.yml'
 
     return result
 }
