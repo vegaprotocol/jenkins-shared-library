@@ -35,7 +35,7 @@ void call(Map config=[:]) {
 
         int nodeCount = params.DV_VALIDATOR_NODE_COUNT as int
 
-        if (params.DV_MAINNET && nodeCount == pipelineDefaults.dv.validatorNodeCount) {
+        if (params.DV_MAINNET && nodeCount == pipelineDefaults.dv.validatorNodeCount as int) {
             nodeCount = 13 // Hardcoded, cos currently there is no way to get this information
         }
 
