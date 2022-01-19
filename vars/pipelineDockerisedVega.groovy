@@ -65,9 +65,6 @@ void call(Map config=[:]) {
             params: params,
             dockerCredentials: [credentialsId: 'github-vega-ci-bot-artifacts',
                                           url: 'https://ghcr.io'],
-            // TODO: remove once we don't use anything prior to v0.48.x
-            oldDockerCredentials: [credentialsId: 'github-vega-ci-bot-artifacts',
-                                          url: 'https://docker.pkg.github.com'],
             sshCredentials: sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
                                                      keyFileVariable: 'PSSH_KEYFILE',
                                                     usernameVariable: 'PSSH_USER'),
@@ -424,8 +421,7 @@ void prepareEverything(
 ) {
     Map<String,Closure> concurrentStages = [:]
 
-    concurrentStages << getPrepareVegaCoreStages(
-                            dockerisedVega.dockerImageVegaCore, dockerCredentials, vars.oldDockerCredentials)
+    concurrentStages << getPrepareVegaCoreStages(dockerisedVega.dockerImageVegaCore, dockerCredentials)
     concurrentStages << getPrepareDataNodeStages(dockerisedVega.dockerImageDataNode, dockerCredentials)
     concurrentStages << getPreparevegaWalletStages(dockerisedVega.dockerImageVegaWallet, dockerCredentials)
     concurrentStages << getPrepareEthereumEventForwarderStages(
@@ -455,8 +451,7 @@ void prepareEverything(
 //
 Map<String,Closure> getPrepareVegaCoreStages(
     String vegaCoreDockerImage,
-    Map<String,String> dockerCredentials,
-    Map<String,String> oldDockerCredentials) {
+    Map<String,String> dockerCredentials) {
     return ['v-core': {
         stage('Compile Vega Core') {
             if (fileExists('vega')) {
@@ -481,15 +476,12 @@ Map<String,Closure> getPrepareVegaCoreStages(
                 retry(3) {
                     dir('vega') {
                         withDockerRegistry(dockerCredentials) {
-                            // TODO: remove oldDockerCredentials once we are past v0.47.4
-                            withDockerRegistry(oldDockerCredentials) {
-                                sh label: 'docker build', script: """#!/bin/bash -e
-                                    rm -rf ./docker/bin
-                                    mkdir -p ./docker/bin
-                                    cp ./cmd/vega/vega-linux-amd64 ./docker/bin/vega
-                                    docker build --pull -t "${vegaCoreDockerImage}" ./docker
-                                """
-                            }
+                            sh label: 'docker build', script: """#!/bin/bash -e
+                                rm -rf ./docker/bin
+                                mkdir -p ./docker/bin
+                                cp ./cmd/vega/vega-linux-amd64 ./docker/bin/vega
+                                docker build --pull -t "${vegaCoreDockerImage}" ./docker
+                            """
                         }
                         sh label: 'sanity check',
                             script: "docker run --rm --entrypoint 'vega' '${vegaCoreDockerImage}' version"
