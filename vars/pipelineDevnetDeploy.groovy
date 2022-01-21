@@ -83,27 +83,38 @@ void call() {
                     //
                     // BUILD
                     //
-                    String buildStageName = 'Build Vega Core binary'
-                    stage(buildStageName) {
-                        if (params.VEGA_CORE_VERSION) {
-                            dir('vega') {
-                                String hash = sh(
-                                    script: 'git rev-parse HEAD|cut -b1-8',
-                                    returnStdout: true,
-                                ).trim()
-                                String ldflags = "-X main.CLIVersion=dev-${hash} -X main.CLIVersionHash=${hash}"
-                                sh label: 'Compile vega core', script: """
-                                    go build -v -o ./cmd/vega/vega-linux-amd64 -ldflags "${ldflags}" ./cmd/vega
-                                """
-                                sh label: 'Sanity check', script: '''
-                                    file ./cmd/vega/vega-linux-amd64
-                                    ./cmd/vega/vega-linux-amd64 version
-                                '''
+                    String buildVegaCoreStageName = 'Build Vega Core binary'
+                    stage('Prepare') {
+                        parallel([
+                            buildVegaCoreStageName: {
+                                if (params.VEGA_CORE_VERSION) {
+                                    dir('vega') {
+                                        String hash = sh(
+                                            script: 'git rev-parse HEAD|cut -b1-8',
+                                            returnStdout: true,
+                                        ).trim()
+                                        String ldflags = "-X main.CLIVersion=dev-${hash} -X main.CLIVersionHash=${hash}"
+                                        sh label: 'Compile vega core', script: """
+                                            go build -v -o ./cmd/vega/vega-linux-amd64 -ldflags "${ldflags}" ./cmd/vega
+                                        """
+                                        sh label: 'Sanity check', script: '''
+                                            file ./cmd/vega/vega-linux-amd64
+                                            ./cmd/vega/vega-linux-amd64 version
+                                        '''
+                                    }
+                                } else {
+                                    echo 'Skip: VEGA_CORE_VERSION not specified'
+                                    Utils.markStageSkippedForConditional(buildVegaCoreStageName)
+                                }
+                            },
+                            'veganet docker pull': {
+                                dir('devops-infra') {
+                                    withDockerRegistry(dockerCredentials) {
+                                        sh script: './veganet.sh devnet pull'
+                                    }
+                                }
                             }
-                        } else {
-                            echo 'Skip: VEGA_CORE_VERSION not specified'
-                            Utils.markStageSkippedForConditional(buildStageName)
-                        }
+                        ])
                     }
                     stage('Devnet: status') {
                         dir('devops-infra') {
