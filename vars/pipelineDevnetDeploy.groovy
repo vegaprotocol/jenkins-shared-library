@@ -86,7 +86,7 @@ void call() {
                     String buildVegaCoreStageName = 'Build Vega Core binary'
                     stage('Prepare') {
                         parallel([
-                            buildVegaCoreStageName: {
+                            "${buildVegaCoreStageName}": {
                                 if (params.VEGA_CORE_VERSION) {
                                     dir('vega') {
                                         String hash = sh(
