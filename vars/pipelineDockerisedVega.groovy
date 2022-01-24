@@ -347,7 +347,11 @@ void setupJobParameters(List inputParameters) {
 
     echo "params before=${params}"
 
-    properties([copyArtifactPermission('*'), parameters(jobParameters)])
+    properties([
+        buildDiscarder(logRotator(daysToKeepStr: '14')),
+        copyArtifactPermission('*'),
+        parameters(jobParameters)
+    ])
 
     echo "params=${params}"
 }
