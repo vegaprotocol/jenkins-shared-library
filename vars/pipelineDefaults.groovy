@@ -48,7 +48,7 @@ Map st = dv + [
 // System Tests LNL pipeline
 @Field
 Map lnl = st + [
-    testDirectory: 'tests/LNL',
+    testDirectory: 'LNL',
     testFunctionCreate: 'create_data_test',
     testFunctionAssert: 'assert_data_test'
 ]
