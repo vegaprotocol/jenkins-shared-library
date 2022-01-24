@@ -64,7 +64,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
             Map contentJSON = new JsonSlurperClassic().parseText(content)
             echo "Parsed"
             contentJSON.each { repo, branch ->
-                if (repoToParam[repo]) {
+                if (repoToParam[repo] && branch instanceof String) {
                     result[repoToParam[repo]] = branch
                 }
             }
@@ -74,4 +74,12 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     }
 
     return result
+}
+
+Map injectPRParams(Map config = [:]) {
+    Map cParams = config.get('params', params)
+    Map customRepos = getConnectedChangesInOtherRepos(config)
+
+    params = cParams + customRepos
+    return params
 }
