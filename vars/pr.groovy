@@ -8,6 +8,7 @@ String getBody(Map config = [:]) {
     // if empty - use current branch
     String pr = config.get('pr', '')
     String branch = config.get('branch', '')
+    String ulr = config.get('url', '')
     // optional `OWNER/REPO`
     // if empty - use current repo
     String repo = config.get('repo', '')
@@ -15,7 +16,7 @@ String getBody(Map config = [:]) {
     String credentialsId = config.get('credentialsId', 'github-vega-ci-bot-artifacts')
 
     String repoArgument = repo ? "--repo '${repo}'" : ''
-    String prOrBranch = pr ?: branch
+    String prOrBranch = pr ?: ( branch ?: url )
 
     String cliResult = null
 
@@ -76,10 +77,10 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     return result
 }
 
-Map injectPRParams(Map config = [:]) {
-    Map cParams = config.get('params', params)
-    Map customRepos = getConnectedChangesInOtherRepos(config)
-
-    params = cParams + customRepos
+Map injectPRParams() {
+    if (env.CHANGE_URL) {
+        Map customParams = getConnectedChangesInOtherRepos(url: env.CHANGE_URL)
+        return params + customParams
+    }
     return params
 }
