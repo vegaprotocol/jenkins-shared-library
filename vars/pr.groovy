@@ -60,6 +60,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     (body =~ /(?i)(?s)```(.*?)```/).findAll().each { item ->
         String content = item[1]
         content = content - ~/^json/
+        content = content.replaceAll(/\/\/.*\n/, "");
         echo "Parsing content: ### Begin ###\n${content}\n### End ###"
         try {
             Map contentJSON = new JsonSlurperClassic().parseText(content)
