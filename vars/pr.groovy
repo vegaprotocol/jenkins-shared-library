@@ -8,7 +8,7 @@ String getBody(Map config = [:]) {
     // if empty - use current branch
     String pr = config.get('pr', '')
     String branch = config.get('branch', '')
-    String ulr = config.get('url', '')
+    String url = config.get('url', '')
     // optional `OWNER/REPO`
     // if empty - use current repo
     String repo = config.get('repo', '')
@@ -16,15 +16,15 @@ String getBody(Map config = [:]) {
     String credentialsId = config.get('credentialsId', 'github-vega-ci-bot-artifacts')
 
     String repoArgument = repo ? "--repo '${repo}'" : ''
-    String prOrBranch = pr ?: ( branch ?: url )
+    String prOrBranchOrURL = pr ?: ( branch ?: url )
 
     String cliResult = null
 
     withGHCLI('credentialsId': credentialsId) {
         cliResult = sh(
-            label: "Get first/body comment of a PR: ${prOrBranch}",
+            label: "Get first/body comment of a PR: ${prOrBranchOrURL}",
             returnStdout: true,
-            script: "gh pr ${repoArgument} view ${prOrBranch} --json body"
+            script: "gh pr ${repoArgument} view ${prOrBranchOrURL} --json body"
         ).trim()
 
         echo "GH CLI result: ${cliResult}"
@@ -79,7 +79,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
 
 Map injectPRParams() {
     if (env.CHANGE_URL) {
-        Map customParams = getConnectedChangesInOtherRepos('url': env.CHANGE_URL)
+        Map customParams = getConnectedChangesInOtherRepos(url: env.CHANGE_URL)
         return params + customParams
     }
     return params
