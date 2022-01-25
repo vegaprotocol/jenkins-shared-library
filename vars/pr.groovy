@@ -51,7 +51,7 @@ List<String> getAllComments(Map config = [:]) {
 }
 
 //
-// Parse First/Body comment of a PR to find
+// Parse all comments of a PR to find
 //   information about connected changes in other repos
 //
 Map getConnectedChangesInOtherRepos(Map config = [:]) {
@@ -84,6 +84,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
             echo "Parsing content: ### Begin ###\n${content}\n### End ###"
             try {
                 Map contentJSON = new JsonSlurperClassic().parseText(content)
+                // TODO: remove echo at some point in the future. Keep it for now for debug
                 echo "Parsed"
                 // For each top level key-value
                 contentJSON.each { repo, branch ->
@@ -92,6 +93,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
                     }
                 }
             } catch (Exception e) {
+                // TODO: remove echo at some point in the future. Keep it for now for debug
                 echo "Not json. ${e}"
             }
         }
@@ -103,7 +105,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
 Map injectPRParams() {
     if (env.CHANGE_URL) {
         Map customParams = getConnectedChangesInOtherRepos(url: env.CHANGE_URL)
-        return params + customParams
+        return params + customParams  // merge dictionaries
     }
     return params
 }
