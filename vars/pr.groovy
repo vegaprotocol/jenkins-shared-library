@@ -1,19 +1,21 @@
 import groovy.json.JsonSlurperClassic
 
 //
-// Get First/Body commnet of a PR
+// Get PR's data
 //
-String getBody(Map config = [:]) {
+Map getData(Map config = [:]) {
     // optional PR number or branch name
     // if empty - use current branch
     String pr = config.get('pr', '')
     String branch = config.get('branch', '')
     String url = config.get('url', '')
     // optional `OWNER/REPO`
-    // if empty - use current repo
+    // if empty - use current repo or from `url`
     String repo = config.get('repo', '')
     // optional GH CLI credentials
     String credentialsId = config.get('credentialsId', 'github-vega-ci-bot-artifacts')
+    // List of fields to get for a PR
+    List<String> prFields = config.get('prFields', ['body'])
 
     String repoArgument = repo ? "--repo '${repo}'" : ''
     String prOrBranchOrURL = pr ?: ( branch ?: url )
@@ -22,16 +24,30 @@ String getBody(Map config = [:]) {
 
     withGHCLI('credentialsId': credentialsId) {
         cliResult = sh(
-            label: "Get first/body comment of a PR: ${prOrBranchOrURL}",
+            label: "Get data for a PR: ${prOrBranchOrURL}",
             returnStdout: true,
-            script: "gh pr ${repoArgument} view ${prOrBranchOrURL} --json body"
+            script: "gh pr ${repoArgument} view ${prOrBranchOrURL} --json ${prFields.join(',')}"
         ).trim()
 
         echo "GH CLI result: ${cliResult}"
     }
 
-    Map cliResultJSON = new JsonSlurperClassic().parseText(cliResult)
-    return cliResultJSON.body
+    return new JsonSlurperClassic().parseText(cliResult)
+}
+
+String getFirstComment(Map config = [:]) {
+    Map prData = getData(config + ['prFields': ['body']])
+    return prData.body
+}
+
+List<String> getAllComments(Map config = [:]) {
+    List<String> result = []
+    Map prData = getData(config + ['prFields': ['body', 'comments']])
+    result += prData.body
+    prData.comments.each { commentData ->
+        result += commentData.body
+    }
+    return result
 }
 
 //
@@ -40,7 +56,7 @@ String getBody(Map config = [:]) {
 //
 Map getConnectedChangesInOtherRepos(Map config = [:]) {
     Map result = [:]
-    String body = getBody(config)
+    List<String> allComments = getAllComments(config)
 
     Map repoToParam = [
         'vega': 'VEGA_CORE_BRANCH',
@@ -55,23 +71,29 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'checkpoint-store': 'CHECKPOINT_STORE_BRANCH'
     ]
 
-    body = body.replaceAll("\\r", "");
+    // For every COMMENT
+    allComments.each { comment ->
+        comment = comment.replaceAll("\\r", "");
 
-    (body =~ /(?i)(?s)```(.*?)```/).findAll().each { item ->
-        String content = item[1]
-        content = content - ~/^json/
-        content = content.replaceAll(/\/\/.*\n/, "");
-        echo "Parsing content: ### Begin ###\n${content}\n### End ###"
-        try {
-            Map contentJSON = new JsonSlurperClassic().parseText(content)
-            echo "Parsed"
-            contentJSON.each { repo, branch ->
-                if (repoToParam[repo] && branch instanceof String) {
-                    result[repoToParam[repo]] = branch
+        // Find every CODE section in a Comment
+        (comment =~ /(?i)(?s)```(.*?)```/).findAll().each { codeSection ->
+            String content = codeSection[1]  // first regex match
+            content = content - ~/^json/  // remove json from the code start
+            content = content.replaceAll(/\/\/.*\n/, "")  // remove all comments
+            // TODO: remove echo at some point in the future. Keep it for now for debug
+            echo "Parsing content: ### Begin ###\n${content}\n### End ###"
+            try {
+                Map contentJSON = new JsonSlurperClassic().parseText(content)
+                echo "Parsed"
+                // For each top level key-value
+                contentJSON.each { repo, branch ->
+                    if (repoToParam[repo] && branch instanceof String) {
+                        result[repoToParam[repo]] = branch
+                    }
                 }
+            } catch (Exception e) {
+                echo "Not json. ${e}"
             }
-        } catch (Exception e) {
-            echo "Not json. ${e}"
         }
     }
 
