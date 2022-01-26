@@ -15,6 +15,9 @@ void call(Map config = [:]) {
             string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.lnl.protosBranch),
             string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.lnl.systemTestsBranch),
 
+            // Build config
+            string(name: 'VEGA_BUILD_TAGS', value: config.vegaBuildTags ?: pipelineDefaults.lnl.vegaBuildTags),
+
             // Limit which tests to run
             string(name: 'SYSTEM_TESTS_TEST_DIRECTORY',
                    value: config.testDirectory ?: pipelineDefaults.lnl.testDirectory),
