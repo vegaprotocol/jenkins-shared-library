@@ -10,8 +10,6 @@ void call(Map config = [:]) {
             string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.lnl.vegaCoreBranch),
             string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.lnl.dataNodeBranch),
             string(name: 'VEGAWALLET_BRANCH', value: config.vegawallet ?: pipelineDefaults.lnl.vegaWalletBranch),
-            string(name: 'ETHEREUM_EVENT_FORWARDER_BRANCH',
-                   value: config.ethereumEventForwarder ?: pipelineDefaults.lnl.ethereumEventForwarderBranch),
             string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?: pipelineDefaults.lnl.vegatoolsBranch),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.lnl.devopsInfraBranch),
             string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.lnl.protosBranch),

@@ -22,12 +22,10 @@ ethEndpointUrl
 vegaCoreVersion
 dataNodeVersion
 vegaWalletVersion
-ethereumEventForwarderVersion
 
 dockerImageVegaCore
 dockerImageDataNode
 dockerImageVegaWallet
-dockerImageEthereumEventForwarder
 
 vegatoolsScript
 
@@ -58,12 +56,10 @@ void init(Map config=[:]) {
     vegaCoreVersion = config.vegaCoreVersion
     dataNodeVersion = config.dataNodeVersion
     vegaWalletVersion = config.vegaWalletVersion
-    ethereumEventForwarderVersion = config.ethereumEventForwarderVersion
 
     dockerImageVegaCore = "ghcr.io/vegaprotocol/vega/vega:${vegaCoreVersion}"
     dockerImageDataNode = "ghcr.io/vegaprotocol/data-node/data-node:${dataNodeVersion}"
     dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion}"
-    dockerImageEthereumEventForwarder = "vegaprotocol/ethereum-event-forwarder:${ethereumEventForwarderVersion}"
 
     assert config.vegatoolsScript : 'vegatoolsScript is required'
     vegatoolsScript = config.vegatoolsScript
@@ -84,7 +80,6 @@ String toString() {
         "vegaWalletVersion: \"${vegaWalletVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
         "dockerImageVegaWallet=\"${dockerImageVegaWallet}\", " +
-        "dockerImageEthereumEventForwarder=\"${dockerImageEthereumEventForwarder}\", " +
         "vegatoolsScript=\"${vegatoolsScript}\"" +
         "tendermintLogLevel=\"${tendermintLogLevel}\", vegaCoreLogLevel=\"${vegaCoreLogLevel}\")"
 }
@@ -99,9 +94,6 @@ void run(String command, boolean resume = false) {
     }
     if (vegaWalletVersion) {
         extraArguments += " --vegawallet-version \"${vegaWalletVersion}\""
-    }
-    if (ethereumEventForwarderVersion) {
-        extraArguments += " --eef-version \"${ethereumEventForwarderVersion}\""
     }
     if (mainnet) {
         extraArguments += ' --mainnet'

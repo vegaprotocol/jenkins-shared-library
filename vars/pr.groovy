@@ -62,7 +62,6 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'vega': 'VEGA_CORE_BRANCH',
         'data-node': 'DATA_NODE_BRANCH',
         'vegawallet': 'VEGAWALLET_BRANCH',
-        'ethereum-event-forwarder': 'ETHEREUM_EVENT_FORWARDER_BRANCH',
         'devops-infra': 'DEVOPS_INFRA_BRANCH',
         'vegatools': 'VEGATOOLS_BRANCH',
         'system-tests': 'SYSTEM_TESTS_BRANCH',
