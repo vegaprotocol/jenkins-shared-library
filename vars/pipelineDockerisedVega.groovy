@@ -452,7 +452,7 @@ Map<String,Closure> getPrepareVegaCoreStages(
                 retry(3) {
                     dir('vega') {
                         sh label: 'Compile', script: '''
-                            go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
+                            go build -tags=qa -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
                         '''
                         sh label: 'Sanity check', script: '''
                             file ./cmd/vega/vega-linux-amd64
