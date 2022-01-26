@@ -16,6 +16,8 @@ Map dv = [
     networksBranch: 'master',
     checkpointStoreBranch: 'main',
 
+    vegaBuildTags: '',
+
     validatorNodeCount: '2',
     nonValidatorNodeCount: '1',
 
