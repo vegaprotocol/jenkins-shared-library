@@ -68,6 +68,7 @@ void call(Map config=[:]) {
                                                      keyFileVariable: 'PSSH_KEYFILE',
                                                     usernameVariable: 'PSSH_USER'),
             dockerisedVega: dockerisedVega,
+            vegaBuildTags: params.VEGA_BUILD_TAGS,
             jenkinsAgentPublicIP: null
         ]
 
@@ -285,6 +286,11 @@ void setupJobParameters(List inputParameters) {
         string(
             name: 'CHECKPOINT_STORE_BRANCH', defaultValue: pipelineDefaults.dv.checkpointStoreBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository'),
+        /* Build Options */
+        string(
+            name: 'VEGA_BUILD_TAGS', defaultValue: pipelineDefaults.dv.vegaBuildTags,
+            description: '''go build tags used to build vega core binary. Comma separated list.
+            e.g. "qa". Default empty: do not set tags'''),
         /* Dockerised Vega Config */
         string(
             name: 'DV_VALIDATOR_NODE_COUNT', defaultValue: pipelineDefaults.dv.validatorNodeCount,
@@ -417,7 +423,8 @@ void prepareEverything(
 ) {
     Map<String,Closure> concurrentStages = [:]
 
-    concurrentStages << getPrepareVegaCoreStages(dockerisedVega.dockerImageVegaCore, dockerCredentials)
+    concurrentStages << getPrepareVegaCoreStages(
+                            vars.vegaBuildTags, dockerisedVega.dockerImageVegaCore, dockerCredentials)
     concurrentStages << getPrepareDataNodeStages(dockerisedVega.dockerImageDataNode, dockerCredentials)
     concurrentStages << getPreparevegaWalletStages(dockerisedVega.dockerImageVegaWallet, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
@@ -444,6 +451,7 @@ void prepareEverything(
 // Prepare Vega Core
 //
 Map<String,Closure> getPrepareVegaCoreStages(
+    String vegaBuildTags,
     String vegaCoreDockerImage,
     Map<String,String> dockerCredentials) {
     return ['v-core': {
@@ -451,9 +459,9 @@ Map<String,Closure> getPrepareVegaCoreStages(
             if (fileExists('vega')) {
                 retry(3) {
                     dir('vega') {
-                        sh label: 'Compile', script: '''
-                            go build -tags=qa -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
-                        '''
+                        sh label: 'Compile', script: """
+                            go build -tags="${vegaBuildTags}" -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
+                        """
                         sh label: 'Sanity check', script: '''
                             file ./cmd/vega/vega-linux-amd64
                             ./cmd/vega/vega-linux-amd64 version
