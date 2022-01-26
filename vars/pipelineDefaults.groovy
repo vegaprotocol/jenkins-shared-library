@@ -11,7 +11,6 @@ Map dv = [
     vegaCoreBranch: '', // 'develop',
     dataNodeBranch: '', // 'develop',
     vegaWalletBranch: '', // 'develop',
-    ethereumEventForwarderBranch: '', // 'main',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
     networksBranch: 'master',

@@ -54,7 +54,6 @@ void call(Map config=[:]) {
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
             dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
             vegaWalletVersion: params.VEGAWALLET_BRANCH ? dockerisedVegaPrefix : null,
-            ethereumEventForwarderVersion: params.ETHEREUM_EVENT_FORWARDER_BRANCH ? dockerisedVegaPrefix : null,
             vegatoolsScript: "${env.WORKSPACE}/vegatools/build/vegatools-linux-amd64",
             tendermintLogLevel: params.DV_TENDERMINT_LOG_LEVEL,
             vegaCoreLogLevel: params.DV_VEGA_CORE_LOG_LEVEL,
@@ -275,10 +274,6 @@ void setupJobParameters(List inputParameters) {
             description: '''Git branch, tag or hash of the vegaprotocol/vegawallet repository.
             e.g. "develop", "v0.9.0" or commit hash. Default empty: use latest published version.'''),
         string(
-            name: 'ETHEREUM_EVENT_FORWARDER_BRANCH', defaultValue: pipelineDefaults.dv.ethereumEventForwarderBranch,
-            description: '''Git branch, tag or hash of the vegaprotocol/ethereum-event-forwarder repository.
-            e.g. "main", "v0.44.0" or commit hash. Default empty: use latest published version.'''),
-        string(
             name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dv.devopsInfraBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
         string(
@@ -371,9 +366,6 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         [   name: 'vegawallet',
             branch: params.VEGAWALLET_BRANCH,
         ],
-        [   name: 'ethereum-event-forwarder',
-            branch: params.ETHEREUM_EVENT_FORWARDER_BRANCH,
-        ],
         [   name: 'vegatools',
             branch: params.VEGATOOLS_BRANCH,
         ],
@@ -428,8 +420,6 @@ void prepareEverything(
     concurrentStages << getPrepareVegaCoreStages(dockerisedVega.dockerImageVegaCore, dockerCredentials)
     concurrentStages << getPrepareDataNodeStages(dockerisedVega.dockerImageDataNode, dockerCredentials)
     concurrentStages << getPreparevegaWalletStages(dockerisedVega.dockerImageVegaWallet, dockerCredentials)
-    concurrentStages << getPrepareEthereumEventForwarderStages(
-                            dockerisedVega.dockerImageEthereumEventForwarder, dockerCredentials)
     concurrentStages << getPrepareVegatoolsStages()
     concurrentStages << getPrepareDockerisedVegaStages(
                             dockerisedVega, dockerCredentials, vars.sshCredentials)
@@ -624,45 +614,6 @@ Map<String,Closure> getPreparevegaWalletStages(
                 withDockerRegistry(dockerCredentials) {
                     sh label: 'Pull latest vegawallet Docker Image', script: """#!/bin/bash -e
                         docker pull vegaprotocol/vegawallet:latest
-                    """
-                }
-            }
-        }
-    }]
-}
-
-//
-// Prepare Ethereum Event Forwarder
-//
-Map<String,Closure> getPrepareEthereumEventForwarderStages(
-    String ethereumEventForwarderDockerImage,
-    Map<String,String> dockerCredentials) {
-    return ['eef': {
-        stage('Build Ethereum Event Forwarder Docker Image') {
-            if (fileExists('ethereum-event-forwarder')) {
-                retry(3) {
-                    dir('ethereum-event-forwarder') {
-                        withDockerRegistry(dockerCredentials) {
-                            sh label: 'docker build', script: """#!/bin/bash -e
-                                docker build --pull -t "${ethereumEventForwarderDockerImage}" .
-                            """
-                        }
-                    }
-                }
-            } else {
-                echo "Skip Build Ethereum Event Forwarder Docker Image: no directory 'ethereum-event-forwarder' with source code."
-                Utils.markStageSkippedForConditional('Build Ethereum Event Forwarder Docker Image')
-
-            }
-        }
-        stage('Pull latest Ethereum Event Forwarder Docker Image') {
-            if (fileExists('ethereum-event-forwarder')) {
-                echo "Skip Pull latest Ethereum Event Forwarder Docker Image: directory 'ethereum-event-forwarder' with source code exists."
-                Utils.markStageSkippedForConditional('Pull latest Ethereum Event Forwarder Docker Image')
-            } else {
-                withDockerRegistry(dockerCredentials) {
-                    sh label: 'Pull latest Ethereum Event Forwarder Docker Image', script: """#!/bin/bash -e
-                        docker pull vegaprotocol/ethereum-event-forwarder:latest
                     """
                 }
             }
