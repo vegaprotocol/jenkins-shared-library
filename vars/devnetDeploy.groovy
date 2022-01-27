@@ -43,7 +43,7 @@ void call(Map config = [:]) {
         parameters: buildParameters
     )
 
-    echo "Deploy to Devnet pipeline: ${deployJob.absoluteUrl}"
+    echo "Deploy to Devnet pipeline: ${wait ? deployJob.absoluteUrl : ''}"
 
     // now fail
     if (wait && deployJob.result != 'SUCCESS') {
