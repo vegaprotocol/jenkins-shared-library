@@ -2,7 +2,8 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String devnetDeployJob = 'cd/Devnet deploy'
+    String devnetDeployJob = '/cd/Devnet deploy'
+    Boolean wait = config.wait ? "${config.wait}".toBoolean() : false
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     String restart = pipelineDefaults.dev.restart
     if (config.restart == true) {
@@ -38,14 +39,14 @@ void call(Map config = [:]) {
     RunWrapper deployJob = build(
         job: devnetDeployJob,
         propagate: false,  // don't fail yet
-        wait: true,
+        wait: wait,
         parameters: buildParameters
     )
 
     echo "Deploy to Devnet pipeline: ${deployJob.absoluteUrl}"
 
     // now fail
-    if (deployJob.result != 'SUCCESS') {
+    if (wait && deployJob.result != 'SUCCESS') {
         if (ignoreFailure) {
             // workaround to:
             // - change status of current stage to not successful
