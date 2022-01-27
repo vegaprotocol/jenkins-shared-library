@@ -26,7 +26,7 @@ void call() {
                 name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: 'test_checkpoint_loaded',
                 description: 'Run only a tests with a specified function name. This is actually a "pytest -k $TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
             string(
-                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: 'LNL',
+                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.lnl.testDirectory,
                 description: 'Run tests from files in this directory and all sub-directories'),
             string(
                 name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: '',
