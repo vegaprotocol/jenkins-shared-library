@@ -21,7 +21,19 @@ void call() {
                 description: 'Timeout after which the network will be stopped. Default 200min'),
             string(
                 name: 'JENKINS_AGENT_LABEL', defaultValue: 'private-network',
-                description: 'Specify Jenkins machine on which to run this pipeline')
+                description: 'Specify Jenkins machine on which to run this pipeline'),
+            string(
+                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.st.systemTestsBranch,
+                description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
+            text(
+                name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.st.mainnetGenesis,
+                description: '''Tendermint genesis overrides in JSON format, or path to a file.
+                For the actual mainnet json, leave this field empty and the Mainnet checkpoint will be used. For the
+                develop-equivalent JSON, use the System Test mainnet genesis (default).
+            '''),
+        ],
+        git: [
+            [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
         ],
         prepareStages: [
             'net': { Map vars ->

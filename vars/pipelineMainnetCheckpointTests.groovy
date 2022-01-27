@@ -37,6 +37,10 @@ void call() {
             booleanParam(
                 name: 'DV_MAINNET', defaultValue: true,
                 description: 'Run network as Mainnet. LEAVE THIS SET TO TRUE, or else undefined behaviour.'),
+            text(
+                name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.st.mainnetGenesis,
+                description: '''Tendermint genesis overrides in JSON format, or path to a file.
+            '''),
             string(
                 name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),

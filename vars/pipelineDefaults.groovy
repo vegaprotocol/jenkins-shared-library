@@ -43,7 +43,8 @@ Map st = dv + [
     protosBranch: 'develop',
     systemTestsBranch: 'develop',
     systemTestsDebug: false,
-    genesisJSON: 'system-tests/docker/zero-genesis.json'
+    genesisJSON: 'system-tests/docker/zero-genesis.json',
+    mainnetGenesis: 'system-tests/tests/LNL/mainnet/genesis.json'
 ]
 
 // System Tests LNL pipeline
