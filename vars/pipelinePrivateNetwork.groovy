@@ -32,6 +32,9 @@ void call() {
                 develop-equivalent JSON, use the System Test mainnet genesis (default).
             '''),
         ],
+        properties: [
+            durabilityHint('PERFORMANCE_OPTIMIZED'),
+        ],
         git: [
             [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
         ],

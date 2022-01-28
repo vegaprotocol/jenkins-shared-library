@@ -51,6 +51,9 @@ void call() {
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
         ],
+        properties: [
+            durabilityHint('PERFORMANCE_OPTIMIZED'),
+        ],
         git: [
             [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
             [name: 'protos', branch: 'PROTOS_BRANCH'],

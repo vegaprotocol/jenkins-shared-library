@@ -12,6 +12,7 @@ void call(Map config=[:]) {
     // Parse input arguments
     //
     List inputParameters = config.get('parameters', [])
+    List inputProperties = config.get('properties', [])
     List inputGitRepos = config.get('git', [])
     Map<String,Closure> inputPrepareStages = config.get('prepareStages', [:])
     Closure inputMainStage = config.get('mainStage', null)
@@ -21,7 +22,7 @@ void call(Map config=[:]) {
     //
     // Setup PARAMETERS
     //
-    setupJobParameters(inputParameters)
+    setupJobParameters(inputParameters, inputProperties)
 
 
     node(params.JENKINS_AGENT_LABEL) {
@@ -259,7 +260,7 @@ void call(Map config=[:]) {
 }
 
 
-void setupJobParameters(List inputParameters) {
+void setupJobParameters(List inputParameters, List inputProperties) {
     List dockerisedVegaParameters = [
         /* Branches */
         string(
@@ -348,11 +349,14 @@ void setupJobParameters(List inputParameters) {
 
     echo "params before=${params}"
 
-    properties([
-        buildDiscarder(logRotator(daysToKeepStr: '14')),
-        copyArtifactPermission('*'),
-        parameters(jobParameters)
-    ])
+    properties(
+        [
+            buildDiscarder(logRotator(daysToKeepStr: '14')),
+            copyArtifactPermission('*'),
+            parameters(jobParameters)
+        ] +
+        inputProperties
+    )
 
     echo "params=${params}"
 }
