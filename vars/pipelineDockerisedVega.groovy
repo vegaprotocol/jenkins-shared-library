@@ -41,7 +41,7 @@ void call(Map config=[:]) {
             nodeCount = 13 // Hardcoded, cos currently there is no way to get this information
         }
         if (params.DV_MAINNET && genesisJSON == pipelineDefaults.dv.genesisJSON) {
-            genesisJSON = pipelineDefaults.dv.genesisJSON
+            genesisJSON = pipelineDefaults.dv.mainnetGenesis
         }
 
         DockerisedVega dockerisedVega = getDockerisedVega(
@@ -743,17 +743,6 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
             } else {
                 echo 'Skip setting default checkpoint filepath: no mainnet setup or manual checkpoint provided.'
                 Utils.markStageSkippedForConditional(setGetCheckpointStageName)
-            }
-        }
-
-        String setGenesisFilepathStageName = 'Set path to mainnet genesis'
-        stage(setGenesisFilepathStageName) {
-            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile?.trim()) {
-                dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
-                echo "Genesis file path: ${dockerisedVega.genesisFile}"
-            } else {
-                echo 'Skip setting default genesis filepath: no mainnet setup or manual genesis is provided.'
-                Utils.markStageSkippedForConditional(setGenesisFilepathStageName)
             }
         }
 

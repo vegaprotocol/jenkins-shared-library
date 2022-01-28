@@ -141,7 +141,7 @@ void call() {
                         },
                         'Run system-tests' : {
                             sh label: 'Copy checkpoint file to test dir for comparison', script: """#!/bin/bash -e
-                                        cp "${pipelineDefaults.art.resumeCheckpoint}" "${pipelineDefaults.mnnt.testDirectory}"
+                                        cp "${pipelineDefaults.art.resumeCheckpoint}" "system-tests/${pipelineDefaults.mnnt.testDirectory}"
                                     """
                             try {
                                 dir('system-tests/scripts') {
