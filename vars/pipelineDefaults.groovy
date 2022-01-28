@@ -61,6 +61,7 @@ Map mnnt = st + [
     testDirectory: 'tests/LNL',
     testFunction: 'test_checkpoint_loaded',
     testMark: '',
+    afterLoadCheckpoint: "system-tests/tests/LNL/after_checkpoint_load.json",
 ]
 
 @Field

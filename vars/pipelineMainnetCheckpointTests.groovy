@@ -137,11 +137,11 @@ void call() {
                     parallel ([
                         'Wait for checkpoint and take new checkpoint file' : {
                             dockerisedVega.waitForNextCheckpoint()
-                            dockerisedVega.saveLatestCheckpointToFile("system-tests/LNL/after_checkpoint_load.json")
+                            dockerisedVega.saveLatestCheckpointToFile(pipelineDefaults.mnnt.afterLoadCheckpoint)
                         },
                         'Run system-tests' : {
                             sh label: 'Copy checkpoint file to test dir for comparison', script: """#!/bin/bash -e
-                                        cp "${pipelineDefaults.art.resumeCheckpoint}" system-tests/LNL
+                                        cp "${pipelineDefaults.art.resumeCheckpoint}" "${pipelineDefaults.mnnt.testDirectory}"
                                     """
                             try {
                                 dir('system-tests/scripts') {
