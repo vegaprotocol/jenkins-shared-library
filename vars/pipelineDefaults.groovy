@@ -15,6 +15,7 @@ Map dv = [
     vegatoolsBranch: 'develop',
     networksBranch: 'master',
     checkpointStoreBranch: 'main',
+    systemTestsBranch: 'develop',
 
     vegaBuildTags: '',
 
@@ -23,6 +24,7 @@ Map dv = [
 
     mainnet: false,
     genesisJSON: '',
+    mainnetGenesis: 'system-tests/tests/LNL/mainnet/genesis.json',
     checkpoint: '',
     ethEndpointUrl: '',
 
@@ -41,10 +43,8 @@ Map st = dv + [
     testFunction: '',
     testMark:'smoke',
     protosBranch: 'develop',
-    systemTestsBranch: 'develop',
     systemTestsDebug: false,
     genesisJSON: 'system-tests/docker/zero-genesis.json',
-    mainnetGenesis: 'system-tests/tests/LNL/mainnet/genesis.json'
 ]
 
 // System Tests LNL pipeline
@@ -53,6 +53,14 @@ Map lnl = st + [
     testDirectory: 'tests/LNL',
     testFunctionCreate: 'create_data_test',
     testFunctionAssert: 'assert_data_test'
+]
+
+// Mainnet checkpoint test pipeline
+@Field
+Map mnnt = st + [
+    testDirectory: 'tests/LNL',
+    testFunction: 'test_checkpoint_loaded',
+    testMark: '',
 ]
 
 @Field

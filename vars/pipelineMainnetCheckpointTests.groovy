@@ -23,39 +23,28 @@ void call() {
                 name: 'JENKINS_AGENT_LABEL', defaultValue: 'private-network',
                 description: 'Specify Jenkins machine on which to run this pipeline'),
             string(
-                name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: 'test_checkpoint_loaded',
+                name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: pipelineDefaults.mnnt.testFunction,
                 description: 'Run only a tests with a specified function name. This is actually a "pytest -k $TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
             string(
-                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.lnl.testDirectory,
+                name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.mnnt.testDirectory,
                 description: 'Run tests from files in this directory and all sub-directories'),
             string(
-                name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: '',
-                description: 'Run tests only with the following pytest marks'),
-            string(
-                name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: '',
+                name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: pipelineDefaults.mnnt.testMark,
                 description: 'Run tests only with the following pytest marks'),
             booleanParam(
                 name: 'DV_MAINNET', defaultValue: true,
                 description: 'Run network as Mainnet. LEAVE THIS SET TO TRUE, or else undefined behaviour.'),
-            text(
-                name: 'DV_GENESIS_JSON', defaultValue: pipelineDefaults.st.mainnetGenesis,
-                description: '''Tendermint genesis overrides in JSON format, or path to a file.
-            '''),
             string(
-                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
+                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.mnnt.protosBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
-            string(
-                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.st.systemTestsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
             booleanParam(
-                name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
+                name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.mnnt.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
         ],
         properties: [
             durabilityHint('PERFORMANCE_OPTIMIZED'),
         ],
         git: [
-            [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
             [name: 'protos', branch: 'PROTOS_BRANCH'],
         ],
         prepareStages: [

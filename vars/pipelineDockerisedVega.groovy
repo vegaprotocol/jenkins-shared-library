@@ -35,9 +35,13 @@ void call(Map config=[:]) {
         String dockerisedVegaPrefix = "dv-${buildShortName}-${env.BUILD_NUMBER}-${env.EXECUTOR_NUMBER}"
 
         int nodeCount = params.DV_VALIDATOR_NODE_COUNT as int
+        String genesisJSON = params.DV_GENESIS_JSON
 
         if (params.DV_MAINNET && nodeCount == pipelineDefaults.dv.validatorNodeCount as int) {
             nodeCount = 13 // Hardcoded, cos currently there is no way to get this information
+        }
+        if (params.DV_MAINNET && genesisJSON == pipelineDefaults.dv.genesisJSON) {
+            genesisJSON = pipelineDefaults.dv.genesisJSON
         }
 
         DockerisedVega dockerisedVega = getDockerisedVega(
@@ -48,7 +52,7 @@ void call(Map config=[:]) {
             validators: nodeCount,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
             mainnet: params.DV_MAINNET,
-            genesisFile: params.DV_GENESIS_JSON,
+            genesisFile: genesisJSON,
             checkpointFile: params.DV_CHECKPOINT,
             ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
@@ -287,6 +291,9 @@ void setupJobParameters(List inputParameters, List inputProperties) {
         string(
             name: 'CHECKPOINT_STORE_BRANCH', defaultValue: pipelineDefaults.dv.checkpointStoreBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository'),
+        string(
+            name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.dv.systemTestsBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
         /* Build Options */
         string(
             name: 'VEGA_BUILD_TAGS', defaultValue: pipelineDefaults.dv.vegaBuildTags,
@@ -387,6 +394,10 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         ],
         [   name: 'checkpoint-store',
             branch: params.CHECKPOINT_STORE_BRANCH,
+        ],
+        [
+            name: 'system-tests',
+            branch: params.SYSTEM_TEST_BRANCH,
         ],
     ])
 
