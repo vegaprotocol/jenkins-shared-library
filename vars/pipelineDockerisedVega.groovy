@@ -397,7 +397,7 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         ],
         [
             name: 'system-tests',
-            branch: params.SYSTEM_TEST_BRANCH,
+            branch: params.SYSTEM_TESTS_BRANCH,
         ],
     ])
 
