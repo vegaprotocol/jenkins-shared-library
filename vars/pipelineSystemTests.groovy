@@ -24,9 +24,6 @@ void call() {
             string(
                 name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
-            string(
-                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.st.systemTestsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),

@@ -12,6 +12,7 @@ void call(Map config=[:]) {
     // Parse input arguments
     //
     List inputParameters = config.get('parameters', [])
+    List inputProperties = config.get('properties', [])
     List inputGitRepos = config.get('git', [])
     Map<String,Closure> inputPrepareStages = config.get('prepareStages', [:])
     Closure inputMainStage = config.get('mainStage', null)
@@ -21,7 +22,7 @@ void call(Map config=[:]) {
     //
     // Setup PARAMETERS
     //
-    setupJobParameters(inputParameters)
+    setupJobParameters(inputParameters, inputProperties)
 
 
     node(params.JENKINS_AGENT_LABEL) {
@@ -34,9 +35,13 @@ void call(Map config=[:]) {
         String dockerisedVegaPrefix = "dv-${buildShortName}-${env.BUILD_NUMBER}-${env.EXECUTOR_NUMBER}"
 
         int nodeCount = params.DV_VALIDATOR_NODE_COUNT as int
+        String genesisJSON = params.DV_GENESIS_JSON
 
         if (params.DV_MAINNET && nodeCount == pipelineDefaults.dv.validatorNodeCount as int) {
             nodeCount = 13 // Hardcoded, cos currently there is no way to get this information
+        }
+        if (params.DV_MAINNET && genesisJSON == pipelineDefaults.dv.genesisJSON) {
+            genesisJSON = pipelineDefaults.dv.mainnetGenesis
         }
 
         DockerisedVega dockerisedVega = getDockerisedVega(
@@ -47,7 +52,7 @@ void call(Map config=[:]) {
             validators: nodeCount,
             nonValidators: params.DV_NON_VALIDATOR_NODE_COUNT as int,
             mainnet: params.DV_MAINNET,
-            genesisFile: params.DV_GENESIS_JSON,
+            genesisFile: genesisJSON,
             checkpointFile: params.DV_CHECKPOINT,
             ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
@@ -259,7 +264,7 @@ void call(Map config=[:]) {
 }
 
 
-void setupJobParameters(List inputParameters) {
+void setupJobParameters(List inputParameters, List inputProperties) {
     List dockerisedVegaParameters = [
         /* Branches */
         string(
@@ -286,6 +291,9 @@ void setupJobParameters(List inputParameters) {
         string(
             name: 'CHECKPOINT_STORE_BRANCH', defaultValue: pipelineDefaults.dv.checkpointStoreBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository'),
+        string(
+            name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.dv.systemTestsBranch,
+            description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
         /* Build Options */
         string(
             name: 'VEGA_BUILD_TAGS', defaultValue: pipelineDefaults.dv.vegaBuildTags,
@@ -348,11 +356,14 @@ void setupJobParameters(List inputParameters) {
 
     echo "params before=${params}"
 
-    properties([
-        buildDiscarder(logRotator(daysToKeepStr: '14')),
-        copyArtifactPermission('*'),
-        parameters(jobParameters)
-    ])
+    properties(
+        [
+            buildDiscarder(logRotator(daysToKeepStr: '14')),
+            copyArtifactPermission('*'),
+            parameters(jobParameters)
+        ] +
+        inputProperties
+    )
 
     echo "params=${params}"
 }
@@ -383,6 +394,10 @@ void gitClone(Map params, List<Map> inputGitRepos) {
         ],
         [   name: 'checkpoint-store',
             branch: params.CHECKPOINT_STORE_BRANCH,
+        ],
+        [
+            name: 'system-tests',
+            branch: params.SYSTEM_TESTS_BRANCH,
         ],
     ])
 
@@ -728,17 +743,6 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
             } else {
                 echo 'Skip setting default checkpoint filepath: no mainnet setup or manual checkpoint provided.'
                 Utils.markStageSkippedForConditional(setGetCheckpointStageName)
-            }
-        }
-
-        String setGenesisFilepathStageName = 'Set path to mainnet genesis'
-        stage(setGenesisFilepathStageName) {
-            if (dockerisedVega.mainnet && !dockerisedVega.genesisFile?.trim()) {
-                dockerisedVega.genesisFile = 'networks/mainnet1/genesis.json'
-                echo "Genesis file path: ${dockerisedVega.genesisFile}"
-            } else {
-                echo 'Skip setting default genesis filepath: no mainnet setup or manual genesis is provided.'
-                Utils.markStageSkippedForConditional(setGenesisFilepathStageName)
             }
         }
 

@@ -21,7 +21,10 @@ void call() {
                 description: 'Timeout after which the network will be stopped. Default 200min'),
             string(
                 name: 'JENKINS_AGENT_LABEL', defaultValue: 'private-network',
-                description: 'Specify Jenkins machine on which to run this pipeline')
+                description: 'Specify Jenkins machine on which to run this pipeline'),
+        ],
+        properties: [
+            durabilityHint('PERFORMANCE_OPTIMIZED'),
         ],
         prepareStages: [
             'net': { Map vars ->
