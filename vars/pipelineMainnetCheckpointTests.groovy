@@ -90,26 +90,6 @@ void call() {
             DockerisedVega dockerisedVega = vars.dockerisedVega
             String ip = vars.jenkinsAgentPublicIP
             Map<String,String> usefulLinks = dockerisedVega.getUsefulLinks(ip)
-            Map<String,Map<String,String>> endpointInfo = dockerisedVega.getEndpointInformation(ip)
-            List parameters = []
-
-            usefulLinks.eachWithIndex { linkName, linkURL, index ->
-                if (index == 0) {
-                    parameters << booleanParam(description: 'Useful links', name: "[${linkName}]: ${linkURL}")
-                } else {
-                    parameters << booleanParam(name: "[${linkName}]: ${linkURL}")
-                }
-            }
-
-            endpointInfo.each { machine, endpoints ->
-                endpoints.eachWithIndex { endpointType, endpoint, index ->
-                    if (index == 0) {
-                        parameters << booleanParam(description: machine, name: "[${endpointType}]: ${endpoint}")
-                    } else {
-                        parameters << booleanParam(name: "[${endpointType}]: ${endpoint}")
-                    }
-                }
-            }
 
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
