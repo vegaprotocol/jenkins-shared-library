@@ -91,6 +91,15 @@ Map stag = [
 ]
 
 @Field
+Map fair = [
+    restart: true,
+    createMarkets: true,
+    bounceBots: true,
+    devopsInfraBranch: 'master',
+    vegaCoreVersion: ''
+]
+
+@Field
 Map art = [
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     systemTestsLogs: 'output/test_logs',
