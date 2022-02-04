@@ -33,7 +33,7 @@ void call() {
 
         timestamps {
             try {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 15, unit: 'MINUTES') {
                     stage('CI config') {
                         // Printout all configuration variables
                         sh 'printenv'
@@ -90,7 +90,8 @@ void call() {
             } finally {
                 stage('Cleanup') {
                     slack.slackSendCIStatus channel: '#env-deploy',
-                        name: 'Fairground Top-Up Bots'
+                        name: 'Fairground Top-Up Bots',
+                        branch: 'Top-Up'
                 }
             }
         }
