@@ -91,6 +91,11 @@ Map stag = [
 ]
 
 @Field
+Map fair = [
+    devopsInfraBranch: 'master'
+]
+
+@Field
 Map art = [
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     systemTestsLogs: 'output/test_logs',
