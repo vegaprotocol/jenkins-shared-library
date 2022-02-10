@@ -95,7 +95,7 @@ Map fair = [
     restart: true,
     createMarkets: true,
     bounceBots: true,
-    devopsInfraBranch: 'master',
+    devopsInfraBranch: 'fairground-0.47',
     vegaCoreVersion: ''
 ]
 

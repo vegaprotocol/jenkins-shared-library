@@ -22,11 +22,13 @@ void call() {
                 description: 'Start & Top up liqbot and traderbot with fake/ERC20 tokens'),
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.fair.devopsInfraBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
+                description: '''Git branch, tag or hash of the vegaprotocol/devops-infra repository
+                <h4>Do NOT modify</h4>, unless you are 100% sure what you are doing.'''),
             string(
                 name: 'VEGA_CORE_VERSION', defaultValue: pipelineDefaults.fair.vegaCoreVersion,
-                description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
-                Leave empty to not deploy a new version of vega core.'''),
+                description: '''Deploy a version to the Fairground. NOTE: must be in https://github.com/vegaprotocol/vega/releases
+                Leave empty to not deploy a new version of vega core.
+                <h4>Do NOT set</h4>, unless you are 100% sure what you are doing.'''),
         ])
     ])
 
@@ -118,7 +120,7 @@ void call() {
                                         sh script: './veganet.sh testnet chainstorecopy vegalogcopy'
                                         sh script: './veganet.sh testnet nukedata'
                                         sh script: './veganet.sh testnet vegareinit'
-                                        sh script: './veganet.sh testnet start_datanode start'
+                                        sh script: './veganet.sh testnet start_datanode start start_eef'
                                     }
                                 }
                             }
