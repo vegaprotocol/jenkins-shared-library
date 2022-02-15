@@ -1,3 +1,4 @@
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(Boolean condition, Closure body=null) {
     if (condition) {
