@@ -7,6 +7,7 @@ void call(Map config=[:], Closure body=null) {
         if (when) {
             body()
         } else {
+            echo "Skip stage: ${stageName}"
             Utils.markStageSkippedForConditional(stageName)
         }
     }
