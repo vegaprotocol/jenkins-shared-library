@@ -84,10 +84,12 @@ Map dev = [
 @Field
 Map stag = [
     reason: 'I want to restart the Stagnet, because ...',
-    deployVegaCore: '',
     deployConfig: true,
-    restartNetwork: true,
-    devopsInfraBranch: 'master'
+    restart: true,
+    createMarkets: true,
+    bounceBots: true,
+    devopsInfraBranch: 'master',
+    vegaCoreVersion: ''
 ]
 
 @Field
