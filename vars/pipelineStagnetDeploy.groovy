@@ -7,6 +7,7 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
+    final DATA_NODE_PARAM_DEFAULT = 'network-default'
 
     properties([
         copyArtifactPermission('*'),
@@ -21,6 +22,9 @@ void call() {
             string(
                 name: 'DEPLOY_VEGA_CORE', defaultValue: pipelineDefaults.stag.deployVegaCore,
                 description: '"v0.45.1". Version of Vega Core to deploy; Leave empty for no version change'),
+            string(
+                name: 'DEPLOY_DATA_NODE', defaultValue: DATA_NODE_PARAM_DEFAULT,
+                description: 'Version of the data-node binary. If ' + DATA_NODE_PARAM_DEFAULT + ', the network default will be used'),
             booleanParam(
                 name: 'DEPLOY_CONFIG', defaultValue: pipelineDefaults.stag.deployConfig,
                 description: 'Deploy some Vega Network config, e.g. genesis file'),
@@ -105,6 +109,7 @@ void call() {
                         timeout(time: 15, unit: 'MINUTES') {
                             input message: """Deploy to "${params.NETWORK}" Network?\n
                             |- Deploy Vega Core: '${params.DEPLOY_VEGA_CORE ?: 'unchanged'}'
+                            |- Deploy Data Node: '${params.DEPLOY_DATA_NODE}'
                             |- Deploy Config (genesis etc): '${params.DEPLOY_CONFIG ? 'yes' : 'no'}'
                             |- Restart: '${params.RESTART_NETWORK}'
                             |- Reason: \n"${params.REASON}"
@@ -153,10 +158,16 @@ void call() {
                     }
                     String restartStageName = 'Restart Network'
                     stage(restartStageName) {
+                        additionalVars = []
+                        if (params.DEPLOY_DATA_NODE != DATA_NODE_PARAM_DEFAULT) {
+                            echo 'Deploying the Data Node tag: ' + params.DEPLOY_DATA_NODE
+                            additionalVars = ['DATANODE_TAG='+params.DEPLOY_DATA_NODE]
+                        }
+
                         if (params.RESTART_NETWORK) {
                             withDockerRegistry(dockerCredentials) {
                                 withCredentials([sshStagnetCredentials]) {
-                                    sh script: "./veganet.sh ${networkID} bounce"
+                                    sh script: additionalVars.join(' ') + "./veganet.sh ${networkID} bounce"
                                 }
                             }
                         } else {
