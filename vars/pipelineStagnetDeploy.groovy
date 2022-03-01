@@ -167,7 +167,7 @@ void call() {
                         if (params.RESTART_NETWORK) {
                             withDockerRegistry(dockerCredentials) {
                                 withCredentials([sshStagnetCredentials]) {
-                                    sh script: additionalVars.join(' ') + ' ./veganet.sh ${networkID} bounce'
+                                    sh script: additionalVars.join(' ') + ' ./veganet.sh ' + networkID + ' bounce'
                                 }
                             }
                         } else {
