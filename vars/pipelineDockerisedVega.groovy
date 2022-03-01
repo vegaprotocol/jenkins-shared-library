@@ -784,12 +784,13 @@ void runMainStages(Closure inputMainStage, DockerisedVega dockerisedVega, Map va
         } finally {
             // wait for logs to flush properly
             sleep(time:3, unit:'SECONDS')
-            // stop all docker log tails from other concurrent stages
-            retry(3) {
-                sh label: 'Stop tailing logs', script: """#!/bin/bash -e
-                pkill -f "${dockerLogsCommand} ${dockerisedVega.prefix}"
-                """
-            }
+            sh label: 'Stop tailing logs',
+            script: """#!/bin/bash
+                for i in $(seq 3); do
+                    pkill -f "${dockerLogsCommand} ${dockerisedVega.prefix}" || echo 'no process matched'
+                    sleep 3
+                done
+            """
         }
     }
 
@@ -804,7 +805,7 @@ void runMainStages(Closure inputMainStage, DockerisedVega dockerisedVega, Map va
                     script: """#!/bin/bash -e
                     ${dockerLogsCommand} ${longName}
                     """
-                // catchError - ff the body throws an exception, mark the build 
+                // catchError - ff the body throws an exception, mark the build
                 // and stage as a failure, but nonetheless continue to execute the Pipeline
                 catchError(message: "${shortName} stopped", stageResult: 'FAILURE') {
                     // docker top - displays the running processes of a container
