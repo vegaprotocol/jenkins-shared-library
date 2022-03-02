@@ -786,7 +786,7 @@ void runMainStages(Closure inputMainStage, DockerisedVega dockerisedVega, Map va
             sleep(time:3, unit:'SECONDS')
             sh label: 'Stop tailing logs',
             script: """#!/bin/bash
-                for i in $(seq 3); do
+                for i in 1 2 3; do
                     pkill -f "${dockerLogsCommand} ${dockerisedVega.prefix}" || echo 'no process matched'
                     sleep 3
                 done
