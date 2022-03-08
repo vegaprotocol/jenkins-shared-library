@@ -158,7 +158,6 @@ void call() {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
                                     sh label: 'ansible deploy run', script: """#!/bin/bash -e
-                                        export ANSIBLE_FORCE_COLOR=true
                                         ansible-playbook \
                                             --diff \
                                             -u "\${PSSH_USER}" \

@@ -88,8 +88,7 @@ void call() {
                                 dir('ansible') {
                                     withCredentials([sshStagnetCredentials]) {
                                         sh label: 'ansible dry run', script: """#!/bin/bash -e
-                                            export ANSIBLE_FORCE_COLOR=true
-                                            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
+                                            ansible-playbook \
                                                 --check --diff \
                                                 -u "\${PSSH_USER}" \
                                                 --private-key "\${PSSH_KEYFILE}" \
@@ -140,8 +139,7 @@ void call() {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
                                     sh label: 'ansible deploy run', script: """#!/bin/bash -e
-                                        export ANSIBLE_FORCE_COLOR=true
-                                        ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
+                                        ansible-playbook \
                                             -u "\${PSSH_USER}" \
                                             --private-key "\${PSSH_KEYFILE}" \
                                             -i hosts \
