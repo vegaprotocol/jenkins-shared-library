@@ -34,6 +34,9 @@ void call() {
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dev.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
+            string(
+                name: 'ANSIBLE_BRANCH', defaultValue: 'master',
+                description: 'Git branch, tag or hash of the vegaprotocol/ansible repository'),
         ])
     ])
 
@@ -76,6 +79,11 @@ void call() {
                                 } else {
                                     echo 'Skip: VEGA_CORE_VERSION not specified'
                                     Utils.markStageSkippedForConditional('vega core')
+                                }
+                            },
+                            'ansible': {
+                                dir('ansible') {
+                                    gitClone('ansible', params.ANSIBLE_BRANCH)
                                 }
                             }
                         ])
@@ -267,16 +275,5 @@ void gitClone(String repo, String branch) {
                 url: "git@github.com:vegaprotocol/${repo}.git",
                 credentialsId: 'vega-ci-bot'
             ]]])
-    }
-    retry(3) {
-        dir('ansible') {
-            checkout([
-                $class: 'GitSCM',
-                branches: [[name: branch]],
-                userRemoteConfigs: [[
-                    url: 'git@github.com:vegaprotocol/ansible.git',
-                    credentialsId: 'vega-ci-bot'
-                ]]])
-        }
     }
 }
