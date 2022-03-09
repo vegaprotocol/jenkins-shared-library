@@ -161,7 +161,7 @@ void call() {
                     String deployConfigStageName = 'Deploy Vega Network Config'
                     stage(deployConfigStageName) {
                         if (params.DEPLOY_CONFIG) {
-                            dir('devops-infra/ansible') {
+                            dir('ansible') {
                                 withCredentials([sshDevnetCredentials]) {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
