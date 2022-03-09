@@ -34,6 +34,9 @@ void call() {
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.stag.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
+            string(
+                name: 'ANSIBLE_BRANCH', defaultValue: 'master',
+                description: 'Git branch, tag or hash of the vegaprotocol/ansible repository'),
         ])
     ])
 
@@ -68,7 +71,7 @@ void call() {
             try {
                 timeout(time: 100, unit: 'MINUTES') {
                     stage('Git Clone') {
-                        gitClone(params.DEVOPS_INFRA_BRANCH)
+                        gitClone(params.DEVOPS_INFRA_BRANCH, params.ANSIBLE_BRANCH)
                     }
                     stage('Status') {
                         parallel([
@@ -218,7 +221,7 @@ void call() {
     }
 }
 
-void gitClone(String devopsInfraBranch) {
+void gitClone(String devopsInfraBranch, String ansibleBranch) {
     retry(3) {
         checkout([
             $class: 'GitSCM',
@@ -227,5 +230,16 @@ void gitClone(String devopsInfraBranch) {
                 url: 'git@github.com:vegaprotocol/devops-infra.git',
                 credentialsId: 'vega-ci-bot'
             ]]])
+    }
+    retry(3) {
+        dir('ansible') {
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: ansibleBranch]],
+                userRemoteConfigs: [[
+                    url: 'git@github.com:vegaprotocol/ansible.git',
+                    credentialsId: 'vega-ci-bot'
+                ]]])
+        }
     }
 }

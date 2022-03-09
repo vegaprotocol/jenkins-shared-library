@@ -34,6 +34,9 @@ void call() {
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dev.devopsInfraBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
+            string(
+                name: 'ANSIBLE_BRANCH', defaultValue: 'master',
+                description: 'Git branch, tag or hash of the vegaprotocol/ansible repository'),
         ])
     ])
 
@@ -76,6 +79,11 @@ void call() {
                                 } else {
                                     echo 'Skip: VEGA_CORE_VERSION not specified'
                                     Utils.markStageSkippedForConditional('vega core')
+                                }
+                            },
+                            'ansible': {
+                                dir('ansible') {
+                                    gitClone('ansible', params.ANSIBLE_BRANCH)
                                 }
                             }
                         ])
@@ -153,7 +161,7 @@ void call() {
                     String deployConfigStageName = 'Deploy Vega Network Config'
                     stage(deployConfigStageName) {
                         if (params.DEPLOY_CONFIG) {
-                            dir('devops-infra/ansible') {
+                            dir('ansible') {
                                 withCredentials([sshDevnetCredentials]) {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
