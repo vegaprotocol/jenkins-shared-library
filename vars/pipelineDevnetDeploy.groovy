@@ -268,4 +268,15 @@ void gitClone(String repo, String branch) {
                 credentialsId: 'vega-ci-bot'
             ]]])
     }
+    retry(3) {
+        dir('ansible') {
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: devopsInfraBranch]],
+                userRemoteConfigs: [[
+                    url: 'git@github.com:vegaprotocol/ansible.git',
+                    credentialsId: 'vega-ci-bot'
+                ]]])
+        }
+    }
 }
