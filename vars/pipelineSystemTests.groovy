@@ -71,7 +71,7 @@ void call() {
             DockerisedVega dockerisedVega = vars.dockerisedVega
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}",
+                "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
