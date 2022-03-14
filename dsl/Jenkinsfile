@@ -1,0 +1,18 @@
+pipeline {
+    node any
+    options {
+        timestamps()
+        ansiColor('x-term')
+    }
+    stages {
+        stage('Create jobs') {
+            steps {
+                jobDsl(
+                    targets: [
+                        'dsl/scripts/*.groovy'
+                    ]
+                )
+            }
+        }
+    }
+}
