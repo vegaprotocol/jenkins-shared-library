@@ -10,7 +10,7 @@ pipeline {
                 jobDsl(
                     targets: [
                         'dsl/scripts/*.groovy'
-                    ]
+                    ].join("\n")
                 )
             }
         }
