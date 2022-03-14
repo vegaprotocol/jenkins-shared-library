@@ -8,9 +8,7 @@ pipeline {
     stages {
         stage('Create jobs') {
             when {
-                changeset {
-                    "dsl/**"
-                }
+                changeset "dsl/**"
             }
             steps {
                 jobDsl(
