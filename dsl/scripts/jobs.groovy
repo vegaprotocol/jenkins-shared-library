@@ -80,6 +80,7 @@ jobs = [
     ]
 ]
 
+
 jobs.each { job ->
     createCommonPipeline(job)
 }
