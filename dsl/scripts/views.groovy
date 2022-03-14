@@ -26,6 +26,6 @@ def createListView(Map args){
 }
 
 createListView(
-    regex: 'ansible.*'
+    regex: 'ansible.*',
     description: "View with all ansible jobs"
 )
