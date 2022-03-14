@@ -66,7 +66,7 @@ def createCommonPipeline(args){
     }
 }
 
-jobs = [
+def jobs = [
     [
         name: 'ansible SSH',
         // parsed on Jenkinsfile level
