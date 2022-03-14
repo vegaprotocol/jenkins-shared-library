@@ -67,7 +67,7 @@ void call() {
                         dir('devops-infra') {
                             withDockerRegistry(dockerCredentials) {
                                 withCredentials([sshFairgroundCredentials]) {
-                                    sh script: './veganet.sh testnet bounce_bots'
+                                    sh script: 'SKIP_REMOVE_BOT_WALLETS=true ./veganet.sh testnet bounce_bots'
                                 }
                             }
                         }
