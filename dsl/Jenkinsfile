@@ -8,9 +8,13 @@ pipeline {
         stage('Create jobs') {
             steps {
                 jobDsl(
+                    removedViewAction: 'DELETE',
+                    removedJobAction: 'DELETE',
+                    sandbox: true,
                     targets: [
                         'dsl/scripts/*.groovy'
-                    ].join("\n")
+                    ].join("\n"),
+                    unstableOnDeprecation: true,
                 )
             }
         }
