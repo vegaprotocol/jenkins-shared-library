@@ -3,9 +3,15 @@ pipeline {
     options {
         timestamps()
         ansiColor('x-term')
+        disableConcurrentBuilds()
     }
     stages {
         stage('Create jobs') {
+            when {
+                changeset {
+                    "dsl/**"
+                }
+            }
             steps {
                 jobDsl(
                     removedViewAction: 'DELETE',
