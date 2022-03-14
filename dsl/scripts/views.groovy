@@ -30,3 +30,11 @@ createListView(
     regex: 'ansible.*',
     description: "View with all ansible jobs"
 )
+
+createListView(
+    name: 'OPS',
+    jobs: [
+        'DSL Job'
+    ],
+    description: 'ops related jobs',
+)
