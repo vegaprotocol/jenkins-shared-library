@@ -1,2 +1,3 @@
 1. Reference for DSL code: https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html
 2. Job is being run on: https://jenkins.ops.vega.xyz/job/DSL%20Job/
+There is a trick for the job to be able to run from webhooks without having to approve manually script-approval, which is running groovy scripts in the sandbox and configuring DSL Job to run as vega-ci-bot marked as admin in global security
