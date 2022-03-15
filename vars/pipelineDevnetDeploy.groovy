@@ -170,7 +170,7 @@ void call() {
                                             --diff \
                                             -u "\${PSSH_USER}" \
                                             --private-key "\${PSSH_KEYFILE}" \
-                                            -i hosts \
+                                            --inventory inventories \
                                             --limit devnet \
                                             --tags vega-network-config \
                                             site.yaml

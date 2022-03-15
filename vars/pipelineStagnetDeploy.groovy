@@ -95,7 +95,7 @@ void call() {
                                                 --check --diff \
                                                 -u "\${PSSH_USER}" \
                                                 --private-key "\${PSSH_KEYFILE}" \
-                                                -i hosts \
+                                                --inventory inventories \
                                                 --limit ${networkID} \
                                                 --tags vega-network-config \
                                                 site.yaml
@@ -145,7 +145,7 @@ void call() {
                                         ansible-playbook \
                                             -u "\${PSSH_USER}" \
                                             --private-key "\${PSSH_KEYFILE}" \
-                                            -i hosts \
+                                            --inventory inventories \
                                             --limit ${networkID} \
                                             --tags vega-network-config \
                                             site.yaml
