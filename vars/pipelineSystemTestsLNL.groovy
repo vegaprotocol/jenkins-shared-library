@@ -93,9 +93,11 @@ void call() {
                 stage('Run system-tests LNL before restore') {
                     try {
                         dir('system-tests/scripts') {
-                            sh label: 'run system-tests', script: '''#!/bin/bash -e
-                                make run-tests
-                            '''
+                            ansiColor('xterm') {
+                                sh label: 'run system-tests', script: '''#!/bin/bash -e
+                                    make run-tests
+                                '''
+                            }
                         }
                     } finally {
                         String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
@@ -139,9 +141,11 @@ void call() {
                 stage('Run system-tests LNL after restore') {
                     try {
                         dir('system-tests/scripts') {
-                            sh label: 'run system-tests', script: '''#!/bin/bash -e
-                                make run-tests
-                            '''
+                            ansiColor('xterm') {
+                                sh label: 'run system-tests', script: '''#!/bin/bash -e
+                                    make run-tests
+                                '''
+                            }
                         }
                     } finally {
                         String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
