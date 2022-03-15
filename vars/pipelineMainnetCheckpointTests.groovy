@@ -126,9 +126,11 @@ void call() {
                                     """
                             try {
                                 dir('system-tests/scripts') {
-                                    sh label: 'run system-tests', script: '''#!/bin/bash -e
-                                        make run-tests
-                                    '''
+                                    ansiColor('xterm') {
+                                        sh label: 'run system-tests', script: '''#!/bin/bash -e
+                                            make run-tests
+                                        '''
+                                    }
                                 }
                             } finally {
                                 String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
