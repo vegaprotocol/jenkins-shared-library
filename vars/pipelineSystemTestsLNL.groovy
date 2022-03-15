@@ -73,6 +73,7 @@ void call() {
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}", // TODO: Remove when the DV is removed 
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
@@ -118,6 +119,7 @@ void call() {
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}",
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
