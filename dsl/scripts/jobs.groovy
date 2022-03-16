@@ -54,19 +54,7 @@ def createCommonPipeline(args){
     }
 }
 
-def jobs = [
-    [
-        name: 'ansible SSH',
-        // parsed on Jenkinsfile level
-        env: [
-            ANSIBLE_ARGS: '--tags ssh',
-            // do double groovy escape \\ to do single escape for regex -> \/
-            CHANGESET: 'group_vars\\/all.yaml|roles\\/accounts\\/.*|inventories\\/.*'
-        ],
-        repo: 'ansible',
-        jenkinsfile: 'jenkins/run.Jenkinsfile'
-    ]
-]
+def jobs = []
 
 jobs.each { job ->
     createCommonPipeline(job)
