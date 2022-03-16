@@ -1,3 +1,4 @@
+// https://github.com/janinko/ghprb/issues/77
 def standardDefinition(args){
   return {
     cpsScm {
