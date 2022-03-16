@@ -7,7 +7,6 @@ def standardDefinition(args){
             url(args.repo)
             credentials(args.get('credentials', "vega-ci-bot"))
           }
-          branch('$BRANCH')
         }
       }
       scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
@@ -28,28 +27,18 @@ def createCommonPipeline(args){
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
     return pipelineJob(args.name) {
         description(standardDescription())
-        parameters {
-            gitParameter {
-                branch('')
-                branchFilter('.*')
-                defaultValue("origin/${args.get('branch', 'master')}")
-                description('You can choose different branch for testing')
-                name('BRANCH')
-                quickFilterEnabled(true)
-                selectedValue('DEFAULT')
-                sortMode('ASCENDING_SMART')
-                type('BRANCH')
-                tagFilter('*')
-                useRepository(args.repo)
+        if (args.get('githubTrigger', true)) {
+            properties {
+                pipelineTriggers {
+                    triggers {
+                        githubPush()
+                    }
+                }
             }
         }
         logRotator {
             daysToKeep(45)
         }
-        // example
-        // triggers: {
-        //     cron('H */12 * * *')
-        // },
         if (args.triggers) {
             triggers args.triggers
         }
@@ -70,10 +59,11 @@ def jobs = [
         // parsed on Jenkinsfile level
         env: [
             ANSIBLE_ARGS: '--tags ssh',
-            CHANGESET: '(group_vars/all.yaml|roles/accounts/**)'
+            // do double groovy escape \\ to do single escape for regex -> \/
+            CHANGESET: 'group_vars\\/all.yaml|roles\\/accounts\\/.*'
         ],
         repo: 'ansible',
-
+        jenkinsfile: 'jenkins/run.Jenkinsfile'
     ]
 ]
 
