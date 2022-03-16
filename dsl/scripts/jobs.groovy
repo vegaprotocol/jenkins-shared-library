@@ -70,7 +70,6 @@ def jobs = [
         // parsed on Jenkinsfile level
         env: [
             ANSIBLE_ARGS: '--tags ssh',
-            INVENTORY: 'hosts',
             CHANGESET: '(group_vars/all.yaml|roles/accounts/**)'
         ],
         repo: 'ansible',
