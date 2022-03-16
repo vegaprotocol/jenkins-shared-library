@@ -61,7 +61,7 @@ def jobs = [
         env: [
             ANSIBLE_ARGS: '--tags ssh',
             // do double groovy escape \\ to do single escape for regex -> \/
-            CHANGESET: 'group_vars\\/all.yaml|roles\\/accounts\\/.*'
+            CHANGESET: 'group_vars\\/all.yaml|roles\\/accounts\\/.*|inventories\\/.*'
         ],
         repo: 'ansible',
         jenkinsfile: 'jenkins/run.Jenkinsfile'
