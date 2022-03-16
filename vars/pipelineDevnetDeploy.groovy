@@ -29,6 +29,9 @@ void call() {
                 name: 'CREATE_MARKETS', defaultValue: pipelineDefaults.dev.createMarkets,
                 description: 'Create Markets'),
             booleanParam(
+                name: 'CREATE_INCENTIVE_MARKETS', defaultValue: pipelineDefaults.dev.createIncentiveMarkets,
+                description: 'Create Markets for Incentive'),
+            booleanParam(
                 name: 'BOUNCE_BOTS', defaultValue: pipelineDefaults.dev.bounceBots,
                 description: 'Start & Top up liqbot and traderbot with fake/ERC20 tokens'),
             string(
@@ -220,6 +223,24 @@ void call() {
                         } else {
                             echo 'Skip: CREATE_MARKETS is false'
                             Utils.markStageSkippedForConditional(createMarketsStageName)
+                        }
+                    }
+                    //
+                    // CREATE Incentive markets
+                    //
+                    String createIncentiveMarketsStageName = 'Create Incentive Markets'
+                    stage(createIncentiveMarketsStageName) {
+                        if (params.CREATE_INCENTIVE_MARKETS) {
+                            dir('devops-infra') {
+                                withDockerRegistry(dockerCredentials) {
+                                    withCredentials([sshDevnetCredentials]) {
+                                        sh script: './veganet.sh devnet incentive_create_markets'
+                                    }
+                                }
+                            }
+                        } else {
+                            echo 'Skip: CREATE_INCENTIVE_MARKETS is false'
+                            Utils.markStageSkippedForConditional(createIncentiveMarketsStageName)
                         }
                     }
                     //
