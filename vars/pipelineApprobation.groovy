@@ -3,6 +3,7 @@
 /* groovylint-disable MethodSize */
 /* groovylint-disable NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
