@@ -99,10 +99,10 @@ Map fair = [
 // Approbation pipeline
 @Field
 Map appr = [
-    vegaCoreVersion: 'develop',
-    specsInternalVersion: 'master',
-    multisigControlVersion: 'develop',
-    systemTestsVersion: 'develop',
+    vegaCoreBranch: 'develop',
+    specsInternalBranch: 'master',
+    multisigControlBranch: 'develop',
+    systemTestsBranch: 'develop',
     specsArg: '{./specs-internal/protocol/**/*.{md,ipynb},./specs-internal/non-protocol-specs/**/*.{md,ipynb}}',
     testsArg: '{./system-tests/tests/**/*.py,./vega/integration/**/*.{go,feature},./MultisigControl/test/*.js}',
     ignoreArg: './specs-internal/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}',

@@ -11,16 +11,16 @@ void call() {
         copyArtifactPermission('*'),
         parameters([
             string(
-                name: 'VEGA_CORE_VERSION', defaultValue: pipelineDefaults.appr.vegaCoreVersion,
+                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
             string(
-                name: 'SPECS_INTERNAL_VERSION', defaultValue: pipelineDefaults.appr.specsInternalVersion,
+                name: 'SPECS_INTERNAL_BRANCH', defaultValue: pipelineDefaults.appr.specsInternalBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/specs-internal repository'),
             string(
-                name: 'MULTISIG_CONTROL_VERSION', defaultValue: pipelineDefaults.appr.multisigControlVersion,
+                name: 'MULTISIG_CONTROL_BRANCH', defaultValue: pipelineDefaults.appr.multisigControlBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository'),
             string(
-                name: 'SYSTEM_TESTS_VERSION', defaultValue: pipelineDefaults.appr.systemTestsVersion,
+                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.appr.systemTestsBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
 
             string(
@@ -63,22 +63,22 @@ void call() {
                         parallel([
                             'vega core': {
                                 dir('vega') {
-                                    gitClone('vega', params.VEGA_CORE_VERSION)
+                                    gitClone('vega', params.VEGA_CORE_BRANCH)
                                 }
                             },
                             'specs-internal': {
                                 dir('specs-internal') {
-                                    gitClone('specs-internal', params.SPECS_INTERNAL_VERSION)
+                                    gitClone('specs-internal', params.SPECS_INTERNAL_BRANCH)
                                 }
                             },
                             'MultisigControl': {
                                 dir('MultisigControl') {
-                                    gitClone('MultisigControl', params.MULTISIG_CONTROL_VERSION)
+                                    gitClone('MultisigControl', params.MULTISIG_CONTROL_BRANCH)
                                 }
                             },
                             'system-tests': {
                                 dir('system-tests') {
-                                    gitClone('system-tests', params.SYSTEM_TESTS_VERSION)
+                                    gitClone('system-tests', params.SYSTEM_TESTS_BRANCH)
                                 }
                             }
                         ])
