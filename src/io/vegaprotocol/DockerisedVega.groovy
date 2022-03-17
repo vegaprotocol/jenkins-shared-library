@@ -17,6 +17,7 @@ dlv
 mainnet
 genesisFile
 checkpointFile
+legacyResume
 ethEndpointUrl
 
 vegaCoreVersion
@@ -49,6 +50,7 @@ void init(Map config=[:]) {
     mainnet = config.mainnet ?: false
     genesisFile = config.genesisFile
     checkpointFile = config.checkpointFile
+    legacyResume = config.legacyResume
     ethEndpointUrl = config.ethEndpointUrl
 
     dlv = config.dlv ?: false
@@ -113,7 +115,7 @@ void run(String command, boolean resume = false, boolean legacy = false) {
     if (resume) {
         extraArguments += ' --resume'
     }
-    if (legacy) {
+    if (legacyResume) {
         extraArguments += ' --legacy-resume'
     }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
@@ -132,14 +134,12 @@ void run(String command, boolean resume = false, boolean legacy = false) {
 
 void start(Map config) {
     boolean resume = config?.resume ?: false
-    boolean legacy = config?.legacy ?: false
-    run('start', resume, legacy)
+    run('start', resume)
 }
 
 void restart(Map config) {
     boolean resume = config?.resume ?: false
-    boolean legacy = config?.legacy ?: false
-    run('restart', resume, legacy)
+    run('restart', resume)
 }
 
 void stop(Map config) {
