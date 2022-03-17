@@ -22,22 +22,6 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
   }
 }
 
-void trysh(String shellScript) {
-  try {
-    sh shellScript
-  } catch(err) {
-  }
-}
-
-void cleanup(String testDirectoryPath) {
-  trysh 'rm ' + testDirectoryPath + '/vegacapsule'
-  trysh 'rm ' + testDirectoryPath + '/vega'
-  trysh 'rm ' + testDirectoryPath + '/data-node'
-  trysh 'rm -r ' + testDirectoryPath + '/testnet'
-  trysh 'rm ' + testDirectoryPath + '/vegawallet'
-  trysh 'rm ' + testDirectoryPath + '/config_system_tests.hcl'
-}
-
 void call(Map additionalConfig) {
   def defaultCconfig = [
     branchDevopsInfra: 'master',
@@ -70,7 +54,7 @@ void call(Map additionalConfig) {
     }
 
     stage('prepare') {
-      cleanup(testDirectoryPath)
+      cleanWs()
       
       config.preapareSteps()
     }
@@ -112,13 +96,7 @@ void call(Map additionalConfig) {
       }
       
       dir ('tests') {
-        withCredentials([
-          usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-        ]) {
-          sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-        }
-
-        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
+          sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
       }
 
       dir('system-tests/scripts') {
@@ -130,7 +108,18 @@ void call(Map additionalConfig) {
 
     stage('start the network') {
       dir('tests') {
-        sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+        try {
+          withCredentials([
+            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+          ]) {
+            sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+          }
+          sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+        } catch (e) {
+          throw e
+        } finally {
+          sh 'docker login https://ghcr.io'
+        }
         sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
         sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
         sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
@@ -154,7 +143,8 @@ void call(Map additionalConfig) {
                   'TEST_DIRECTORY="' + config.systemTestsTestDirectory + '"',
                   'USE_VEGACAPSULE=true',
                   'SYSTEM_TESTS_DEBUG=' + config.systemTestsDebug,
-                  'VEGACAPSULE_BIN_LINUX="' + testDirectoryPath + '/vegacapsule"'
+                  'VEGACAPSULE_BIN_LINUX="' + testDirectoryPath + '/vegacapsule"',
+                  'SYSTEM_TESTS_LOG_OUTPUT="' + testDirectoryPath + '/log-output"'
                 ]) {
                   sh 'make test'
                 }
@@ -165,6 +155,11 @@ void call(Map additionalConfig) {
               dir('tests') {
                 archiveArtifacts artifacts: 'testnet/**/*.*',
                           allowEmptyArchive: true
+
+                if (fileExists('log-output')) {
+                  archiveArtifacts artifacts: 'log-output/**/*.*',
+                            allowEmptyArchive: true
+                }
               }
               dir('system-tests') {
                 archiveArtifacts artifacts: 'build/test-reports/**/*.*',
@@ -184,13 +179,12 @@ void call(Map additionalConfig) {
 
 /**
  * Example usage
- *
- * call([
- *   branchSystemTests: 'vega-capsule',
- *   systemTestsTestFunction: 'test_importWalletValidRecoverPhrase',
- *   preapareSteps: {
- *      // Move it to AMI, will be removed soon
- *       sh 'sudo apt-get install -y daemonize'
- *   }
- * ])
  */
+call([
+  branchSystemTests: 'vega-capsule',
+  systemTestsTestFunction: 'test_importWalletValidRecoverPhrase',
+  preapareSteps: {
+     // Move it to AMI, will be removed soon
+      sh 'sudo apt-get install -y daemonize'
+  }
+])
