@@ -117,7 +117,7 @@ void call() {
                 throw e
             } finally {
                 stage('Cleanup') {
-                    echo 'Post something to Slack?'
+                    sendSlackMessage()
                 }
             }
         }
@@ -134,4 +134,34 @@ void gitClone(String repo, String branch) {
                 credentialsId: 'vega-ci-bot'
             ]]])
     }
+}
+
+void sendSlackMessage() {
+    String slackChannel = '#coverage-notify'
+    String jobURL = env.RUN_DISPLAY_URL
+    String jobName = currentBuild.displayName
+
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
+    String duration = currentBuild.durationString - ' and counting'
+    String msg = ''
+    String color = ''
+
+    if (currentResult == 'SUCCESS') {
+        msg = ":large_green_circle: Approbation <${jobURL}|${jobName}>"
+        color = 'good'
+    } else if (currentResult == 'ABORTED') {
+        msg = ":black_circle: Approbation aborted <${jobURL}|${jobName}>"
+        color = '#000000'
+    } else {
+        msg = ":red_circle: Approbation <${jobURL}|${jobName}>"
+        color = 'danger'
+    }
+
+    msg += " (${duration})"
+
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
 }
