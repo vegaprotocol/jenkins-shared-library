@@ -172,7 +172,7 @@ void call(Map config=[:]) {
                             retry(2) {
                                 timeout(time: 10, unit: 'MINUTES') {
                                     withDockerRegistry(vars.dockerCredentials) {
-                                        dockerisedVega.start(resume: true)
+                                        dockerisedVega.start(resume: true, legacy: params.DV_LEGACY_RESUME)
                                     }
                                 }
                             }
@@ -320,6 +320,9 @@ void setupJobParameters(List inputParameters, List inputProperties) {
             description: '''Checkpoint to restore network from. A path to a cp file.
             For mainnet option leave this field empty and the latest Mainnet checkpoint will be downloaded.
             '''),
+        booleanParam(
+            name: 'DV_LEGACY_RESUME', defaultValue: pipelineDefaults.dv.legacyResume,
+            description: 'Use the legacy flag for resuming from checkpoint.'),
         string(
             name: 'DV_ETH_ENDPOINT', defaultValue: pipelineDefaults.dv.ethEndpointUrl,
             description: 'Ethereum endpoint url, e.g. Infura. Leave empty to use Jenkins instance.'),

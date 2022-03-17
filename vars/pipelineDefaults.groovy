@@ -26,6 +26,7 @@ Map dv = [
     genesisJSON: '',
     mainnetGenesis: 'system-tests/tests/LNL/mainnet/genesis.json',
     checkpoint: '',
+    legacyResume: false,
     ethEndpointUrl: '',
 
     tendermintLogLevel: 'info',
@@ -62,6 +63,7 @@ Map mnnt = st + [
     testFunction: 'test_checkpoint_loaded',
     testMark: '',
     afterLoadCheckpoint: "system-tests/tests/LNL/after_checkpoint_load.json",
+    legacyResume: true,
 ]
 
 @Field

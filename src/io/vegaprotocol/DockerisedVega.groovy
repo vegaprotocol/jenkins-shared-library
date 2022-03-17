@@ -84,7 +84,7 @@ String toString() {
         "tendermintLogLevel=\"${tendermintLogLevel}\", vegaCoreLogLevel=\"${vegaCoreLogLevel}\")"
 }
 
-void run(String command, boolean resume = false) {
+void run(String command, boolean resume = false, boolean legacy = false) {
     String extraArguments = ''
     if (vegaCoreVersion) {
         extraArguments += " --vega-version \"${vegaCoreVersion}\""
@@ -113,6 +113,9 @@ void run(String command, boolean resume = false) {
     if (resume) {
         extraArguments += ' --resume'
     }
+    if (legacy) {
+        extraArguments += ' --legacy-resume'
+    }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
         "${dockerisedvagaScript}" \
             --datadir "${basedir}" \
@@ -129,12 +132,14 @@ void run(String command, boolean resume = false) {
 
 void start(Map config) {
     boolean resume = config?.resume ?: false
-    run('start', resume)
+    boolean legacy = config?.legacy ?: false
+    run('start', resume, legacy)
 }
 
 void restart(Map config) {
     boolean resume = config?.resume ?: false
-    run('restart', resume)
+    boolean legacy = config?.legacy ?: false
+    run('restart', resume, legacy)
 }
 
 void stop(Map config) {
