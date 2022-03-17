@@ -54,6 +54,7 @@ void call(Map config=[:]) {
             mainnet: params.DV_MAINNET,
             genesisFile: genesisJSON,
             checkpointFile: params.DV_CHECKPOINT,
+            legacyResume: params.DV_LEGACY_RESUME,
             ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
@@ -172,7 +173,7 @@ void call(Map config=[:]) {
                             retry(2) {
                                 timeout(time: 10, unit: 'MINUTES') {
                                     withDockerRegistry(vars.dockerCredentials) {
-                                        dockerisedVega.start(resume: true, legacy: params.DV_LEGACY_RESUME)
+                                        dockerisedVega.start(resume: true)
                                     }
                                 }
                             }
@@ -760,6 +761,13 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                 echo 'Skip setting default Eth url: no mainnet setup or Ethereum url is provided.'
                 Utils.markStageSkippedForConditional(setEthURLStageName)
             }
+        }
+        String setLegacyResumeStatus = 'Set legacy resume status'
+        stage(setLegacyResumeStatus) {
+            dockerisedVega.legacyResume = params.DV_LEGACY_RESUME
+            sh label: 'Set legacyResume flag.', script: """#!/bin/bash -e
+                    echo 'Set legacyResume to ${params.DV_LEGACY_RESUME}'
+                """
         }
     }]
 }

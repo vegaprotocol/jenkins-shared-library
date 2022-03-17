@@ -50,7 +50,7 @@ void init(Map config=[:]) {
     mainnet = config.mainnet ?: false
     genesisFile = config.genesisFile
     checkpointFile = config.checkpointFile
-    legacyResume = config.legacyResume
+    legacyResume = config.legacyResume ?: false
     ethEndpointUrl = config.ethEndpointUrl
 
     dlv = config.dlv ?: false
@@ -86,7 +86,7 @@ String toString() {
         "tendermintLogLevel=\"${tendermintLogLevel}\", vegaCoreLogLevel=\"${vegaCoreLogLevel}\")"
 }
 
-void run(String command, boolean resume = false, boolean legacy = false) {
+void run(String command, boolean resume = false) {
     String extraArguments = ''
     if (vegaCoreVersion) {
         extraArguments += " --vega-version \"${vegaCoreVersion}\""
