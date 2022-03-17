@@ -6,6 +6,11 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
+    echo "buildCauses=${currentBuild.buildCauses}"
+    if (currentBuild.upstreamBuilds) {
+        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+        currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
+    }
 
     properties([
         copyArtifactPermission('*'),
