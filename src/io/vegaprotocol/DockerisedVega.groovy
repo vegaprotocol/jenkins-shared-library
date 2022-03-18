@@ -115,7 +115,7 @@ void run(String command, boolean resume = false) {
     if (resume) {
         extraArguments += ' --resume'
     }
-    if (legacyResume) {
+    if (legacyResume && checkpointFile) {
         extraArguments += ' --legacy-resume'
     }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e

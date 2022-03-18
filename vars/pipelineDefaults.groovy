@@ -56,6 +56,12 @@ Map lnl = st + [
     testFunctionAssert: 'assert_data_test'
 ]
 
+// Private Network pipeline
+@Field
+Map pn = dv + [
+    legacyResume: true,
+]
+
 // Mainnet checkpoint test pipeline
 @Field
 Map mnnt = st + [
