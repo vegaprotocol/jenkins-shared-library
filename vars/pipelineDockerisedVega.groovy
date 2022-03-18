@@ -54,6 +54,7 @@ void call(Map config=[:]) {
             mainnet: params.DV_MAINNET,
             genesisFile: genesisJSON,
             checkpointFile: params.DV_CHECKPOINT,
+            legacyResume: params.DV_LEGACY_RESUME,
             ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
             vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
@@ -320,6 +321,9 @@ void setupJobParameters(List inputParameters, List inputProperties) {
             description: '''Checkpoint to restore network from. A path to a cp file.
             For mainnet option leave this field empty and the latest Mainnet checkpoint will be downloaded.
             '''),
+        booleanParam(
+            name: 'DV_LEGACY_RESUME', defaultValue: pipelineDefaults.dv.legacyResume,
+            description: 'Use the legacy flag for resuming from checkpoint.'),
         string(
             name: 'DV_ETH_ENDPOINT', defaultValue: pipelineDefaults.dv.ethEndpointUrl,
             description: 'Ethereum endpoint url, e.g. Infura. Leave empty to use Jenkins instance.'),
@@ -757,6 +761,13 @@ Map<String,Closure> getPrepareDockerisedVegaStages(
                 echo 'Skip setting default Eth url: no mainnet setup or Ethereum url is provided.'
                 Utils.markStageSkippedForConditional(setEthURLStageName)
             }
+        }
+        String setLegacyResumeStatus = 'Set legacy resume status'
+        stage(setLegacyResumeStatus) {
+            dockerisedVega.legacyResume = params.DV_LEGACY_RESUME
+            sh label: 'Set legacyResume flag.', script: """#!/bin/bash -e
+                    echo 'Set legacyResume to ${params.DV_LEGACY_RESUME}'
+                """
         }
     }]
 }

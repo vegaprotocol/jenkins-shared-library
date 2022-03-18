@@ -40,6 +40,9 @@ void call() {
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.mnnt.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
+            booleanParam(
+                name: 'DV_LEGACY_RESUME', defaultValue: pipelineDefaults.mnnt.legacyResume,
+                description: 'Use the legacy flag for resuming from checkpoint.'),
         ],
         properties: [
             durabilityHint('PERFORMANCE_OPTIMIZED'),
