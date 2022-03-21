@@ -48,6 +48,23 @@ Map st = dv + [
     genesisJSON: 'system-tests/docker/zero-genesis.json',
 ]
 
+@Field
+Map capsuleSystemTests = [
+    branchDevopsInfra: 'master',
+    branchVegaCapsule: 'main',
+    branchVega: 'develop',
+    branchDataNode: 'develop',
+    branchSystemTests: 'develop',
+    branchVegawallet: 'develop',
+    branchProtos: 'develop',
+    branchVegatools: 'develop',
+
+    systemTestsTestFunction: '',
+    systemTestsTestMark: 'smoke',
+    systemTestsTestDirectory: '',
+    systemTestsDebug: false,
+]
+
 // System Tests LNL pipeline
 @Field
 Map lnl = st + [
