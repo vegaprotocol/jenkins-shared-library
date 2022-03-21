@@ -151,7 +151,7 @@ void call(Map config=[:]) {
                     if (inputMainStage && inputAfterCheckpointRestoreStage) {
                         stage('Wait for checkpoint') {
                             echo 'Waiting up to 2 min for next checkpoint'
-                            timeout(time: 2, unit: 'MINUTES') {
+                            timeout(time: 6, unit: 'MINUTES') {
                                 dockerisedVega.waitForNextCheckpoint()
                             }
                         }
