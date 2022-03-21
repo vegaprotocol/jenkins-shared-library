@@ -118,6 +118,10 @@ void run(String command, boolean resume = false) {
     if (legacyResume && checkpointFile) {
         extraArguments += ' --legacy-resume'
     }
+    else {
+        // In this case, we're doing a half resume, since we already have some of the network
+        extraArguments += ' --mainnet-resume'
+    }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
         "${dockerisedvagaScript}" \
             --datadir "${basedir}" \

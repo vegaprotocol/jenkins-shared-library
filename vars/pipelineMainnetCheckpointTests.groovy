@@ -164,6 +164,9 @@ void call() {
                                         fingerprint: true
                                 }
                                 echo "System Tests has finished with state: ${currentBuild.result}"
+
+                                // Next stage of the tests restarts the network. Next resume is the modern resume
+                                dockerisedVega.legacyResume = false
                             }
                         }
                     ])
@@ -182,10 +185,9 @@ void call() {
                 "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
                 "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
                 "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.lnl.systemTestsState}",
+                "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
                 "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
-                "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION_ASSERT}",
                 "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
-                "DV_LEGACY_RESUME=false",
             ]) {
                 stage('Check setup') {
                     sh 'printenv'
