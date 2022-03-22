@@ -2,13 +2,15 @@
 /* groovylint-disable DuplicateNumberLiteral */
 
 void doClone(Map config) {
-  checkout([
-    $class: 'GitSCM',
-    branches: [[name: config?.branch]],
-    userRemoteConfigs: [[
-      url: config?.url,
-      credentialsId: config?.credentialsId
-  ]]])
+  timeout(time: config.timeout, unit: 'MINUTES') {
+    checkout([
+      $class: 'GitSCM',
+      branches: [[name: config?.branch]],
+      userRemoteConfigs: [[
+        url: config?.url,
+        credentialsId: config?.credentialsId
+    ]]])
+  }
 }
 
 void call(Map additionalConfig) {
@@ -16,7 +18,8 @@ void call(Map additionalConfig) {
       directory: '',
       branch: 'main',
       url: '',
-      credentialsId: ''
+      credentialsId: '',
+      timeout: 3
   ]
 
   Map config = defaultCconfig + additionalConfig

@@ -63,6 +63,7 @@ Map capsuleSystemTests = [
     systemTestsTestMark: 'smoke',
     systemTestsTestDirectory: '',
     systemTestsDebug: false,
+    systemTestsRunTimeout: '60',
 ]
 
 // System Tests LNL pipeline
@@ -137,6 +138,7 @@ Map appr = [
 
 @Field
 Map art = [
+    systemTestCapsuleJunit: 'build/test-reports/system-test-results.xml',
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     systemTestsLogs: 'output/test_logs',
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',

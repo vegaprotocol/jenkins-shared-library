@@ -1,3 +1,4 @@
+/* groovylint-disable LineLength */
 void call() {
   properties([
     parameters([
@@ -5,7 +6,7 @@ void call() {
           description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
       string(name: 'VEGACAPSULE_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
           description: 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository'),
-      string(name: 'VEGA_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchVega,
+      string(name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchVega,
           description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
       string(name: 'DATA_NODE_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchDataNode,
           description: 'Git branch, tag or hash of the vegaprotocol/data-node repository'),
@@ -18,17 +19,19 @@ void call() {
       string(name: 'VEGATOOLS_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchVegatools,
           description: 'Git branch, tag or hash of the vegaprotocol/vegatools repository'),
 
-      string(name: 'TEST_FUNCTION', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction,
+      string(name: 'SYSTEM_TESTS_TEST_FUNCTION', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction,
           description: '''Run only a tests with a specified function name. This is actually a "pytest -k
-          $TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'''),
-      string(name: 'TEST_MARK', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestMark,
-          description: '''Run only a tests with the specified mark(s). This is actually a "pytest -m $TEST_MARK"
+          $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'''),
+      string(name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestMark,
+          description: '''Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK"
           command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'''),
-      string(name: 'TEST_DIRECTORY', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory,
+      string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory,
           description: 'Run tests from files in this directory and all sub-directories'),
       booleanParam(
-          name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
+          name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsDebug,
           description: 'Enable debug logs for system-tests execution'),
+        string(name: 'TIMEOUT', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout,
+          description: 'Timeout for system test run'),
     ])
   ])
 
@@ -36,17 +39,18 @@ void call() {
       capsuleSystemTests([
         branchDevopsInfra: params.DEVOPS_INFRA_BRANCH,
         branchVegaCapsule: params.VEGACAPSULE_BRANCH,
-        branchVega: params.VEGA_BRANCH,
+        branchVega: params.VEGA_CORE_BRANCH,
         branchDataNode: params.DATA_NODE_BRANCH,
         branchSystemTests: params.SYSTEM_TESTS_BRANCH,
         branchVegawallet: params.VEGAWALLET_BRANCH,
         branchProtos: params.PROTOS_BRANCH,
         branchVegatools: params.VEGATOOLS_BRANCH,
 
-        systemTestsTestFunction: params.TEST_FUNCTION,
-        systemTestsTestMark: params.TEST_MARK,
-        systemTestsTestDirectory: params.TEST_DIRECTORY,
+        systemTestsTestFunction: params.SYSTEM_TESTS_TEST_FUNCTION,
+        systemTestsTestMark: params.SYSTEM_TESTS_TEST_MARK,
+        systemTestsTestDirectory: params.SYSTEM_TESTS_TEST_DIRECTORY,
         systemTestsDebug: params.SYSTEM_TESTS_DEBUG,
+        systemTestsRunTimeout: params.TIMEOUT,
 
         preapareSteps: {
             // Move it to AMI, will be removed soon

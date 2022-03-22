@@ -2,9 +2,11 @@
   BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral, 
   FactoryMethodName, VariableTypeRequired */
 void buildGoBinary(String directory, String outputBinary, String packages) {
-  dir(directory) {
-    sh 'go mod vendor'
-    sh 'go build -o ' + outputBinary + ' ' + packages
+  timeout(time: 5, unit: 'MINUTES') {
+    dir(directory) {
+      sh 'go mod vendor'
+      sh 'go build -o ' + outputBinary + ' ' + packages
+    }
   }
 }
 
@@ -27,6 +29,7 @@ void call(Map additionalConfig) {
     preapareSteps: {},
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
+    systemTestsRunTimeout: 60,
   ]
   
   def config = defaultCconfig + additionalConfig
@@ -61,7 +64,8 @@ void call(Map additionalConfig) {
         url: 'git@github.com:vegaprotocol/' + value.name + '.git',
         branch: value.branch,
         directory: value.name,
-        credentialsId: config.gitCredentialsId
+        credentialsId: config.gitCredentialsId,
+        timeout: 2,
       ])
     }]}
   }
@@ -84,7 +88,11 @@ void call(Map additionalConfig) {
     }
 
     dir ('tests/multisig-setup') {
-      sh 'npm install'
+      timeout(time: 5, unit: 'MINUTES') {
+        ansiColor('xterm') {
+          sh 'npm install'
+        }
+      }
     }
     
     dir ('tests') {
@@ -92,9 +100,13 @@ void call(Map additionalConfig) {
     }
 
     dir('system-tests/scripts') {
-      sh 'make check'
-      sh 'make prepare-test-docker-image'
-      sh 'make build-test-proto'
+      timeout(time: 5, unit: 'MINUTES') {
+        ansiColor('xterm') {
+          sh 'make check'
+          sh 'make prepare-test-docker-image'
+          sh 'make build-test-proto'
+        }
+      }
     }
   }
 
@@ -106,11 +118,15 @@ void call(Map additionalConfig) {
         ]) {
           sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
         }
-        sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+        timeout(time: 5, unit: 'MINUTES') {
+          ansiColor('xterm') {
+            sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+          }
+        }
       } catch (e) {
         throw e
       } finally {
-        sh 'docker login https://ghcr.io'
+        sh 'docker logout https://ghcr.io'
       }
       sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
       sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
@@ -120,7 +136,11 @@ void call(Map additionalConfig) {
 
   stage('setup multisig contract') {
     dir ('tests/multisig-setup') {
-      sh 'node main.js "' + testDirectoryPath + '/testnet/smartcontracts/addresses.json" "' + testDirectoryPath + '/testnet/validators.json"'
+      timeout(time: 2, unit: 'MINUTES') {
+        ansiColor('xterm') {
+          sh 'node main.js "' + testDirectoryPath + '/testnet/smartcontracts/addresses.json" "' + testDirectoryPath + '/testnet/validators.json"'
+        }
+      }
     }
   }
 
@@ -138,7 +158,9 @@ void call(Map additionalConfig) {
             'SYSTEM_TESTS_LOG_OUTPUT="' + testDirectoryPath + '/log-output"'
         ]) {
             ansiColor('xterm') {
-              sh 'make test'
+              timeout(time: config.systemTestsRunTimeout, unit: 'MINUTES') {
+                sh 'make test'
+              }
             }
         }
       }
