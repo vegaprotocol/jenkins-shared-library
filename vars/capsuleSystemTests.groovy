@@ -26,6 +26,7 @@ void call(Map additionalConfig) {
 
     preapareSteps: {},
     gitCredentialsId: 'vega-ci-bot',
+    ignoreFailure: false,
   ]
   
   def config = defaultCconfig + additionalConfig
@@ -123,27 +124,29 @@ void call(Map additionalConfig) {
     }
   }
 
-  stage('run tests') {
-    try {
+  try {
+    stage('run tests') {
       dir('system-tests/scripts') {
         withEnv([
-          'NETWORK_HOME_PATH="' + testDirectoryPath + '/testnet"',
-          'TEST_FUNCTION="' + config.systemTestsTestFunction + '"',
-          'TEST_MARK="' + config.systemTestsTestMark + '"',
-          'TEST_DIRECTORY="' + config.systemTestsTestDirectory + '"',
-          'USE_VEGACAPSULE=true',
-          'SYSTEM_TESTS_DEBUG=' + config.systemTestsDebug,
-          'VEGACAPSULE_BIN_LINUX="' + testDirectoryPath + '/vegacapsule"',
-          'SYSTEM_TESTS_LOG_OUTPUT="' + testDirectoryPath + '/log-output"'
+            'NETWORK_HOME_PATH="' + testDirectoryPath + '/testnet"',
+            'TEST_FUNCTION="' + config.systemTestsTestFunction + '"',
+            'TEST_MARK="' + config.systemTestsTestMark + '"',
+            'TEST_DIRECTORY="' + config.systemTestsTestDirectory + '"',
+            'USE_VEGACAPSULE=true',
+            'SYSTEM_TESTS_DEBUG=' + config.systemTestsDebug,
+            'VEGACAPSULE_BIN_LINUX="' + testDirectoryPath + '/vegacapsule"',
+            'SYSTEM_TESTS_LOG_OUTPUT="' + testDirectoryPath + '/log-output"'
         ]) {
-          ansiColor('xterm') {
-            sh 'make test'
-          }
+            ansiColor('xterm') {
+              sh 'make test'
+            }
         }
       }
-    } catch (e) {
-      throw e
-    } finally {
+    }
+  } catch (e) {
+    throw e
+  } finally {
+    stage('Check results') {
       dir('tests') {
         archiveArtifacts artifacts: 'testnet/**/*.*',
                   allowEmptyArchive: true
@@ -156,6 +159,12 @@ void call(Map additionalConfig) {
       dir('system-tests') {
         archiveArtifacts artifacts: 'build/test-reports/**/*.*',
                   allowEmptyArchive: true
+      
+        junit checksName: 'System Tests',
+          testResults: 'build/test-reports/system-test-results.xml',
+          skipMarkingBuildUnstable: config.ignoreFailure,
+          skipPublishingChecks: config.ignoreFailure
+      
       }
     }
   }
