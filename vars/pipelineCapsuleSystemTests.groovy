@@ -1,4 +1,12 @@
 /* groovylint-disable LineLength */
+String fne(String v1, String v2) {
+  if (v1 == null || v1.isEmpty()) {
+    return v2
+  }
+
+  return v1
+}
+
 void call() {
   properties([
     parameters([
@@ -36,27 +44,28 @@ void call() {
   ])
 
   node('system-tests-capsule') {
-      capsuleSystemTests([
-        branchDevopsInfra: params.DEVOPS_INFRA_BRANCH,
-        branchVegaCapsule: params.VEGACAPSULE_BRANCH,
-        branchVega: params.VEGA_CORE_BRANCH,
-        branchDataNode: params.DATA_NODE_BRANCH,
-        branchSystemTests: params.SYSTEM_TESTS_BRANCH,
-        branchVegawallet: params.VEGAWALLET_BRANCH,
-        branchProtos: params.PROTOS_BRANCH,
-        branchVegatools: params.VEGATOOLS_BRANCH,
+    println('pipelineCapsuleSystemTests params: ' + params)
+    capsuleSystemTests([
+      branchDevopsInfra: fne(params.DEVOPS_INFRA_BRANCH, pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
+      branchVegaCapsule: fne(params.VEGACAPSULE_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
+      branchVega: fne(params.VEGA_CORE_BRANCH, pipelineDefaults.capsuleSystemTests.branchVega),
+      branchDataNode: fne(params.DATA_NODE_BRANCH, pipelineDefaults.capsuleSystemTests.branchDataNode),
+      branchSystemTests: fne(params.SYSTEM_TESTS_BRANCH, pipelineDefaults.capsuleSystemTests.branchSystemTests),
+      branchVegawallet: fne(params.VEGAWALLET_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegawallet),
+      branchProtos: fne(params.PROTOS_BRANCH, pipelineDefaults.capsuleSystemTests.branchProtos),
+      branchVegatools: fne(params.VEGATOOLS_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegatools),
 
-        systemTestsTestFunction: params.SYSTEM_TESTS_TEST_FUNCTION,
-        systemTestsTestMark: params.SYSTEM_TESTS_TEST_MARK,
-        systemTestsTestDirectory: params.SYSTEM_TESTS_TEST_DIRECTORY,
-        systemTestsDebug: params.SYSTEM_TESTS_DEBUG,
-        systemTestsRunTimeout: params.TIMEOUT,
+      systemTestsTestFunction: fne(params.SYSTEM_TESTS_TEST_FUNCTION, pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
+      systemTestsTestMark: fne(params.SYSTEM_TESTS_TEST_MARK, pipelineDefaults.capsuleSystemTests.systemTestsTestMark),
+      systemTestsTestDirectory: fne(params.SYSTEM_TESTS_TEST_DIRECTORY, pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),
+      systemTestsDebug: params.SYSTEM_TESTS_DEBUG,
+      systemTestsRunTimeout: params.TIMEOUT,
 
-        preapareSteps: {
-            // Move it to AMI, will be removed soon
-            sh 'sudo apt-get install -y daemonize'
-        }
-      ])
+      preapareSteps: {
+          // Move it to AMI, will be removed soon
+          sh 'sudo apt-get install -y daemonize'
+      }
+    ])
   }
 }
 

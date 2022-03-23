@@ -2,6 +2,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
     String systemTestsJob = '/system-tests/system-tests'
+    String systemTestsCapsuleJob = '/system-tests/system-tests-capsule'
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
@@ -49,36 +50,70 @@ void call(Map config = [:]) {
         ]
 
     echo "Starting System-Tests with parameters: ${buildParameters}"
+    parallel(
+        dv: {
+            RunWrapper st = build(
+                job: systemTestsJob,
+                propagate: false,  // don't fail yet
+                wait: true,
+                parameters: buildParameters
+            )
 
-    RunWrapper st = build(
-        job: systemTestsJob,
-        propagate: false,  // don't fail yet
-        wait: true,
-        parameters: buildParameters
+            try {
+                echo "System-Tests execution pipeline: ${st.absoluteUrl}"
+
+                sh label: 'remove old junit result file', script: """#!/bin/bash -e
+                    rm -f "${pipelineDefaults.art.systemTestsJunit}"
+                """
+
+                copyArtifacts(
+                    projectName: systemTestsJob,
+                    selector: specific("${st.number}"),
+                    fingerprintArtifacts: true,
+                    filter: pipelineDefaults.art.systemTestsJunit
+                )
+
+                junit checksName: 'System Tests',
+                    testResults: pipelineDefaults.art.systemTestsJunit,
+                    skipMarkingBuildUnstable: ignoreFailure,
+                    skipPublishingChecks: ignoreFailure
+
+            } catch (e) {
+                echo "Ignoring error in gathering results from downstream build: ${e}"
+            }
+
+        },
+        capsule: {
+            RunWrapper stc = build(
+                job: systemTestsCapsuleJob,
+                propagate: false,  // don't fail yet
+                wait: true,
+                parameters: buildParameters
+            )
+
+            try {
+                echo "System-Tests with Vegacapsule execution pipeline: ${stc.absoluteUrl}"
+
+                sh label: 'remove old junit result file', script: """#!/bin/bash -e
+                    rm -f "${pipelineDefaults.art.systemTestCapsuleJunit}"
+                """
+
+                copyArtifacts(
+                    projectName: systemTestsCapsuleJob,
+                    selector: specific("${stc.number}"),
+                    fingerprintArtifacts: true,
+                    filter: pipelineDefaults.art.systemTestCapsuleJunit
+                )
+
+                junit checksName: 'System Tests Capsule',
+                    testResults: pipelineDefaults.art.systemTestCapsuleJunit,
+                    skipMarkingBuildUnstable: ignoreFailure,
+                    skipPublishingChecks: ignoreFailure
+            } catch (e) {
+                echo "Ignoring error in gathering results from downstream build: ${e}"
+            }
+        }
     )
-
-    try {
-        echo "System-Tests execution pipeline: ${st.absoluteUrl}"
-
-        sh label: 'remove old junit result file', script: """#!/bin/bash -e
-            rm -f "${pipelineDefaults.art.systemTestsJunit}"
-        """
-
-        copyArtifacts(
-            projectName: systemTestsJob,
-            selector: specific("${st.number}"),
-            fingerprintArtifacts: true,
-            filter: pipelineDefaults.art.systemTestsJunit
-        )
-
-        junit checksName: 'System Tests',
-              testResults: pipelineDefaults.art.systemTestsJunit,
-              skipMarkingBuildUnstable: ignoreFailure,
-              skipPublishingChecks: ignoreFailure
-
-    } catch (e) {
-        echo "Ignoring error in gathering results from downstream build: ${e}"
-    }
 
     // now fail
     if (st.result != 'SUCCESS') {

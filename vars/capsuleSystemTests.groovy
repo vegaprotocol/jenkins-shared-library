@@ -168,7 +168,7 @@ void call(Map additionalConfig) {
   } catch (e) {
     throw e
   } finally {
-    stage('Check results') {
+    stage('Post-steps') {
       dir('tests') {
         archiveArtifacts artifacts: 'testnet/**/*.*',
                   allowEmptyArchive: true
@@ -186,8 +186,11 @@ void call(Map additionalConfig) {
           testResults: 'build/test-reports/system-test-results.xml',
           skipMarkingBuildUnstable: config.ignoreFailure,
           skipPublishingChecks: config.ignoreFailure
-      
       }
+
+      slack.slackSendCIStatus name: 'System Tests Capsule',
+        channel: '#playground',
+        branch: 'st:' + config.branchSystemTests + ' | vega:' + config.branchVega 
     }
   }
 }
