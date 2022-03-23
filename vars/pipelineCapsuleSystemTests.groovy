@@ -1,5 +1,6 @@
 /* groovylint-disable LineLength */
 String fne(String v1, String v2) {
+  /* groovylint-disable-next-line UnnecessaryGetter */
   if (v1 == null || v1.isEmpty()) {
     return v2
   }

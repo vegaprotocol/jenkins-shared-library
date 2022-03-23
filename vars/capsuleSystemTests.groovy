@@ -38,7 +38,7 @@ void call(Map additionalConfig) {
 
   def testDirectoryPath
   dir('tests') {
-    testDirectoryPath = sh(returnStdout: true, script: 'pwd').trim()
+    testDirectoryPath = pwd()
   }
 
   stage('prepare') {
