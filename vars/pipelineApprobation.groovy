@@ -7,6 +7,9 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
+
+    String scriptSlackMsg = ''
+
     echo "buildCauses=${currentBuild.buildCauses}"
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
@@ -101,6 +104,17 @@ void call() {
                                 ${params.OTHER_ARG}
                         """
                     }
+                    //
+                    // Results
+                    //
+                    stage('Store results') {
+                        archiveArtifacts artifacts: 'results/output.csv',
+                                allowEmptyArchive: true
+                        scriptSlackMsg = sh(
+                            script: "cat results/jenkins.txt",
+                            returnStdout: true,
+                        ).trim()
+                    }
                 }
                 // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                 // i.e. `currentResult` is not set properly in the finally block
@@ -118,7 +132,7 @@ void call() {
                 throw e
             } finally {
                 stage('Cleanup') {
-                    sendSlackMessage()
+                    sendSlackMessage(scriptSlackMsg)
                 }
             }
         }
@@ -137,7 +151,7 @@ void gitClone(String repo, String branch) {
     }
 }
 
-void sendSlackMessage() {
+void sendSlackMessage(String scriptMsg) {
     String slackChannel = '#coverage-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -159,6 +173,10 @@ void sendSlackMessage() {
     }
 
     msg += " (${duration})"
+
+    if (scriptMsg != '') {
+        msg += "\n${scriptMsg}"
+    }
 
     slackSend(
         channel: slackChannel,
