@@ -169,7 +169,7 @@ void call() {
                                 dockerisedVega.legacyResume = false
                                 // At the beginning of the run, it was set to grab latest mainnet. Now we want it to
                                 // grab the last checkpoint we saved, similar to the LNL pipeline.
-                                dokcerisedVega.checkpointFile = None
+                                dockerisedVega.checkpointFile = None
                             }
                         }
                     ])
