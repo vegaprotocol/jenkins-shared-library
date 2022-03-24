@@ -167,6 +167,9 @@ void call() {
 
                                 // Next stage of the tests restarts the network. Next resume is the modern resume
                                 dockerisedVega.legacyResume = false
+                                // At the beginning of the run, it was set to grab latest mainnet. Now we want it to
+                                // grab the last checkpoint we saved, similar to the LNL pipeline.
+                                dokcerisedVega.checkpointFile = None
                             }
                         }
                     ])
