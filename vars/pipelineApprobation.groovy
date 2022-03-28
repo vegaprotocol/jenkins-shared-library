@@ -3,9 +3,18 @@
 /* groovylint-disable MethodSize */
 /* groovylint-disable NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call() {
+
+    String scriptSlackMsg = ''
+
+    echo "buildCauses=${currentBuild.buildCauses}"
+    if (currentBuild.upstreamBuilds) {
+        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+        currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
+    }
 
     properties([
         copyArtifactPermission('*'),
@@ -95,6 +104,17 @@ void call() {
                                 ${params.OTHER_ARG}
                         """
                     }
+                    //
+                    // Results
+                    //
+                    stage('Store results') {
+                        archiveArtifacts artifacts: 'results/output.csv',
+                                allowEmptyArchive: true
+                        scriptSlackMsg = sh(
+                            script: "cat results/jenkins.txt",
+                            returnStdout: true,
+                        ).trim()
+                    }
                 }
                 // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
                 // i.e. `currentResult` is not set properly in the finally block
@@ -112,7 +132,7 @@ void call() {
                 throw e
             } finally {
                 stage('Cleanup') {
-                    echo 'Post something to Slack?'
+                    sendSlackMessage(scriptSlackMsg)
                 }
             }
         }
@@ -129,4 +149,38 @@ void gitClone(String repo, String branch) {
                 credentialsId: 'vega-ci-bot'
             ]]])
     }
+}
+
+void sendSlackMessage(String scriptMsg) {
+    String slackChannel = '#coverage-notify'
+    String jobURL = env.RUN_DISPLAY_URL
+    String jobName = currentBuild.displayName
+
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
+    String duration = currentBuild.durationString - ' and counting'
+    String msg = ''
+    String color = ''
+
+    if (currentResult == 'SUCCESS') {
+        msg = ":large_green_circle: Approbation <${jobURL}|${jobName}>"
+        color = 'good'
+    } else if (currentResult == 'ABORTED') {
+        msg = ":black_circle: Approbation aborted <${jobURL}|${jobName}>"
+        color = '#000000'
+    } else {
+        msg = ":red_circle: Approbation <${jobURL}|${jobName}>"
+        color = 'danger'
+    }
+
+    msg += " (${duration})"
+
+    if (scriptMsg != '') {
+        msg += "\n${scriptMsg}"
+    }
+
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
 }

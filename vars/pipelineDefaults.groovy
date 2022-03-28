@@ -48,6 +48,24 @@ Map st = dv + [
     genesisJSON: 'system-tests/docker/zero-genesis.json',
 ]
 
+@Field
+Map capsuleSystemTests = [
+    branchDevopsInfra: 'master',
+    branchVegaCapsule: 'main',
+    branchVega: 'develop',
+    branchDataNode: 'develop',
+    branchSystemTests: 'develop',
+    branchVegawallet: 'develop',
+    branchProtos: 'develop',
+    branchVegatools: 'develop',
+
+    systemTestsTestFunction: '',
+    systemTestsTestMark: 'smoke',
+    systemTestsTestDirectory: '',
+    systemTestsDebug: false,
+    systemTestsRunTimeout: '60',
+]
+
 // System Tests LNL pipeline
 @Field
 Map lnl = st + [
@@ -113,13 +131,14 @@ Map appr = [
     systemTestsBranch: 'develop',
     specsArg: '{./specs-internal/protocol/**/*.{md,ipynb},./specs-internal/non-protocol-specs/**/*.{md,ipynb}}',
     testsArg: '{./system-tests/tests/**/*.py,./vega/integration/**/*.{go,feature},./MultisigControl/test/*.js}',
-    ignoreArg: './specs-internal/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}',
-    otherArg: '--show-branches',
-    approbationVersion: '2.3.4'
+    ignoreArg: '{./spec-internal/protocol/0060*,./specs-internal/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}',
+    otherArg: '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins',
+    approbationVersion: '2.4.3'
 ]
 
 @Field
 Map art = [
+    systemTestCapsuleJunit: 'build/test-reports/system-test-results.xml',
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     systemTestsLogs: 'output/test_logs',
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',
