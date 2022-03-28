@@ -150,8 +150,8 @@ void call(Map config=[:]) {
                     }
                     if (inputMainStage && inputAfterCheckpointRestoreStage) {
                         stage('Wait for checkpoint') {
-                            echo 'Waiting up to 2 min for next checkpoint'
-                            timeout(time: 2, unit: 'MINUTES') {
+                            echo 'Waiting up to 6 min for next checkpoint'
+                            timeout(time: 6, unit: 'MINUTES') {
                                 dockerisedVega.waitForNextCheckpoint()
                             }
                         }
@@ -209,13 +209,13 @@ void call(Map config=[:]) {
                 stage('Cleanup') {
                     try {
                         if (dockerisedVega.isNodeRunning()) {
-                            echo 'Waiting up to 2 min for next checkpoint'
+                            echo 'Waiting up to 6 min for next checkpoint'
                             catchError(
                                 message: 'No new checkpoint has been created in 2min',
                                 buildResult: null,
                                 stageResult: null,
                             ) {
-                                timeout(time: 2, unit: 'MINUTES') {
+                                timeout(time: 6, unit: 'MINUTES') {
                                     dockerisedVega.waitForNextCheckpoint()
                                 }
                             }
