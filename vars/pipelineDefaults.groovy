@@ -34,7 +34,7 @@ Map dv = [
     vegaCoreDLV: false,
 
     agent: 'system-tests',
-    timeout: '100'
+    timeout: '200'
 ]
 
 // System Tests pipeline
