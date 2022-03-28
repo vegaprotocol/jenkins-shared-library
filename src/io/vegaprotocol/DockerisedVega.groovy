@@ -118,7 +118,7 @@ void run(String command, boolean resume = false) {
     if (legacyResume && checkpointFile) {
         extraArguments += ' --legacy-resume'
     }
-    else {
+    else if (mainnet) {
         // In this case, we're doing a half resume, since we already have some of the network
         extraArguments += ' --mainnet-resume'
     }
