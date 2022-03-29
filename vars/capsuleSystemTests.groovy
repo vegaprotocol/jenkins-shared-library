@@ -189,7 +189,7 @@ void call(Map additionalConfig) {
       }
 
       slack.slackSendCIStatus name: 'System Tests Capsule',
-        channel: '#playground',
+        channel: '#qa-notify',
         branch: 'st:' + config.branchSystemTests + ' | vega:' + config.branchVega 
     }
   }

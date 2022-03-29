@@ -25,7 +25,6 @@ void call(Map config = [:]) {
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
   ]
 
-
    RunWrapper st = build(
       job: systemTestsCapsuleJob,
       propagate: false,  // don't fail yet
@@ -41,7 +40,7 @@ void call(Map config = [:]) {
 
       copyArtifacts(
           projectName: systemTestsCapsuleJob,
-          selector: specific("${stc.number}"),
+          selector: specific("${st.number}"),
           fingerprintArtifacts: true,
           filter: pipelineDefaults.art.systemTestCapsuleJunit
       )
