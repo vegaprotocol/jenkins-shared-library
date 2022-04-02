@@ -10,7 +10,7 @@ void call() {
     properties([
         copyArtifactPermission('*'),
         disableConcurrentBuilds(),
-        pipelineTriggers([cron('H */4 * * *')]),
+        pipelineTriggers([cron('H */2 * * *')]),
         parameters([
             string(
                 name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.fair.devopsInfraBranch,
