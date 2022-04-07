@@ -99,39 +99,46 @@ void call(Map additionalConfig) {
     dir ('tests') {
         sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
     }
-
-    dir('system-tests/scripts') {
-      timeout(time: 5, unit: 'MINUTES') {
-        ansiColor('xterm') {
-          sh 'make check'
-          sh 'make prepare-test-docker-image'
-          sh 'make build-test-proto'
-        }
-      }
-    }
   }
 
-  stage('start the network') {
-    dir('tests') {
-      try {
-        withCredentials([
-          usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-        ]) {
-          sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-        }
-        timeout(time: 5, unit: 'MINUTES') {
-          ansiColor('xterm') {
-            sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+  stage('prepare system tests and network') {
+    parallel {
+      stage('build system-tests docker images') {
+        dir('system-tests/scripts') {
+          timeout(time: 5, unit: 'MINUTES') {
+            ansiColor('xterm') {
+              sh 'make check'
+              sh 'make prepare-test-docker-image'
+              sh 'make build-test-proto'
+            }
           }
         }
-      } finally {
-        sh 'docker logout https://ghcr.io'
       }
-      sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
-      sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
-      sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
+    }
+    
+    stage('start the network') {
+      dir('tests') {
+        try {
+          withCredentials([
+            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+          ]) {
+            sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+          }
+          timeout(time: 5, unit: 'MINUTES') {
+            ansiColor('xterm') {
+              sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+            }
+          }
+        } finally {
+          sh 'docker logout https://ghcr.io'
+        }
+        sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
+        sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
+        sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
+      }
     }
   }
+
 
   stage('setup multisig contract') {
     dir ('tests/multisig-setup') {
