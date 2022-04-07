@@ -64,6 +64,7 @@ Map capsuleSystemTests = [
     systemTestsTestDirectory: '',
     systemTestsDebug: false,
     systemTestsRunTimeout: '60',
+    printNetworkLogsInJenkinsPipeline: false,
 ]
 
 // System Tests LNL pipeline

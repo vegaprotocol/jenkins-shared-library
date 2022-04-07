@@ -4,7 +4,7 @@
 void buildGoBinary(String directory, String outputBinary, String packages) {
   timeout(time: 5, unit: 'MINUTES') {
     dir(directory) {
-      sh 'go mod vendor'
+      // sh 'go mod vendor'
       sh 'go build -o ' + outputBinary + ' ' + packages
     }
   }
@@ -30,6 +30,9 @@ void call(Map additionalConfig) {
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
     systemTestsRunTimeout: 60,
+    printNetworkLogs: false,
+
+    dockerCredentialsId: 'github-vega-ci-bot-artifacts',
   ]
   
   def config = defaultCconfig + additionalConfig
@@ -81,58 +84,75 @@ void call(Map additionalConfig) {
     parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
   }
   
-  stage('prepare network') {
-    dir('system-tests') {
-      sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
-      sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
-    }
-
-    dir ('tests/multisig-setup') {
-      timeout(time: 5, unit: 'MINUTES') {
-        ansiColor('xterm') {
-          sh 'npm install'
-        }
-      }
-    }
-    
+  stage('start nomad') {
     dir ('tests') {
         sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
     }
-
-    dir('system-tests/scripts') {
-      timeout(time: 5, unit: 'MINUTES') {
-        ansiColor('xterm') {
-          sh 'make check'
-          sh 'make prepare-test-docker-image'
-          sh 'make build-test-proto'
-        }
-      }
-    }
   }
 
-  stage('start the network') {
-    dir('tests') {
-      try {
-        withCredentials([
-          usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-        ]) {
-          sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+  stage('prepare system tests and network') {
+    def prepareSteps = [:]
+    prepareSteps['prepare multisig setup script'] = {
+      stage('prepare multisig setup script') {
+        dir('system-tests') {
+          sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
+          sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
         }
-        timeout(time: 5, unit: 'MINUTES') {
-          ansiColor('xterm') {
-            sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+
+        dir ('tests/multisig-setup') {
+          timeout(time: 5, unit: 'MINUTES') {
+            ansiColor('xterm') {
+              sh 'npm install'
+            }
           }
         }
-      } catch (e) {
-        throw e
-      } finally {
-        sh 'docker logout https://ghcr.io'
       }
-      sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
-      sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
-      sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
     }
+
+    prepareSteps['build system-tests docker images'] = {
+      stage('build system-tests docker images') {
+        dir('system-tests/scripts') {
+          timeout(time: 5, unit: 'MINUTES') {
+            ansiColor('xterm') {
+              sh 'make check'
+
+              withDockerRegistry([credentialsId: config.dockerCredentialsId, url: 'https://ghcr.io']) {
+                sh 'make prepare-test-docker-image'
+                sh 'make build-test-proto'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    prepareSteps['start the network'] = {
+      stage('start the network') {
+        dir('tests') {
+          try {
+            withCredentials([
+              usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
+            ]) {
+              sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+            }
+            timeout(time: 5, unit: 'MINUTES') {
+              ansiColor('xterm') {
+                sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+              }
+            }
+          } finally {
+            sh 'docker logout https://ghcr.io'
+          }
+          sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
+          sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
+          sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
+        }
+      }
+    }
+
+    parallel prepareSteps
   }
+
 
   stage('setup multisig contract') {
     dir ('tests/multisig-setup') {
@@ -165,9 +185,17 @@ void call(Map additionalConfig) {
         }
       }
     }
-  } catch (e) {
-    throw e
   } finally {
+    stage('Archive network logs') {
+      dir('tests') {
+        if (config.printNetworkLogs) {
+          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet | tee ./testnet/network.log'
+        } else {
+          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet > ./testnet/network.log'
+        }
+      }
+    }
+
     stage('Post-steps') {
       dir('tests') {
         archiveArtifacts artifacts: 'testnet/**/*.*',
