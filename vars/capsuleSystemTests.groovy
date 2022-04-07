@@ -189,9 +189,9 @@ void call(Map additionalConfig) {
     stage('Archive network logs') {
       dir('tests') {
         if (config.printNetworkLogs) {
-          sh './vegacapsule network logs | tee ./testnet/network.log'
+          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet | tee ./testnet/network.log'
         } else {
-          sh './vegacapsule network logs > ./testnet/network.log'
+          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet > ./testnet/network.log'
         }
       }
     }
