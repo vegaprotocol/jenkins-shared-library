@@ -104,7 +104,8 @@ void call(Map additionalConfig) {
   }
 
   stage('prepare system tests and network') {
-    parallel {
+    def prepareSteps = [:]
+    prepareSteps['build system-tests docker images'] = {
       stage('build system-tests docker images') {
         dir('system-tests/scripts') {
           timeout(time: 5, unit: 'MINUTES') {
@@ -121,27 +122,31 @@ void call(Map additionalConfig) {
       }
     }
 
-    stage('start the network') {
-      dir('tests') {
-        try {
-          withCredentials([
-            usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
-          ]) {
-            sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-          }
-          timeout(time: 5, unit: 'MINUTES') {
-            ansiColor('xterm') {
-              sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+    prepareSteps['start the network'] = {
+      stage('start the network') {
+        dir('tests') {
+          try {
+            withCredentials([
+              usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
+            ]) {
+              sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
             }
+            timeout(time: 5, unit: 'MINUTES') {
+              ansiColor('xterm') {
+                sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+              }
+            }
+          } finally {
+            sh 'docker logout https://ghcr.io'
           }
-        } finally {
-          sh 'docker logout https://ghcr.io'
+          sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
+          sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
+          sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
         }
-        sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
-        sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
-        sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
       }
     }
+
+    parallel prepareSteps
   }
 
 
