@@ -84,20 +84,7 @@ void call(Map additionalConfig) {
     parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
   }
   
-  stage('prepare network') {
-    dir('system-tests') {
-      sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
-      sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
-    }
-
-    dir ('tests/multisig-setup') {
-      timeout(time: 5, unit: 'MINUTES') {
-        ansiColor('xterm') {
-          sh 'npm install'
-        }
-      }
-    }
-    
+  stage('start nomad') {
     dir ('tests') {
         sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
     }
@@ -105,6 +92,23 @@ void call(Map additionalConfig) {
 
   stage('prepare system tests and network') {
     def prepareSteps = [:]
+    prepareSteps['prepare multisig setup script'] = {
+      stage('prepare multisig setup script') {
+        dir('system-tests') {
+          sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
+          sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
+        }
+
+        dir ('tests/multisig-setup') {
+          timeout(time: 5, unit: 'MINUTES') {
+            ansiColor('xterm') {
+              sh 'npm install'
+            }
+          }
+        }
+      }
+    }
+
     prepareSteps['build system-tests docker images'] = {
       stage('build system-tests docker images') {
         dir('system-tests/scripts') {
