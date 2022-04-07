@@ -63,7 +63,7 @@ void call() {
       systemTestsTestDirectory: fne(params.SYSTEM_TESTS_TEST_DIRECTORY, pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),
       systemTestsDebug: params.SYSTEM_TESTS_DEBUG,
       systemTestsRunTimeout: params.TIMEOUT,
-      printNetworkLogs: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline.toBoolean(),
+      printNetworkLogs: params.SYSTEM_TESTS_TEST_DIRECTORY,
     ])
   }
 }
