@@ -30,6 +30,7 @@ void call(Map additionalConfig) {
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
     systemTestsRunTimeout: 60,
+    printNetworkLogs: false,
   ]
   
   def config = defaultCconfig + additionalConfig
@@ -123,8 +124,6 @@ void call(Map additionalConfig) {
             sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
           }
         }
-      } catch (e) {
-        throw e
       } finally {
         sh 'docker logout https://ghcr.io'
       }
@@ -165,9 +164,17 @@ void call(Map additionalConfig) {
         }
       }
     }
-  } catch (e) {
-    throw e
   } finally {
+    stage('Archive network logs') {
+      dir('tests') {
+        if (config.printNetworkLogs) {
+          sh './capsule network logs | tee ./testnet/network.log'
+        } else {
+          sh './capsule network logs > ./testnet/network.log'
+        }
+      }
+    }
+
     stage('Post-steps') {
       dir('tests') {
         archiveArtifacts artifacts: 'testnet/**/*.*',

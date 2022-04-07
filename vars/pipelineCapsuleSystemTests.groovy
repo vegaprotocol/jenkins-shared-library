@@ -39,8 +39,10 @@ void call() {
       booleanParam(
           name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsDebug,
           description: 'Enable debug logs for system-tests execution'),
-        string(name: 'TIMEOUT', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout,
+      string(name: 'TIMEOUT', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout,
           description: 'Timeout for system test run'),
+      booleanParam(name: 'PRINT_NETWORK_LOGS', defaultValue: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline,
+          description: 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well'),
     ])
   ])
 
@@ -61,11 +63,7 @@ void call() {
       systemTestsTestDirectory: fne(params.SYSTEM_TESTS_TEST_DIRECTORY, pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),
       systemTestsDebug: params.SYSTEM_TESTS_DEBUG,
       systemTestsRunTimeout: params.TIMEOUT,
-
-      preapareSteps: {
-          // Move it to AMI, will be removed soon
-          sh 'sudo apt-get install -y daemonize'
-      }
+      printNetworkLogs: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline.toBoolean(),
     ])
   }
 }
