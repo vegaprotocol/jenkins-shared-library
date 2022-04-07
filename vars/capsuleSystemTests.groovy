@@ -31,6 +31,8 @@ void call(Map additionalConfig) {
     ignoreFailure: false,
     systemTestsRunTimeout: 60,
     printNetworkLogs: false,
+
+    dockerCredentialsId: 'github-vega-ci-bot-artifacts',
   ]
   
   def config = defaultCconfig + additionalConfig
@@ -108,19 +110,22 @@ void call(Map additionalConfig) {
           timeout(time: 5, unit: 'MINUTES') {
             ansiColor('xterm') {
               sh 'make check'
-              sh 'make prepare-test-docker-image'
-              sh 'make build-test-proto'
+
+              withDockerRegistry([credentialsId: config.dockerCredentialsId, url: 'https://ghcr.io']) {
+                sh 'make prepare-test-docker-image'
+                sh 'make build-test-proto'
+              }
             }
           }
         }
       }
     }
-    
+
     stage('start the network') {
       dir('tests') {
         try {
           withCredentials([
-            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+            usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
           ]) {
             sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
           }
