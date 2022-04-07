@@ -92,10 +92,9 @@ void call(Map additionalConfig) {
 
   stage('prepare system tests and network') {
     def prepareSteps = [:]
-    prepareSteps['prepare multisig setup script'] = {
-      stage('prepare multisig setup script') {
+    prepareSteps['prepare network config'] = {
+      stage('prepare network config') {
         dir('system-tests') {
-          sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
           sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
         }
       }
