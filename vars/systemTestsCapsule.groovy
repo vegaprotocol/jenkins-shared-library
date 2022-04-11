@@ -23,8 +23,7 @@ void call(Map config = [:]) {
       booleanParam(
           name: 'SYSTEM_TESTS_DEBUG', value: config.systemTestsDebug ? "${config.systemTestsDebug}".toBoolean() : pipelineDefaults.capsuleSystemTests.systemTestsDebug),
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
-      booleanParam(name: 'PRINT_NETWORK_LOGS', value: config.printNetworkLogs ?: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline,
-          description: 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well'),
+      booleanParam(name: 'PRINT_NETWORK_LOGS', value: config.printNetworkLogs ?: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline),
   ]
 
    RunWrapper st = build(
