@@ -93,18 +93,9 @@ void call(Map additionalConfig) {
   stage('prepare system tests and network') {
     def prepareSteps = [:]
     prepareSteps['prepare multisig setup script'] = {
-      stage('prepare multisig setup script') {
+      stage('prepare network config') {
         dir('system-tests') {
-          sh 'cp -r ./vegacapsule/multisig-setup ' + testDirectoryPath
           sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
-        }
-
-        dir ('tests/multisig-setup') {
-          timeout(time: 5, unit: 'MINUTES') {
-            ansiColor('xterm') {
-              sh 'npm install'
-            }
-          }
         }
       }
     }
@@ -155,10 +146,10 @@ void call(Map additionalConfig) {
 
 
   stage('setup multisig contract') {
-    dir ('tests/multisig-setup') {
+    dir ("tests") {
       timeout(time: 2, unit: 'MINUTES') {
         ansiColor('xterm') {
-          sh 'node main.js "' + testDirectoryPath + '/testnet/smartcontracts/addresses.json" "' + testDirectoryPath + '/testnet/validators.json"'
+          sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testDirectoryPath + '/testnet"'
         }
       }
     }
