@@ -13,7 +13,7 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
 void call(Map additionalConfig) {
   def defaultCconfig = [
     branchDevopsInfra: 'master',
-    branchVegaCapsule: 'main',
+    branchVegaCapsule: 'f3815becbb4a84bcaa868aea10ffbc77beb0e3b6',
     branchVega: 'develop',
     branchDataNode: 'develop',
     branchSystemTests: 'develop',
