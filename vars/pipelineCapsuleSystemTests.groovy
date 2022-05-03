@@ -48,6 +48,8 @@ void call() {
 
   node('system-tests-capsule') {
     println('pipelineCapsuleSystemTests params: ' + params)
+    sh("""mkdir -p "\$(dirname ${pipelineDefaults.art.systemTestCapsuleJunit})" """)
+
     capsuleSystemTests([
       branchDevopsInfra: fne(params.DEVOPS_INFRA_BRANCH, pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
       branchVegaCapsule: fne(params.VEGACAPSULE_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
