@@ -200,6 +200,8 @@ void call(Map additionalConfig) {
       dir('system-tests') {
         archiveArtifacts artifacts: 'build/test-reports/**/*.*',
                   allowEmptyArchive: true
+        archiveArtifacts artifacts: 'test_logs/**/*.*',
+                  allowEmptyArchive: true
       
         junit checksName: 'System Tests',
           testResults: 'build/test-reports/system-test-results.xml',
