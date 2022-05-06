@@ -208,6 +208,8 @@ void call(Map additionalConfig) {
           skipMarkingBuildUnstable: config.ignoreFailure,
           skipPublishingChecks: config.ignoreFailure
       }
+      archiveArtifacts artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
+                  allowEmptyArchive: true
 
       slack.slackSendCIStatus name: 'System Tests Capsule',
         channel: '#qa-notify',
