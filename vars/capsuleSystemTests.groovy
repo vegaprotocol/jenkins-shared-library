@@ -189,18 +189,18 @@ void call(Map additionalConfig) {
 
     stage('Post-steps') {
       dir('tests') {
-        archiveArtifacts artifacts: 'testnet/**/*.*',
+        archiveArtifacts artifacts: 'testnet/**/*',
                   allowEmptyArchive: true
 
         if (fileExists('log-output')) {
-          archiveArtifacts artifacts: 'log-output/**/*.*',
+          archiveArtifacts artifacts: 'log-output/**/*',
                     allowEmptyArchive: true
         }
       }
       dir('system-tests') {
-        archiveArtifacts artifacts: 'build/test-reports/**/*.*',
+        archiveArtifacts artifacts: 'build/test-reports/**/*',
                   allowEmptyArchive: true
-        archiveArtifacts artifacts: 'test_logs/**/*.*',
+        archiveArtifacts artifacts: 'test_logs/**/*',
                   allowEmptyArchive: true
       
         junit checksName: 'System Tests',
