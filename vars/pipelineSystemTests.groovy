@@ -72,7 +72,7 @@ void call() {
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}", // TODO: Remove when the DV is removed 
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}", // TODO: Remove when the DV is removed
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
@@ -116,6 +116,10 @@ void call() {
                         archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/**/*",
                             allowEmptyArchive: true,
                             fingerprint: true
+                        archiveArtifacts artifacts: "${dockerisedVega.homedirRelative}/**/*",
+                            allowEmptyArchive: true,
+                            fingerprint: true
+
                         if (fileExists(testLogDirectory)) {
                             sh label: 'copy test logs to artifact directory', script: """#!/bin/bash -e
                                 cp -r "${testLogDirectory}" "${pipelineDefaults.art.systemTestsLogs}"

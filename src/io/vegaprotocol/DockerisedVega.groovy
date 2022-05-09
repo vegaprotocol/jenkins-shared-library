@@ -9,6 +9,7 @@ prefix
 portbase
 basedir
 homedir
+homedirRelative
 dockerisedvagaScript
 validators
 nonValidators
@@ -41,6 +42,7 @@ void init(Map config=[:]) {
     assert config.basedir : 'basedir is required'
     basedir = config.basedir
     homedir =  "${basedir}/dockerised-${prefix}"
+    homedirRelative = "dockerisedvega-home/dockerised-${prefix}"
     dockerisedvagaScript = config.dockerisedvagaScript ?: 'devops-infra/scripts/dockerisedvega.sh'
     assert config.validators : 'validators is required'
     validators = config.validators
