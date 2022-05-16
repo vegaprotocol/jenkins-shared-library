@@ -177,6 +177,12 @@ void call(Map additionalConfig) {
       }
     }
   } finally {
+    stage('Stop network') {
+      dir('tests') {
+        sh './vegacapsule network stop --home-path ' + testDirectoryPath + '/testnet'
+      }
+    }
+
     stage('Archive network logs') {
       dir('tests') {
         if (config.printNetworkLogs) {
