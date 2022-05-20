@@ -252,7 +252,9 @@ void call() {
                             dir('devops-infra') {
                                 withDockerRegistry(dockerCredentials) {
                                     withCredentials([sshDevnetCredentials]) {
-                                        sh script: './veganet.sh devnet bounce_bots'
+                                        withGoogleSA('gcp-k8s') {
+                                            sh script: './veganet.sh devnet bounce_bots'
+                                        }
                                     }
                                 }
                             }
