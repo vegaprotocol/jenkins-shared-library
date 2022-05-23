@@ -1,5 +1,6 @@
 def call(String credentialsId, Closure body) {
     withCredentials([file(credentialsId: credentialsId, variable: 'GC_KEY')]) {
+        // the if are used to keep pipelines stable on agents that do not have yet installed required software
         sh """
             if ! command -v gcloud; then
                 curl -o gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-386.0.0-linux-x86_64.tar.gz
