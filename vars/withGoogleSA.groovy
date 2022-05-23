@@ -14,7 +14,7 @@ def call(String credentialsId, Closure body) {
                 chmod +x bin/kubectl
                 export PATH="\$PATH:\$PWD/bin"
             fi
-            gcloud auth activate-service-account --key-file=\${GC_KEY}
+            gcloud auth activate-service-account --key-file="\${GC_KEY}"
             gcloud container clusters get-credentials gke-01 --region europe-west1 --project vegaprotocol
         """
         body()
