@@ -10,6 +10,7 @@ String fne(String v1, String v2) {
 
 void call() {
   properties([
+    copyArtifactPermission('*'),
     parameters([
       string(name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchDevopsInfra,
           description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
