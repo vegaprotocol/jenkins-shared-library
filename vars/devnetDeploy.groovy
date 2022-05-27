@@ -2,7 +2,7 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String devnetDeployJob = '/cd/Devnet deploy'
+    String devnetDeployJob = '/private/cd/Devnet deploy'
     Boolean wait = config.wait ? "${config.wait}".toBoolean() : false
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     String restart = pipelineDefaults.dev.restart
