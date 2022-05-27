@@ -3,7 +3,7 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String systemTestsLNLJob = '/system-tests/LNL-create-restore'
+    String systemTestsLNLJob = '/private/LNL-create-restore'
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
