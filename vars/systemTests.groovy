@@ -1,7 +1,7 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String systemTestsJob = '/system-tests/system-tests'
+    String systemTestsJob = '/private/backup/system-tests-old'
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
