@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
   Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
-  String systemTestsCapsuleJob = '/system-tests/system-tests-capsule'
+  String systemTestsCapsuleJob = '/common/system-tests'
 
   List buildParameters = [
       string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
