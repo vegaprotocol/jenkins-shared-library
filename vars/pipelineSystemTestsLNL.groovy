@@ -152,6 +152,7 @@ void call() {
                         if (fileExists(junitReportFile)) {
                             sh label: 'copy junit report to artifact directory', script: """#!/bin/bash -e
                                 cp "${junitReportFile}" "${pipelineDefaults.art.lnl.systemTestsAssertState}"
+                                cp -r "${dockerisedVega.homedir}" "${pipelineDefaults.art.lnl.dv_home}"
                             """
                             junit checksName: 'LNL System Tests Assert',
                                 testResults: pipelineDefaults.art.lnl.systemTestsAssertState
@@ -160,6 +161,9 @@ void call() {
                                 fingerprint: true
                         }
                         archiveArtifacts artifacts: "${pipelineDefaults.art.lnl.systemTestsState}/**/*",
+                            allowEmptyArchive: true,
+                            fingerprint: true
+                        archiveArtifacts artifacts: "${pipelineDefaults.art.lnl.dv_home}/**/*",
                             allowEmptyArchive: true,
                             fingerprint: true
                         sh label: 'list all files in SYSTEM_TESTS_LNL_STATE directory', script: """#!/bin/bash -e
