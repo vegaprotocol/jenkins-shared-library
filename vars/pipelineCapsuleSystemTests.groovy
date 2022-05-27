@@ -10,6 +10,7 @@ String fne(String v1, String v2) {
 
 void call() {
   properties([
+    buildDiscarder(logRotator(daysToKeepStr: '30')),
     copyArtifactPermission('*'),
     parameters([
       string(name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.capsuleSystemTests.branchDevopsInfra,
