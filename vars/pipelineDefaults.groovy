@@ -152,6 +152,7 @@ Map art = [
         checkpointRestore: 'output/lnl/checkpoint-1-restore.json',
         checkpointEnd: 'output/lnl/checkpoint-2-end.json',
         systemTestsState: 'output/system-tests-lnl-state',
+        dv_home: 'output/dv_home',
     ],
     systemTestsState: 'output/system-tests-state',
 ]
