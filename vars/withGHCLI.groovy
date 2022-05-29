@@ -14,9 +14,11 @@ void call(Map config = [:], Closure body=null) {
         } finally {
             retry(3) {
                 script {
-                    sh label: 'Log out from Github', script: '''
-                        gh auth logout -h github.com
-                    '''
+                    sh label: 'Log out from Github',
+                        returnStatus: true,  // ignore exit code
+                        script: '''
+                            gh auth logout -h github.com
+                        '''
                 }
             }
         }
