@@ -5,7 +5,7 @@
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-void call(REMOTE_SERVER) {
+void call(REMOTE_SERVER="n01.d.vega.xyz") {
     node {
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
         def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
