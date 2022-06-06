@@ -5,20 +5,7 @@
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-void call() {
-
-    properties([
-        copyArtifactPermission('*'),
-        disableConcurrentBuilds(),
-        parameters([
-            string(
-                name: 'REMOTE_SERVER', defaultValue: 'n01.d.vega.xyz',
-                description: 'Node to use for vega binary and configs'),
-        ])
-    ])
-
-    echo "params=${params}"
-
+void call(REMOTE_SERVER) {
     node {
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
         def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
@@ -45,7 +32,7 @@ void call() {
 
                     stage("Get vega core binary") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/current/vega vega"
+                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${REMOTE_SERVER}:/home/vega/current/vega vega"
                         }
                     }
 
@@ -55,23 +42,23 @@ void call() {
 
                     stage("Get Genesis") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
+                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${REMOTE_SERVER}:/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
                         }
                     }
 
 
                     stage("Get Tendermint config") {
                         // Check TM version
-                        def status_req = new URL("https://" + params.REMOTE_SERVER + "/tm/status").openConnection();
+                        def status_req = new URL("https://" + REMOTE_SERVER + "/tm/status").openConnection();
                         def status = new groovy.json.JsonSlurper().parseText(status_req.getInputStream().getText())
                         TM_VERSION = status.result.node_info.version
                         if(TM_VERSION.startsWith("0.34")) {
-                            def net_info_req = new URL("https://" + params.REMOTE_SERVER + "/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://" + REMOTE_SERVER + "/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                         } else {
-                            def net_info_req = new URL("https://" + params.REMOTE_SERVER + "/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://" + REMOTE_SERVER + "/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                             RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
@@ -80,7 +67,7 @@ void call() {
                         
 
                         // Get trust block info
-                        def block_req = new URL("https://" + params.REMOTE_SERVER + "/tm/block").openConnection();
+                        def block_req = new URL("https://" + REMOTE_SERVER + "/tm/block").openConnection();
                         def tm_block = new groovy.json.JsonSlurper().parseText(block_req.getInputStream().getText())
                         TRUST_HASH = tm_block.result.block_id.hash
                         TRUST_HEIGHT = tm_block.result.block.header.height
@@ -160,7 +147,7 @@ void sendSlackMessage() {
     String duration = currentBuild.durationString - ' and counting'
     String msg = ''
     String color = ''
-    String networkDomain = params.REMOTE_SERVER.substring(4)
+    String networkDomain = REMOTE_SERVER.substring(4)
 
     if (currentResult == 'SUCCESS') {
         
