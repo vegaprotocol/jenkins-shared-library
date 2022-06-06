@@ -65,21 +65,17 @@ void call() {
                         def status_req = new URL("https://" + params.REMOTE_SERVER + "/tm/status").openConnection();
                         def status = new groovy.json.JsonSlurper().parseText(status_req.getInputStream().getText())
                         TM_VERSION = status.result.node_info.version
-                        if("${TM_VERSION}".startsWith("0.35")) {
-                            // Get peers info (0.35.x)
-                            println("v0.35 detected")
+                        if(TM_VERSION.startsWith("0.34")) {
+                            def net_info_req = new URL("https://" + params.REMOTE_SERVER + "/tm/net_info").openConnection();
+                            def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
+                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
+                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
+                        } else {
                             def net_info_req = new URL("https://" + params.REMOTE_SERVER + "/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                             RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
                             PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
-                        } else {
-                            // Get peers info (0.34.x)
-                            println("v0.34 detected")
-                            def net_info_req = new URL("https://" + params.REMOTE_SERVER + "/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                         }
                         
 
@@ -94,19 +90,7 @@ void call() {
                         println("TRUST_HEIGHT=${TRUST_HEIGHT}")
                     }
 
-                    if("${TM_VERSION}".startsWith("0.35")) {
-                        stage("Set Tendermint config") {
-                            sh script: """
-                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
-                                ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
-                                cat tm_config/config/config.toml
-                            """
-                        }
-                    } else {
+                    if(TM_VERSION.startsWith("0.34")) {
                         stage("Set Tendermint config") {
                             sh script: """
                                 ./dasel put bool -f tm_config/config/config.toml statesync.enable true
@@ -118,8 +102,19 @@ void call() {
                                 cat tm_config/config/config.toml
                             """
                         }
+                    } else {
+                        stage("Set Tendermint config") {
+                            sh script: """
+                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
+                                ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
+                                ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
+                                ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
+                                ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
+                                cat tm_config/config/config.toml
+                            """
+                        }
                     }
-                                  
 
                     stage('Run') {
                         parallel([
