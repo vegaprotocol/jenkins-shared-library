@@ -19,9 +19,12 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
         def RPC_SERVERS
         def PERSISTENT_PEERS
 
+        def blockHeightStart
+        def blockHeightEnd
+
         timestamps {
             try {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 8, unit: 'MINUTES') {
                     stage('CI config') {
                         // Printout all configuration variables
                         sh 'printenv'
@@ -106,18 +109,25 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                     stage('Run') {
                         parallel([
                             'Vega': {
-                                
-                                 sh script: './vega node --home=vega_config'
+                                sh script: './vega node --home=vega_config'
                             },
                             'Tendermint': {
-                                 sh script: './vega tm start --home=tm_config'
+                                sh script: './vega tm start --home=tm_config'
+                            },
+                            'Checks': {
+                                sh script: 'sleep 60'
+                                blockHeightStart = sh(script: 'curl http://127.0.0.1:26657/status|jq -r .result.sync_info.latest_block_height', returnStdout: true)
+                                println("Block height after 1 minute: " + blockHeightStart)
+                                sh script: 'sleep 360'
+                                blockHeightEnd = sh(script: 'curl http://127.0.0.1:26657/status|jq -r .result.sync_info.latest_block_height', returnStdout: true)
+                                println("Block height after 7 minute: " + blockHeightEnd)
                             }
                         ])
                     }
 
                 }
 
-                if(currentBuild.duration >= 290000) {
+                if(currentBuild.duration >= 290000) { // longer than 5min
                     currentBuild.result = 'SUCCESS'
                 } else {
                     currentBuild.result = 'FAILURE'
