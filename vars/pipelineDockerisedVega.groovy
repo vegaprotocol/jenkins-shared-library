@@ -222,11 +222,14 @@ void call(Map config=[:]) {
                         } else {
                             echo 'Skip waiting for next checkpoint - no node is running'
                         }
-                        retry(3) {
-                            dockerisedVega.stop()
-                        }
+
+
                         if (currentBuild.result != 'SUCCESS' ) {
                             dockerisedVega.printAllLogs()
+                        }
+
+                        retry(3) {
+                            dockerisedVega.stop()
                         }
                         String artifactLastCheckpoint = pipelineDefaults.art.checkpointEnd
                         if (inputAfterCheckpointRestoreStage) {
