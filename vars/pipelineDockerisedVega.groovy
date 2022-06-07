@@ -225,6 +225,9 @@ void call(Map config=[:]) {
                         retry(3) {
                             dockerisedVega.stop()
                         }
+                        if (currentBuild.result != 'SUCCESS' ) {
+                            dockerisedVega.printAllLogs()
+                        }
                         String artifactLastCheckpoint = pipelineDefaults.art.checkpointEnd
                         if (inputAfterCheckpointRestoreStage) {
                             artifactLastCheckpoint = pipelineDefaults.art.lnl.checkpointEnd
