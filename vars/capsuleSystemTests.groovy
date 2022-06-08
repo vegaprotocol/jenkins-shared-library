@@ -26,6 +26,8 @@ void call(Map additionalConfig) {
     systemTestsTestDirectory: '',
     systemTestsDebug: '',
 
+    capsuleConfig: 'capsule_config.hcl',
+
     preapareSteps: {},
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
@@ -95,7 +97,7 @@ void call(Map additionalConfig) {
     prepareSteps['prepare multisig setup script'] = {
       stage('prepare network config') {
         dir('system-tests') {
-          sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
+          sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testDirectoryPath + '/config_system_tests.hcl'
         }
       }
     }

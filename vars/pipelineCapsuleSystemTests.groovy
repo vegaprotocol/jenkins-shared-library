@@ -38,6 +38,8 @@ void call() {
           command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'''),
       string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory,
           description: 'Run tests from files in this directory and all sub-directories'),
+      string(name: 'CAPSULE_CONFIG', defaultValue: pipelineDefaults.capsuleSystemTests.capsuleConfig,
+          description: 'Run tests using the given vegacapsule config file'),
       booleanParam(
           name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.capsuleSystemTests.systemTestsDebug,
           description: 'Enable debug logs for system-tests execution'),
@@ -61,7 +63,7 @@ void call() {
       branchVegawallet: fne(params.VEGAWALLET_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegawallet),
       branchProtos: fne(params.PROTOS_BRANCH, pipelineDefaults.capsuleSystemTests.branchProtos),
       branchVegatools: fne(params.VEGATOOLS_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegatools),
-
+      capsuleConfig: fne(params.CAPSULE_CONFIG, pipelineDefaults.capsuleSystemTests.capsuleConfig),
       systemTestsTestFunction: fne(params.SYSTEM_TESTS_TEST_FUNCTION, pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
       systemTestsTestMark: fne(params.SYSTEM_TESTS_TEST_MARK, pipelineDefaults.capsuleSystemTests.systemTestsTestMark),
       systemTestsTestDirectory: fne(params.SYSTEM_TESTS_TEST_DIRECTORY, pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),

@@ -20,6 +20,7 @@ void call(Map config = [:]) {
       string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
       string(name: 'SYSTEM_TESTS_TEST_MARK', value: config.testMark ?: pipelineDefaults.capsuleSystemTests.systemTestsTestMark),
       string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: config.testDirectory ?: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),
+      string(name: 'CAPSULE_CONFIG', value: config.capsuleConfig ?: pipelineDefaults.capsuleSystemTests.capsuleConfig),
       booleanParam(
           name: 'SYSTEM_TESTS_DEBUG', value: config.systemTestsDebug ? "${config.systemTestsDebug}".toBoolean() : pipelineDefaults.capsuleSystemTests.systemTestsDebug),
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
