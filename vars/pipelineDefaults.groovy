@@ -59,7 +59,7 @@ Map capsuleSystemTests = [
     branchProtos: 'develop',
     branchVegatools: 'develop',
 
-    capsuleConfig: 'capsule_config.hcl'
+    capsuleConfig: 'capsule_config.hcl',
 
     systemTestsTestFunction: '',
     systemTestsTestMark: 'smoke',
