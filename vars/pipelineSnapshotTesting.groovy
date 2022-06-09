@@ -125,14 +125,24 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                     stage('Run') {
                         parallel([
                             'Vega': {
-                                sh label: 'Start vega node', script: """#!/bin/bash -e
-                                    ./vega node --home=vega_config
-                                """
+                                boolean nice = nicelyStopAfter(params.TIMEOUT) {
+                                    sh label: 'Start vega node', script: """#!/bin/bash -e
+                                        ./vega node --home=vega_config
+                                    """
+                                }
+                                if ( !nice && isRemoteServerAlive(params.REMOTE_SERVER) ) {
+                                    error("Vega stopped too early, Remote Server is still alive.")
+                                }
                             },
                             'Tendermint': {
-                                sh label: 'Start tendermint', script: """#!/bin/bash -e
-                                    ./vega tm start --home=tm_config
-                                """
+                                boolean nice = nicelyStopAfter(params.TIMEOUT) {
+                                    sh label: 'Start tendermint', script: """#!/bin/bash -e
+                                        ./vega tm start --home=tm_config
+                                    """
+                                }
+                                if ( !nice && isRemoteServerAlive(params.REMOTE_SERVER) ) {
+                                    error("Vega stopped too early, Remote Server is still alive.")
+                                }
                             },
                             'Checks': {
                                 // run at 50sec, 1min50sec, 2min50sec, ... since start
