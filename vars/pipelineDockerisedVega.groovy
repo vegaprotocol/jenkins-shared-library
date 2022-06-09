@@ -206,8 +206,8 @@ void call(Map config=[:]) {
                 currentBuild.result = 'FAILURE'
                 throw e
             } finally {
-                stage('Cleanup') {
-                    try {
+                try {
+                    stage('Wait for final checkpoint') {
                         if (dockerisedVega.isNodeRunning()) {
                             echo 'Waiting up to 6 min for next checkpoint'
                             catchError(
@@ -222,12 +222,16 @@ void call(Map config=[:]) {
                         } else {
                             echo 'Skip waiting for next checkpoint - no node is running'
                         }
+                    }
 
 
-                        if (currentBuild.result != 'SUCCESS' ) {
+                    if (currentBuild.result != 'SUCCESS' ) {
+                        stage('Service logs') {
                             dockerisedVega.printAllLogs()
                         }
+                    }
 
+                    stage('Cleanup') {
                         retry(3) {
                             dockerisedVega.stop()
                         }
@@ -243,21 +247,16 @@ void call(Map config=[:]) {
                         } else {
                             echo 'Skip archiving last checkpoint - no checkpoint available'
                         }
-                        /*retry(3) {
-                            removeDockerImages([
-                                vars.dockerImageVegaCore,
-                                vars.dockerImageDataNode,
-                                vars.dockerImageVegaWallet
-                            ])
-                        }*/
-                    } catch (e) {
-                        // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                        // i.e. `currentResult` is not set properly in the finally block
-                        // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    } finally {
-                        if (inputPost) {
+                    }
+                } catch (e) {
+                    // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
+                    // i.e. `currentResult` is not set properly in the finally block
+                    // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
+                    currentBuild.result = 'FAILURE'
+                    throw e
+                } finally {
+                    if (inputPost) {
+                        stage('Other cleanup') {
                             retry(3) {
                                 // Run finally block provided by function caller
                                 inputPost(vars)

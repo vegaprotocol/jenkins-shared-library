@@ -246,7 +246,7 @@ String waitForNextCheckpoint(int node=0) {
     String secondLastCheckpointFile = getLatestCheckpointFilepath(node)
     echo "Current last checkpoint: ${secondLastCheckpointFile}"
     while (true) {
-        sleep(time:5, unit:'SECONDS')
+        sleep(time:10, unit:'SECONDS')
         String currentLastCheckpointFile = getLatestCheckpointFilepath(node)
         if (secondLastCheckpointFile != currentLastCheckpointFile) {
             echo "Found a new checkpoint: ${currentLastCheckpointFile}"
