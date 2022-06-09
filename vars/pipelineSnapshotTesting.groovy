@@ -125,10 +125,14 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                     stage('Run') {
                         parallel([
                             'Vega': {
-                                sh script: './vega node --home=vega_config'
+                                sh label: 'Start vega node', script: """#!/bin/bash -e
+                                    ./vega node --home=vega_config
+                                """
                             },
                             'Tendermint': {
-                                sh script: './vega tm start --home=tm_config'
+                                sh label: 'Start tendermint', script: """#!/bin/bash -e
+                                    ./vega tm start --home=tm_config
+                                """
                             },
                             'Checks': {
                                 sleep(time:1, unit:'MINUTES')
