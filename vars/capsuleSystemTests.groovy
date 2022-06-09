@@ -87,8 +87,11 @@ void call(Map additionalConfig) {
   }
   
   stage('start nomad') {
+    dir('system-tests'){
+        sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testDirectoryPath + '/nomad_config.hcl'
+    }
     dir ('tests') {
-        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
+        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad --nomad-config-path=' + testDirectoryPath + '/nomad_config.hcl'
     }
   }
 
