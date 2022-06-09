@@ -40,7 +40,8 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
         timestamps {
             try {
-                timeout(time: params.TIMEOUT, unit: 'MINUTES') {
+                // give extra 5 minutes for setup
+                timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
                     stage('CI config') {
                         // Printout all configuration variables
                         sh 'printenv'
@@ -168,25 +169,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                         ])
                     }
                 }
-
-                if(currentBuild.duration >= (params.TIMEOUT.toInteger() * 60 - 10) * 1000) { // longer than timouet - 10 seconds
-                    currentBuild.result = 'SUCCESS'
-                } else {
-                    stage('Check if Remote Server is alive') {
-                        try {
-                            def statistics_req = new URL("https://${params.REMOTE_SERVER}/statistics").openConnection();
-                            statistics_req.setConnectTimeout(5000)
-                            statistics_req.getInputStream().getText()
-                            
-                            println("Remote Server ${params.REMOTE_SERVER} is still running, but our non-validator stopped too early")
-                            currentBuild.result = 'FAILURE'
-                        } catch (IOException e) {
-                            println("Remote Server ${params.REMOTE_SERVER} is down, so it is ok that our non-validator stopped too early")
-                            currentBuild.result = 'SUCCESS'
-                        }
-                    }
-                }
-                
+                currentBuild.result = 'SUCCESS'
             } catch (FlowInterruptedException e) {
                 currentBuild.result = 'ABORTED'
                 throw e
