@@ -190,7 +190,7 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     int startTimeMs = currentBuild.duration
     catchError(
         buildResult: null, // don't modify Build Status
-        stageResult: null, // keep Stage status as successful
+        stageResult: 'SUCCESS', // keep Stage status Successful
     ) {
         timeout(time: timeoutMin, unit: 'MINUTES') {
             body()
