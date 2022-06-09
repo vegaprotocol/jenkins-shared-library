@@ -5,7 +5,7 @@
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-void call(REMOTE_SERVER="n01.d.vega.xyz") {
+void call(Map config=[:]) {
 
     properties([
         buildDiscarder(logRotator(daysToKeepStr: '14')),
@@ -13,10 +13,10 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
         pipelineTriggers([cron('H/12 * * * *')]),
         parameters([
             string(
-                name: 'REMOTE_SERVER', defaultValue: REMOTE_SERVER,
+                name: 'REMOTE_SERVER', defaultValue: config.remoteServer ?: 'n01.d.vega.xyz',
                 description: 'From which machine to copy vega binary and genesis config'),
             string(
-                name: 'TIMEOUT', defaultValue: '10',
+                name: 'TIMEOUT', defaultValue: config.timeout ?: '10',
                 description: 'Number of minutes after which the node will stop'),
         ])
     ])
