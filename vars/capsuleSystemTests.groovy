@@ -26,6 +26,8 @@ void call(Map additionalConfig) {
     systemTestsTestDirectory: '',
     systemTestsDebug: '',
 
+    capsuleConfig: 'capsule_config.hcl',
+
     preapareSteps: {},
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
@@ -85,8 +87,11 @@ void call(Map additionalConfig) {
   }
   
   stage('start nomad') {
+    dir('system-tests'){
+        sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testDirectoryPath + '/nomad_config.hcl'
+    }
     dir ('tests') {
-        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad'
+        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad --nomad-config-path=' + testDirectoryPath + '/nomad_config.hcl'
     }
   }
 
@@ -95,7 +100,7 @@ void call(Map additionalConfig) {
     prepareSteps['prepare multisig setup script'] = {
       stage('prepare network config') {
         dir('system-tests') {
-          sh 'cp ./vegacapsule/capsule_config.hcl ' + testDirectoryPath + '/config_system_tests.hcl'
+          sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testDirectoryPath + '/config_system_tests.hcl'
         }
       }
     }
