@@ -51,7 +51,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
                     stage("Get vega core binary") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i \${PSSH_KEYFILE} \${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/current/vega vega"
+                            sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${params.REMOTE_SERVER}\":/home/vega/current/vega vega"
                         }
                     }
 
@@ -61,7 +61,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
                     stage("Get Genesis") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i \${PSSH_KEYFILE} \${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
+                            sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${params.REMOTE_SERVER}\":/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
                         }
                     }
 
