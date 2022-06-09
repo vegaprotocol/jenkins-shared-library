@@ -22,7 +22,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
     echo "params=${params}"
 
-    node {
+    node('non-validator') {
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
         def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
                                                      keyFileVariable: 'PSSH_KEYFILE',
