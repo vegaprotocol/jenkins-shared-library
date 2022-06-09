@@ -145,21 +145,24 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                                 }
                             },
                             'Checks': {
-                                // run at 50sec, 1min50sec, 2min50sec, ... since start
-                                int runEveryMs = 60 * 1000
-                                while (true) {
-                                    // wait until next Xmin50sec
-                                    int sleepForMs = (currentBuild.duration - 10 * 1000) % runEveryMs
-                                    sleep(time:sleepForMs, unit:'MILLISECONDS')
+                                nicelyStopAfter(params.TIMEOUT) {
+                                    // run at 50sec, 1min50sec, 2min50sec, ... since start
+                                    int runEveryMs = 60 * 1000
+                                    int startAt = currentBuild.duration
+                                    while (true) {
+                                        // wait until next Xmin50sec
+                                        int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
+                                        sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                    String sinceStart = currentBuild.durationString - ' and counting'
-                                    sh label: "Get non-validator statistics (${sinceStart})", script: """#!/bin/bash -e
-                                        curl http://127.0.0.1:3003/statistics
-                                    """
-                                    sinceStart = currentBuild.durationString - ' and counting'
-                                    sh label: "Get ${params.REMOTE_SERVER} statistics (${sinceStart})", script: """#!/bin/bash -e
-                                        curl https://${params.REMOTE_SERVER}/statistics
-                                    """
+                                        String sinceStartSec = ((currentBuild.duration - startAt)/1000).round()
+                                        sh label: "Get non-validator statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
+                                            curl http://127.0.0.1:3003/statistics
+                                        """
+                                        sinceStartSec = ((currentBuild.duration - startAt)/1000).round()
+                                        sh label: "Get ${params.REMOTE_SERVER} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
+                                            curl https://${params.REMOTE_SERVER}/statistics
+                                        """
+                                    }
                                 }
                             }
                         ])
