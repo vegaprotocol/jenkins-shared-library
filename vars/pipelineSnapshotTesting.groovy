@@ -192,9 +192,9 @@ void sendSlackMessage(String remoteServer) {
 
     echo "${msg}"
 
-    // slackSend(
-    //     channel: slackChannel,
-    //     color: color,
-    //     message: msg,
-    // )
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
 }
