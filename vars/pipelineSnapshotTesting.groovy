@@ -9,7 +9,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
     properties([
         copyArtifactPermission('*'),
-        pipelineTriggers([cron('H/10 * * * *')]),
+        pipelineTriggers([cron('H/12 * * * *')]),
         parameters([
             string(
                 name: 'REMOTE_SERVER', defaultValue: REMOTE_SERVER,
