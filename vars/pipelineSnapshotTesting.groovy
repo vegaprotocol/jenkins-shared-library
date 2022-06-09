@@ -8,6 +8,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
     properties([
+        buildDiscarder(logRotator(daysToKeepStr: '14')),
         copyArtifactPermission('*'),
         pipelineTriggers([cron('H/12 * * * *')]),
         parameters([
