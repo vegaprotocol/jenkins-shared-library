@@ -189,6 +189,30 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
     }
 }
 
+boolean nicelyStopAfter(String timeoutMin, Closure body) {
+    int startTimeMs = currentBuild.duration
+    catchError(
+        buildResult: null,
+        stageResult: null,
+    ) {
+        timeout(time: timeoutMin, unit: 'MINUTES') {
+            body()
+        }
+    }
+    return timeoutMin * 60 * 1000 < (currentBuild.duration - startTimeMs)
+}
+
+boolean isRemoteServerAlive(String remoteServer) {
+    try {
+        def statistics_req = new URL("https://${remoteServer}/statistics").openConnection()
+        statistics_req.setConnectTimeout(5000)
+        statistics_req.getInputStream().getText()
+        return true
+    } catch (IOException e) {
+        return false
+    }
+}
+
 void sendSlackMessage(String remoteServer) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
