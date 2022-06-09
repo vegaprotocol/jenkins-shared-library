@@ -188,13 +188,12 @@ void call(Map config=[:]) {
 
 boolean nicelyStopAfter(String timeoutMin, Closure body) {
     int startTimeMs = currentBuild.duration
-    catchError(
-        buildResult: null, // don't modify Build Status
-        stageResult: 'SUCCESS', // keep Stage status Successful
-    ) {
+    try {
         timeout(time: timeoutMin, unit: 'MINUTES') {
             body()
         }
+    } catch (e) {
+        println(e)
     }
     return timeoutMin * 60 * 1000 < (currentBuild.duration - startTimeMs)
 }
