@@ -146,8 +146,19 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                 if(currentBuild.duration >= (params.TIMEOUT.toInteger() * 60 - 10) * 1000) { // longer than timouet - 10 seconds
                     currentBuild.result = 'SUCCESS'
                 } else {
-                    // TODO check if REMOTE_SERVER is still up and running (Devnet might get restarted at any time)
-                    currentBuild.result = 'FAILURE'
+                    stage('Check if Remote Server is alive') {
+                        try {
+                            def status_req = new URL("https://${params.REMOTE_SERVER}/statistics").openConnection();
+                            status_req.setConnectTimeout(5000)
+                            status_req.getInputStream().getText()
+                            
+                            println("Remote Server ${params.REMOTE_SERVER} is still running, but our non-validator stopped too early")
+                            currentBuild.result = 'FAILURE'
+                        } catch (IOException e) {
+                            println("Remote Server ${params.REMOTE_SERVER} is down, so it is ok that our non-validator stopped too early")
+                            currentBuild.result = 'SUCCESS'
+                        }
+                    }
                 }
                 
             } catch (FlowInterruptedException e) {
