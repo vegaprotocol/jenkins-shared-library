@@ -161,9 +161,9 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                 } else {
                     stage('Check if Remote Server is alive') {
                         try {
-                            def status_req = new URL("https://${params.REMOTE_SERVER}/statistics").openConnection();
-                            status_req.setConnectTimeout(5000)
-                            status_req.getInputStream().getText()
+                            def statistics_req = new URL("https://${params.REMOTE_SERVER}/statistics").openConnection();
+                            statistics_req.setConnectTimeout(5000)
+                            statistics_req.getInputStream().getText()
                             
                             println("Remote Server ${params.REMOTE_SERVER} is still running, but our non-validator stopped too early")
                             currentBuild.result = 'FAILURE'
