@@ -155,11 +155,11 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String sinceStartSec = round((currentBuild.duration - startAt)/1000)
+                                        String sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                         sh label: "Get non-validator statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
                                             curl http://127.0.0.1:3003/statistics
                                         """
-                                        sinceStartSec = round((currentBuild.duration - startAt)/1000)
+                                        sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                         sh label: "Get ${params.REMOTE_SERVER} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
                                             curl https://${params.REMOTE_SERVER}/statistics
                                         """
