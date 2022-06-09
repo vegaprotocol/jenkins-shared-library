@@ -135,13 +135,22 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                                 """
                             },
                             'Checks': {
-                                sleep(time:1, unit:'MINUTES')
-                                statusStart = sh(script: 'curl http://127.0.0.1:26657/status', returnStdout: true)
-                                println("Node Status after 1 minute: " + statusStart)
-                                waitTime = params.TIMEOUT.toInteger()-2
-                                sleep(time:waitTime, unit:'MINUTES')
-                                statusEnd = sh(script: 'curl http://127.0.0.1:26657/status', returnStdout: true)
-                                println("Node Status after ${waitTime+1} minutes: " + statusEnd)
+                                // run at 50sec, 1min50sec, 2min50sec, ... since start
+                                int runEveryMs = 60 * 1000
+                                while (true) {
+                                    // wait until next Xmin50sec
+                                    int sleepForMs = (currentBuild.duration - 10 * 1000) % runEveryMs
+                                    sleep(time:sleepForMs, unit:'MILLISECONDS')
+
+                                    String sinceStart = currentBuild.durationString - ' and counting'
+                                    sh label: "Get non-validator statistics (${sinceStart})", script: """#!/bin/bash -e
+                                        curl http://127.0.0.1:3003/statistics
+                                    """
+                                    sinceStart = currentBuild.durationString - ' and counting'
+                                    sh label: "Get ${params.REMOTE_SERVER} statistics (${sinceStart})", script: """#!/bin/bash -e
+                                        curl https://${params.REMOTE_SERVER}/statistics
+                                    """
+                                }
                             }
                         ])
                     }
