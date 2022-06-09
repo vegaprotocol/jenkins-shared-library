@@ -6,6 +6,22 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(REMOTE_SERVER="n01.d.vega.xyz") {
+
+    properties([
+        copyArtifactPermission('*'),
+        pipelineTriggers([cron('H/10 * * * *')]),
+        parameters([
+            string(
+                name: 'REMOTE_SERVER', defaultValue: REMOTE_SERVER,
+                description: 'From which machine to copy vega binary and genesis config'),
+            string(
+                name: 'TIMEOUT', defaultValue: '10',
+                description: 'Number of minutes after which the node will stop'),
+        ])
+    ])
+
+    echo "params=${params}"
+
     node {
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
         def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
@@ -24,7 +40,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
         timestamps {
             try {
-                timeout(time: 8, unit: 'MINUTES') {
+                timeout(time: params.TIMEOUT, unit: 'MINUTES') {
                     stage('CI config') {
                         // Printout all configuration variables
                         sh 'printenv'
@@ -35,7 +51,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
                     stage("Get vega core binary") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${REMOTE_SERVER}:/home/vega/current/vega vega"
+                            sh script: "scp -i \${PSSH_KEYFILE} \${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/current/vega vega"
                         }
                     }
 
@@ -45,23 +61,23 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
 
                     stage("Get Genesis") {
                         withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i ${PSSH_KEYFILE} ${PSSH_USER}@${REMOTE_SERVER}:/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
+                            sh script: "scp -i \${PSSH_KEYFILE} \${PSSH_USER}@${params.REMOTE_SERVER}:/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
                         }
                     }
 
 
                     stage("Get Tendermint config") {
                         // Check TM version
-                        def status_req = new URL("https://" + REMOTE_SERVER + "/tm/status").openConnection();
+                        def status_req = new URL("https://${params.REMOTE_SERVER}/tm/status").openConnection();
                         def status = new groovy.json.JsonSlurper().parseText(status_req.getInputStream().getText())
                         TM_VERSION = status.result.node_info.version
                         if(TM_VERSION.startsWith("0.34")) {
-                            def net_info_req = new URL("https://" + REMOTE_SERVER + "/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://${params.REMOTE_SERVER}/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                         } else {
-                            def net_info_req = new URL("https://" + REMOTE_SERVER + "/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://${params.REMOTE_SERVER}/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                             RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
@@ -70,7 +86,7 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                         
 
                         // Get trust block info
-                        def block_req = new URL("https://" + REMOTE_SERVER + "/tm/block").openConnection();
+                        def block_req = new URL("https://${params.REMOTE_SERVER}/tm/block").openConnection();
                         def tm_block = new groovy.json.JsonSlurper().parseText(block_req.getInputStream().getText())
                         TRUST_HASH = tm_block.result.block_id.hash
                         TRUST_HEIGHT = tm_block.result.block.header.height
@@ -115,21 +131,22 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                                 sh script: './vega tm start --home=tm_config'
                             },
                             'Checks': {
-                                sh script: 'sleep 60'
-                                blockHeightStart = sh(script: 'curl http://127.0.0.1:26657/status|jq -r .result.sync_info.latest_block_height', returnStdout: true)
-                                println("Block height after 1 minute: " + blockHeightStart)
-                                sh script: 'sleep 360'
-                                blockHeightEnd = sh(script: 'curl http://127.0.0.1:26657/status|jq -r .result.sync_info.latest_block_height', returnStdout: true)
-                                println("Block height after 7 minute: " + blockHeightEnd)
+                                sleep(time:1, unit:'MINUTES')
+                                statusStart = sh(script: 'curl http://127.0.0.1:26657/status', returnStdout: true)
+                                println("Node Status after 1 minute: " + statusStart)
+                                waitTime = params.TIMEOUT.toInteger()-2
+                                sleep(time:waitTime, unit:'MINUTES')
+                                statusEnd = sh(script: 'curl http://127.0.0.1:26657/status', returnStdout: true)
+                                println("Node Status after ${waitTime+1} minutes: " + statusEnd)
                             }
                         ])
                     }
-
                 }
 
-                if(currentBuild.duration >= 290000) { // longer than 5min
+                if(currentBuild.duration >= (params.TIMEOUT.toInteger() * 60 - 10) * 1000) { // longer than timouet - 10 seconds
                     currentBuild.result = 'SUCCESS'
                 } else {
+                    // TODO check if REMOTE_SERVER is still up and running (Devnet might get restarted at any time)
                     currentBuild.result = 'FAILURE'
                 }
                 
@@ -141,14 +158,14 @@ void call(REMOTE_SERVER="n01.d.vega.xyz") {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage()
+                    sendSlackMessage(params.REMOTE_SERVER)
                 }
             }
         }
     }
 }
 
-void sendSlackMessage() {
+void sendSlackMessage(String remoteServer) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -157,7 +174,7 @@ void sendSlackMessage() {
     String duration = currentBuild.durationString - ' and counting'
     String msg = ''
     String color = ''
-    String networkDomain = REMOTE_SERVER.substring(4)
+    String networkDomain = remoteServer.substring(4)
 
     if (currentResult == 'SUCCESS') {
         
@@ -173,9 +190,11 @@ void sendSlackMessage() {
 
     msg += " (${duration})"
 
-    slackSend(
-        channel: slackChannel,
-        color: color,
-        message: msg,
-    )
+    echo "${msg}"
+
+    // slackSend(
+    //     channel: slackChannel,
+    //     color: color,
+    //     message: msg,
+    // )
 }
