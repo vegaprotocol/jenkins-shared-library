@@ -261,7 +261,7 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
             body()
         }
     }
-    return ( timeoutMin * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
+    return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
 boolean isRemoteServerAlive(String remoteServer) {
