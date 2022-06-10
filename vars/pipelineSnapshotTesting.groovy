@@ -187,6 +187,7 @@ void call(Map config=[:]) {
                         }
                     }
 
+                    println("debug: before Run stage (${currentBuild.result} - current: ${currentBuild.currentResult})")
                     stage('Run') {
                         parallel([
                             'Vega': {
@@ -271,7 +272,14 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
         catchInterruptions: true, // timeout is FlowInterruptedException
     ) {
         timeout(time: timeoutMin, unit: 'MINUTES') {
-            body()
+            catchError(
+                message: "One more catch",
+                buildResult: 'SUCCESS', // don't modify Build Status
+                stageResult: 'SUCCESS', // keep Stage status Successful
+                catchInterruptions: true, // timeout is FlowInterruptedException
+            ) {
+                body()
+            }
         }
     }
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
