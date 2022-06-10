@@ -189,6 +189,7 @@ void call(Map config=[:]) {
 boolean nicelyStopAfter(String timeoutMin, Closure body) {
     int startTimeMs = currentBuild.duration
     catchError(
+        message: "Timed task",
         buildResult: null, // don't modify Build Status
         stageResult: 'SUCCESS', // keep Stage status Successful
         catchInterruptions: true, // timeout is FlowInterruptedException
