@@ -272,13 +272,10 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
         catchInterruptions: true, // timeout is FlowInterruptedException
     ) {
         timeout(time: timeoutMin, unit: 'MINUTES') {
-            catchError(
-                message: "One more catch",
-                buildResult: 'SUCCESS', // don't modify Build Status
-                stageResult: 'SUCCESS', // keep Stage status Successful
-                catchInterruptions: true, // timeout is FlowInterruptedException
-            ) {
+            try {
                 body()
+            } catch (Throwable e) {
+                currentBuild.result = "SUCCESS"
             }
         }
     }
