@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(Map config=[:]) {
 
-    String network = config.remoteServer ?: 'devnet1'
+    String network = config.network ?: 'devnet1'
     Map<String, List<String>> serversByNetwork = [
         'devnet1': (1..4).collect { id ->  "n0${id}.d.vega.xyz" },
         'stagnet1': (1..5).collect { id ->  "n0${id}.s.vega.xyz" },
@@ -15,7 +15,8 @@ void call(Map config=[:]) {
         'stagnet3': (1..9).collect { id ->  "n0${id}.stagnet3.vega.xyz" },
         'fairground': (1..9).collect { id ->  "n0${id}.testnet.vega.xyz" },
     ]
-    String vegaNetworks = serversByNetwork.keySet()
+    List<String> vegaNetworks = new ArrayList<String>()
+    vegaNetworks.addAll(serversByNetwork.keySet())
 
     if (network in vegaNetworks) {
         // move `network` to the beggining of the list
