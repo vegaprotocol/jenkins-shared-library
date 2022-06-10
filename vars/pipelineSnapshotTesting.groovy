@@ -115,7 +115,7 @@ void call(Map config=[:]) {
                         ])
                     }
 
-                     stage("Initialize configs") {
+                    stage("Initialize configs") {
                         sh label: 'vega init + copy genesis.json',
                             script: '''#!/bin/bash -e
                                 ./vega init full --home=./vega_config --output=json &&./vega tm init full --home=./tm_config
@@ -191,6 +191,7 @@ void call(Map config=[:]) {
                                             ./vega node --home=vega_config
                                         """
                                 }
+                                println("debug: after vega node stopped")
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
@@ -204,6 +205,7 @@ void call(Map config=[:]) {
                                             ./vega tm start --home=tm_config
                                         """
                                 }
+                                println("debug: after tendermint stopped")
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
@@ -229,6 +231,7 @@ void call(Map config=[:]) {
                                         """
                                     }
                                 }
+                                println("debug: after checks stopped")
                             }
                         ])
                     }
