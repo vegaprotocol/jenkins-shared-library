@@ -241,9 +241,12 @@ void call(Map config=[:]) {
                             }
                         ])
                     }
+                    println("debug: after Run stage")
                 }
+                println("debug: after external timeout")
                 currentBuild.result = 'SUCCESS'
             } catch (FlowInterruptedException e) {
+                println("debug: in catch FlowInterruptedException ${e}")
                 currentBuild.result = 'ABORTED'
                 throw e
             } catch (e) {
@@ -262,7 +265,7 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     int startTimeMs = currentBuild.duration
     catchError(
         message: "Timed task",
-        buildResult: null, // don't modify Build Status
+        buildResult: 'SUCCESS', // don't modify Build Status
         stageResult: 'SUCCESS', // keep Stage status Successful
         catchInterruptions: true, // timeout is FlowInterruptedException
     ) {
