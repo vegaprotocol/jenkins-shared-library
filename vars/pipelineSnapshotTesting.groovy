@@ -274,7 +274,7 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
         timeout(time: timeoutMin, unit: 'MINUTES') {
             try {
                 body()
-            } catch (Throwable e) {
+            } catch (FlowInterruptedException e) {
                 currentBuild.result = "SUCCESS"
             }
         }
