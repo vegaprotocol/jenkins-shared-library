@@ -25,16 +25,20 @@ void call(Map config=[:]) {
         error("Unknown network ${vegaNetwork}. Allowed values: ${vegaNetworkList}")
     }
 
+    String defaultTimeout = config.timeout ?: '10'
+    // usually setup+download etc takes 20-100sec
+    String cronConfig = "H/${defaultTimeout.toInteger() + 2} * * * *"
+
     properties([
         buildDiscarder(logRotator(daysToKeepStr: '14')),
         copyArtifactPermission('*'),
-        pipelineTriggers([cron('H/12 * * * *')]),
+        pipelineTriggers([cron(cronConfig)]),
         parameters([
             choice(
                 name: 'NETWORK', choices: vegaNetworkList, // defaultValue is the first from the list
                 description: 'Vega Network to connect to'),
             string(
-                name: 'TIMEOUT', defaultValue: config.timeout ?: '10',
+                name: 'TIMEOUT', defaultValue: defaultTimeout,
                 description: 'Number of minutes after which the node will stop'),
         ])
     ])
@@ -88,7 +92,7 @@ void call(Map config=[:]) {
 
                     if ( remoteServer == null ) {
                         currentBuild.result = 'SUCCESS'
-                        // return outside of Stage
+                        // return outside of Stage stops the whole pipeline
                         return
                     }
 
@@ -197,7 +201,6 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                    echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
@@ -209,7 +212,6 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                    echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
@@ -309,9 +311,9 @@ void sendSlackMessage(String vegaNetwork) {
 
     echo "${msg}"
 
-    // slackSend(
-    //     channel: slackChannel,
-    //     color: color,
-    //     message: msg,
-    // )
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
 }
