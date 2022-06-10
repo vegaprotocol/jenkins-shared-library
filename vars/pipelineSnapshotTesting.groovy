@@ -53,6 +53,7 @@ void call(Map config=[:]) {
         skipDefaultCheckout()
         cleanWs()
         String remoteServer
+        String jenkinsAgentPublicIP
         def TM_VERSION
         def TRUST_HASH
         def TRUST_HEIGHT
@@ -70,6 +71,11 @@ void call(Map config=[:]) {
                         // Printout all configuration variables
                         sh 'printenv'
                         echo "params=${params.inspect()}"
+                        jenkinsAgentPublicIP = sh(
+                            script: 'curl http://169.254.169.254/latest/meta-data/public-ipv4',
+                            returnStdout: true,
+                        ).trim()
+                        echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
                     }
 
                     stage('Find available remote server') {
@@ -173,6 +179,7 @@ void call(Map config=[:]) {
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                     cat tm_config/config/config.toml
                                 """
                         }
@@ -186,6 +193,7 @@ void call(Map config=[:]) {
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.external-address "${jenkinsAgentPublicIP}:26656"
                                     cat tm_config/config/config.toml
                                 """
                         }
@@ -235,6 +243,10 @@ void call(Map config=[:]) {
                                         """
                                     }
                                 }
+                            },
+                            'Info': {
+                                echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
+                                echo "https://${jenkinsAgentPublicIP}:3003/statistics"
                             }
                         ])
                     }
