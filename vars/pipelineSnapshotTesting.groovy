@@ -69,15 +69,15 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        List<String> networkServers = serversByNetwork[params.NETWORK]
-                        echo "networkServers=${networkServers}"
+                        List<String> networkServers = serversByNetwork[params.NETWORK].shuffled()
+                        echo "Going to check servers: ${networkServers}"
                         for(String server in networkServers) { 
                             if (isRemoteServerAlive(server)) {
                                 remoteServer = server
                                 break
                             }
                         }
-                        echo "remoteServer=${remoteServer}"
+                        echo "Found available server: ${remoteServer}"
                     }
 
                     if ( remoteServer == null ) {
