@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(Map config=[:]) {
 
-    String network = config.network ?: 'devnet1'
+    String vegaNetwork = config.network ?: 'devnet1'
     Map<String, List<String>> serversByNetwork = [
         'devnet1': (1..4).collect { id ->  "n0${id}.d.vega.xyz" },
         'stagnet1': (1..5).collect { id ->  "n0${id}.s.vega.xyz" },
@@ -15,14 +15,14 @@ void call(Map config=[:]) {
         'stagnet3': (1..9).collect { id ->  "n0${id}.stagnet3.vega.xyz" },
         'fairground': (1..9).collect { id ->  "n0${id}.testnet.vega.xyz" },
     ]
-    List<String> vegaNetworks = new ArrayList<String>()
-    vegaNetworks.addAll(serversByNetwork.keySet())
+    List<String> vegaNetworkList = new ArrayList<String>()
+    vegaNetworkList.addAll(serversByNetwork.keySet())
 
-    if (network in vegaNetworks) {
-        // move `network` to the beggining of the list
-        vegaNetworks = [network] + (vegaNetworks - network)
+    if (vegaNetwork in vegaNetworkList) {
+        // move `vegaNetwork` to the beggining of the list
+        vegaNetworkList = [vegaNetwork] + (vegaNetworkList - vegaNetwork)
     } else {
-        error("Unknown network ${network}. Allowed values: ${vegaNetworks}")
+        error("Unknown network ${vegaNetwork}. Allowed values: ${vegaNetworkList}")
     }
 
     properties([
@@ -31,7 +31,7 @@ void call(Map config=[:]) {
         pipelineTriggers([cron('H/12 * * * *')]),
         parameters([
             choice(
-                name: 'NETWORK', choices: [vegaNetworks], // defaultValue is the first from the list
+                name: 'NETWORK', choices: vegaNetworkList, // defaultValue is the first from the list
                 description: 'Vega Network to connect to'),
             string(
                 name: 'TIMEOUT', defaultValue: config.timeout ?: '10',
@@ -259,7 +259,7 @@ boolean isRemoteServerAlive(String remoteServer) {
     }
 }
 
-void sendSlackMessage(String network) {
+void sendSlackMessage(String vegaNetwork) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -271,13 +271,13 @@ void sendSlackMessage(String network) {
 
     if (currentResult == 'SUCCESS') {
         
-        msg = ":large_green_circle: Snapshot testing (${network}) - SUCCESS - <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: Snapshot testing (${vegaNetwork}) - SUCCESS - <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: Snapshot testing (${network}) - ABORTED - <${jobURL}|${jobName}>"
+        msg = ":black_circle: Snapshot testing (${vegaNetwork}) - ABORTED - <${jobURL}|${jobName}>"
         color = '#000000'
     } else {
-        msg = ":red_circle: Snapshot testing (${network}) - FAILED - <${jobURL}|${jobName}>"
+        msg = ":red_circle: Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
     }
 
