@@ -69,7 +69,13 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        List<String> networkServers = serversByNetwork[params.NETWORK].shuffled()
+                        List<String> networkServers = serversByNetwork[params.NETWORK].clone()
+                        // Randomize order
+                        // workaround to .shuffled() not implemented
+                        Random random = new Random();  
+                        for(int index = 0; index < networkServers.size(); index += 1) {  
+                            Collections.swap(networkServers, index, index + random.nextInt(networkServers.size() - index));  
+                        }
                         echo "Going to check servers: ${networkServers}"
                         for(String server in networkServers) { 
                             if (isRemoteServerAlive(server)) {
