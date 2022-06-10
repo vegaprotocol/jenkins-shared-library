@@ -192,7 +192,6 @@ void call(Map config=[:]) {
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
-                                        returnStatus: true,  // ignore exit code
                                         script: """#!/bin/bash -e
                                             ./vega node --home=vega_config
                                         """
@@ -205,7 +204,6 @@ void call(Map config=[:]) {
                             'Tendermint': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start tendermint',
-                                        returnStatus: true,  // ignore exit code
                                         script: """#!/bin/bash -e
                                             ./vega tm start --home=tm_config
                                         """
