@@ -197,7 +197,7 @@ void call(Map config=[:]) {
                                             ./vega node --home=vega_config
                                         """
                                 }
-                                println("debug: after vega node stopped")
+                                println("debug: after vega node stopped (${currentBuild.result} - current: ${currentBuild.currentResult})")
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
@@ -211,7 +211,7 @@ void call(Map config=[:]) {
                                             ./vega tm start --home=tm_config
                                         """
                                 }
-                                println("debug: after tendermint stopped")
+                                println("debug: after tendermint stopped (${currentBuild.result} - current: ${currentBuild.currentResult})")
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
@@ -237,14 +237,15 @@ void call(Map config=[:]) {
                                         """
                                     }
                                 }
-                                println("debug: after checks stopped")
+                                println("debug: after checks stopped (${currentBuild.result} - current: ${currentBuild.currentResult})")
                             }
                         ])
                     }
-                    println("debug: after Run stage")
+                    println("debug: after Run stage (${currentBuild.result} - current: ${currentBuild.currentResult})")
                 }
-                println("debug: after external timeout")
+                println("debug: after external timeout (${currentBuild.result} - current: ${currentBuild.currentResult})")
                 currentBuild.result = 'SUCCESS'
+                println("debug: after after (${currentBuild.result} - current: ${currentBuild.currentResult})")
             } catch (FlowInterruptedException e) {
                 println("debug: in catch FlowInterruptedException ${e}")
                 currentBuild.result = 'ABORTED'
