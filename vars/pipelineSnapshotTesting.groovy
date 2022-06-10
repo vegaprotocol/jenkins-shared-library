@@ -89,24 +89,38 @@ void call(Map config=[:]) {
                     stage('Download') {
                         parallel([
                             'dependencies': {
-                                // download dasel to edit toml files
-                                sh script: "wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && mv dasel_linux_amd64 dasel && chmod +x dasel"
+                                sh label: 'download dasel to edit toml files',
+                                    script: '''#!/bin/bash -e
+                                        wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
+                                            mv dasel_linux_amd64 dasel && \
+                                            chmod +x dasel
+                                    '''
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega"
+                                    sh label: "scp vega core from ${remoteServer}",
+                                        script: """#!/bin/bash -e
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega
+                                        """
                                 }
                             },
                             'genesis.json': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
+                                    sh label: "scp genesis.json from ${remoteServer}",
+                                        script: """#!/bin/bash -e
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json genesis.json
+                                        """
                                 }
                             }
                         ])
                     }
 
                      stage("Initialize configs") {
-                        sh script: './vega init full --home=./vega_config --output=json &&./vega tm init full --home=./tm_config'
+                        sh label: 'vega init + copy genesis.json',
+                            script: '''#!/bin/bash -e
+                                ./vega init full --home=./vega_config --output=json &&./vega tm init full --home=./tm_config
+                                cp genesis.json ./tm_config/config/genesis.json
+                            '''
                     }
 
                     stage("Get Tendermint config") {
@@ -141,27 +155,29 @@ void call(Map config=[:]) {
 
                     if(TM_VERSION.startsWith("0.34")) {
                         stage("Set Tendermint config") {
-                            sh script: """
-                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
-                                ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
-                                cat tm_config/config/config.toml
-                            """
+                            sh label: 'set Tendermint config v.34.x',
+                                script: """#!/bin/bash -e
+                                    ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                    ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
+                                    ./dasel put string -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
+                                    cat tm_config/config/config.toml
+                                """
                         }
                     } else {
                         stage("Set Tendermint config") {
-                            sh script: """
-                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
-                                ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
-                                cat tm_config/config/config.toml
-                            """
+                            sh label: 'set Tendermint config v.35.x',
+                                script: """#!/bin/bash -e
+                                    ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                    ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
+                                    ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
+                                    cat tm_config/config/config.toml
+                                """
                         }
                     }
 
