@@ -7,14 +7,31 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(Map config=[:]) {
 
+    String network = config.remoteServer ?: 'devnet1'
+    Map<String, List<String>> serversByNetwork = [
+        'devnet1': (1..4).collect { id ->  "n0${id}.d.vega.xyz" },
+        'stagnet1': (1..5).collect { id ->  "n0${id}.s.vega.xyz" },
+        'stagnet2': (1..5).collect { id ->  "n0${id}.stagnet2.vega.xyz" } + (1..5).collect { id ->  "v0${id}.stagnet2.vega.xyz" },
+        'stagnet3': (1..9).collect { id ->  "n0${id}.stagnet3.vega.xyz" },
+        'fairground': (1..9).collect { id ->  "n0${id}.testnet.vega.xyz" },
+    ]
+    String vegaNetworks = serversByNetwork.keySet()
+
+    if (network in vegaNetworks) {
+        // move `network` to the beggining of the list
+        vegaNetworks = [network] + (vegaNetworks - network)
+    } else {
+        error("Unknown network ${network}. Allowed values: ${vegaNetworks}")
+    }
+
     properties([
         buildDiscarder(logRotator(daysToKeepStr: '14')),
         copyArtifactPermission('*'),
         pipelineTriggers([cron('H/12 * * * *')]),
         parameters([
-            string(
-                name: 'REMOTE_SERVER', defaultValue: config.remoteServer ?: 'n01.d.vega.xyz',
-                description: 'From which machine to copy vega binary and genesis config'),
+            choice(
+                name: 'NETWORK', choices: [vegaNetworks], // defaultValue is the first from the list
+                description: 'Vega Network to connect to'),
             string(
                 name: 'TIMEOUT', defaultValue: config.timeout ?: '10',
                 description: 'Number of minutes after which the node will stop'),
@@ -30,6 +47,7 @@ void call(Map config=[:]) {
                                                     usernameVariable: 'PSSH_USER')
         skipDefaultCheckout()
         cleanWs()
+        String remoteServer
         def TM_VERSION
         def TRUST_HASH
         def TRUST_HEIGHT
@@ -47,39 +65,61 @@ void call(Map config=[:]) {
                         // Printout all configuration variables
                         sh 'printenv'
                         echo "params=${params.inspect()}"
-                        // download dasel to edit toml files
-                        sh script: "wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && mv dasel_linux_amd64 dasel && chmod +x dasel"
                     }
 
-                    stage("Get vega core binary") {
-                        withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${params.REMOTE_SERVER}\":/home/vega/current/vega vega"
+                    stage('Find available remote server') {
+                        List<String> networkServers = serversByNetwork[params.NETWORK]
+                        echo "networkServers=${networkServers}"
+                        for(String server in networkServers) { 
+                            if (isRemoteServerAlive(server)) {
+                                remoteServer = server
+                                break
+                            }
                         }
+                        echo "remoteServer=${remoteServer}"
+                    }
+
+                    if ( remoteServer == null ) {
+                        currentBuild.result = 'SUCCESS'
+                        // return outside of Stage
+                        return
+                    }
+
+                    stage('Download') {
+                        parallel([
+                            'dependencies': {
+                                // download dasel to edit toml files
+                                sh script: "wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && mv dasel_linux_amd64 dasel && chmod +x dasel"
+                            },
+                            'vega core binary': {
+                                withCredentials([sshDevnetCredentials]) {
+                                    sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega"
+                                }
+                            },
+                            'genesis.json': {
+                                withCredentials([sshDevnetCredentials]) {
+                                    sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
+                                }
+                            }
+                        ])
                     }
 
                      stage("Initialize configs") {
                         sh script: './vega init full --home=./vega_config --output=json &&./vega tm init full --home=./tm_config'
                     }
 
-                    stage("Get Genesis") {
-                        withCredentials([sshDevnetCredentials]) {
-                            sh script: "scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${params.REMOTE_SERVER}\":/home/vega/.tendermint/config/genesis.json ./tm_config/config/genesis.json"
-                        }
-                    }
-
-
                     stage("Get Tendermint config") {
                         // Check TM version
-                        def status_req = new URL("https://${params.REMOTE_SERVER}/tm/status").openConnection();
+                        def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
                         def status = new groovy.json.JsonSlurper().parseText(status_req.getInputStream().getText())
                         TM_VERSION = status.result.node_info.version
                         if(TM_VERSION.startsWith("0.34")) {
-                            def net_info_req = new URL("https://${params.REMOTE_SERVER}/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                         } else {
-                            def net_info_req = new URL("https://${params.REMOTE_SERVER}/tm/net_info").openConnection();
+                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
                             def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                             RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
@@ -88,7 +128,7 @@ void call(Map config=[:]) {
                         
 
                         // Get trust block info
-                        def block_req = new URL("https://${params.REMOTE_SERVER}/tm/block").openConnection();
+                        def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
                         def tm_block = new groovy.json.JsonSlurper().parseText(block_req.getInputStream().getText())
                         TRUST_HASH = tm_block.result.block_id.hash
                         TRUST_HEIGHT = tm_block.result.block.header.height
@@ -128,21 +168,27 @@ void call(Map config=[:]) {
                         parallel([
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sh label: 'Start vega node', script: """#!/bin/bash -e
-                                        ./vega node --home=vega_config
-                                    """
+                                    sh label: 'Start vega node',
+                                        returnStatus: true,  // ignore exit code
+                                        script: """#!/bin/bash -e
+                                            ./vega node --home=vega_config
+                                        """
                                 }
-                                if ( !nice && isRemoteServerAlive(params.REMOTE_SERVER) ) {
+                                if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                    echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
                             'Tendermint': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sh label: 'Start tendermint', script: """#!/bin/bash -e
-                                        ./vega tm start --home=tm_config
-                                    """
+                                    sh label: 'Start tendermint',
+                                        returnStatus: true,  // ignore exit code
+                                        script: """#!/bin/bash -e
+                                            ./vega tm start --home=tm_config
+                                        """
                                 }
-                                if ( !nice && isRemoteServerAlive(params.REMOTE_SERVER) ) {
+                                if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                    echo "Vega stopped too early, Remote Server is still alive."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
@@ -161,8 +207,8 @@ void call(Map config=[:]) {
                                             curl http://127.0.0.1:3003/statistics
                                         """
                                         sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get ${params.REMOTE_SERVER} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl https://${params.REMOTE_SERVER}/statistics
+                                        sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
+                                            curl https://${remoteServer}/statistics
                                         """
                                     }
                                 }
@@ -179,7 +225,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(params.REMOTE_SERVER)
+                    sendSlackMessage(params.NETWORK)
                 }
             }
         }
@@ -212,7 +258,7 @@ boolean isRemoteServerAlive(String remoteServer) {
     }
 }
 
-void sendSlackMessage(String remoteServer) {
+void sendSlackMessage(String network) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -221,17 +267,16 @@ void sendSlackMessage(String remoteServer) {
     String duration = currentBuild.durationString - ' and counting'
     String msg = ''
     String color = ''
-    String networkDomain = remoteServer.substring(4)
 
     if (currentResult == 'SUCCESS') {
         
-        msg = ":large_green_circle: Snapshot testing (${networkDomain}) - SUCCESS - <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: Snapshot testing (${network}) - SUCCESS - <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: Snapshot testing (${networkDomain}) - ABORTED - <${jobURL}|${jobName}>"
+        msg = ":black_circle: Snapshot testing (${network}) - ABORTED - <${jobURL}|${jobName}>"
         color = '#000000'
     } else {
-        msg = ":red_circle: Snapshot testing (${networkDomain}) - FAILED - <${jobURL}|${jobName}>"
+        msg = ":red_circle: Snapshot testing (${network}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
     }
 
