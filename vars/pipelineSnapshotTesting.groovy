@@ -63,6 +63,9 @@ void call(Map config=[:]) {
         def blockHeightStart
         def blockHeightEnd
 
+        // Checks
+        boolean chainStatusConnected = false
+
         timestamps {
             try {
                 // give extra 5 minutes for setup
@@ -243,6 +246,17 @@ void call(Map config=[:]) {
                                         sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
                                             curl https://${remoteServer}/statistics
                                         """
+
+                                        if (!chainStatusConnected) {
+                                            String chainStatus = sh(
+                                                script: 'curl --silent http://127.0.0.1:3003/statistics | jq -r .statistics.status',
+                                                returnStdout: true,
+                                            ).trim()
+                                            if (chainStatus == "CHAIN_STATUS_CONNECTED") {
+                                                chainStatusConnected = true
+                                                echo "Marked CHAIN_STATUS_CONNECTED !!"
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -253,6 +267,11 @@ void call(Map config=[:]) {
                                 echo "https://${remoteServer}/tm/net_info"
                             }
                         ])
+                    }
+                    stage("Verify checks") {
+                        if (!chainStatusConnected) {
+                            error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
+                        }
                     }
                 }
                 currentBuild.result = 'SUCCESS'
