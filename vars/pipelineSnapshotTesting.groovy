@@ -205,7 +205,9 @@ void call(Map config=[:]) {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
-                                            ./vega node --home=vega_config
+                                            ./vega node --home=vega_config \
+                                                --processor.log-level=debug \
+                                                --snapshot.log-level=debug
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
