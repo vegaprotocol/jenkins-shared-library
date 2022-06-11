@@ -75,7 +75,7 @@ void call(Map config=[:]) {
                         sh 'printenv'
                         echo "params=${params.inspect()}"
                         jenkinsAgentPublicIP = sh(
-                            script: 'curl http://169.254.169.254/latest/meta-data/public-ipv4',
+                            script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
                             returnStdout: true,
                         ).trim()
                         echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
@@ -240,16 +240,18 @@ void call(Map config=[:]) {
 
                                         String sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                         sh label: "Get non-validator statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl http://127.0.0.1:3003/statistics
+                                            curl --max-time 5 http://127.0.0.1:3003/statistics
                                         """
                                         sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl https://${remoteServer}/statistics
-                                        """
+                                        sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)",
+                                            returnStatus: true,  // ignore exit code
+                                            script: """#!/bin/bash -e
+                                                curl --max-time 5 https://${remoteServer}/statistics
+                                            """
 
                                         if (!chainStatusConnected) {
                                             String chainStatus = sh(
-                                                script: 'curl --silent http://127.0.0.1:3003/statistics | jq -r .statistics.status',
+                                                script: 'curl --max-time 5 --silent http://127.0.0.1:3003/statistics | jq -r .statistics.status',
                                                 returnStdout: true,
                                             ).trim()
                                             if (chainStatus == "CHAIN_STATUS_CONNECTED") {
@@ -346,9 +348,9 @@ void sendSlackMessage(String vegaNetwork) {
 
     echo "${msg}"
 
-    slackSend(
-        channel: slackChannel,
-        color: color,
-        message: msg,
-    )
+    // slackSend(
+    //     channel: slackChannel,
+    //     color: color,
+    //     message: msg,
+    // )
 }
