@@ -65,6 +65,7 @@ void call(Map config=[:]) {
 
         // Checks
         boolean chainStatusConnected = false
+        boolean catchedUp = false
 
         timestamps {
             try {
@@ -239,25 +240,34 @@ void call(Map config=[:]) {
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get non-validator statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl --max-time 5 http://127.0.0.1:3003/statistics
-                                        """
-                                        sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)",
-                                            returnStatus: true,  // ignore exit code
-                                            script: """#!/bin/bash -e
-                                                curl --max-time 5 https://${remoteServer}/statistics
-                                            """
+                                        String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
 
-                                        if (!chainStatusConnected) {
-                                            String chainStatus = sh(
-                                                script: 'curl --max-time 5 --silent http://127.0.0.1:3003/statistics | jq -r .statistics.status',
+                                        String remoteServerStats = sh(
+                                                script: "curl --max-time 5 https://${remoteServer}/statistics",
                                                 returnStdout: true,
                                             ).trim()
-                                            if (chainStatus == "CHAIN_STATUS_CONNECTED") {
+                                        println("https://${remoteServer}/statistics\n${remoteServerStats}")
+                                        Object remoteStats = new groovy.json.JsonSlurper().parseText(remoteServerStats)
+                                        String localServerStats = sh(
+                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics",
+                                                returnStdout: true,
+                                            ).trim()
+                                        println("http://127.0.0.1:3003/statistics\n${localServerStats}")
+                                        Object localStats = new groovy.json.JsonSlurper().parseText(localServerStats)
+
+                                        if (!chainStatusConnected) {
+                                            if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
                                                 echo "Marked CHAIN_STATUS_CONNECTED !!"
+                                            }
+                                        }
+                                        if (chainStatusConnected) {
+                                            int remoteHeight = remoteStats.statistics.blockHeight.toInteger()
+                                            int localHeight = localStats.statistics.blockHeight.toInteger()
+                                            
+                                            if (remoteHeight - localHeight < 10) {
+                                                catchedUp = true
+                                                echo "Marked as Catched Up !!"
                                             }
                                         }
                                     }
@@ -274,6 +284,9 @@ void call(Map config=[:]) {
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
+                        }
+                        if (!catchedUp) {
+                            error("Non-validator did not catch up.")
                         }
                     }
                 }
