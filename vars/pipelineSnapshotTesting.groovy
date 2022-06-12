@@ -203,7 +203,8 @@ void call(Map config=[:]) {
                     }
 
                     stage('Run') {
-                        parallel([
+                        parallel(
+                            failFast: true,
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
@@ -268,7 +269,7 @@ void call(Map config=[:]) {
                                 echo "https://${remoteServer}/statistics"
                                 echo "https://${remoteServer}/tm/net_info"
                             }
-                        ])
+                        )
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
