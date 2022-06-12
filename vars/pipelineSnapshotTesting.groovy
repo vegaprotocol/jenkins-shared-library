@@ -179,11 +179,15 @@ void call(Map config=[:]) {
                                 script: """#!/bin/bash -e
                                     ./dasel put bool -f tm_config/config/config.toml statesync.enable true
                                     ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                    ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
+                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
                                     ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                     cat tm_config/config/config.toml
                                 """
                         }
@@ -193,11 +197,15 @@ void call(Map config=[:]) {
                                 script: """#!/bin/bash -e
                                     ./dasel put bool -f tm_config/config/config.toml statesync.enable true
                                     ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
+                                    ./dasel put int -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery-time "30s"
+                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk-request-timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.bootstrap-peers ${PERSISTENT_PEERS}
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
                                     ./dasel put string -f tm_config/config/config.toml p2p.external-address "${jenkinsAgentPublicIP}:26656"
+                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow-duplicate-ip true
                                     cat tm_config/config/config.toml
                                 """
                         }
