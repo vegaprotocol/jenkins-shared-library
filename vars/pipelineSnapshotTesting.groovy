@@ -409,9 +409,9 @@ void sendSlackMessage(String vegaNetwork, String extraMsg) {
 
     echo "${msg}"
 
-    // slackSend(
-    //     channel: slackChannel,
-    //     color: color,
-    //     message: msg,
-    // )
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
 }
