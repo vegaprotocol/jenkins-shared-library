@@ -351,7 +351,7 @@ boolean isRemoteServerAlive(String remoteServer) {
 }
 
 void sendSlackMessage(String vegaNetwork, String extraMsg) {
-    String slackChannel = '#monitoring'
+    String slackChannel = '#snapshot-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
 
@@ -361,7 +361,6 @@ void sendSlackMessage(String vegaNetwork, String extraMsg) {
     String color = ''
 
     if (currentResult == 'SUCCESS') {
-        
         msg = ":large_green_circle: Snapshot testing (${vegaNetwork}) - SUCCESS - <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
