@@ -96,17 +96,14 @@ void call(Map config=[:]) {
                                 break
                             }
                         }
+                        if ( remoteServer == null ) {
+                            // No single machine online means that Vega Network is down
+                            // This is quite often for Devnet, when deployments happen all the time
+                            extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                            currentBuild.result = 'ABORTED'
+                            error("${params.NETWORK} seems down")
+                        }
                         echo "Found available server: ${remoteServer}"
-                    }
-
-                    // No single machine online means that Vega Network is down
-                    // This is quite often for Devnet, when deployments happen all the time
-                    // We don't want to continue this pipeline or mark it as failed
-                    if ( remoteServer == null ) {
-                        currentBuild.result = 'ABORTED'
-                        extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
-                        // return outside of Stage stops the whole pipeline
-                        return
                     }
 
                     stage('Download') {
@@ -147,33 +144,49 @@ void call(Map config=[:]) {
                     }
 
                     stage("Get Tendermint config") {
-                        // Check TM version
-                        def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
-                        def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
-                        TM_VERSION = status.result.node_info.version
-                        if(TM_VERSION.startsWith("0.34")) {
-                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
-                        } else {
-                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
-                            RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
-                            PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
-                        }
-                        
+                        try {
+                            // Check TM version
+                            def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
+                            def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
+                            TM_VERSION = status.result.node_info.version
 
-                        // Get trust block info
-                        def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
-                        def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
-                        TRUST_HASH = tm_block.result.block_id.hash
-                        TRUST_HEIGHT = tm_block.result.block.header.height
-                        println("RPC_SERVERS=${RPC_SERVERS}")
-                        println("PERSISTENT_PEERS=${PERSISTENT_PEERS}")
-                        println("TRUST_HASH=${TRUST_HASH}")
-                        println("TRUST_HEIGHT=${TRUST_HEIGHT}")
+                            // Get data from TM
+                            if(TM_VERSION.startsWith("0.34")) {
+                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+                                RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
+                                PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
+                            } else {
+                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+                                def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
+                                RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
+                                PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
+                            }
+                            
+
+                            // Get trust block info
+                            def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
+                            def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
+                            TRUST_HASH = tm_block.result.block_id.hash
+                            TRUST_HEIGHT = tm_block.result.block.header.height
+                            println("RPC_SERVERS=${RPC_SERVERS}")
+                            println("PERSISTENT_PEERS=${PERSISTENT_PEERS}")
+                            println("TRUST_HASH=${TRUST_HASH}")
+                            println("TRUST_HEIGHT=${TRUST_HEIGHT}")
+                        } catch (e) {
+                            if ( !isRemoteServerAlive(remoteServer) ) {
+                                // Remote server stopped being available.
+                                // This is quite often for Devnet, when deployments happen all the time
+                                extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                                currentBuild.result = 'ABORTED'
+                                error("${params.NETWORK} seems down")
+                            } else {
+                                println("Remote server ${remoteServer} is still up.")
+                                // re-throw
+                                throw e
+                            }
+                        }
                     }
 
                     if(TM_VERSION.startsWith("0.34")) {
