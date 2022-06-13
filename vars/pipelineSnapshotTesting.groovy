@@ -221,7 +221,6 @@ void call(Map config=[:]) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega node --home=vega_config \
-                                                --processor.log-level=debug \
                                                 --snapshot.log-level=debug
                                         """
                                 }
