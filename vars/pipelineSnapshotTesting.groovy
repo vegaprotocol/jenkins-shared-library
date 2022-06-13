@@ -258,9 +258,12 @@ void call(Map config=[:]) {
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
-                                    int runEveryMs = 30 * 1000
+                                    int runEverySec = 30
+                                    int runEveryMs = runEverySec * 1000
                                     int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
+                                    String currTime = currentBuild.durationString - ' and counting'
+                                    println("Checks are run every ${runEverySec} seconds (${currTime})")
                                     while (true) {
                                         // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
@@ -284,7 +287,8 @@ void call(Map config=[:]) {
                                         if (!chainStatusConnected) {
                                             if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
-                                                println("Marked CHAIN_STATUS_CONNECTED !!")
+                                                String currTime = currentBuild.durationString - ' and counting'
+                                                println("Marked CHAIN_STATUS_CONNECTED !! (${currTime})")
                                             }
                                         }
                                         if (chainStatusConnected) {
@@ -297,14 +301,16 @@ void call(Map config=[:]) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
-                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight}.")
+                                                        String currTime = currentBuild.durationString - ' and counting'
+                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime})")
                                                     }
                                                 }
                                             }
 
                                             if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
-                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight})")
+                                                String currTime = currentBuild.durationString - ' and counting'
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${currTime})")
                                             }
                                         }
                                     }
