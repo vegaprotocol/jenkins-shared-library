@@ -61,9 +61,10 @@ void call(Map config=[:]) {
         def PERSISTENT_PEERS
 
         // Checks
-        String extraMsg = null
+        String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
         boolean chainStatusConnected = false
         boolean catchedUp = false
+        boolean blockHeightIncreased = false
 
         timestamps {
             try {
@@ -95,17 +96,14 @@ void call(Map config=[:]) {
                                 break
                             }
                         }
+                        if ( remoteServer == null ) {
+                            // No single machine online means that Vega Network is down
+                            // This is quite often for Devnet, when deployments happen all the time
+                            extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                            currentBuild.result = 'ABORTED'
+                            error("${params.NETWORK} seems down")
+                        }
                         echo "Found available server: ${remoteServer}"
-                    }
-
-                    // No single machine online means that Vega Network is down
-                    // This is quite often for Devnet, when deployments happen all the time
-                    // We don't want to continue this pipeline or mark it as failed
-                    if ( remoteServer == null ) {
-                        currentBuild.result = 'ABORTED'
-                        extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
-                        // return outside of Stage stops the whole pipeline
-                        return
                     }
 
                     stage('Download') {
@@ -146,33 +144,49 @@ void call(Map config=[:]) {
                     }
 
                     stage("Get Tendermint config") {
-                        // Check TM version
-                        def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
-                        def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
-                        TM_VERSION = status.result.node_info.version
-                        if(TM_VERSION.startsWith("0.34")) {
-                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
-                        } else {
-                            def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
-                            RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
-                            PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
-                        }
-                        
+                        try {
+                            // Check TM version
+                            def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
+                            def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
+                            TM_VERSION = status.result.node_info.version
 
-                        // Get trust block info
-                        def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
-                        def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
-                        TRUST_HASH = tm_block.result.block_id.hash
-                        TRUST_HEIGHT = tm_block.result.block.header.height
-                        println("RPC_SERVERS=${RPC_SERVERS}")
-                        println("PERSISTENT_PEERS=${PERSISTENT_PEERS}")
-                        println("TRUST_HASH=${TRUST_HASH}")
-                        println("TRUST_HEIGHT=${TRUST_HEIGHT}")
+                            // Get data from TM
+                            if(TM_VERSION.startsWith("0.34")) {
+                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+                                RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
+                                PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
+                            } else {
+                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+                                def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
+                                RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
+                                PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
+                            }
+                            
+
+                            // Get trust block info
+                            def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
+                            def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
+                            TRUST_HASH = tm_block.result.block_id.hash
+                            TRUST_HEIGHT = tm_block.result.block.header.height
+                            println("RPC_SERVERS=${RPC_SERVERS}")
+                            println("PERSISTENT_PEERS=${PERSISTENT_PEERS}")
+                            println("TRUST_HASH=${TRUST_HASH}")
+                            println("TRUST_HEIGHT=${TRUST_HEIGHT}")
+                        } catch (e) {
+                            if ( !isRemoteServerAlive(remoteServer) ) {
+                                // Remote server stopped being available.
+                                // This is quite often for Devnet, when deployments happen all the time
+                                extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                                currentBuild.result = 'ABORTED'
+                                error("${params.NETWORK} seems down")
+                            } else {
+                                println("Remote server ${remoteServer} is still up.")
+                                // re-throw
+                                throw e
+                            }
+                        }
                     }
 
                     if(TM_VERSION.startsWith("0.34")) {
@@ -221,7 +235,6 @@ void call(Map config=[:]) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega node --home=vega_config \
-                                                --processor.log-level=debug \
                                                 --snapshot.log-level=debug
                                         """
                                 }
@@ -244,11 +257,12 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    // run at 50sec, 1min50sec, 2min50sec, ... since start
-                                    int runEveryMs = 60 * 1000
+                                    // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
+                                    int runEveryMs = 30 * 1000
                                     int startAt = currentBuild.duration
+                                    int previousLocalHeight = -1
                                     while (true) {
-                                        // wait until next Xmin50sec
+                                        // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
@@ -276,10 +290,21 @@ void call(Map config=[:]) {
                                         if (chainStatusConnected) {
                                             int remoteHeight = remoteStats.statistics.blockHeight.toInteger()
                                             int localHeight = localStats.statistics.blockHeight.toInteger()
-                                            
+
+                                            if (!blockHeightIncreased) {
+                                                if (localHeight > 0) {
+                                                    if (previousLocalHeight < 0) {
+                                                        previousLocalHeight = localHeight
+                                                    } else if (localHeight > previousLocalHeight) {
+                                                        blockHeightIncreased = true
+                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight}.")
+                                                    }
+                                                }
+                                            }
+
                                             if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
-                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}")
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight})")
                                             }
                                         }
                                     }
@@ -298,10 +323,15 @@ void call(Map config=[:]) {
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
+                        if (!blockHeightIncreased) {
+                            extraMsg = extraMsg ?: "No block height increase."
+                            error("Non-validator block height did not incrase.")
+                        }
                         if (!catchedUp) {
                             extraMsg = extraMsg ?: "Not catched up with network."
                             error("Non-validator did not catch up.")
                         }
+                        println("All checks passed.")
                     }
                 }
                 currentBuild.result = 'SUCCESS'
@@ -351,7 +381,7 @@ boolean isRemoteServerAlive(String remoteServer) {
 }
 
 void sendSlackMessage(String vegaNetwork, String extraMsg) {
-    String slackChannel = '#monitoring'
+    String slackChannel = '#snapshot-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
 
@@ -361,7 +391,6 @@ void sendSlackMessage(String vegaNetwork, String extraMsg) {
     String color = ''
 
     if (currentResult == 'SUCCESS') {
-        
         msg = ":large_green_circle: Snapshot testing (${vegaNetwork}) - SUCCESS - <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
