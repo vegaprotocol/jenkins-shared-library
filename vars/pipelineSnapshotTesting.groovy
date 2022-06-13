@@ -62,6 +62,7 @@ void call(Map config=[:]) {
 
         // Checks
         String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
+        String catchupTime = null
         boolean chainStatusConnected = false
         boolean catchedUp = false
         boolean blockHeightIncreased = false
@@ -309,8 +310,8 @@ void call(Map config=[:]) {
 
                                             if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
-                                                String currTime = currentBuild.durationString - ' and counting'
-                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${currTime})")
+                                                catchupTime = currentBuild.durationString - ' and counting'
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
                                             }
                                         }
                                     }
@@ -349,7 +350,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(params.NETWORK, extraMsg)
+                    sendSlackMessage(params.NETWORK, extraMsg, catchupTime)
                 }
             }
         }
@@ -386,7 +387,7 @@ boolean isRemoteServerAlive(String remoteServer) {
     }
 }
 
-void sendSlackMessage(String vegaNetwork, String extraMsg) {
+void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
     String slackChannel = '#snapshot-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -405,6 +406,10 @@ void sendSlackMessage(String vegaNetwork, String extraMsg) {
     } else {
         msg = ":red_circle: Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
+    }
+
+    if (catchupTime != null) {
+        msg += " (catch up in ${catchupTime})"
     }
 
     if (extraMsg != null) {
