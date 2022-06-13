@@ -301,6 +301,7 @@ void call(Map config=[:]) {
                             extraMsg = extraMsg ?: "Not catched up with network."
                             error("Non-validator did not catch up.")
                         }
+                        println("All checks passed.")
                     }
                 }
                 currentBuild.result = 'SUCCESS'
