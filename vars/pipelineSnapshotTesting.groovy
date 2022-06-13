@@ -288,7 +288,7 @@ void call(Map config=[:]) {
                                         if (!chainStatusConnected) {
                                             if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
-                                                String currTime = currentBuild.durationString - ' and counting'
+                                                currTime = currentBuild.durationString - ' and counting'
                                                 println("Marked CHAIN_STATUS_CONNECTED !! (${currTime})")
                                             }
                                         }
@@ -302,7 +302,7 @@ void call(Map config=[:]) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
-                                                        String currTime = currentBuild.durationString - ' and counting'
+                                                        currTime = currentBuild.durationString - ' and counting'
                                                         println("Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime})")
                                                     }
                                                 }
