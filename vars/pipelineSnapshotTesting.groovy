@@ -256,30 +256,26 @@ void call(Map config=[:]) {
                                             ).trim()
                                         println("https://${remoteServer}/statistics\n${remoteServerStats}")
                                         Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
-                                        println("object ${remoteStats}")
                                         String localServerStats = sh(
                                                 script: "curl --max-time 5 http://127.0.0.1:3003/statistics",
                                                 returnStdout: true,
                                             ).trim()
                                         println("http://127.0.0.1:3003/statistics\n${localServerStats}")
                                         Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
-                                        println("object ${localStats}")
-
-                                        println("break")
 
                                         if (!chainStatusConnected) {
                                             if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
-                                                echo "Marked CHAIN_STATUS_CONNECTED !!"
+                                                println("Marked CHAIN_STATUS_CONNECTED !!")
                                             }
                                         }
                                         if (chainStatusConnected) {
                                             int remoteHeight = remoteStats.statistics.blockHeight.toInteger()
                                             int localHeight = localStats.statistics.blockHeight.toInteger()
                                             
-                                            if (remoteHeight - localHeight < 10) {
+                                            if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
-                                                echo "Marked as Catched Up !!"
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}")
                                             }
                                         }
                                     }
