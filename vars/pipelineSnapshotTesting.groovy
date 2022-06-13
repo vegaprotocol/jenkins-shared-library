@@ -303,7 +303,7 @@ void call(Map config=[:]) {
 
                                             if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
-                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}")
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight})")
                                             }
                                         }
                                     }
