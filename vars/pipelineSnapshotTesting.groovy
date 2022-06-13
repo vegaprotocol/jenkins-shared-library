@@ -60,8 +60,10 @@ void call(Map config=[:]) {
         def RPC_SERVERS
         def PERSISTENT_PEERS
 
-        def blockHeightStart
-        def blockHeightEnd
+        // Checks
+        String extraMsg = null
+        boolean chainStatusConnected = false
+        boolean catchedUp = false
 
         timestamps {
             try {
@@ -72,7 +74,7 @@ void call(Map config=[:]) {
                         sh 'printenv'
                         echo "params=${params.inspect()}"
                         jenkinsAgentPublicIP = sh(
-                            script: 'curl http://169.254.169.254/latest/meta-data/public-ipv4',
+                            script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
                             returnStdout: true,
                         ).trim()
                         echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
@@ -96,8 +98,12 @@ void call(Map config=[:]) {
                         echo "Found available server: ${remoteServer}"
                     }
 
+                    // No single machine online means that Vega Network is down
+                    // This is quite often for Devnet, when deployments happen all the time
+                    // We don't want to continue this pipeline or mark it as failed
                     if ( remoteServer == null ) {
-                        currentBuild.result = 'SUCCESS'
+                        currentBuild.result = 'ABORTED'
+                        extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
                         // return outside of Stage stops the whole pipeline
                         return
                     }
@@ -142,16 +148,16 @@ void call(Map config=[:]) {
                     stage("Get Tendermint config") {
                         // Check TM version
                         def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
-                        def status = new groovy.json.JsonSlurper().parseText(status_req.getInputStream().getText())
+                        def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                         TM_VERSION = status.result.node_info.version
                         if(TM_VERSION.startsWith("0.34")) {
                             def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
+                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                         } else {
                             def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
-                            def net_info = new groovy.json.JsonSlurper().parseText(net_info_req.getInputStream().getText())
+                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                             def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                             RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
                             PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
@@ -160,7 +166,7 @@ void call(Map config=[:]) {
 
                         // Get trust block info
                         def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
-                        def tm_block = new groovy.json.JsonSlurper().parseText(block_req.getInputStream().getText())
+                        def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
                         TRUST_HASH = tm_block.result.block_id.hash
                         TRUST_HEIGHT = tm_block.result.block.header.height
                         println("RPC_SERVERS=${RPC_SERVERS}")
@@ -175,11 +181,15 @@ void call(Map config=[:]) {
                                 script: """#!/bin/bash -e
                                     ./dasel put bool -f tm_config/config/config.toml statesync.enable true
                                     ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                    ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
+                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 7024
                                     ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                     cat tm_config/config/config.toml
                                 """
                         }
@@ -189,26 +199,34 @@ void call(Map config=[:]) {
                                 script: """#!/bin/bash -e
                                     ./dasel put bool -f tm_config/config/config.toml statesync.enable true
                                     ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
+                                    ./dasel put int -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
                                     ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
+                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery-time "30s"
+                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk-request-timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
+                                    ./dasel put string -f tm_config/config/config.toml p2p.bootstrap-peers ${PERSISTENT_PEERS}
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 7024
                                     ./dasel put string -f tm_config/config/config.toml p2p.external-address "${jenkinsAgentPublicIP}:26656"
+                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow-duplicate-ip true
                                     cat tm_config/config/config.toml
                                 """
                         }
                     }
 
                     stage('Run') {
-                        parallel([
+                        parallel(
+                            failFast: true,
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
-                                            ./vega node --home=vega_config
+                                            ./vega node --home=vega_config \
+                                                --processor.log-level=debug \
+                                                --snapshot.log-level=debug
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                    extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
@@ -220,7 +238,8 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                    error("Vega stopped too early, Remote Server is still alive.")
+                                    extraMsg = extraMsg ?: "Tendermint stopped too early."
+                                    error("Tendermint stopped too early, Remote Server is still alive.")
                                 }
                             },
                             'Checks': {
@@ -233,22 +252,56 @@ void call(Map config=[:]) {
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get non-validator statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl http://127.0.0.1:3003/statistics
-                                        """
-                                        sinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                        sh label: "Get ${remoteServer} statistics (${sinceStartSec} sec)", script: """#!/bin/bash -e
-                                            curl https://${remoteServer}/statistics
-                                        """
+                                        String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+
+                                        String remoteServerStats = sh(
+                                                script: "curl --max-time 5 https://${remoteServer}/statistics",
+                                                returnStdout: true,
+                                            ).trim()
+                                        println("https://${remoteServer}/statistics\n${remoteServerStats}")
+                                        Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
+                                        String localServerStats = sh(
+                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics",
+                                                returnStdout: true,
+                                            ).trim()
+                                        println("http://127.0.0.1:3003/statistics\n${localServerStats}")
+                                        Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
+
+                                        if (!chainStatusConnected) {
+                                            if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
+                                                chainStatusConnected = true
+                                                println("Marked CHAIN_STATUS_CONNECTED !!")
+                                            }
+                                        }
+                                        if (chainStatusConnected) {
+                                            int remoteHeight = remoteStats.statistics.blockHeight.toInteger()
+                                            int localHeight = localStats.statistics.blockHeight.toInteger()
+                                            
+                                            if (!catchedUp && (remoteHeight - localHeight < 10)) {
+                                                catchedUp = true
+                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}")
+                                            }
+                                        }
                                     }
                                 }
                             },
                             'Info': {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
-                                echo "https://${jenkinsAgentPublicIP}:3003/statistics"
+                                echo "http://${jenkinsAgentPublicIP}:3003/statistics"
+                                echo "https://${remoteServer}/statistics"
+                                echo "https://${remoteServer}/tm/net_info"
                             }
-                        ])
+                        )
+                    }
+                    stage("Verify checks") {
+                        if (!chainStatusConnected) {
+                            extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
+                            error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
+                        }
+                        if (!catchedUp) {
+                            extraMsg = extraMsg ?: "Not catched up with network."
+                            error("Non-validator did not catch up.")
+                        }
                     }
                 }
                 currentBuild.result = 'SUCCESS'
@@ -260,7 +313,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(params.NETWORK)
+                    sendSlackMessage(params.NETWORK, extraMsg)
                 }
             }
         }
@@ -297,7 +350,7 @@ boolean isRemoteServerAlive(String remoteServer) {
     }
 }
 
-void sendSlackMessage(String vegaNetwork) {
+void sendSlackMessage(String vegaNetwork, String extraMsg) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -317,6 +370,10 @@ void sendSlackMessage(String vegaNetwork) {
     } else {
         msg = ":red_circle: Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
+    }
+
+    if (extraMsg != null) {
+        msg += " (reason: ${extraMsg})"
     }
 
     msg += " (${duration})"
