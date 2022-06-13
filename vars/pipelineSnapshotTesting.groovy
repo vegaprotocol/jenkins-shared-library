@@ -60,9 +60,6 @@ void call(Map config=[:]) {
         def RPC_SERVERS
         def PERSISTENT_PEERS
 
-        def blockHeightStart
-        def blockHeightEnd
-
         // Checks
         String extraMsg = null
         boolean chainStatusConnected = false
