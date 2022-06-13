@@ -297,6 +297,7 @@ void call(Map config=[:]) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
+                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight}.")
                                                     }
                                                 }
                                             }
