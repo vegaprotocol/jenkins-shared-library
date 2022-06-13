@@ -257,12 +257,12 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    // run at 50sec, 1min50sec, 2min50sec, ... since start
-                                    int runEveryMs = 60 * 1000
+                                    // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
+                                    int runEveryMs = 30 * 1000
                                     int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
                                     while (true) {
-                                        // wait until next Xmin50sec
+                                        // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
