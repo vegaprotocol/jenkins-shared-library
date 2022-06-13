@@ -64,6 +64,7 @@ void call(Map config=[:]) {
         def blockHeightEnd
 
         // Checks
+        String extraMsg = null
         boolean chainStatusConnected = false
         boolean catchedUp = false
 
@@ -100,8 +101,12 @@ void call(Map config=[:]) {
                         echo "Found available server: ${remoteServer}"
                     }
 
+                    // No single machine online means that Vega Network is down
+                    // This is quite often for Devnet, when deployments happen all the time
+                    // We don't want to continue this pipeline or mark it as failed
                     if ( remoteServer == null ) {
-                        currentBuild.result = 'SUCCESS'
+                        currentBuild.result = 'ABORTED'
+                        extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
                         // return outside of Stage stops the whole pipeline
                         return
                     }
@@ -224,6 +229,7 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                    extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
                             },
@@ -235,7 +241,8 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                    error("Vega stopped too early, Remote Server is still alive.")
+                                    extraMsg = extraMsg ?: "Tendermint stopped too early."
+                                    error("Tendermint stopped too early, Remote Server is still alive.")
                                 }
                             },
                             'Checks': {
@@ -291,9 +298,11 @@ void call(Map config=[:]) {
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
+                            extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         if (!catchedUp) {
+                            extraMsg = extraMsg ?: "Not catched up with network."
                             error("Non-validator did not catch up.")
                         }
                     }
@@ -307,7 +316,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(params.NETWORK)
+                    sendSlackMessage(params.NETWORK, extraMsg)
                 }
             }
         }
@@ -344,7 +353,7 @@ boolean isRemoteServerAlive(String remoteServer) {
     }
 }
 
-void sendSlackMessage(String vegaNetwork) {
+void sendSlackMessage(String vegaNetwork, String extraMsg) {
     String slackChannel = '#monitoring'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
@@ -364,6 +373,10 @@ void sendSlackMessage(String vegaNetwork) {
     } else {
         msg = ":red_circle: Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
+    }
+
+    if (extraMsg != null) {
+        msg += " (reason: ${extraMsg})"
     }
 
     msg += " (${duration})"
