@@ -61,9 +61,10 @@ void call(Map config=[:]) {
         def PERSISTENT_PEERS
 
         // Checks
-        String extraMsg = null
+        String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
         boolean chainStatusConnected = false
         boolean catchedUp = false
+        boolean blockHeightIncreased = false
 
         timestamps {
             try {
@@ -246,6 +247,7 @@ void call(Map config=[:]) {
                                     // run at 50sec, 1min50sec, 2min50sec, ... since start
                                     int runEveryMs = 60 * 1000
                                     int startAt = currentBuild.duration
+                                    int previousLocalHeight = -1
                                     while (true) {
                                         // wait until next Xmin50sec
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
@@ -275,7 +277,17 @@ void call(Map config=[:]) {
                                         if (chainStatusConnected) {
                                             int remoteHeight = remoteStats.statistics.blockHeight.toInteger()
                                             int localHeight = localStats.statistics.blockHeight.toInteger()
-                                            
+
+                                            if (!blockHeightIncreased) {
+                                                if (localHeight > 0) {
+                                                    if (previousLocalHeight < 0) {
+                                                        previousLocalHeight = localHeight
+                                                    } else if (localHeight > previousLocalHeight) {
+                                                        blockHeightIncreased = true
+                                                    }
+                                                }
+                                            }
+
                                             if (!catchedUp && (remoteHeight - localHeight < 10)) {
                                                 catchedUp = true
                                                 println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}")
@@ -296,6 +308,10 @@ void call(Map config=[:]) {
                         if (!chainStatusConnected) {
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
+                        }
+                        if (!blockHeightIncreased) {
+                            extraMsg = extraMsg ?: "No block height increase."
+                            error("Non-validator block height did not incrase.")
                         }
                         if (!catchedUp) {
                             extraMsg = extraMsg ?: "Not catched up with network."
