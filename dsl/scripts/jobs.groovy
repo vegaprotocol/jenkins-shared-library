@@ -1,5 +1,5 @@
 // https://github.com/janinko/ghprb/issues/77
-def standardDefinition(args){
+def scmDefinition(args){
   return {
     cpsScm {
       scm {
@@ -50,11 +50,33 @@ def createCommonPipeline(args){
                 env(key.toUpperCase(), value)
             }
         }
-        definition standardDefinition(args)
+        if (args.get('useScmDefinition', true)) {
+            definition scmDefinition(args)
+        }
+        else {
+            definition {
+                cps {
+                    script(args.definition.script)
+                    sandbox()
+                }
+            }
+        }
+
     }
 }
 
-def jobs = []
+def jobs = [
+    [
+        name: 'private/cd/capsule-test',
+        useScmDefinition: false,
+        definition: [
+            script: """
+                @Library('vega-shared-library') _
+                capsulePipeline()
+            """
+        ]
+    ]
+]
 
 jobs.each { job ->
     createCommonPipeline(job)
