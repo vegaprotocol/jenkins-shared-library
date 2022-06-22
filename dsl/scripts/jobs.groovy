@@ -43,6 +43,9 @@ def createCommonPipeline(args){
         if (args.triggers) {
             triggers args.triggers
         }
+        if (args.parameters) {
+            parameters args.parameters
+        }
         environmentVariables {
             keepBuildVariables(true)
             keepSystemVariables(true)
@@ -54,12 +57,7 @@ def createCommonPipeline(args){
             definition scmDefinition(args)
         }
         else {
-            definition {
-                cps {
-                    script(args.definition.script)
-                    sandbox()
-                }
-            }
+            definition args.definition
         }
 
     }
@@ -69,12 +67,22 @@ def jobs = [
     [
         name: 'private/cd/capsule-test',
         useScmDefinition: false,
-        definition: [
-            script: """
-                @Library('vega-shared-library') _
-                capsulePipeline()
-            """
-        ]
+        parameters: {
+            booleanParam('BUILD_CAPSULE', false, 'decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page')
+            stringParam('VEGACAPSULE_VERSION', 'v0.1.0', 'version of vegacapsule')
+            stringParam('VEGA_VERSION', 'v0.52.0', 'version of vega core')
+            stringParam('DATA_NODE_VERSION', 'v0.52.0', 'version of data node')
+
+        }
+        definition: {
+                cps {
+                    script("""
+                        @Library('vega-shared-library') _
+                        capsulePipeline()
+                    """)
+                    sandbox()
+                }
+        }
     ]
 ]
 
