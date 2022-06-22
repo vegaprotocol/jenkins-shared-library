@@ -72,16 +72,15 @@ def jobs = [
             stringParam('VEGACAPSULE_VERSION', 'v0.1.0', 'version of vegacapsule')
             stringParam('VEGA_VERSION', 'v0.52.0', 'version of vega core')
             stringParam('DATA_NODE_VERSION', 'v0.52.0', 'version of data node')
-
         }
         definition: {
-                cps {
-                    script("""
-                        @Library('vega-shared-library') _
-                        capsulePipeline()
-                    """)
-                    sandbox()
-                }
+            cps {
+                script("""
+                    @Library('vega-shared-library') _
+                    capsulePipeline()
+                """)
+                sandbox()
+            }
         }
     ]
 ]
