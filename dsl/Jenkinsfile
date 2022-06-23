@@ -22,6 +22,7 @@ pipeline {
                         'dsl/scripts/*.groovy'
                     ].join("\n"),
                     unstableOnDeprecation: true,
+                    sandbox: false,
                 )
             }
         }
