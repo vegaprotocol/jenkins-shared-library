@@ -1,5 +1,5 @@
 // https://github.com/janinko/ghprb/issues/77
-def standardDefinition(args){
+def scmDefinition(args){
   return {
     cpsScm {
       scm {
@@ -43,6 +43,9 @@ def createCommonPipeline(args){
         if (args.triggers) {
             triggers args.triggers
         }
+        if (args.parameters) {
+            parameters args.parameters
+        }
         environmentVariables {
             keepBuildVariables(true)
             keepSystemVariables(true)
@@ -50,11 +53,37 @@ def createCommonPipeline(args){
                 env(key.toUpperCase(), value)
             }
         }
-        definition standardDefinition(args)
+        if (args.get('useScmDefinition', true)) {
+            definition scmDefinition(args)
+        }
+        else {
+            definition args.definition
+        }
+
     }
 }
 
-def jobs = []
+def jobs = [
+    [
+        name: 'private/cd/capsule-test',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('BUILD_CAPSULE', false, 'decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page')
+            stringParam('VEGACAPSULE_VERSION', 'v0.1.0', 'version of vegacapsule')
+            stringParam('VEGA_VERSION', 'v0.52.0', 'version of vega core')
+            stringParam('DATA_NODE_VERSION', 'v0.52.0', 'version of data node')
+        }
+        definition: {
+            cps {
+                script("""
+                    @Library('vega-shared-library') _
+                    capsulePipeline()
+                """)
+                sandbox()
+            }
+        }
+    ]
+]
 
 jobs.each { job ->
     createCommonPipeline(job)
