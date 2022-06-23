@@ -74,7 +74,6 @@ def createCommonPipeline(args){
 def jobs = [
     [
         name: 'private/cd/capsule-test',
-        description: h('To test this job edit its config and change @main in vega-shared-library pin to your branch at jenkins-shared-library repository and change function used inside the script. Your manual change will get overriden on any change to jenkins-shared-library "dsl" directory on main branch.'),
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
@@ -84,11 +83,7 @@ def jobs = [
         },
         definition: {
             cps {
-                script("""
-                    @Library('vega-shared-library@main') _
-                    capsulePipeline()
-                """)
-                sandbox()
+                script(readFileFromWorkspace('jenkinsfiles/capsule.Jenkinsfile'))
             }
         },
     ],
