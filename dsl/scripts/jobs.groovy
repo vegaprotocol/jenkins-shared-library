@@ -29,7 +29,9 @@ def standardDescription() {
 def createCommonPipeline(args){
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
     return pipelineJob(args.name) {
-        description(standardDescription())
+        def des = args.get('description', '')
+        des += "${des ? '<br/> : ''} ${standardDescription()}"
+        description(des)
         if (args.get('githubTrigger', true)) {
             properties {
                 pipelineTriggers {
@@ -41,9 +43,6 @@ def createCommonPipeline(args){
         }
         logRotator {
             daysToKeep(45)
-        }
-        if (args.triggers) {
-            triggers args.triggers
         }
         if (args.parameters) {
             parameters args.parameters
@@ -57,6 +56,13 @@ def createCommonPipeline(args){
         }
         if (args.get('useScmDefinition', true)) {
             definition scmDefinition(args)
+            properties {
+                pipelineTriggers {
+                    triggers {
+                        githubPush()
+                    }
+                }
+            }
         }
         else {
             definition args.definition
@@ -68,6 +74,7 @@ def createCommonPipeline(args){
 def jobs = [
     [
         name: 'private/cd/capsule-test',
+        description: 'To test this job edit its config and change @main in vega-shared-library pin to your branch at jenkins-shared-library repository and change function used inside the script. Your manual change will get overriden on any change to jenkins-shared-library "dsl" directory on main branch.'
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
@@ -78,13 +85,18 @@ def jobs = [
         definition: {
             cps {
                 script("""
-                    @Library('vega-shared-library') _
+                    @Library('vega-shared-library@main') _
                     capsulePipeline()
                 """)
                 sandbox()
             }
         },
     ],
+    [
+        name: 'private/DSL Job',
+        repo: 'jenkins-shared-library',
+        jenkinsfile: 'dsl/Jenkinsfile',
+    ]
 ]
 
 jobs.each { job ->
