@@ -5,11 +5,14 @@ def scmDefinition(args){
       scm {
         git {
           if (args.branch) {
-              branch(args.branch)
+              branch("*/${args.branch}")
           }
           remote {
             url(args.repo)
             credentials(args.get('credentials', "vega-ci-bot"))
+            if (args.branch) {
+                refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+            }
           }
         }
       }
@@ -95,7 +98,7 @@ def jobs = [
         repo: 'jenkins-shared-library',
         description: h('this job is used to generate other jobs'),
         jenkinsfile: 'dsl/Jenkinsfile',
-        branch: '*/main',
+        branch: 'main',
     ]
 ]
 
