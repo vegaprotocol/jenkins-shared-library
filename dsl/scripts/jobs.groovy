@@ -4,6 +4,9 @@ def scmDefinition(args){
     cpsScm {
       scm {
         git {
+          if (args.branch) {
+              branch(args.branch)
+          }
           remote {
             url(args.repo)
             credentials(args.get('credentials', "vega-ci-bot"))
@@ -92,6 +95,7 @@ def jobs = [
         repo: 'jenkins-shared-library',
         description: h('this job is used to generate other jobs'),
         jenkinsfile: 'dsl/Jenkinsfile',
+        branch: '*/main',
     ]
 ]
 

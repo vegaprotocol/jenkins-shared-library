@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Create jobs') {
             when {
+                branch 'main'
                 anyOf {
                     changeset "dsl/**"
                     triggeredBy 'UserIdCause'
