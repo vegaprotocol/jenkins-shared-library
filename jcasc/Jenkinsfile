@@ -1,3 +1,5 @@
+import io.jenkins.plugins.casc.ConfigurationAsCode;
+
 pipeline {
     agent any
     options {
