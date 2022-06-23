@@ -289,7 +289,7 @@ void call(Map config=[:]) {
                                             if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
                                                 currTime = currentBuild.durationString - ' and counting'
-                                                println("Marked CHAIN_STATUS_CONNECTED !! (${currTime})")
+                                                println("Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime})")
                                             }
                                         }
                                         if (chainStatusConnected) {
@@ -311,7 +311,7 @@ void call(Map config=[:]) {
                                             if (!caughtUp && (remoteHeight - localHeight < 10)) {
                                                 caughtUp = true
                                                 catchupTime = currentBuild.durationString - ' and counting'
-                                                println("Marked has caught Up !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
+                                                println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
                                             }
                                         }
                                     }
