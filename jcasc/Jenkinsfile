@@ -14,7 +14,9 @@ pipeline {
                 }
             }
             steps {
-                echo "Hello from JCASC auto apply pipeline"
+                script {
+                    ConfigurationAsCode.get().configure()
+                }
             }
         }
     }
