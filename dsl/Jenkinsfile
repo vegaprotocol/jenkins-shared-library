@@ -6,14 +6,8 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Init') {
-            steps {
-                echo "Default scm"
-            }
-        }
         stage('Create jobs') {
             when {
-                branch 'main'
                 anyOf {
                     changeset "dsl/**"
                     triggeredBy 'UserIdCause'
