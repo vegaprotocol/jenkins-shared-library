@@ -70,7 +70,7 @@ def jobs = [
         name: 'private/cd/capsule-test',
         useScmDefinition: false,
         parameters: {
-            booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page'))
+            booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
             stringParam('VEGACAPSULE_VERSION', 'v0.1.0', h('version of vegacapsule'))
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node'))
