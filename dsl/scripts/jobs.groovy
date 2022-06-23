@@ -30,7 +30,7 @@ def createCommonPipeline(args){
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
     return pipelineJob(args.name) {
         def des = args.get('description', '')
-        des += "${des ? '<br/> : ''} ${standardDescription()}"
+        des += "${des ? '<br/>' : ''} ${standardDescription()}"
         description(des)
         if (args.get('githubTrigger', true)) {
             properties {
