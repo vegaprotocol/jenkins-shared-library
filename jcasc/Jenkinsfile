@@ -23,10 +23,12 @@ pipeline {
                     // copy paste = https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
                     def config = GlobalConfiguration.all().get(CasCGlobalConfig.class)
                     if (config != null) {
-                        // if (config.getConfigurationPath() != configUrl) {
+                        if (config.getConfigurationPath() != configUrl) {
                             config.setConfigurationPath(configUrl)
                             config.save()
-                        // }
+                        }
+                    } else {
+                        error "Couldn't get a CaSC config! Probably you didn't install the plugin or need to set primar configuration manually in the configuration panel"
                     }
                     // https://stackoverflow.com/questions/54770969/jenkins-configuration-as-code-programmatically-reload-configuration-from-file
                     ConfigurationAsCode.get().configure()
