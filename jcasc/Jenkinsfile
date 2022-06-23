@@ -23,12 +23,10 @@ pipeline {
                     // copy paste = https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
                     def config = GlobalConfiguration.all().get(CasCGlobalConfig.class)
                     if (config != null) {
-                        println config.getConfigurationPath()
-                        if (config.getConfigurationPath() != configUrl) {
-                            println config.getConfigurationPath()
-                            // config.setConfigurationPath("")
-                            // config.save()
-                        }
+                        // if (config.getConfigurationPath() != configUrl) {
+                            config.setConfigurationPath(configUrl)
+                            config.save()
+                        // }
                     }
                     // https://stackoverflow.com/questions/54770969/jenkins-configuration-as-code-programmatically-reload-configuration-from-file
                     ConfigurationAsCode.get().configure()
