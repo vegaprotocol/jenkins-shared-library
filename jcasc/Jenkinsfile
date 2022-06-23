@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    options {
+        timestamps()
+        ansiColor('x-term')
+        disableConcurrentBuilds()
+    }
+    stages {
+        stage('Apply Config') {
+            when {
+                anyOf {
+                    changeset "jcasc/**"
+                    triggeredBy 'UserIdCause'
+                }
+            }
+            steps {
+                echo "Hello from JCASC auto apply pipeline"
+            }
+        }
+    }
+}

@@ -106,6 +106,13 @@ def jobs = [
         description: h('this job is used to generate other jobs'),
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
+    ],
+    [
+        name: 'private/Jenkins Configuration as Code Pipeline',
+        repo: 'jenkins-shared-library',
+        description: h('This job is used to auto apply changes to jenkins instance configuration'),
+        jenkinsfile: 'jcasc/Jenkinsfile',
+        branch: 'main',
     ]
 ]
 
