@@ -17,7 +17,6 @@ pipeline {
                 jobDsl(
                     removedViewAction: 'DELETE',
                     removedJobAction: 'DELETE',
-                    sandbox: true,
                     targets: [
                         'dsl/scripts/*.groovy'
                     ].join("\n"),
