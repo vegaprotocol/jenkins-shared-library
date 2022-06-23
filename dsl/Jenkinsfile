@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'jenkins-controller'
-    }
+    agent any
     options {
         timestamps()
         ansiColor('x-term')
