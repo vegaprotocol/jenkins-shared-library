@@ -1,4 +1,6 @@
 import io.jenkins.plugins.casc.ConfigurationAsCode;
+import io.jenkins.plugins.casc.CasCGlobalConfig;
+import jenkins.model.GlobalConfiguration;
 
 pipeline {
     agent any
@@ -17,6 +19,17 @@ pipeline {
             }
             steps {
                 script {
+                    def configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins.yaml'
+                    // copy paste = https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
+                    def config = GlobalConfiguration.all().get(CasCGlobalConfig.class)
+                    if (config != null) {
+                        if (config.getConfigurationPath() != configUrl) {
+                            println config.getConfigurationPath()
+                            // config.setConfigurationPath("")
+                            // config.save()
+                        }
+                    }
+                    // https://stackoverflow.com/questions/54770969/jenkins-configuration-as-code-programmatically-reload-configuration-from-file
                     ConfigurationAsCode.get().configure()
                 }
             }
