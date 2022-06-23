@@ -93,7 +93,10 @@ def jobs = [
         },
         definition: {
             cps {
-                script(readFileFromWorkspace('jenkinsfiles/capsule.Jenkinsfile'))
+                script("""
+                @Library('vega-shared-library@main') _
+                capsulePipelineWrapper()
+                """)
             }
         },
     ],

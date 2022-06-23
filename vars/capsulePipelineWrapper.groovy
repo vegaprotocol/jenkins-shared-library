@@ -48,15 +48,15 @@ pipeline {
                                 params.BUILD_CAPSULE
                             }
                         }
-                        steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
-                            }
-                            sh "unzip vegacapsule-linux-amd64.zip"
-                            sh "mv vegacapsule bin/"
-                            sh "chmod +x bin/vegacapsule"
-                            sh "vegacapsule --help"
+                    }
+                    steps {
+                        withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                            sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
                         }
+                        sh "unzip vegacapsule-linux-amd64.zip"
+                        sh "mv vegacapsule bin/"
+                        sh "chmod +x bin/vegacapsule"
+                        sh "vegacapsule --help"
                     }
                 }
                 stage('Download vega binary') {
