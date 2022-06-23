@@ -1,7 +1,8 @@
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.CasCGlobalConfig;
 import jenkins.model.GlobalConfiguration;
-
+// https://jenkins.ops.vega.xyz/configuration-as-code/reference
+// https://jenkins.ops.vega.xyz/configuration-as-code/schema
 pipeline {
     agent any
     options {

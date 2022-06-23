@@ -82,6 +82,7 @@ def createCommonPipeline(args){
 
 
 def jobs = [
+    // Capsule playground
     [
         name: 'private/cd/capsule-test',
         useScmDefinition: false,
@@ -100,6 +101,7 @@ def jobs = [
             }
         },
     ],
+    // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',
         repo: 'jenkins-shared-library',
@@ -107,6 +109,7 @@ def jobs = [
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
     ],
+    // Jenkins Configuration As Code
     [
         name: 'private/Jenkins Configuration as Code Pipeline',
         repo: 'jenkins-shared-library',
