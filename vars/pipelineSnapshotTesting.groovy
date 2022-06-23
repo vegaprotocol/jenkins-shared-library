@@ -64,7 +64,7 @@ void call(Map config=[:]) {
         String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
         String catchupTime = null
         boolean chainStatusConnected = false
-        boolean catchedUp = false
+        boolean caughtUp = false
         boolean blockHeightIncreased = false
 
         timestamps {
@@ -289,7 +289,7 @@ void call(Map config=[:]) {
                                             if (localStats.statistics.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
                                                 currTime = currentBuild.durationString - ' and counting'
-                                                println("Marked CHAIN_STATUS_CONNECTED !! (${currTime})")
+                                                println("Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime})")
                                             }
                                         }
                                         if (chainStatusConnected) {
@@ -308,10 +308,10 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
-                                            if (!catchedUp && (remoteHeight - localHeight < 10)) {
-                                                catchedUp = true
+                                            if (!caughtUp && (remoteHeight - localHeight < 10)) {
+                                                caughtUp = true
                                                 catchupTime = currentBuild.durationString - ' and counting'
-                                                println("Marked as Catched Up !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
+                                                println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
                                             }
                                         }
                                     }
@@ -331,11 +331,11 @@ void call(Map config=[:]) {
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         if (!blockHeightIncreased) {
-                            extraMsg = extraMsg ?: "No block height increase."
+                            extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
-                        if (!catchedUp) {
-                            extraMsg = extraMsg ?: "Not catched up with network."
+                        if (!caughtUp) {
+                            extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
                         }
                         println("All checks passed.")
