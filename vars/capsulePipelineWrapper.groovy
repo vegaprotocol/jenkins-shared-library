@@ -30,7 +30,9 @@ def call() {
                             }
                         }
                         steps {
-                            sh "gh repo clone vegaprotocol/vegacapsule"
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh repo clone vegaprotocol/vegacapsule"
+                            }
                             dir('vegacapsule') {
                                 sh "git checkout ${params.VEGACAPSULE_VERSION}"
                                 sh "go build -o vegacapsule ."
@@ -49,7 +51,9 @@ def call() {
                             }
                         }
                         steps {
-                            sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
+                            }
                             sh "unzip vegacapsule-linux-amd64.zip"
                             sh "mv vegacapsule bin/"
                             sh "chmod +x bin/vegacapsule"
@@ -58,7 +62,9 @@ def call() {
                     }
                     stage('Download vega binary') {
                         steps {
-                            sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
+                            }
                             sh "mv vega-linux-amd64 bin/vega"
                             sh "chmod +x bin/vega"
                             sh "vega version"
