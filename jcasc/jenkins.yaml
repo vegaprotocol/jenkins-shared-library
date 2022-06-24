@@ -18,8 +18,8 @@ x-instance-template: &instance-template
   hostKeyVerificationStrategy: ACCEPT_NEW
   idleTerminationMinutes: "5"
   initScript: |
-    curl -L -o /usr/local/bin/init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
-    /usr/local/bin/init.sh
+    curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
+    bash /tmp/j-init.sh
   instanceCapStr: "6"
   labelString: "general"
   launchTimeoutStr: "200"
