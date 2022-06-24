@@ -12,7 +12,7 @@ def call() {
             // AWS_ACCESS_KEY_ID = credentials('aws-id')
 
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
-            GITHUB_CREDS = "github-vega-ci-bot-artifacts"
+            GH_TOKEN = credentials("github-vega-ci-bot-artifacts")
         }
         stages {
             stage('Init bin') {
@@ -30,9 +30,7 @@ def call() {
                             }
                         }
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh repo clone vegaprotocol/vegacapsule"
-                            }
+                            sh "gh repo clone vegaprotocol/vegacapsule"
                             dir('vegacapsule') {
                                 sh "git checkout ${params.VEGACAPSULE_VERSION}"
                                 sh "go build -o vegacapsule ."
@@ -51,9 +49,7 @@ def call() {
                             }
                         }
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
-                            }
+                            sh "gh release --repo vegaprotocol/vegacapsule download ${params.VEGACAPSULE_VERSION} --pattern '*linux*'"
                             sh "unzip vegacapsule-linux-amd64.zip"
                             sh "mv vegacapsule bin/"
                             sh "chmod +x bin/vegacapsule"
@@ -62,9 +58,7 @@ def call() {
                     }
                     stage('Download vega binary') {
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
-                            }
+                            sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
                             sh "mv vega-linux-amd64 bin/vega"
                             sh "chmod +x bin/vega"
                             sh "vega version"
@@ -72,9 +66,7 @@ def call() {
                     }
                     stage('Download data-node binary') {
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/data-node download ${params.DATA_NODE_VERSION} --pattern '*linux*'"
-                            }
+                            sh "gh release --repo vegaprotocol/data-node download ${params.DATA_NODE_VERSION} --pattern '*linux*'"
                             sh "mv data-node-linux-amd64 bin/data-node"
                             sh "chmod +x bin/data-node"
                             sh "data-node version"
