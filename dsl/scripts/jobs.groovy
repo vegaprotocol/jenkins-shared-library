@@ -41,15 +41,6 @@ def createCommonPipeline(args){
         def des = args.get('description', '')
         des += "${des ? '<br/>' : ''} ${standardDescription()}"
         description(des)
-        if (args.get('githubTrigger', true)) {
-            properties {
-                pipelineTriggers {
-                    triggers {
-                        githubPush()
-                    }
-                }
-            }
-        }
         logRotator {
             daysToKeep(45)
         }
