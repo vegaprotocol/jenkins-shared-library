@@ -18,7 +18,6 @@ def call() {
             stage('Init bin') {
                 steps {
                     sh "mkdir -p bin"
-                    sh 'echo $PATH'
                 }
             }
             stage('Init binaries') {
