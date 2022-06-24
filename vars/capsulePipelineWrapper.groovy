@@ -62,7 +62,7 @@ pipeline {
                 stage('Download vega binary') {
                     steps {
                         withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                            "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
+                            sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
                         }
                         sh "mv vega-linux-amd64 bin/vega"
                         sh "chmod +x bin/vega"
@@ -72,7 +72,7 @@ pipeline {
                 stage('Download data-node binary') {
                     steps {
                         withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                            "gh release --repo vegaprotocol/data-node download ${params.DATA_NODE_VERSION} --pattern '*linux*'"
+                            sh "gh release --repo vegaprotocol/data-node download ${params.DATA_NODE_VERSION} --pattern '*linux*'"
                         }
                         sh "mv data-node-linux-amd64 bin/data-node"
                         sh "chmod +x bin/data-node"
