@@ -18,7 +18,7 @@ def call() {
         stages {
             stage('Init bin') {
                 steps {
-                    sh "mkdir bin"
+                    sh "mkdir -p bin"
                     sh 'echo $PATH'
                 }
             }
@@ -82,6 +82,11 @@ def call() {
                         }
                     }
                 }
+            }
+        }
+        post {
+            always {
+                cleanWs()
             }
         }
     }
