@@ -1,3 +1,5 @@
+# you can view existing configuration here: https://jenkins.ops.vega.xyz/configuration-as-code/viewExport
+
 x-instance-template: &instance-template
   amiFilters:
     - name: "tag:Name"

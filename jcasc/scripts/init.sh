@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-cat >~/.ssh/config <<EOF
+cat > ~/.ssh/config <<EOF
     Host n01-d
         HostName n01.d.vega.xyz
     Host n02-d
