@@ -11,8 +11,7 @@ def call() {
             // AWS_SECRET_ACCESS_KEY = credentials('aws-secret')
             // AWS_ACCESS_KEY_ID = credentials('aws-id')
 
-            PATH = "${env.PWD}/bin:${env.PATH}"
-
+            PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             GITHUB_CREDS = "github-vega-ci-bot-artifacts"
         }
         stages {
