@@ -150,8 +150,8 @@ jenkins:
             type: M6iXlarge
             labelString: system-tests-capsule
           - <<: *instance-template
-            description: daniel-test
-            labelString: daniel-test
+            description: test-instance
+            labelString: test-instance
             amiFilters:
               - name: "tag:Name"
                 values: "jenkins-agent"
