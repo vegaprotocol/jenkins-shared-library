@@ -1,4 +1,5 @@
-.instanceTemplate: &instance-template
+# x makes JCASC ignore key
+x-instanceTemplate: &instance-template
   amiOwners: 355206837991
   amiFilters:
     - name: "tag:Name"
