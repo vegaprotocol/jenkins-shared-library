@@ -3,16 +3,17 @@ def call() {
         agent any
         environment {
             // TO-DO: Add secrets to jenkins
-            // NOMAD_TLS_SERVER_NAME = "server.global.nomad"
-            // NOMAD_CACERT = credentials('nomad-cacert')
-            // NOMAD_CLIENT_CERT = credentials('nomad-client-cert')
-            // NOMAD_CLIENT_KEY = credentials('nomad-client-key')
+            NOMAD_TLS_SERVER_NAME = "server.global.nomad"
+            NOMAD_CACERT = credentials('nomad-cacert')
+            NOMAD_CLIENT_CERT = credentials('nomad-client-cert')
+            NOMAD_CLIENT_KEY = credentials('nomad-client-key')
 
-            // AWS_SECRET_ACCESS_KEY = credentials('aws-secret')
-            // AWS_ACCESS_KEY_ID = credentials('aws-id')
+            AWS_SECRET_ACCESS_KEY = credentials('jenkins-vegacapsule-aws-secret')
+            AWS_ACCESS_KEY_ID = credentials('jenkins-vegacapsule-aws-id')
 
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             GITHUB_CREDS = "github-vega-ci-bot-artifacts"
+            CONFIG_HOME = "${env.WORKSPACE}/stagnet3/vegacapsule/home"
         }
         stages {
             stage('Init bin') {
@@ -79,6 +80,42 @@ def call() {
                             sh "data-node version"
                         }
                     }
+                    stage('Prepare config') {
+                        steps {
+                            sh "mkdir -p ${env.CONFIG_HOME}"
+                            sh "aws s3 sync s3://vegacapsule-test/stagnet3/ ${env.CONFIG_HOME}/"
+                        }
+                    }
+                }
+            }
+            stage('Stop Network') {
+                when {
+                    expression {
+                        params.ACTION == 'STOP' || params.ACTION == 'RESTART'
+                    }
+                }
+                steps {
+                    sh "vegacapsule network start --home-path ${env.CONFIG_HOME}"
+                }
+            }
+            stage('Restart Network') {
+                when {
+                    expression {
+                        params.ACTION == 'RESTART'
+                    }
+                }
+                steps {
+                    sh "vegacapsule nodes unsafe-reset-all --remote --home-path ${env.CONFIG_HOME}"
+                }
+            }
+            stage('Start Network') {
+                when {
+                    expression {
+                        params.ACTION == 'START' || params.ACTION == 'RESTART'
+                    }
+                }
+                steps {
+                    sh "vegacapsule network start --home-path ${env.CONFIG_HOME}"
                 }
             }
         }
