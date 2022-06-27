@@ -80,7 +80,7 @@ def call() {
                             sh "data-node version"
                         }
                     }
-                    stage('Prepare config') {
+                    stage('Sync remote state to local') {
                         steps {
                             sh "mkdir -p ${env.CONFIG_HOME}"
                             sh "aws s3 sync s3://vegacapsule-test/stagnet3/ ${env.CONFIG_HOME}/"
