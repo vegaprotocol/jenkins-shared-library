@@ -105,7 +105,7 @@ def call() {
                     }
                 }
                 steps {
-                    sh "vegacapsule nodes unsafe-reset-all --remote --home-path ${env.CONFIG_HOME}"
+                    sh "vegacapsule nodes unsafe-reset-all --home-path ${env.CONFIG_HOME}"
                 }
             }
             stage('Start Network') {
