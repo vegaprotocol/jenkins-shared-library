@@ -83,7 +83,7 @@ def call() {
                     stage('Sync remote state to local') {
                         steps {
                             sh "mkdir -p ${env.CONFIG_HOME}"
-                            sh "aws s3 sync s3://vegacapsule-test/stagnet3/ ${env.CONFIG_HOME}/"
+                            sh "aws s3 sync ${env.S3_CONFIG_HOME}/ ${env.CONFIG_HOME}/"
                             sh "sed -i 's/vega_binary_path=.*/vega_binary_path=vega/g' config.hcl"
                             sh "cat ${env.CONFIG_HOME}/config.hcl"
                         }

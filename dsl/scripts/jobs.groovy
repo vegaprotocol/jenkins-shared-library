@@ -94,7 +94,8 @@ def jobs = [
             }
         },
         env: [
-            NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646"
+            S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
+            NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646",
         ],
     ],
     // DSL Job - the one that manages this file
