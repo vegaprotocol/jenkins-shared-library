@@ -85,8 +85,8 @@ def call() {
                             sh """
                                 mkdir -p ${env.CONFIG_HOME}
                                 aws s3 sync ${env.S3_CONFIG_HOME}/ ${env.CONFIG_HOME}/
-                                // sed -i "s|vega_binary_path.*=.*|vega_binary_path = \\"${env.WORKSPACE}/bin/vega\\"|g" ${env.CONFIG_HOME}/config.hcl
-                                // sed -i "s|data_node_binary.*=.*|data_node_binary = \\"${env.WORKSPACE}/bin/data-node\\"|g" ${env.CONFIG_HOME}/config.hcl
+                                # sed -i "s|vega_binary_path.*=.*|vega_binary_path = \\"${env.WORKSPACE}/bin/vega\\"|g" ${env.CONFIG_HOME}/config.hcl
+                                # sed -i "s|data_node_binary.*=.*|data_node_binary = \\"${env.WORKSPACE}/bin/data-node\\"|g" ${env.CONFIG_HOME}/config.hcl
                             """
                             sh "cat ${env.CONFIG_HOME}/config.hcl"
                         }
