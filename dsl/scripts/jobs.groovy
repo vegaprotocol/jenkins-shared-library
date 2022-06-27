@@ -75,13 +75,15 @@ def createCommonPipeline(args){
 def jobs = [
     // Capsule playground
     [
-        name: 'private/cd/capsule-test',
+        name: 'private/cd/vegacapsule-stagnet3',
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-            stringParam('VEGACAPSULE_VERSION', 'v0.1.0', h('version of vegacapsule'))
-            stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core'))
-            stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node'))
+            stringParam('VEGACAPSULE_VERSION', 'v0.1.0', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
+            stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
+            choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
+            booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
         },
         definition: {
             cps {
@@ -91,6 +93,9 @@ def jobs = [
                 """)
             }
         },
+        env: [
+            NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646"
+        ],
     ],
     // DSL Job - the one that manages this file
     [
