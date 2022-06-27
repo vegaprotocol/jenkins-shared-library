@@ -114,6 +114,7 @@ jenkins:
             numExecutors: 1
             securityGroups: "jenkins-non-validator"
             type: T3Medium
+            mode: EXCLUSIVE
         useInstanceProfileForCredentials: false
   systemMessage: "Welcome to Vegaprotocol Jenkins Instance :)!"
 security:
