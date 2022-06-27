@@ -87,7 +87,6 @@ def call() {
                             sh "sed -i \"s|vega_binary_path.*=.*|vega_binary_path = \"\$(which vega)\"|g\" ${env.CONFIG_HOME}/config.hcl"
                             sh "sed -i \"s|data_node_binary.*=.*|data_node_binary = \"\$(which data-node)\"|g\" ${env.CONFIG_HOME}/config.hcl"
                             sh "cat ${env.CONFIG_HOME}/config.hcl"
-                            sh "grep -r /usr/local/bin/vega-v0.50.0 ${env.CONFIG_HOME}/"
                         }
                     }
                 }
