@@ -95,13 +95,13 @@ def call() {
                     }
                 }
                 steps {
-                    sh "vegacapsule network start --home-path ${env.CONFIG_HOME}"
+                    sh "vegacapsule network stop --home-path ${env.CONFIG_HOME}"
                 }
             }
             stage('Restart Network') {
                 when {
                     expression {
-                        params.ACTION == 'RESTART'
+                        params.ACTION == 'RESTART' && params.UNSAFE_RESET_ALL
                     }
                 }
                 steps {
