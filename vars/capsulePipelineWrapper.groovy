@@ -84,11 +84,8 @@ def call() {
                         steps {
                             sh "mkdir -p ${env.CONFIG_HOME}"
                             sh "aws s3 sync s3://vegacapsule-test/stagnet3/ ${env.CONFIG_HOME}/"
-                            sh "ls -al ${env.CONFIG_HOME}/"
+                            sh "sed -i 's/vega_binary_path=.*/vega_binary_path=vega/g' config.hcl"
                             sh "cat ${env.CONFIG_HOME}/config.hcl"
-                            sh "ls -al ${env.CONFIG_HOME}/vega"
-                            sh "ls -al ${env.CONFIG_HOME}/tendermint"
-                            sh "ls -al ${env.CONFIG_HOME}/data"
                         }
                     }
                 }
