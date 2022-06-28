@@ -171,7 +171,7 @@ def call() {
             }
             stage('Update networks configs') {
                 environment {
-                    TEMPLATES_HOME = "./networks-internal/stagnet3/vegacapsule/config"
+                    TEMPLATES_HOME = "${env.WORKSPACE}/networks-internal/stagnet3/vegacapsule/config"
                 }
                 when {
                     expression {
@@ -182,7 +182,7 @@ def call() {
                     stage('Template live config (git / networks-internal)') {
                         steps {
                             script {
-                                writeConfigs('live config (git / networks-internal)', '--out-dir ./networks-internal/stagnet3/live-config')
+                                writeConfigs('live config (git / networks-internal)', '--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config')
                             }
                         }
                     }
