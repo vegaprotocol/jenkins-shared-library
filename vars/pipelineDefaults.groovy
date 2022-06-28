@@ -26,7 +26,6 @@ Map dv = [
     genesisJSON: '',
     mainnetGenesis: 'system-tests/tests/LNL/mainnet/genesis.json',
     checkpoint: '',
-    legacyResume: false,
     ethEndpointUrl: '',
 
     tendermintLogLevel: 'info',
@@ -80,7 +79,6 @@ Map lnl = st + [
 // Private Network pipeline
 @Field
 Map pn = dv + [
-    legacyResume: true,
 ]
 
 // Mainnet checkpoint test pipeline
@@ -90,7 +88,6 @@ Map mnnt = st + [
     testFunction: 'test_checkpoint_loaded',
     testMark: '',
     afterLoadCheckpoint: "system-tests/tests/LNL/after_checkpoint_load.json",
-    legacyResume: true,
 ]
 
 @Field

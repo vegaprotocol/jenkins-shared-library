@@ -18,7 +18,6 @@ dlv
 mainnet
 genesisFile
 checkpointFile
-legacyResume
 ethEndpointUrl
 
 vegaCoreVersion
@@ -52,7 +51,6 @@ void init(Map config=[:]) {
     mainnet = config.mainnet ?: false
     genesisFile = config.genesisFile
     checkpointFile = config.checkpointFile
-    legacyResume = config.legacyResume ?: false
     ethEndpointUrl = config.ethEndpointUrl
 
     dlv = config.dlv ?: false
@@ -116,9 +114,6 @@ void run(String command, boolean resume = false) {
     }
     if (resume) {
         extraArguments += ' --resume'
-    }
-    if (legacyResume && checkpointFile) {
-        extraArguments += ' --legacy-resume'
     }
     else if (mainnet) {
         // In this case, we're doing a half resume, since we already have some of the network
