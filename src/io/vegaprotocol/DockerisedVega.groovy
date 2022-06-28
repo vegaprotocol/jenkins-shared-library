@@ -115,10 +115,6 @@ void run(String command, boolean resume = false) {
     if (resume) {
         extraArguments += ' --resume'
     }
-    else if (mainnet) {
-        // In this case, we're doing a half resume, since we already have some of the network
-        extraArguments += ' --mainnet-resume'
-    }
     sh label: 'start dockerised-vega', script: """#!/bin/bash -e
         "${dockerisedvagaScript}" \
             --datadir "${basedir}" \
