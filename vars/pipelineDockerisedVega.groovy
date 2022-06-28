@@ -129,11 +129,8 @@ void call(Map config=[:]) {
                                 },
                                 'Store resume checkpoint': {
                                     if (dockerisedVega.checkpointFile) {
-                                        dockerisedVega.saveResumeCheckpointToFile(dockerisedVega.checkpointFile)
-                                        sh label: 'copy checkpoint file to artifact directory', script: """#!/bin/bash -e
-                                            cp "${dockerisedVega.checkpointFile}" "${pipelineDefaults.art.checkpointBinary}"
-                                        """
-                                        archiveArtifacts artifacts: pipelineDefaults.art.checkpointBinary,
+                                        dockerisedVega.saveResumeCheckpointToFile(pipelineDefaults.art.resumeCheckpoint)
+                                        archiveArtifacts artifacts: pipelineDefaults.art.resumeCheckpoint,
                                             allowEmptyArchive: false,
                                             fingerprint: true
                                     } else {
