@@ -79,6 +79,7 @@ def call() {
                             }
                         }
                         steps {
+                            // gh didn't work, don't know why, just replaced with jenkins native check out
                             dir('networks-internal') {
                                 checkout([
                                     $class: 'GitSCM',
