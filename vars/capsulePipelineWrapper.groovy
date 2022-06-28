@@ -1,5 +1,54 @@
 def call() {
-    pipeline {
+    writeConfigs = { envName, flags ->
+        sh label: "generate templates: ${envName}", script: """
+            ./vegacapsule template genesis \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/genesis.tmpl.json \
+                ${flags}
+
+            ./vegacapsule template node-sets \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/vega.validators.tmpl.toml \
+                --nodeset-group-name validators \
+                --type vega \
+                --with-merge \
+                ${flags}
+
+            ./vegacapsule template node-sets \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/tendermint.validators.tmpl.toml \
+                --nodeset-group-name validators \
+                --type tendermint \
+                --with-merge \
+                ${flags}
+
+            ./vegacapsule template node-sets \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/vega.full.tmpl.toml \
+                --nodeset-group-name full \
+                --type vega \
+                --with-merge \
+                ${flags}
+
+            ./vegacapsule template node-sets \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/tendermint.full.tmpl.toml \
+                --nodeset-group-name full \
+                --type tendermint \
+                --with-merge \
+                ${flags}
+
+            ./vegacapsule template node-sets \
+                --home-path ${env.CONFIG_HOME} \
+                --path ${env.TEMPLATES_HOME}/data_node.full.tmpl.toml \
+                --nodeset-group-name full \
+                --type data-node \
+                --with-merge \
+                ${flags}
+            """
+    }
+
+    return pipeline {
         agent any
         environment {
             // TO-DO: Add secrets to jenkins
@@ -23,6 +72,18 @@ def call() {
             }
             stage('Init binaries') {
                 parallel {
+                    stage('Check out vegaprotocol/networks-internal') {
+                        when {
+                            expression {
+                                params.REGENERATE_CONFIGS
+                            }
+                        }
+                        steps {
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh repo clone vegaprotocol/networks-internal"
+                            }
+                        }
+                    }
                     stage('Build capsule') {
                         when {
                             expression {
@@ -85,8 +146,6 @@ def call() {
                             sh """
                                 mkdir -p ${env.CONFIG_HOME}
                                 aws s3 sync ${env.S3_CONFIG_HOME}/ ${env.CONFIG_HOME}/
-                                # sed -i "s|vega_binary_path.*=.*|vega_binary_path = \\"${env.WORKSPACE}/bin/vega\\"|g" ${env.CONFIG_HOME}/config.hcl
-                                # sed -i "s|data_node_binary.*=.*|data_node_binary = \\"${env.WORKSPACE}/bin/data-node\\"|g" ${env.CONFIG_HOME}/config.hcl
                             """
                             sh "cat ${env.CONFIG_HOME}/config.hcl"
                         }
@@ -101,6 +160,57 @@ def call() {
                 }
                 steps {
                     sh "vegacapsule network stop --nodes-only --home-path ${env.CONFIG_HOME}"
+                }
+            }
+            stage('Update networks configs') {
+                environment {
+                    TEMPLATES_HOME = "./networks-internal/stagnet3/vegacapsule/config"
+                }
+                when {
+                    expression {
+                        params.REGENERATE_CONFIGS
+                    }
+                }
+                stages {
+                    stage('Template live config (git / networks-internal)') {
+                        steps {
+                            script {
+                                writeConfigs('live config (git / networks-internal)', '--out-dir ./networks-internal/stagnet3/live-config')
+                            }
+                        }
+                    }
+                    stage('Template s3 config') {
+                        steps {
+                            script {
+                                writeConfigs('s3', '--update-network')
+                            }
+                        }
+                    }
+                    stage('Write to s3'){
+                        options {
+                            retry(3)
+                        }
+                        steps {
+                            sh label: "sync configs to s3", script: """
+                                aws s3 sync ${env.CONFIG_HOME}/ ${env.S3_CONFIG_HOME}/
+                            """
+                        }
+                    }
+                    stage('Write to git') {
+                        steps {
+                            dir('networks-internal') {
+                                withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                    sh label: "sync configs to git", script: """
+                                        git checkout -b "\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                        git commit -am "Live config update"
+                                        gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
+                                    """
+                                    // TODO 1: add automerge of the pr
+                                    // TODO 2: Add gh pr checks for github action that will be created on networks-internal side and check it status before merging
+                                }
+                            }
+                        }
+                    }
                 }
             }
             stage('Restart Network') {
