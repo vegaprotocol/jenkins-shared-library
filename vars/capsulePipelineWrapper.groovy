@@ -48,7 +48,7 @@ def call() {
             """
     }
 
-    return pipeline {
+    pipeline {
         agent any
         environment {
             // TO-DO: Add secrets to jenkins

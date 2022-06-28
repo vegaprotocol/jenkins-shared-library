@@ -78,8 +78,8 @@ def jobs = [
         name: 'private/cd/vegacapsule-stagnet3',
         useScmDefinition: false,
         parameters: {
-            booleanParam('BUILD_CAPSULE', false, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-            stringParam('VEGACAPSULE_VERSION', 'v0.1.0', h('version of vegacapsule (tag, branch, any revision)'))
+            booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
+            stringParam('VEGACAPSULE_VERSION', 'develop', h('version of vegacapsule (tag, branch, any revision)'))
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
