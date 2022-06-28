@@ -79,9 +79,14 @@ def call() {
                             }
                         }
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh auth status"
-                                sh "gh repo clone https://github.com/vegaprotocol/networks-internal"
+                            dir('networks-internal') {
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: 'main']],
+                                    userRemoteConfigs: [[
+                                        url: "git@github.com:vegaprotocol/networks-internal.git",
+                                        credentialsId: 'vega-ci-bot'
+                                    ]]])
                             }
                         }
                     }
