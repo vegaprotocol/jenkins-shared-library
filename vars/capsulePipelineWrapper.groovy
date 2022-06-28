@@ -23,6 +23,18 @@ def call() {
             }
             stage('Init binaries') {
                 parallel {
+                    stage('Check out vegaprotocol/networks-internal') {
+                        when {
+                            expression {
+                                params.REGENERATE_CONFIGS
+                            }
+                        }
+                        steps {
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh repo clone vegaprotocol/networks-internal"
+                            }
+                        }
+                    }
                     stage('Build capsule') {
                         when {
                             expression {
@@ -101,6 +113,83 @@ def call() {
                 }
                 steps {
                     sh "vegacapsule network stop --nodes-only --home-path ${env.CONFIG_HOME}"
+                }
+            }
+            stage('Update networks configs') {
+                environment {
+                    TEMPLATES_HOME = "./networks-internal/stagnet3/vegacapsule/config"
+                }
+                when {
+                    expression {
+                        params.REGENERATE_CONFIGS
+                    }
+                }
+                steps {
+                    script {
+                        [
+                            'remote': '--update-network',
+                            'local': '--out-dir ./networks-internal/stagnet3/live-config'
+                        ].each { envName, flags ->
+                            sh label: "generate templates: ${envName}", script: """
+                                ./vegacapsule template genesis \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/genesis.tmpl.json \
+                                    ${flags}
+
+                                ./vegacapsule template node-sets \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/vega.validators.tmpl.toml \
+                                    --nodeset-group-name validators \
+                                    --type vega \
+                                    --with-merge \
+                                    ${flags}
+
+                                ./vegacapsule template node-sets \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/tendermint.validators.tmpl.toml \
+                                    --nodeset-group-name validators \
+                                    --type tendermint \
+                                    --with-merge \
+                                    ${flags}
+
+                                ./vegacapsule template node-sets \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/vega.full.tmpl.toml \
+                                    --nodeset-group-name full \
+                                    --type vega \
+                                    --with-merge \
+                                    ${flags}
+
+                                ./vegacapsule template node-sets \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/tendermint.full.tmpl.toml \
+                                    --nodeset-group-name full \
+                                    --type tendermint \
+                                    --with-merge \
+                                    ${flags}
+
+                                ./vegacapsule template node-sets \
+                                    --home-path ${env.CONFIG_HOME} \
+                                    --path ${env.TEMPLATES_HOME}/data_node.full.tmpl.toml \
+                                    --nodeset-group-name full \
+                                    --type data-node \
+                                    --with-merge \
+                                    ${flags}
+                            """
+                        }
+                    }
+                    sh label: "sync configs to s3", script: """
+                        aws s3 sync ${env.CONFIG_HOME}/ ${env.S3_CONFIG_HOME}/
+                    """
+                    dir('networks-internal') {
+                        withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                            sh label: "sync configs to git", script: """
+                                git checkout -b "\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                git commit -am "Live config update"
+                                gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
+                            """
+                        }
+                    }
                 }
             }
             stage('Restart Network') {

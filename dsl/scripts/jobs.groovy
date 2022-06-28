@@ -83,6 +83,7 @@ def jobs = [
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
+            booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
             booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
         },
         definition: {
