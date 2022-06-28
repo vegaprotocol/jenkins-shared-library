@@ -111,9 +111,6 @@ void call() {
                     sh 'printenv'
                     echo "vars=${vars.inspect()}"
                 }
-                stage('Wait for bootstrap period to finish') {
-                    dockerisedVega.bootstrapWait()
-                }
                 stage('Start tests and wait for checkpoint') {
                     parallel ([
                         'Wait for checkpoint and take new checkpoint file' : {

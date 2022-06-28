@@ -145,6 +145,7 @@ Map art = [
     resumeCheckpoint: 'output/network/checkpoint-resume.json',
     genesis: 'output/network/genesis.json',
     genesisRestore: 'output/network/genesis-restore.json',
+    checkpointBinary: 'output/network/checkpoint.cp',
     lnl: [
         systemTestsCreateState: 'output/lnl/system-tests-1-create-state.xml',
         systemTestsAssertState: 'output/lnl/system-tests-2-assert-state.xml',
