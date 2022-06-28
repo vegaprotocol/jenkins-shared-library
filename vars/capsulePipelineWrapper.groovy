@@ -72,6 +72,19 @@ def call() {
             }
             stage('Init binaries') {
                 parallel {
+                    stage('Check out vegaprotocol/networks-internal') {
+                        when {
+                            expression {
+                                params.REGENERATE_CONFIGS
+                            }
+                        }
+                        steps {
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh auth status"
+                                sh "gh repo clone https://github.com/vegaprotocol/networks-internal"
+                            }
+                        }
+                    }
                     stage('Build capsule') {
                         when {
                             expression {
@@ -162,10 +175,6 @@ def call() {
                 stages {
                     stage('Template live config (git / networks-internal)') {
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh auth status"
-                                sh "gh repo clone vegaprotocol/networks-internal"
-                            }
                             script {
                                 writeConfigs('live config (git / networks-internal)', '--out-dir ./networks-internal/stagnet3/live-config')
                             }
