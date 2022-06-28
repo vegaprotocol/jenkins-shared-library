@@ -163,6 +163,7 @@ def call() {
                     stage('Template live config (git / networks-internal)') {
                         steps {
                             withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh auth status"
                                 sh "gh repo clone vegaprotocol/networks-internal"
                             }
                             script {
