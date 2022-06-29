@@ -72,7 +72,7 @@ for i in {1..5}; do
     ssh-keyscan -t rsa,dsa "v0$i.stagnet2.vega.xyz" >> ~/.ssh/known_hosts || true
 done
 # Update Fairground
-for i in {01..13}; do
+for i in {01..12}; do
     # Remove
     ssh-keygen -R "n$i.testnet.vega.xyz" || true
     # Readd
