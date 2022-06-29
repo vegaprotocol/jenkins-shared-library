@@ -42,22 +42,6 @@ cat > ~/.ssh/config <<EOF
         HostName n11.testnet.vega.xyz
     Host n12-testnet
         HostName n12.testnet.vega.xyz
-    Host n13-testnet
-        HostName n13.testnet.vega.xyz
-    Host n14-testnet
-        HostName n14.testnet.vega.xyz
-    Host n15-testnet
-        HostName n15.testnet.vega.xyz
-    Host n16-testnet
-        HostName n16.testnet.vega.xyz
-    Host n17-testnet
-        HostName n17.testnet.vega.xyz
-    Host n18-testnet
-        HostName n18.testnet.vega.xyz
-    Host n19-testnet
-        HostName n19.testnet.vega.xyz
-    Host n20-testnet
-        HostName n20.testnet.vega.xyz
     Host vega-bot-1
         HostName bots.ops.vega.xyz
 EOF
@@ -88,24 +72,12 @@ for i in {1..5}; do
     ssh-keyscan -t rsa,dsa "v0$i.stagnet2.vega.xyz" >> ~/.ssh/known_hosts || true
 done
 # Update Fairground
-for i in {1..9}; do
+for i in {01..12}; do
     # Remove
-    ssh-keygen -R "n0$i.testnet.vega.xyz" || true
+    ssh-keygen -R "n$i.testnet.vega.xyz" || true
     # Readd
-    ssh-keyscan -t rsa,dsa "n0$i.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
-    # Remove
-    ssh-keygen -R "n1$i.testnet.vega.xyz" || true
-    # Readd
-    ssh-keyscan -t rsa,dsa "n1$i.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
+    ssh-keyscan -t rsa,dsa "n$i.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
 done
-# Remove
-ssh-keygen -R "n10.testnet.vega.xyz" || true
-# Readd
-ssh-keyscan -t rsa,dsa "n10.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
-# Remove
-ssh-keygen -R "n20.testnet.vega.xyz" || true
-# Readd
-ssh-keyscan -t rsa,dsa "n20.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
 # Update known_hosts for vega-bot-1
 ssh-keyscan -t rsa,dsa "bots.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 # Update known_hosts for observers
