@@ -40,9 +40,6 @@ void call() {
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.mnnt.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
-            booleanParam(
-                name: 'DV_LEGACY_RESUME', defaultValue: pipelineDefaults.mnnt.legacyResume,
-                description: 'Use the legacy flag for resuming from checkpoint.'),
         ],
         properties: [
             durabilityHint('PERFORMANCE_OPTIMIZED'),
@@ -97,7 +94,7 @@ void call() {
             withEnv([
                 "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
                 "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}", // TODO: Remove when the DV is removed 
+                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}", // TODO: Remove when the DV is removed
                 "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
                 "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
                 "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
@@ -113,9 +110,6 @@ void call() {
                 stage('Check setup') {
                     sh 'printenv'
                     echo "vars=${vars.inspect()}"
-                }
-                stage('Wait for bootstrap period to finish') {
-                    dockerisedVega.bootstrapWait()
                 }
                 stage('Start tests and wait for checkpoint') {
                     parallel ([
@@ -148,83 +142,6 @@ void call() {
                                         testResults: pipelineDefaults.art.systemTestsJunit
                                         skipMarkingBuildUnstable: true  // Temporarily ignore failures. TODO: Remove!!!!
                                         skipPublishingChecks: true  // Temporarily ignore failures. TODO: Remove!!!!
-                                    archiveArtifacts artifacts: pipelineDefaults.art.systemTestsJunit,
-                                        allowEmptyArchive: true,
-                                        fingerprint: true
-                                }
-                                archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsState}/**/*",
-                                    allowEmptyArchive: true,
-                                    fingerprint: true
-                                if (fileExists(testLogDirectory)) {
-                                    sh label: 'copy test logs to artifact directory', script: """#!/bin/bash -e
-                                        cp -r "${testLogDirectory}" "${pipelineDefaults.art.systemTestsLogs}"
-                                    """
-                                    archiveArtifacts artifacts: "${pipelineDefaults.art.systemTestsLogs}/**/*",
-                                        allowEmptyArchive: true,
-                                        fingerprint: true
-                                }
-                                echo "System Tests has finished with state: ${currentBuild.result}"
-
-                                // Next stage of the tests restarts the network. Next resume is the modern resume
-                                dockerisedVega.legacyResume = false
-                                // At the beginning of the run, it was set to grab latest mainnet. Now we want it to
-                                // grab the last checkpoint we saved, similar to the LNL pipeline.
-                                dockerisedVega.checkpointFile = null
-                            }
-                        }
-                    ])
-                }
-            }
-
-        },
-        afterCheckpointRestoreStage: { Map vars ->
-            DockerisedVega dockerisedVega = vars.dockerisedVega
-            withEnv([
-                "SYSTEM_TESTS_DOCKER_IMAGE_TAG=${dockerisedVega.prefix}",
-                "NETWORK_HOME_PATH=${dockerisedVega.homedir}",
-                "DOCKERISED_VEGA_HOME=${dockerisedVega.homedir}",
-                "VALIDATOR_NODE_COUNT=${dockerisedVega.validators}",
-                "NON_VALIDATOR_NODE_COUNT=${dockerisedVega.nonValidators}",
-                "SYSTEM_TESTS_PORTBASE=${dockerisedVega.portbase}",
-                "SYSTEM_TESTS_DEBUG=${params.SYSTEM_TESTS_DEBUG}",
-                "SYSTEM_TESTS_LNL_STATE=${env.WORKSPACE}/${pipelineDefaults.art.lnl.systemTestsState}",
-                "TEST_FUNCTION=${params.SYSTEM_TESTS_TEST_FUNCTION}",
-                "TEST_DIRECTORY=${params.SYSTEM_TESTS_TEST_DIRECTORY}",
-                "VEGATOOLS=${dockerisedVega.vegatoolsScript}",
-            ]) {
-                stage('Check setup') {
-                    sh 'printenv'
-                    echo "vars=${vars.inspect()}"
-                }
-                stage('Start tests and wait for checkpoint') {
-                    parallel ([
-                        'Wait for checkpoint and take new checkpoint file' : {
-                            dockerisedVega.waitForNextCheckpoint()
-                            dockerisedVega.saveLatestCheckpointToFile(pipelineDefaults.mnnt.afterLoadCheckpoint)
-                        },
-                        'Run system-tests' : {
-                            sh label: 'Copy checkpoint file to test dir for comparison', script: """#!/bin/bash -e
-                                        # Delete the "after_checkpoint_load.json" from the last part of the test, to stop it interfering.
-                                        rm system-tests/tests/LNL/after_checkpoint_load.json
-                                        cp "${pipelineDefaults.art.resumeCheckpoint}" "system-tests/${pipelineDefaults.mnnt.testDirectory}"
-                                    """
-                            try {
-                                dir('system-tests/scripts') {
-                                    ansiColor('xterm') {
-                                        sh label: 'run system-tests', script: '''#!/bin/bash -e
-                                            make run-tests
-                                        '''
-                                    }
-                                }
-                            } finally {
-                                String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
-                                String testLogDirectory = 'system-tests/test_logs/'
-                                if (fileExists(junitReportFile)) {
-                                    sh label: 'copy junit report to artifact directory', script: """#!/bin/bash -e
-                                        cp "${junitReportFile}" "${pipelineDefaults.art.systemTestsJunit}"
-                                    """
-                                    junit checksName: 'System Tests',
-                                        testResults: pipelineDefaults.art.systemTestsJunit
                                     archiveArtifacts artifacts: pipelineDefaults.art.systemTestsJunit,
                                         allowEmptyArchive: true,
                                         fingerprint: true

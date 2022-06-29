@@ -22,9 +22,6 @@ void call() {
             string(
                 name: 'JENKINS_AGENT_LABEL', defaultValue: 'private-network',
                 description: 'Specify Jenkins machine on which to run this pipeline'),
-            booleanParam(
-                name: 'DV_LEGACY_RESUME', defaultValue: pipelineDefaults.pn.legacyResume,
-                description: 'Use the legacy flag for resuming from checkpoint. (Only used with mainnet flag).'),
         ],
         properties: [
             durabilityHint('PERFORMANCE_OPTIMIZED'),
