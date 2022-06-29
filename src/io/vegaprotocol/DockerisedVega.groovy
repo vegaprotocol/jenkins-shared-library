@@ -248,6 +248,9 @@ String waitForNextCheckpoint(int node=0) {
 
 void saveResumeCheckpointToFile(String targetFile) {
     String resumeCheckpointFile = checkpointFile
+    if (mainnet) {
+        resumeCheckpointFile = "${homedir}/updated_mainnet_checkpoint.cp"
+    }
     assert resumeCheckpointFile : 'Cannot save resume checkpoint: no checkpointFile specified at startup'
     sh label: 'Convert checkpoint to json format', script: """
         mkdir -p "\$(dirname ${targetFile})"
