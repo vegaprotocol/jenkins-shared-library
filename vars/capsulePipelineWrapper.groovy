@@ -187,7 +187,7 @@ def call() {
                     stage('Template live config (git / networks-internal)') {
                         steps {
                             script {
-                                writeConfigs('live config (git / networks-internal)', '--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config')
+                                writeConfigs('live config (git / networks-internal)', '--out-dir ' + env.WORKSPACE +'/networks-internal/stagnet3/live-config')
                             }
                         }
                     }
