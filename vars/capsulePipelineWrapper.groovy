@@ -64,7 +64,7 @@ def call() {
             AWS_SECRET_ACCESS_KEY = credentials('jenkins-vegacapsule-aws-secret')
             AWS_ACCESS_KEY_ID = credentials('jenkins-vegacapsule-aws-id')
 
-            WORKSPACE = env.WORKSPACE // Required to pass it down
+            WORKSPACE = "${"env.WORKSPACE}" // Required to pass it down
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             GITHUB_CREDS = "github-vega-ci-bot-artifacts"
             CONFIG_HOME = "${env.WORKSPACE}/stagnet3/vegacapsule/home"
