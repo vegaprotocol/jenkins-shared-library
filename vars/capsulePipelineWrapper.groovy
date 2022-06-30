@@ -1,6 +1,6 @@
 def call() {
     writeConfigs = { envName, flags ->
-        sh label: "generate templates: ${envName}", script: """
+        def scriptSC = """
             vegacapsule template genesis \
                 --home-path """ + env.CONFIG_HOME + """ \
                 --path """ + env.TEMPLATES_HOME + """/genesis.tmpl.json \
@@ -46,6 +46,10 @@ def call() {
                 --with-merge \
                 """ + flags + """
             """
+
+        print(scriptSC)
+
+        sh label: "generate templates: ${envName}", script: scriptSC
     }
 
     pipeline {
