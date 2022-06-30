@@ -1,6 +1,7 @@
 def call() {
     writeConfigs = { envName, flags ->
         sh label: "generate templates: ${envName}", script: """
+            set -x;
             vegacapsule template genesis \
                 --home-path ${env.CONFIG_HOME} \
                 --path ${env.TEMPLATES_HOME}/genesis.tmpl.json \
