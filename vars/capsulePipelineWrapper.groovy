@@ -2,43 +2,43 @@ def call() {
     writeConfigs = { envName ->
         sh label: "generate templates: ${envName}", script: '''
             vegacapsule template genesis \
-                --home-path "\${CONFIG_HOME}" \
+                --home-path "${CONFIG_HOME}" \
                 --path "\${TEMPLATES_HOME}/genesis.tmpl.json" "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path "\${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/vega.validators.tmpl.toml" \
+                --home-path "${CONFIG_HOME}" \
+                --path "${TEMPLATES_HOME}/vega.validators.tmpl.toml" \
                 --nodeset-group-name validators \
                 --type vega \
-                --with-merge "\${FLAGS}"
-
-            vegacapsule template node-sets \
-                --home-path "\${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/tendermint.validators.tmpl.toml" \
-                --nodeset-group-name validators \
-                --type tendermint \
-                --with-merge "\${FLAGS}"
-
-            vegacapsule template node-sets \
-                --home-path "\${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/vega.full.tmpl.toml" \
-                --nodeset-group-name full \
-                --type vega \
-                --with-merge "\${FLAGS}"
+                --with-merge "${FLAGS}"
 
             vegacapsule template node-sets \
                 --home-path "${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/tendermint.full.tmpl.toml" \
-                --nodeset-group-name full \
+                --path "${TEMPLATES_HOME}/tendermint.validators.tmpl.toml" \
+                --nodeset-group-name validators \
                 --type tendermint \
-                --with-merge "\${FLAGS}"
+                --with-merge "${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path "\${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/data_node.full.tmpl.toml" \
+                --home-path "${CONFIG_HOME}" \
+                --path "${TEMPLATES_HOME}/vega.full.tmpl.toml" \
+                --nodeset-group-name full \
+                --type vega \
+                --with-merge "${FLAGS}"
+
+            vegacapsule template node-sets \
+                --home-path "${CONFIG_HOME}" \
+                --path "${TEMPLATES_HOME}/tendermint.full.tmpl.toml" \
+                --nodeset-group-name full \
+                --type tendermint \
+                --with-merge "${FLAGS}"
+
+            vegacapsule template node-sets \
+                --home-path "${CONFIG_HOME}" \
+                --path "${TEMPLATES_HOME}/data_node.full.tmpl.toml" \
                 --nodeset-group-name full \
                 --type data-node \
-                --with-merge "\${FLAGS}"
+                --with-merge "${FLAGS}"
             '''
     }
 
