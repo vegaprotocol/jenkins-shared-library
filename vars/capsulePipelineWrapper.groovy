@@ -1,51 +1,45 @@
 def call() {
-    writeConfigs = { envName, flags ->
-        sh label: "generate templates: ${envName}", script: """
+    writeConfigs = { envName ->
+        sh label: "generate templates: ${envName}", script: '''
             vegacapsule template genesis \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/genesis.tmpl.json \
-                ${flags}
+                --home-path "\${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/genesis.tmpl.json" "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/vega.validators.tmpl.toml \
+                --home-path "\${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/vega.validators.tmpl.toml" \
                 --nodeset-group-name validators \
                 --type vega \
-                --with-merge \
-                ${flags}
+                --with-merge "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/tendermint.validators.tmpl.toml \
+                --home-path "\${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/tendermint.validators.tmpl.toml" \
                 --nodeset-group-name validators \
                 --type tendermint \
-                --with-merge \
-                ${flags}
+                --with-merge "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/vega.full.tmpl.toml \
+                --home-path "\${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/vega.full.tmpl.toml" \
                 --nodeset-group-name full \
                 --type vega \
-                --with-merge \
-                ${flags}
+                --with-merge "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/tendermint.full.tmpl.toml \
+                --home-path "${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/tendermint.full.tmpl.toml" \
                 --nodeset-group-name full \
                 --type tendermint \
-                --with-merge \
-                ${flags}
+                --with-merge "\${FLAGS}"
 
             vegacapsule template node-sets \
-                --home-path ${env.CONFIG_HOME} \
-                --path ${env.TEMPLATES_HOME}/data_node.full.tmpl.toml \
+                --home-path "\${CONFIG_HOME}" \
+                --path "\${TEMPLATES_HOME}/data_node.full.tmpl.toml" \
                 --nodeset-group-name full \
                 --type data-node \
-                --with-merge \
-                ${flags}
-            """
+                --with-merge "\${FLAGS}"
+            '''
     }
 
     pipeline {
@@ -180,16 +174,22 @@ def call() {
                 }
                 stages {
                     stage('Template live config (git / networks-internal)') {
+                        environment {
+                            FLAGS = "--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config"
+                        }
                         steps {
                             script {
-                                writeConfigs('live config (git / networks-internal)', '--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config')
+                                writeConfigs('live config (git / networks-internal)')
                             }
                         }
                     }
                     stage('Template s3 config') {
+                        environment {
+                            FLAGS = '--update-network'
+                        }
                         steps {
                             script {
-                                writeConfigs('s3', '--update-network')
+                                writeConfigs('s3')
                             }
                         }
                     }
