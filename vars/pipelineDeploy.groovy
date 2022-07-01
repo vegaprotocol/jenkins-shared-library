@@ -142,7 +142,7 @@ void call() {
                         }
                         steps {
                             withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
+                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_CORE_VERSION} --pattern '*linux*'"
                             }
                             sh "mkdir -p bin"
                             sh "mv vega-linux-amd64 bin/vega"
