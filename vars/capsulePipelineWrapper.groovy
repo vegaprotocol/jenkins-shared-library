@@ -175,7 +175,7 @@ def call() {
                 stages {
                     stage('Template live config (git / networks-internal)') {
                         environment {
-                            FLAGS = "--out-dir '${env.WORKSPACE}/networks-internal/stagnet3/live-config'"
+                            FLAGS = "--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config"
                         }
                         steps {
                             script {
