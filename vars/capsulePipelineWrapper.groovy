@@ -209,6 +209,8 @@ def call() {
                                 withGHCLI('credentialsId': env.GITHUB_CREDS) {
                                     sh label: "sync configs to git", script: """
                                         git checkout -b "\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                        git config --global user.email "vega-ci-bot@vega.xyz"
+                                        git config --global user.name "vega-ci-bot"
                                         git commit -am "Live config update"
                                         gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
                                     """
