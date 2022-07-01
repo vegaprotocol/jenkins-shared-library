@@ -55,6 +55,11 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    script {
+                        if (!params.VEGA_CORE_VERSION && params.RESTART == 'YES_FROM_CHECKPOINT') {
+                            error("When restarting from check point you need to provide VEGA_CORE_VERSION otherwise it will not work")
+                        }
+                    }
                 }
             }
             stage('Checkout') {
@@ -115,6 +120,8 @@ void call() {
                                     ./cmd/vega/vega-linux-amd64 version
                                 '''
                             }
+                            sh "mkdir -p bin"
+                            sh "mv vega/cmd/vega/vega-linux-amd64 bin/vega"
                         }
                     }
                     stage('veganet docker pull') {
@@ -122,6 +129,25 @@ void call() {
                             script {
                                 veganet('pull')
                             }
+                        }
+                    }
+                    stage('Download Vega Core binary') {
+                        when {
+                            expression {
+                                params.VEGA_CORE_VERSION && !params.BUILD_VEGA_CORE
+                            }
+                        }
+                        environment {
+                            GITHUB_CREDS = "github-vega-ci-bot-artifacts"
+                        }
+                        steps {
+                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
+                            }
+                            sh "mkdir -p bin"
+                            sh "mv vega-linux-amd64 bin/vega"
+                            sh "chmod +x bin/vega"
+                            sh "vega version"
                         }
                     }
                 }
@@ -134,36 +160,17 @@ void call() {
                 }
             }
             stage('Deploy Vega Core binary') {
-                parallel {
-                    stage('Release binary'){
-                        when {
-                            expression {
-                                params.VEGA_CORE_VERSION && !params.BUILD_VEGA_CORE
-                            }
-                        }
-                        environment {
-                            TAG = params.VEGA_CORE_VERSION
-                        }
-                        steps {
-                            script {
-                                veganet('getvega')
-                            }
-                        }
+                when {
+                    expression {
+                        params.VEGA_CORE_VERSION
                     }
-                    stage('Built binary'){
-                        when {
-                            expression {
-                                params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
-                            }
-                        }
-                        environment {
-                            VEGA_CORE_BINARY = "${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64"
-                        }
-                        steps {
-                            script {
-                                veganet('pushvega')
-                            }
-                        }
+                }
+                environment {
+                    VEGA_CORE_BINARY = "${env.WORKSPACE}/bin/vega"
+                }
+                steps {
+                    script {
+                        veganet('pushvega')
                     }
                 }
             }
@@ -209,9 +216,8 @@ void call() {
                     expression {
                         params.RESTART == 'YES_FROM_CHECKPOINT'
                     }
-                    // temporary, we can try to download binary from releases and pass it there
                     expression {
-                        params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                        params.VEGA_CORE_VERSION
                     }
                 }
                 steps {
@@ -220,7 +226,7 @@ void call() {
                             sh """
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
-                                    --vega-binary "${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64" \
+                                    --vega-binary "${env.WORKSPACE}/bin/vega" \
                                     --network ${env.NET_NAME} \
                                     --ssh-private-key ${env.PSSH_KEYFILE}  \
                                     --ssh-user ${env.PSSH_USER} \
