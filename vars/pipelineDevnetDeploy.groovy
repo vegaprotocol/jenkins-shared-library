@@ -100,13 +100,8 @@ void call() {
                             "${buildVegaCoreStageName}": {
                                 if (params.VEGA_CORE_VERSION) {
                                     dir('vega') {
-                                        String hash = sh(
-                                            script: 'git rev-parse HEAD|cut -b1-8',
-                                            returnStdout: true,
-                                        ).trim()
-                                        String ldflags = "-X main.CLIVersion=dev-${hash} -X main.CLIVersionHash=${hash}"
                                         sh label: 'Compile vega core', script: """
-                                            go build -v -o ./cmd/vega/vega-linux-amd64 -ldflags "${ldflags}" ./cmd/vega
+                                            go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
                                         """
                                         sh label: 'Sanity check', script: '''
                                             file ./cmd/vega/vega-linux-amd64
