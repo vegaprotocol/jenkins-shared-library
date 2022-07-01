@@ -122,6 +122,7 @@ void call() {
                             }
                             sh "mkdir -p bin"
                             sh "mv vega/cmd/vega/vega-linux-amd64 bin/vega"
+                            sh "chmod +x bin/vega"
                         }
                     }
                     stage('veganet docker pull') {
