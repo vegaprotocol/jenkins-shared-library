@@ -208,11 +208,13 @@ def call() {
                             dir('networks-internal') {
                                 withGHCLI('credentialsId': env.GITHUB_CREDS) {
                                     sh label: "sync configs to git", script: """
-                                        git checkout -b "\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                        branchName="\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                        git checkout -b '\$branchName'
                                         git config --global user.email "vega-ci-bot@vega.xyz"
                                         git config --global user.name "vega-ci-bot"
                                         git commit -am "Live config update"
-                                        gh pr create --head "\$(git rev-parse --abbrev-ref HEAD)" --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
+                                        git push -u origin '\$branchName'
+                                        gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
                                     """
                                     // TODO 1: add automerge of the pr
                                     // TODO 2: Add gh pr checks for github action that will be created on networks-internal side and check it status before merging
