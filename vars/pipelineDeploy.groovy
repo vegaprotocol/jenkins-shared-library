@@ -130,7 +130,7 @@ void call() {
             }
             stage('Deploy Vega Core binary') {
                 parallel {
-                    stage('Downloaded binary'){
+                    stage('Release binary'){
                         when {
                             expression {
                                 params.VEGA_CORE_VERSION =~ /v[0-9]+\.[0-9]+\.[0-9]+/ && !params.BUILD_VEGA_CORE
