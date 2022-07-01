@@ -112,21 +112,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Get vega core binary'){
-                        when {
-                            expression {
-                                params.VEGA_CORE_VERSION && !params.BUILD_VEGA_CORE
-                            }
-                        }
-                        environment {
-                            TAG = params.VEGA_CORE_VERSION
-                        }
-                        steps {
-                            script {
-                                veganet('getvega')
-                            }
-                        }
-                    }
                     stage('veganet docker pull') {
                         steps {
                             script {
@@ -144,17 +129,36 @@ void call() {
                 }
             }
             stage('Deploy Vega Core binary') {
-                when {
-                    expression {
-                        params.VEGA_CORE_VERSION
+                parallel {
+                    stage('Downloaded binary'){
+                        when {
+                            expression {
+                                params.VEGA_CORE_VERSION =~ /v[0-9]+\.[0-9]+\.[0-9]+/ && !params.BUILD_VEGA_CORE
+                            }
+                        }
+                        environment {
+                            TAG = params.VEGA_CORE_VERSION
+                        }
+                        steps {
+                            script {
+                                veganet('getvega')
+                            }
+                        }
                     }
-                }
-                environment {
-                    VEGA_CORE_BINARY = "${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64"
-                }
-                steps {
-                    script {
-                        veganet('pushvega')
+                    stage('Built binary'){
+                        when {
+                            expression {
+                                params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                            }
+                        }
+                        environment {
+                            VEGA_CORE_BINARY = "${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64"
+                        }
+                        steps {
+                            script {
+                                veganet('pushvega')
+                            }
+                        }
                     }
                 }
             }
