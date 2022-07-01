@@ -67,6 +67,11 @@ void call() {
                         }
                     }
                     stage('devopsscripts'){
+                        when {
+                            expression {
+                                params.RESTART == 'YES_FROM_CHECKPOINT'
+                            }
+                        }
                         steps {
                             script {
                                 doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
@@ -187,18 +192,41 @@ void call() {
                     }
                 }
             }
-            stage('Restart Network') {
+            stage('Restart Network - normally') {
                 when {
                     expression {
-                        params.RESTART != 'NO'
+                        params.RESTART == 'YES'
                     }
-                }
-                environment {
-                    RESTORE_FROM_CHECKPOINT = "${params.RESTART == 'YES_FROM_CHECKPOINT' ? 'yes' : 'no'}"
                 }
                 steps {
                     script {
                         veganet('bounce')
+                    }
+                }
+            }
+            stage('Restart Network - normally') {
+                when {
+                    expression {
+                        params.RESTART == 'YES_FROM_CHECKPOINT'
+                    }
+                    // temporary, we can try to download binary from releases and pass it there
+                    expression {
+                        params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                    }
+                }
+                steps {
+                    dir('devopsscripts') {
+                        withCredentials([sshCredentials]) {
+                            sh """
+                                go mod vendor
+                                go run main.go old-network remote load-latest-checkpoint \
+                                    --vega-binary "${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64" \
+                                    --network ${env.NET_NAME} \
+                                    --ssh-private-key ${env.PSSH_KEYFILE}  \
+                                    --ssh-user ${env.PSSH_USER} \
+                                    --no-secrets
+                            """
+                        }
                     }
                 }
             }
