@@ -3,7 +3,7 @@ def call() {
         sh label: "generate templates: ${envName}", script: '''
             vegacapsule template genesis \
                 --home-path "${CONFIG_HOME}" \
-                --path "\${TEMPLATES_HOME}/genesis.tmpl.json" "\${FLAGS}"
+                --path "${TEMPLATES_HOME}/genesis.tmpl.json" "${FLAGS}"
 
             vegacapsule template node-sets \
                 --home-path "${CONFIG_HOME}" \
