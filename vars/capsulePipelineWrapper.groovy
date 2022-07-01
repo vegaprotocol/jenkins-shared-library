@@ -213,7 +213,7 @@ def call() {
                                             git checkout -b "\$branchName"
                                             git config --global user.email "vega-ci-bot@vega.xyz"
                                             git config --global user.name "vega-ci-bot"
-                                            git commit -am "Live config update"
+                                            git commit -am "Live config update" || exit 0
                                             git push -u origin "\$branchName"
                                             prUrl="\$(gh pr create --title 'automated live config update' --body '${env.BUILD_URL}')"
                                             sleep 5
