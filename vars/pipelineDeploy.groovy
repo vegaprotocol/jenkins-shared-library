@@ -66,6 +66,13 @@ void call() {
                             }
                         }
                     }
+                    stage('devopsscripts'){
+                        steps {
+                            script {
+                                doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
+                            }
+                        }
+                    }
                     stage('vega core'){
                         when {
                             params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
@@ -95,13 +102,8 @@ void call() {
                         }
                         steps {
                             dir('vega') {
-                                String hash = sh(
-                                    script: 'git rev-parse HEAD|cut -b1-8',
-                                    returnStdout: true,
-                                ).trim()
-                                String ldflags = "-X main.CLIVersion=dev-${hash} -X main.CLIVersionHash=${hash}"
                                 sh label: 'Compile vega core', script: """
-                                    go build -v -o ./cmd/vega/vega-linux-amd64 -ldflags "${ldflags}" ./cmd/vega
+                                    go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
                                 """
                                 sh label: 'Sanity check', script: '''
                                     file ./cmd/vega/vega-linux-amd64
@@ -225,6 +227,9 @@ void call() {
                     expression {
                         params.BOUNCE_BOTS
                     }
+                }
+                environment {
+                    REMOVE_BOT_WALLETS = "${params.REMOVE_WALLETS ? 'yes' : ''}"
                 }
                 steps {
                     script {
