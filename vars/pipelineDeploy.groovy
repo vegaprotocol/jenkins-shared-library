@@ -133,7 +133,7 @@ void call() {
                     stage('Release binary'){
                         when {
                             expression {
-                                params.VEGA_CORE_VERSION =~ /v[0-9]+\.[0-9]+\.[0-9]+/ && !params.BUILD_VEGA_CORE
+                                params.VEGA_CORE_VERSION && !params.BUILD_VEGA_CORE
                             }
                         }
                         environment {
