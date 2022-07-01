@@ -206,18 +206,20 @@ def call() {
                     stage('Write to git') {
                         steps {
                             dir('networks-internal') {
-                                withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                    sh label: "sync configs to git", script: """
-                                        branchName="\$(date +%d-%m-%Y--%H-%M)-live-config-update"
-                                        git checkout -b '\$branchName'
-                                        git config --global user.email "vega-ci-bot@vega.xyz"
-                                        git config --global user.name "vega-ci-bot"
-                                        git commit -am "Live config update"
-                                        git push -u origin '\$branchName'
-                                        gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
-                                    """
-                                    // TODO 1: add automerge of the pr
-                                    // TODO 2: Add gh pr checks for github action that will be created on networks-internal side and check it status before merging
+                                sshagent(credentials: ['vega-ci-bot']) {
+                                    withGHCLI('credentialsId': env.GITHUB_CREDS) {
+                                        sh label: "sync configs to git", script: """
+                                            branchName="\$(date +%d-%m-%Y--%H-%M)-live-config-update"
+                                            git checkout -b '\$branchName'
+                                            git config --global user.email "vega-ci-bot@vega.xyz"
+                                            git config --global user.name "vega-ci-bot"
+                                            git commit -am "Live config update"
+                                            git push -u origin '\$branchName'
+                                            gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
+                                        """
+                                        // TODO 1: add automerge of the pr
+                                        // TODO 2: Add gh pr checks for github action that will be created on networks-internal side and check it status before merging
+                                    }
                                 }
                             }
                         }
