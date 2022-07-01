@@ -216,7 +216,7 @@ def call() {
                                             git commit -am "Live config update"
                                             git push -u origin "\$branchName"
                                             prUrl="\$(gh pr create --title 'automated live config update' --body '${env.BUILD_URL}')"
-                                            gh pr merge --auto --delete-branch "\${prUrl}"
+                                            gh pr merge "\${prUrl}" --auto --delete-branch
                                         """
                                     }
                                 }
