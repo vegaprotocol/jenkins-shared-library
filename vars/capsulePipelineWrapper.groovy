@@ -210,11 +210,11 @@ def call() {
                                     withGHCLI('credentialsId': env.GITHUB_CREDS) {
                                         sh label: "sync configs to git", script: """
                                             branchName="\$(date +%d-%m-%Y--%H-%M)-live-config-update"
-                                            git checkout -b '\$branchName'
+                                            git checkout -b "\$branchName"
                                             git config --global user.email "vega-ci-bot@vega.xyz"
                                             git config --global user.name "vega-ci-bot"
                                             git commit -am "Live config update"
-                                            git push -u origin '\$branchName'
+                                            git push -u origin "\$branchName"
                                             gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
                                         """
                                         // TODO 1: add automerge of the pr
