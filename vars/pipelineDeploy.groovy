@@ -200,7 +200,7 @@ void call() {
                     }
                 }
             }
-            stage('Restart Network - normally') {
+            stage('Restart Network - without checkpoint') {
                 when {
                     expression {
                         params.RESTART == 'YES'
@@ -212,7 +212,7 @@ void call() {
                     }
                 }
             }
-            stage('Restart Network - normally') {
+            stage('Restart Network - with checkpoint') {
                 when {
                     expression {
                         params.RESTART == 'YES_FROM_CHECKPOINT'
