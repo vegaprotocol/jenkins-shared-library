@@ -215,10 +215,9 @@ def call() {
                                             git config --global user.name "vega-ci-bot"
                                             git commit -am "Live config update"
                                             git push -u origin "\$branchName"
-                                            gh pr create --reviewer vegaprotocol/ops --title "automated live config update" --body "${env.BUILD_URL}"
+                                            gh pr create --title "automated live config update" --body "${env.BUILD_URL}"
+                                            gh pr merge --auto --delete-branch
                                         """
-                                        // TODO 1: add automerge of the pr
-                                        // TODO 2: Add gh pr checks for github action that will be created on networks-internal side and check it status before merging
                                     }
                                 }
                             }
