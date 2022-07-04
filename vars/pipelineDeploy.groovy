@@ -283,9 +283,11 @@ void call() {
             always {
                 cleanWs()
                 script {
-                    slack.slackSendDeployStatus network: "${env.NET_NAME}",
+                    slack.slackSendDeployStatus (
+                        network: "${env.NET_NAME}",
                         version: params.VEGA_CORE_VERSION,
                         restart: params.RESTART != 'NO',
+                    )
                 }
             }
         }
