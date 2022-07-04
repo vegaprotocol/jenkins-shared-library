@@ -85,7 +85,9 @@ void call() {
                     }
                     stage('vega core'){
                         when {
-                            params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                            expression {
+                                params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                            }
                         }
                         steps {
                             script {
@@ -279,9 +281,11 @@ void call() {
         }
         post {
             always {
-                slack.slackSendDeployStatus network: "${env.NET_NAME}",
-                    version: params.VEGA_CORE_VERSION,
-                    restart: params.RESTART != 'NO',
+                script {
+                    slack.slackSendDeployStatus network: "${env.NET_NAME}",
+                        version: params.VEGA_CORE_VERSION,
+                        restart: params.RESTART != 'NO',
+                }
                 cleanWs()
             }
         }
