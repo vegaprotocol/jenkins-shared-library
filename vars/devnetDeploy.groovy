@@ -2,27 +2,37 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String devnetDeployJob = '/private/cd/Devnet deploy'
+    String devnetDeployJob = '/private/cd/Deployments/Veganet/Devnet'
     Boolean wait = config.wait ? "${config.wait}".toBoolean() : false
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     String restart = pipelineDefaults.dev.restart
     if (config.restart == true) {
-        restart = pipelineDefaults.restartOptions.restartOnly
+        restart = 'YES'
     } else if (config.restart == false) {
-        restart = pipelineDefaults.restartOptions.dontRestart
+        restart = 'NO'
     } else if (config.restart == 'checkpoint' || config.checkpoint == true) {
-        restart = pipelineDefaults.restartOptions.restartFromCheckpoint
+        restart = 'YES_FROM_CHECKPOINT'
     } else if (config.restart) {
         // not empty, but different than: true, false and 'checkpoint'
         error("Wrong restart argument value: '${config.restart}'. Only: true, false and 'checkpoint' are allowed")
     }
     List buildParameters = [
-            string(name: 'VEGA_CORE_VERSION', value: config.vegaCore ?: pipelineDefaults.dev.vegaCoreVersion),
+            string(
+                name: 'VEGA_CORE_VERSION',
+                value: config.vegaCore ?: pipelineDefaults.dev.vegaCoreVersion
+            ),
+            booleanParam(
+                name: 'BUILD_VEGA_CORE',
+                value: true,
+            ),
             booleanParam(
                 name: 'DEPLOY_CONFIG',
                 value: config.deployConfig ? "${config.deployConfig}".toBoolean() : pipelineDefaults.dev.deployConfig
             ),
-            string(name: 'RESTART', value: restart),
+            string(
+                name: 'RESTART',
+                value: restart
+            ),
             booleanParam(
                 name: 'CREATE_MARKETS',
                 value: config.createMarkets ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
@@ -31,7 +41,22 @@ void call(Map config = [:]) {
                 name: 'BOUNCE_BOTS',
                 value: config.bounceBots ? "${config.bounceBots}".toBoolean() : pipelineDefaults.dev.bounceBots
             ),
-            string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.dev.devopsInfraBranch),
+            string(
+                name: 'DEVOPS_INFRA_BRANCH',
+                value: config.devopsInfra ?: pipelineDefaults.dev.devopsInfraBranch
+            ),
+            string(
+                name: 'DEVOPSSCRIPTS_BRANCH',
+                value: config.devopsscriptsBranch ?: pipelineDefaults.dev.devopsscriptsBranch
+            ),
+            string(
+                name: 'ANSIBLE_BRANCH',
+                value: config.ansibleBranch ?: pipelineDefaults.dev.ansibleBranch
+            ),
+            string(
+                name: 'REMOVE_WALLETS',
+                value: config.removeWallets ?: pipelineDefaults.dev.removeWallets
+            ),
         ]
 
     echo 'Deploy to Devnet network'
