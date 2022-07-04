@@ -50,6 +50,9 @@ void call() {
             timestamps()
             disableConcurrentBuilds()
         }
+        environment {
+            PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+        }
         stages {
             stage('CI Config') {
                 steps {
@@ -150,7 +153,6 @@ void call() {
                             sh "mkdir -p bin"
                             sh "mv vega-linux-amd64 bin/vega"
                             sh "chmod +x bin/vega"
-                            sh "vega version"
                         }
                     }
                 }
