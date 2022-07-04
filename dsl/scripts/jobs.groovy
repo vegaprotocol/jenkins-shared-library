@@ -21,7 +21,6 @@ def scmDefinition(args){
   }
 }
 
-
 def h(def text, def num=4) {
     return "<h${num}>${text}</h${num}>"
 }
@@ -159,10 +158,10 @@ def jobs = [
             NET_NAME: 'stagnet',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
-            choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
@@ -187,10 +186,10 @@ def jobs = [
             NET_NAME: 'stagnet2',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
-            choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
@@ -215,10 +214,10 @@ def jobs = [
             NET_NAME: 'testnet',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
-            choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
