@@ -75,7 +75,7 @@ def createCommonPipeline(args){
 def jobs = [
     // Capsule playground
     [
-        name: 'private/cd/vegacapsule-stagnet3',
+        name: 'private/Deployments/Stagnet 3',
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
@@ -116,7 +116,7 @@ def jobs = [
         branch: 'main',
     ],
     [
-        name: 'private/cd/Devnet deploy - new',
+        name: 'private/Deployments/Veganet/Devnet',
         useScmDefinition: false,
         definition: {
             cps {
