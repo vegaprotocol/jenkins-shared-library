@@ -105,7 +105,10 @@ Map dev = [
     createMarkets: true,
     createIncentiveMarkets: true,
     bounceBots: true,
-    devopsInfraBranch: 'master'
+    devopsInfraBranch: 'master',
+    devopsscriptsBranch: 'main',
+    ansibleBranch: 'master',
+    removeWallets: false,
 ]
 
 @Field

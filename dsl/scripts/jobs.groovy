@@ -21,7 +21,6 @@ def scmDefinition(args){
   }
 }
 
-
 def h(def text, def num=4) {
     return "<h${num}>${text}</h${num}>"
 }
@@ -135,6 +134,90 @@ def jobs = [
             booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES', 'NO'], 'Restart the Network') // do not support checkpoints for devnet
             // choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
+            booleanParam('CREATE_MARKETS', true, 'Create markets')
+            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
+            booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        }
+    ],
+    [
+        name: 'private/Deployments/Veganet/Stagnet',
+        useScmDefinition: false,
+        definition: {
+            cps {
+                script("""
+                @Library('vega-shared-library@main') _
+                pipelineDeploy()
+                """)
+            }
+        },
+        env: [
+            NET_NAME: 'stagnet',
+        ],
+        parameters: {
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
+            booleanParam('CREATE_MARKETS', true, 'Create markets')
+            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
+            booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        }
+    ],
+    [
+        name: 'private/Deployments/Veganet/Stagnet 2',
+        useScmDefinition: false,
+        definition: {
+            cps {
+                script("""
+                @Library('vega-shared-library@main') _
+                pipelineDeploy()
+                """)
+            }
+        },
+        env: [
+            NET_NAME: 'stagnet2',
+        ],
+        parameters: {
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
+            booleanParam('CREATE_MARKETS', true, 'Create markets')
+            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
+            booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        }
+    ],
+    [
+        name: 'private/Deployments/Veganet/Fairground',
+        useScmDefinition: false,
+        definition: {
+            cps {
+                script("""
+                @Library('vega-shared-library@main') _
+                pipelineDeploy()
+                """)
+            }
+        },
+        env: [
+            NET_NAME: 'testnet',
+        ],
+        parameters: {
+            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
