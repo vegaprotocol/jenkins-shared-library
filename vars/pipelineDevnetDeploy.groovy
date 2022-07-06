@@ -163,16 +163,20 @@ void call() {
                                 withCredentials([sshDevnetCredentials]) {
                                     // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                     //        are set by withCredentials wrapper
-                                    sh label: 'ansible deploy run', script: """#!/bin/bash -e
-                                        ansible-playbook \
-                                            --diff \
-                                            -u "\${PSSH_USER}" \
-                                            --private-key "\${PSSH_KEYFILE}" \
-                                            --inventory inventories \
-                                            --limit devnet \
-                                            --tags vega-network-config \
-                                            site.yaml
-                                    """
+                                    script {
+                                        ['tendermint', 'vegaserver'].each { playbook ->
+                                            sh label: 'ansible deploy run', script: """#!/bin/bash -e
+                                                ansible-playbook \
+                                                    --diff \
+                                                    -u "\${PSSH_USER}" \
+                                                    --private-key "\${PSSH_KEYFILE}" \
+                                                    --inventory inventories \
+                                                    --limit ${env.NET_NAME} \
+                                                    --tags vega-network-config \
+                                                    playbooks/playbook-${playbook}.yaml
+                                            """
+                                        }
+                                    }
                                 }
                             }
                         } else {
