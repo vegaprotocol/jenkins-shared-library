@@ -42,6 +42,17 @@ void call() {
         }
     }
 
+    def waitForURL = { address -> 
+        timeout(3) {
+            waitUntil {
+                script {
+                    def r = sh returnStatus: true, script: 'curl -X GET ' + waitForURL
+                    return r == 0
+                }
+            }
+        }
+    }
+
     pipeline {
         agent any
         options {
@@ -265,6 +276,7 @@ void call() {
                 }
                 steps {
                     script {
+                        waitForURL('https://wallet.' + env.NET_NAME} + '.vega.xyz/api/v1/status')
                         veganet('create_markets')
                     }
                 }
