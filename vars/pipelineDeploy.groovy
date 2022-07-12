@@ -46,7 +46,7 @@ void call() {
         timeout(3) {
             waitUntil {
                 script {
-                    def r = sh returnStatus: true, script: 'curl -X GET ' + waitForURL
+                    def r = sh returnStatus: true, script: 'curl -X GET ' + address
                     return r == 0
                 }
             }
