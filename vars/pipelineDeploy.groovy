@@ -157,6 +157,18 @@ void call() {
                     }
                 }
             }
+            stage('Stop network') {
+                when {
+                    expression {
+                        params.RESTART == 'YES_FROM_CHECKPOINT' || params.RESTART == 'YES'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('stopbots stop')
+                    }
+                }
+            }
             stage('Status') {
                 steps {
                     script {
@@ -208,19 +220,7 @@ void call() {
                     }
                 }
             }
-            stage('Restart Network - without checkpoint') {
-                when {
-                    expression {
-                        params.RESTART == 'YES'
-                    }
-                }
-                steps {
-                    script {
-                        veganet('bounce')
-                    }
-                }
-            }
-            stage('Restart Network - with checkpoint') {
+            stage('Load checkpoint') {
                 when {
                     expression {
                         params.RESTART == 'YES_FROM_CHECKPOINT'
@@ -242,6 +242,18 @@ void call() {
                                     --no-secrets
                             """
                         }
+                    }
+                }
+            }
+            stage('Start without checkpoint') {
+                when {
+                    expression {
+                        params.RESTART == 'YES' || params.RESTART == 'YES_FROM_CHECKPOINT'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('start_datanode start')
                     }
                 }
             }
