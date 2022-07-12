@@ -245,7 +245,7 @@ void call() {
                     }
                 }
             }
-            stage('Start without checkpoint') {
+            stage('Start') {
                 when {
                     expression {
                         params.RESTART == 'YES' || params.RESTART == 'YES_FROM_CHECKPOINT'
