@@ -198,7 +198,7 @@ void call() {
                                             -u "\${PSSH_USER}" \
                                             --private-key "\${PSSH_KEYFILE}" \
                                             --inventory inventories \
-                                            --limit ${env.NET_NAME} \
+                                            --limit "${env.NET_NAME}" \
                                             --tags vega-network-config \
                                             playbooks/playbook-${playbook}.yaml
                                     """
@@ -236,9 +236,9 @@ void call() {
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
                                     --vega-binary "${env.WORKSPACE}/bin/vega" \
-                                    --network ${env.NET_NAME} \
-                                    --ssh-private-key ${env.PSSH_KEYFILE}  \
-                                    --ssh-user ${env.PSSH_USER} \
+                                    --network "${env.NET_NAME}" \
+                                    --ssh-private-key "${env.PSSH_KEYFILE}"  \
+                                    --ssh-user "${env.PSSH_USER}" \
                                     --no-secrets
                             """
                         }
