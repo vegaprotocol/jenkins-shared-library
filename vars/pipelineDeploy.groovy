@@ -57,7 +57,7 @@ void call() {
         agent any
         options {
             skipDefaultCheckout()
-            timeout(time: 20, unit: 'MINUTES')
+            timeout(time: 40, unit: 'MINUTES')
             timestamps()
             disableConcurrentBuilds()
         }
