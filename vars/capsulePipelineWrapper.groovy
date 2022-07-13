@@ -146,9 +146,8 @@ def call() {
                         steps {
                             sh """
                                 mkdir -p ${env.CONFIG_HOME}
-                                aws s3 sync ${env.S3_CONFIG_HOME}/ ${env.CONFIG_HOME}/
+                                aws s3 sync "${env.S3_CONFIG_HOME}/" "${env.CONFIG_HOME}/"
                             """
-                            sh "cat ${env.CONFIG_HOME}/config.hcl"
                         }
                     }
                 }
@@ -199,7 +198,7 @@ def call() {
                         }
                         steps {
                             sh label: "sync configs to s3", script: """
-                                aws s3 sync ${env.CONFIG_HOME}/ ${env.S3_CONFIG_HOME}/
+                                aws s3 sync "${env.CONFIG_HOME}/" "${env.S3_CONFIG_HOME}/"
                             """
                         }
                     }
