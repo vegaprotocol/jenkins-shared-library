@@ -23,8 +23,8 @@ void call() {
                 name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
             string(
-                name: 'SPECS_INTERNAL_BRANCH', defaultValue: pipelineDefaults.appr.specsInternalBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/specs-internal repository'),
+                name: 'SPECS_BRANCH', defaultValue: pipelineDefaults.appr.specsBranch,
+                description: 'Git branch, tag or hash of the vegaprotocol/specs repository'),
             string(
                 name: 'MULTISIG_CONTROL_BRANCH', defaultValue: pipelineDefaults.appr.multisigControlBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository'),
@@ -75,9 +75,9 @@ void call() {
                                     gitClone('vega', params.VEGA_CORE_BRANCH)
                                 }
                             },
-                            'specs-internal': {
-                                dir('specs-internal') {
-                                    gitClone('specs-internal', params.SPECS_INTERNAL_BRANCH)
+                            'specs': {
+                                dir('specs') {
+                                    gitClone('specs', params.SPECS_BRANCH)
                                 }
                             },
                             'MultisigControl': {
