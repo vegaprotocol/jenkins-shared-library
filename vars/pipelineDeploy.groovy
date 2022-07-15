@@ -276,7 +276,8 @@ void call() {
                 }
                 steps {
                     script {
-                        waitForURL('https://wallet.' + env.DNS_ALIAS ?: env.NET_NAME + '.vega.xyz/api/v1/status')
+                        def dnsAlias = env.DNS_ALIAS ?: env.NET_NAME
+                        waitForURL('https://wallet.' + dnsAlias + '.vega.xyz/api/v1/status')
                         veganet('create_markets')
                     }
                 }
