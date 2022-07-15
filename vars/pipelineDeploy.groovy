@@ -256,6 +256,18 @@ void call() {
                     }
                 }
             }
+            stage('Reset chain state') {
+                when {
+                    expression {
+                        params.RESTART == 'YES'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('nukedata vegareinit')
+                    }
+                }
+            }
             stage('Start') {
                 when {
                     expression {
