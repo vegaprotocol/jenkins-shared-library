@@ -42,7 +42,7 @@ void call() {
         }
     }
 
-    def waitForURL = { address -> 
+    def waitForURL = { address ->
         timeout(3) {
             waitUntil {
                 script {
@@ -276,7 +276,7 @@ void call() {
                 }
                 steps {
                     script {
-                        waitForURL('https://wallet.' + env.NET_NAME + '.vega.xyz/api/v1/status')
+                        waitForURL('https://wallet.' + env.DNS_ALIAS ?: env.NET_NAME + '.vega.xyz/api/v1/status')
                         veganet('create_markets')
                     }
                 }

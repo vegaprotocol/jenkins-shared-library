@@ -127,6 +127,7 @@ def jobs = [
         },
         env: [
             NET_NAME: 'devnet',
+            DNS_ALIAS: 'd',
         ],
         parameters: {
             stringParam('VEGA_CORE_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
