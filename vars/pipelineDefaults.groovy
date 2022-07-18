@@ -50,7 +50,7 @@ Map st = dv + [
 @Field
 Map capsuleSystemTests = [
     branchDevopsInfra: 'master',
-    branchVegaCapsule: 'v0.1.0',
+    branchVegaCapsule: 'v0.2.0',
     branchVega: 'develop',
     branchDataNode: 'develop',
     branchSystemTests: 'develop',
