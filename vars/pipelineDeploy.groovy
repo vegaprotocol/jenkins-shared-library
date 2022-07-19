@@ -208,6 +208,9 @@ void call() {
                         params.DEPLOY_CONFIG
                     }
                 }
+                environment {
+                    ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
+                }
                 steps {
                     dir('ansible') {
                         withCredentials([sshCredentials]) {
