@@ -139,9 +139,9 @@ def jobs = [
             booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
-            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPS_INFRA_BRANCH', 'builtin-tm-35-part-1', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('ANSIBLE_BRANCH', 'builtin-tm-35', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         }
     ],
     [
