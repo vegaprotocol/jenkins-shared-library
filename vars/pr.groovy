@@ -71,7 +71,8 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'system-tests': 'SYSTEM_TESTS_BRANCH',
         'protos': 'PROTOS_BRANCH',
         'networks': 'NETWORKS_BRANCH',
-        'checkpoint-store': 'CHECKPOINT_STORE_BRANCH'
+        'checkpoint-store': 'CHECKPOINT_STORE_BRANCH',
+        'vegacapsule': 'VEGACAPSULE_BRANCH'
     ]
 
     // For every COMMENT
