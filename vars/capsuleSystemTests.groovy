@@ -10,6 +10,18 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
   }
 }
 
+def boxPublicIP() {
+    def boxIp = "unknown";
+    try {
+        sh script: 'curl ifconfig.co',returnStdout:true
+    } catch(err) {
+        // TODO: Add fallback to other services or linux commands
+        print("Cannot get the box IP: " + err)
+    }
+
+    return boxIp
+}
+
 void call(Map additionalConfig) {
   def defaultCconfig = [
     branchDevopsInfra: 'master',
@@ -47,6 +59,12 @@ void call(Map additionalConfig) {
   }
 
   stage('prepare') {
+    def publicIP = boxPublicIP()
+
+    print("The box public IP is: " + publicIP)
+    print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
+    print("The nomad interface is available only when the tests are running")
+
     cleanWs()
     
     config.preapareSteps()
