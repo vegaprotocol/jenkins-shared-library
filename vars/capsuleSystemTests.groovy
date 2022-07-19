@@ -13,12 +13,12 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
 def boxPublicIP() {
     def boxIp = "unknown";
     try {
-        sh script: 'curl ifconfig.co',returnStdout:true
+        boxIp = sh(script: 'curl ifconfig.co', returnStdout:true).trim()
     } catch(err) {
-        // TODO: Add fallback to other services or linux commands
-        print("Cannot get the box IP: " + err)
+      // TODO: Add fallback to other services or linux commands
+      print("Cannot get the box IP: " + err)
     }
-
+    
     return boxIp
 }
 
