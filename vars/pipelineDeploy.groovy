@@ -53,6 +53,10 @@ void call() {
         }
     }
 
+    def netSsh = { command ->
+        return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
+    }
+
     pipeline {
         agent any
         options {
@@ -113,6 +117,33 @@ void call() {
                         steps {
                             script {
                                 doGitClone('ansible', params.ANSIBLE_BRANCH)
+                            }
+                        }
+                    }
+                    stage('checkpoint store') {
+                        when {
+                            expression {
+                                env.NET_NAME == 'testnet'
+                            }
+                        }
+                        steps {
+                            script {
+                                doGitClone('checkpoint-store', 'main')
+                            }
+                        }
+                    }
+                    stage('vegatools') {
+                        when {
+                            expression {
+                                env.NET_NAME == 'testnet'
+                            }
+                        }
+                        steps {
+                            script {
+                                doGitClone('vegatools', 'develop')
+                            }
+                            dir('vegatools') {
+                                sh "go instal ./..."
                             }
                         }
                     }
@@ -177,6 +208,53 @@ void call() {
                 steps {
                     script {
                         veganet('stopbots stop')
+                    }
+                }
+            }
+            stage('Backup') {
+                when {
+                    expression {
+                        env.NET_NAME == 'testnet'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('chainstorecopy vegalogcopy')
+                    }
+                }
+            }
+            stage('Store checkpoint') {
+                when {
+                    expression {
+                        env.NET_NAME == 'testnet'
+                    }
+                }
+                steps {
+                    withCredentials([sshCredentials]) {
+                        script {
+                            newestFile = sh (
+                                script: netSsh('ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1'),
+                                returnStdout: true,
+                            ).trim()
+                            version = sh (
+                                script: netSsh('/home/vega/current/vega version | awk \'{print $3}\''),
+                                returnStdout: true,
+                            ).trim()
+                            sh script: netSsh("cp /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}; chown `whoami`:`whoami` /tmp/${newestFile}")
+                            sh 'scp -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz:/tmp/${newestFile} .'
+                            sh "mkdir -p checkpoint-store/Fairground/${version}"
+                            sh "mv ${newestFile} checkpoint-store/Fairground/${version}/"
+                            dir('checkpoint-store'){
+                                sh "vegatools checkpoint --file 'Fairground/${version}/${newestFile}' --out 'Fairground/${version}/${newestFile}.json'"
+                                sshagent(credentials: ['vega-ci-bot']) {
+                                    sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                    sh 'git config --global user.name "vega-ci-bot"'
+                                    sh "git add Fairground/${version}"
+                                    sh "git commit -m 'Automated update of checkpoint from ${env.BUILD_URL}'"
+                                    sh "git push"
+                                }
+                            }
+                        }
                     }
                 }
             }
