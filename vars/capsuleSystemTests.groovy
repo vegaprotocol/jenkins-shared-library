@@ -77,7 +77,6 @@ void call(Map additionalConfig) {
       [ name: 'vega', branch: config.branchVega ],
       [ name: 'data-node', branch: config.branchDataNode ],
       [ name: 'system-tests', branch: config.branchSystemTests ],
-      [ name: 'vegawallet', branch: config.branchVegawallet ],
       [ name: 'protos', branch: config.branchProtos ],
       [ name: 'vegatools', branch: config.branchVegatools ],
     ]
