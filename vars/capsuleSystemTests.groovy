@@ -98,7 +98,7 @@ void call(Map additionalConfig) {
       [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
       [ repository: 'vega', name: 'vega', packages: './cmd/vega/' ],
       [ repository: 'data-node', name: 'data-node', packages: './cmd/data-node/' ],
-      [ repository: 'vegawallet', name: 'vegawallet', packages: './main.go' ],
+      [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     
     parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
