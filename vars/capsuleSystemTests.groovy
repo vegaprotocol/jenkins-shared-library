@@ -77,7 +77,6 @@ void call(Map additionalConfig) {
       [ name: 'vega', branch: config.branchVega ],
       [ name: 'data-node', branch: config.branchDataNode ],
       [ name: 'system-tests', branch: config.branchSystemTests ],
-      [ name: 'vegawallet', branch: config.branchVegawallet ],
       [ name: 'protos', branch: config.branchProtos ],
       [ name: 'vegatools', branch: config.branchVegatools ],
     ]
@@ -98,7 +97,7 @@ void call(Map additionalConfig) {
       [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
       [ repository: 'vega', name: 'vega', packages: './cmd/vega/' ],
       [ repository: 'data-node', name: 'data-node', packages: './cmd/data-node/' ],
-      [ repository: 'vegawallet', name: 'vegawallet', packages: './main.go' ],
+      [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     
     parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
