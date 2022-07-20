@@ -89,7 +89,10 @@ def jobs = [
         definition: {
             cps {
                 script('''
-                @Library("vega-shared-library@${env.LIB_BRANCH}") _
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 capsulePipelineWrapper()
                 ''')
             }
@@ -121,7 +124,10 @@ def jobs = [
         definition: {
             cps {
                 script('''
-                @Library("vega-shared-library@${env.LIB_BRANCH}") _
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
                 ''')
             }
@@ -152,7 +158,10 @@ def jobs = [
         definition: {
             cps {
                 script('''
-                @Library("vega-shared-library@${env.LIB_BRANCH}") _
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
                 ''')
             }
@@ -181,7 +190,10 @@ def jobs = [
         definition: {
             cps {
                 script('''
-                @Library("vega-shared-library@${env.LIB_BRANCH}") _
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
                 ''')
             }
@@ -210,7 +222,10 @@ def jobs = [
         definition: {
             cps {
                 script('''
-                @Library("vega-shared-library@${env.LIB_BRANCH}") _
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
                 ''')
             }
