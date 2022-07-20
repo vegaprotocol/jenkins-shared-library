@@ -53,6 +53,10 @@ void call() {
         }
     }
 
+    def netSsh = { command ->
+        return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
+    }
+
     pipeline {
         agent any
         options {
@@ -228,9 +232,6 @@ void call() {
                 steps {
                     withCredentials([sshCredentials]) {
                         script {
-                            netSsh = { command ->
-                                return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
-                            }
                             newestFile = sh (
                                 script: netSsh('ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1'),
                                 returnStdout: true,
