@@ -84,13 +84,14 @@ def jobs = [
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
             booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
             booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                @Library("vega-shared-library@${env.LIB_BRANCH}") _
                 capsulePipelineWrapper()
-                """)
+                ''')
             }
         },
         env: [
@@ -119,10 +120,10 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                @Library("vega-shared-library@${env.LIB_BRANCH}") _
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -142,6 +143,7 @@ def jobs = [
             stringParam('DEVOPS_INFRA_BRANCH', 'builtin-tm-35-part-1', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'builtin-tm-35', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -149,10 +151,10 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                @Library("vega-shared-library@${env.LIB_BRANCH}") _
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -170,6 +172,7 @@ def jobs = [
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -177,10 +180,10 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                @Library("vega-shared-library@${env.LIB_BRANCH}") _
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -198,6 +201,7 @@ def jobs = [
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -205,10 +209,10 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                @Library("vega-shared-library@${env.LIB_BRANCH}") _
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -226,6 +230,7 @@ def jobs = [
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ]
 ]
