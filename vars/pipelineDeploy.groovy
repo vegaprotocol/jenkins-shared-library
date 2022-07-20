@@ -233,21 +233,22 @@ void call() {
                             }
                             newestFile = sh (
                                 script: netSsh 'ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1',
-                                returnStdout: true
+                                returnStdout: true,
                             ).trim()
                             version = sh (
-                                script: netSsh "/home/vega/current/vega version | awk '{print $3}'"
-                            )
+                                script: netSsh "/home/vega/current/vega version | awk '{print $3}'",
+                                returnStdout: true,
+                            ).trim()
                             sh netSsh "cp  /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}; chown `whoami`:`whoami` /tmp/${newestFile}"
                             sh 'scp -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz:/tmp/${newestFile} .'
-                            sh "mkdir -p checkpoint-store/Testnet-1/${version}"
-                            sh "mv ${newestFile} checkpoint-store/Testnet-1/${version}/"
+                            sh "mkdir -p checkpoint-store/Fairground/${version}"
+                            sh "mv ${newestFile} checkpoint-store/Fairground/${version}/"
                             dir('checkpoint-store'){
-                                sh "vegatools checkpoint --file 'Testnet-1/${version}/${newestFile}' --out 'Testnet-1/${version}/${newestFile}.json'"
+                                sh "vegatools checkpoint --file 'Fairground/${version}/${newestFile}' --out 'Fairground/${version}/${newestFile}.json'"
                                 sshagent(credentials: ['vega-ci-bot']) {
                                     sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                     sh 'git config --global user.name "vega-ci-bot"'
-                                    sh "git add Testnet-1/${version}"
+                                    sh "git add Fairground/${version}"
                                     sh "git commit -m 'Automated update of checkpoint from ${env.BUILD_URL}'"
                                     sh "git push"
                                 }
