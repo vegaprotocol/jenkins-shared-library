@@ -232,14 +232,14 @@ void call() {
                                 return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
                             }
                             newestFile = sh (
-                                script: netSsh 'ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1',
+                                script: netSsh('ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1'),
                                 returnStdout: true,
                             ).trim()
                             version = sh (
-                                script: netSsh "/home/vega/current/vega version | awk '{print $3}'",
+                                script: netSsh("/home/vega/current/vega version | awk '{print $3}'"),
                                 returnStdout: true,
                             ).trim()
-                            sh netSsh "cp  /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}; chown `whoami`:`whoami` /tmp/${newestFile}"
+                            sh script: netSsh("cp /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}; chown `whoami`:`whoami` /tmp/${newestFile}")
                             sh 'scp -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz:/tmp/${newestFile} .'
                             sh "mkdir -p checkpoint-store/Fairground/${version}"
                             sh "mv ${newestFile} checkpoint-store/Fairground/${version}/"
