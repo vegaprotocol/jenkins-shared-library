@@ -53,9 +53,9 @@ void call(Map additionalConfig) {
 
   print "config: " + config
 
-  def testDirectoryPath
-  dir('tests') {
-    testDirectoryPath = pwd()
+  def testNetworkDir
+  dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
+    testNetworkDir = pwd()
   }
 
   stage('prepare') {
@@ -100,15 +100,15 @@ void call(Map additionalConfig) {
       [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     
-    parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
+    parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages) }]}
   }
   
   stage('start nomad') {
     dir('system-tests'){
-        sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testDirectoryPath + '/nomad_config.hcl'
+        sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testNetworkDir + '/nomad_config.hcl'
     }
-    dir ('tests') {
-        sh 'daemonize -o ' + testDirectoryPath + '/nomad.log -c ' + testDirectoryPath + ' -p ' + testDirectoryPath + '/vegacapsule_nomad.pid ' + testDirectoryPath + '/vegacapsule nomad --nomad-config-path=' + testDirectoryPath + '/nomad_config.hcl'
+    dir (testNetworkDir) {
+        sh 'daemonize -o ' + testNetworkDir + '/nomad.log -c ' + testNetworkDir + ' -p ' + testNetworkDir + '/vegacapsule_nomad.pid ' + testNetworkDir + '/vegacapsule nomad --nomad-config-path=' + testNetworkDir + '/nomad_config.hcl'
     }
   }
 
@@ -117,7 +117,7 @@ void call(Map additionalConfig) {
     prepareSteps['prepare multisig setup script'] = {
       stage('prepare network config') {
         dir('system-tests') {
-          sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testDirectoryPath + '/config_system_tests.hcl'
+          sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testNetworkDir + '/config_system_tests.hcl'
         }
       }
     }
@@ -141,7 +141,7 @@ void call(Map additionalConfig) {
 
     prepareSteps['start the network'] = {
       stage('start the network') {
-        dir('tests') {
+        dir(testNetworkDir) {
           try {
             withCredentials([
               usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
@@ -150,15 +150,15 @@ void call(Map additionalConfig) {
             }
             timeout(time: 5, unit: 'MINUTES') {
               ansiColor('xterm') {
-                sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testDirectoryPath + '/testnet'
+                sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
               }
             }
           } finally {
             sh 'docker logout https://ghcr.io'
           }
-          sh './vegacapsule nodes ls-validators --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/validators.json'
-          sh 'mkdir -p ' + testDirectoryPath + '/testnet/smartcontracts'
-          sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testDirectoryPath + '/testnet > ' + testDirectoryPath + '/testnet/smartcontracts/addresses.json'
+          sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+          sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+          sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
         }
       }
     }
@@ -168,10 +168,10 @@ void call(Map additionalConfig) {
 
 
   stage('setup multisig contract') {
-    dir ("tests") {
+    dir (testNetworkDir) {
       timeout(time: 2, unit: 'MINUTES') {
         ansiColor('xterm') {
-          sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testDirectoryPath + '/testnet"'
+          sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
         }
       }
     }
@@ -181,14 +181,15 @@ void call(Map additionalConfig) {
     stage('run tests') {
       dir('system-tests/scripts') {
         withEnv([
-            'NETWORK_HOME_PATH="' + testDirectoryPath + '/testnet"',
+            'TESTS_DIR=' + testNetworkDir,
+            'NETWORK_HOME_PATH="' + testNetworkDir + '/testnet"',
             'TEST_FUNCTION="' + config.systemTestsTestFunction + '"',
             'TEST_MARK="' + config.systemTestsTestMark + '"',
             'TEST_DIRECTORY="' + config.systemTestsTestDirectory + '"',
             'USE_VEGACAPSULE=true',
             'SYSTEM_TESTS_DEBUG=' + config.systemTestsDebug,
-            'VEGACAPSULE_BIN_LINUX="' + testDirectoryPath + '/vegacapsule"',
-            'SYSTEM_TESTS_LOG_OUTPUT="' + testDirectoryPath + '/log-output"'
+            'VEGACAPSULE_BIN_LINUX="' + testNetworkDir + '/vegacapsule"',
+            'SYSTEM_TESTS_LOG_OUTPUT="' + testNetworkDir + '/log-output"'
         ]) {
             ansiColor('xterm') {
               timeout(time: config.systemTestsRunTimeout, unit: 'MINUTES') {
@@ -200,23 +201,23 @@ void call(Map additionalConfig) {
     }
   } finally {
     stage('Stop network') {
-      dir('tests') {
-        sh './vegacapsule network stop --home-path ' + testDirectoryPath + '/testnet'
+      dir(testNetworkDir) {
+        sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
       }
     }
 
     stage('Archive network logs') {
-      dir('tests') {
+      dir(testNetworkDir) {
         if (config.printNetworkLogs) {
-          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet | tee ./testnet/network.log'
+          sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet | tee ./testnet/network.log'
         } else {
-          sh './vegacapsule network logs --home-path ' + testDirectoryPath + '/testnet > ./testnet/network.log'
+          sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet > ./testnet/network.log'
         }
       }
     }
 
     stage('Post-steps') {
-      dir('tests') {
+      dir(testNetworkDir) {
         archiveArtifacts artifacts: 'testnet/**/*',
                   allowEmptyArchive: true
 
