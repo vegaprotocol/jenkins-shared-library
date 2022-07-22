@@ -98,10 +98,42 @@ def jobs = [
             }
         },
         env: [
+            NET_NAME: "stagnet3",
             S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
             NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646",
         ],
     ],
+    [
+        name: 'private/Deployments/Vegacapsule/Devnet 2',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
+            stringParam('VEGACAPSULE_VERSION', 'ops-development', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
+            stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
+            choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
+            booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
+            booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: {
+            cps {
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
+                capsulePipelineWrapper()
+                ''')
+            }
+        },
+        env: [
+            NET_NAME: "devnet2",
+            S3_CONFIG_HOME: "s3://vegacapsule-test/devnet2",
+            NOMAD_ADDR: "https://n00.devnet.vega.xyz:4646",
+        ],
+    ],
+
     // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',

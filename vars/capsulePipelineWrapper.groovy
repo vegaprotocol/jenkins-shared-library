@@ -56,7 +56,7 @@ def call() {
 
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             GITHUB_CREDS = "github-vega-ci-bot-artifacts"
-            CONFIG_HOME = "${env.WORKSPACE}/stagnet3/vegacapsule/home"
+            CONFIG_HOME = "${env.WORKSPACE}/${env.NET_NAME}/vegacapsule/home"
         }
         stages {
             stage('Init bin') {
@@ -164,7 +164,7 @@ def call() {
             }
             stage('Update networks configs') {
                 environment {
-                    TEMPLATES_HOME = "${env.WORKSPACE}/networks-internal/stagnet3/vegacapsule/config"
+                    TEMPLATES_HOME = "${env.WORKSPACE}/networks-internal/${env.NET_NAME}/vegacapsule/config"
                 }
                 when {
                     expression {
@@ -174,7 +174,7 @@ def call() {
                 stages {
                     stage('Template live config (git / networks-internal)') {
                         environment {
-                            FLAGS = "--out-dir ${env.WORKSPACE}/networks-internal/stagnet3/live-config"
+                            FLAGS = "--out-dir ${env.WORKSPACE}/networks-internal/${env.NET_NAME}/live-config"
                         }
                         steps {
                             script {
