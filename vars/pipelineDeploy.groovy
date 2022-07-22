@@ -42,11 +42,26 @@ void call() {
         }
     }
 
+    def waitForURL = { address ->
+        timeout(3) {
+            waitUntil {
+                script {
+                    def r = sh returnStatus: true, script: 'curl -X GET ' + address
+                    return r == 0
+                }
+            }
+        }
+    }
+
+    def netSsh = { command ->
+        return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
+    }
+
     pipeline {
         agent any
         options {
             skipDefaultCheckout()
-            timeout(time: 20, unit: 'MINUTES')
+            timeout(time: 40, unit: 'MINUTES')
             timestamps()
             disableConcurrentBuilds()
         }
@@ -105,6 +120,33 @@ void call() {
                             }
                         }
                     }
+                    stage('checkpoint store') {
+                        when {
+                            expression {
+                                env.NET_NAME == 'testnet'
+                            }
+                        }
+                        steps {
+                            script {
+                                doGitClone('checkpoint-store', 'main')
+                            }
+                        }
+                    }
+                    stage('vegatools') {
+                        when {
+                            expression {
+                                env.NET_NAME == 'testnet'
+                            }
+                        }
+                        steps {
+                            script {
+                                doGitClone('vegatools', 'develop')
+                            }
+                            dir('vegatools') {
+                                sh "go instal ./..."
+                            }
+                        }
+                    }
                 }
             }
             stage('Prepare'){
@@ -157,6 +199,65 @@ void call() {
                     }
                 }
             }
+            stage('Stop network') {
+                when {
+                    expression {
+                        params.RESTART == 'YES_FROM_CHECKPOINT' || params.RESTART == 'YES'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('stopbots stop')
+                    }
+                }
+            }
+            stage('Backup') {
+                when {
+                    expression {
+                        env.NET_NAME == 'testnet'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('chainstorecopy vegalogcopy')
+                    }
+                }
+            }
+            stage('Store checkpoint') {
+                when {
+                    expression {
+                        env.NET_NAME == 'testnet'
+                    }
+                }
+                steps {
+                    withCredentials([sshCredentials]) {
+                        script {
+                            newestFile = sh (
+                                script: netSsh('ls -t /home/vega/.local/state/vega/node/checkpoints/ | head -n 1'),
+                                returnStdout: true,
+                            ).trim()
+                            version = sh (
+                                script: netSsh('/home/vega/current/vega version | awk \'{print $3}\''),
+                                returnStdout: true,
+                            ).trim()
+                            sh script: netSsh("cp /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}; chown `whoami`:`whoami` /tmp/${newestFile}")
+                            sh 'scp -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz:/tmp/${newestFile} .'
+                            sh "mkdir -p checkpoint-store/Fairground/${version}"
+                            sh "mv ${newestFile} checkpoint-store/Fairground/${version}/"
+                            dir('checkpoint-store'){
+                                sh "vegatools checkpoint --file 'Fairground/${version}/${newestFile}' --out 'Fairground/${version}/${newestFile}.json'"
+                                sshagent(credentials: ['vega-ci-bot']) {
+                                    sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                    sh 'git config --global user.name "vega-ci-bot"'
+                                    sh "git add Fairground/${version}"
+                                    sh "git commit -m 'Automated update of checkpoint from ${env.BUILD_URL}'"
+                                    sh "git push"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             stage('Status') {
                 steps {
                     script {
@@ -185,38 +286,33 @@ void call() {
                         params.DEPLOY_CONFIG
                     }
                 }
+                environment {
+                    ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
+                }
                 steps {
                     dir('ansible') {
                         withCredentials([sshCredentials]) {
                             // Note: environment variables PSSH_KEYFILE and PSSH_USER
                             //        are set by withCredentials wrapper
-                            sh label: 'ansible deploy run', script: """#!/bin/bash -e
-                                ansible-playbook \
-                                    --diff \
-                                    -u "\${PSSH_USER}" \
-                                    --private-key "\${PSSH_KEYFILE}" \
-                                    --inventory inventories \
-                                    --limit ${env.NET_NAME} \
-                                    --tags vega-network-config \
-                                    site.yaml
-                            """
+                            script {
+                                ['tendermint', 'vegaserver'].each { playbook ->
+                                    sh label: 'ansible deploy run', script: """#!/bin/bash -e
+                                        ansible-playbook \
+                                            --diff \
+                                            -u "\${PSSH_USER}" \
+                                            --private-key "\${PSSH_KEYFILE}" \
+                                            --inventory inventories \
+                                            --limit "${env.NET_NAME}" \
+                                            --tags vega-network-config \
+                                            playbooks/playbook-${playbook}.yaml
+                                    """
+                                }
+                            }
                         }
                     }
                 }
             }
-            stage('Restart Network - without checkpoint') {
-                when {
-                    expression {
-                        params.RESTART == 'YES'
-                    }
-                }
-                steps {
-                    script {
-                        veganet('bounce')
-                    }
-                }
-            }
-            stage('Restart Network - with checkpoint') {
+            stage('Load checkpoint') {
                 when {
                     expression {
                         params.RESTART == 'YES_FROM_CHECKPOINT'
@@ -232,12 +328,36 @@ void call() {
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
                                     --vega-binary "${env.WORKSPACE}/bin/vega" \
-                                    --network ${env.NET_NAME} \
-                                    --ssh-private-key ${env.PSSH_KEYFILE}  \
-                                    --ssh-user ${env.PSSH_USER} \
+                                    --network "${env.NET_NAME}" \
+                                    --ssh-private-key "${env.PSSH_KEYFILE}"  \
+                                    --ssh-user "${env.PSSH_USER}" \
                                     --no-secrets
                             """
                         }
+                    }
+                }
+            }
+            stage('Reset chain state') {
+                when {
+                    expression {
+                        params.RESTART == 'YES'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('nukedata vegareinit')
+                    }
+                }
+            }
+            stage('Start') {
+                when {
+                    expression {
+                        params.RESTART == 'YES' || params.RESTART == 'YES_FROM_CHECKPOINT'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('start_datanode start')
                     }
                 }
             }
@@ -249,6 +369,8 @@ void call() {
                 }
                 steps {
                     script {
+                        def dnsAlias = env.DNS_ALIAS ?: env.NET_NAME
+                        waitForURL('https://wallet.' + dnsAlias + '.vega.xyz/api/v1/status')
                         veganet('create_markets')
                     }
                 }

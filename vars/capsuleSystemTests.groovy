@@ -10,6 +10,18 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
   }
 }
 
+def boxPublicIP() {
+    def boxIp = "unknown";
+    try {
+        boxIp = sh(script: 'curl ifconfig.co', returnStdout:true).trim()
+    } catch(err) {
+      // TODO: Add fallback to other services or linux commands
+      print("Cannot get the box IP: " + err)
+    }
+    
+    return boxIp
+}
+
 void call(Map additionalConfig) {
   def defaultCconfig = [
     branchDevopsInfra: 'master',
@@ -47,6 +59,12 @@ void call(Map additionalConfig) {
   }
 
   stage('prepare') {
+    def publicIP = boxPublicIP()
+
+    print("The box public IP is: " + publicIP)
+    print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
+    print("The nomad interface is available only when the tests are running")
+
     cleanWs()
     
     config.preapareSteps()
@@ -59,7 +77,6 @@ void call(Map additionalConfig) {
       [ name: 'vega', branch: config.branchVega ],
       [ name: 'data-node', branch: config.branchDataNode ],
       [ name: 'system-tests', branch: config.branchSystemTests ],
-      [ name: 'vegawallet', branch: config.branchVegawallet ],
       [ name: 'protos', branch: config.branchProtos ],
       [ name: 'vegatools', branch: config.branchVegatools ],
     ]
@@ -80,7 +97,7 @@ void call(Map additionalConfig) {
       [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
       [ repository: 'vega', name: 'vega', packages: './cmd/vega/' ],
       [ repository: 'data-node', name: 'data-node', packages: './cmd/data-node/' ],
-      [ repository: 'vegawallet', name: 'vegawallet', packages: './main.go' ],
+      [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     
     parallel binaries.collectEntries{value -> [value.name, { buildGoBinary(value.repository,  testDirectoryPath + '/' + value.name, value.packages) }]}
