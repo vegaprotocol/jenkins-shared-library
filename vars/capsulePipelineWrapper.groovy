@@ -148,7 +148,7 @@ def call() {
                                 mkdir -p '${env.CONFIG_HOME}'
                                 aws s3 sync '${env.S3_CONFIG_HOME}/' '${env.CONFIG_HOME}/'
                             """
-                            sh "cat '${env.CONFIG_HOME}/config.hcl'"
+                            sh "if [ -d '${env.CONFIG_HOME}/config.hcl' ]; then cat '${env.CONFIG_HOME}/config.hcl'; fi"
                         }
                     }
                 }
