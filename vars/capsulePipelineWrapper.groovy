@@ -219,7 +219,7 @@ def call() {
             stage('Restart Network') {
                 when {
                     expression {
-                        params.ACTION == 'RESTART' && params.UNSAFE_RESET_ALL // TODO: This probably should be applied to START as well
+                        (params.ACTION == 'RESTART' || params.ACTION == 'START') && params.UNSAFE_RESET_ALL
                     }
                 }
                 steps {
