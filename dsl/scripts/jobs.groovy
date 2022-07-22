@@ -78,7 +78,7 @@ def jobs = [
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-            stringParam('VEGACAPSULE_VERSION', 'ops-development', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
@@ -108,7 +108,7 @@ def jobs = [
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-            stringParam('VEGACAPSULE_VERSION', 'ops-development', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
