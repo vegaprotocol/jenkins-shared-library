@@ -1,45 +1,45 @@
 def call() {
     writeConfigs = { envName ->
-        sh label: "generate templates: ${envName}", script: '''
+        sh label: "generate templates: ${envName}", script: """
             vegacapsule template genesis \
-                --home-path ${CONFIG_HOME} \
-                --path ${TEMPLATES_HOME}/genesis.tmpl.json ${FLAGS}
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/genesis.tmpl.json' ${env.FLAGS}
 
             vegacapsule template node-sets \
-                --home-path ${CONFIG_HOME} \
-                --path ${TEMPLATES_HOME}/vega.validators.tmpl.toml \
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/vega.validators.tmpl.toml' \
                 --nodeset-group-name validators \
                 --type vega \
-                --with-merge ${FLAGS}
+                --with-merge ${env.FLAGS}
 
             vegacapsule template node-sets \
-                --home-path "${CONFIG_HOME}" \
-                --path ${TEMPLATES_HOME}/tendermint.validators.tmpl.toml \
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/tendermint.validators.tmpl.toml' \
                 --nodeset-group-name validators \
                 --type tendermint \
-                --with-merge ${FLAGS}
+                --with-merge ${env.FLAGS}
 
             vegacapsule template node-sets \
-                --home-path ${CONFIG_HOME} \
-                --path ${TEMPLATES_HOME}/vega.full.tmpl.toml \
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/vega.full.tmpl.toml' \
                 --nodeset-group-name full \
                 --type vega \
-                --with-merge ${FLAGS}
+                --with-merge ${env.FLAGS}
 
             vegacapsule template node-sets \
-                --home-path ${CONFIG_HOME} \
-                --path ${TEMPLATES_HOME}/tendermint.full.tmpl.toml \
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/tendermint.full.tmpl.toml' \
                 --nodeset-group-name full \
                 --type tendermint \
-                --with-merge ${FLAGS}
+                --with-merge ${env.FLAGS}
 
             vegacapsule template node-sets \
-                --home-path ${CONFIG_HOME} \
-                --path ${TEMPLATES_HOME}/data_node.full.tmpl.toml \
+                --home-path '${env.CONFIG_HOME}' \
+                --path '${env.TEMPLATES_HOME}/data_node.full.tmpl.toml' \
                 --nodeset-group-name full \
                 --type data-node \
-                --with-merge ${FLAGS}
-            '''
+                --with-merge ${env.FLAGS}
+            """
     }
 
     pipeline {
@@ -145,9 +145,10 @@ def call() {
                     stage('Sync remote state to local') {
                         steps {
                             sh """
-                                mkdir -p ${env.CONFIG_HOME}
-                                aws s3 sync "${env.S3_CONFIG_HOME}/" "${env.CONFIG_HOME}/"
+                                mkdir -p '${env.CONFIG_HOME}'
+                                aws s3 sync '${env.S3_CONFIG_HOME}/' '${env.CONFIG_HOME}/'
                             """
+                            sh "cat '${env.CONFIG_HOME}/config.hcl'"
                         }
                     }
                 }
@@ -159,7 +160,7 @@ def call() {
                     }
                 }
                 steps {
-                    sh "vegacapsule network stop --nodes-only --home-path ${env.CONFIG_HOME}"
+                    sh "vegacapsule network stop --nodes-only --home-path '${env.CONFIG_HOME}'"
                 }
             }
             stage('Update networks configs') {
@@ -174,7 +175,7 @@ def call() {
                 stages {
                     stage('Template live config (git / networks-internal)') {
                         environment {
-                            FLAGS = "--out-dir ${env.WORKSPACE}/networks-internal/${env.NET_NAME}/live-config"
+                            FLAGS = "--out-dir '${env.WORKSPACE}/networks-internal/stagnet3/live-config'"
                         }
                         steps {
                             script {
@@ -190,16 +191,6 @@ def call() {
                             script {
                                 writeConfigs('s3')
                             }
-                        }
-                    }
-                    stage('Write to s3'){
-                        options {
-                            retry(3)
-                        }
-                        steps {
-                            sh label: "sync configs to s3", script: """
-                                aws s3 sync "${env.CONFIG_HOME}/" "${env.S3_CONFIG_HOME}/"
-                            """
                         }
                     }
                     stage('Write to git') {
@@ -228,11 +219,11 @@ def call() {
             stage('Restart Network') {
                 when {
                     expression {
-                        params.ACTION == 'RESTART' && params.UNSAFE_RESET_ALL
+                        params.ACTION == 'RESTART' && params.UNSAFE_RESET_ALL // TODO: This probably should be applied to START as well
                     }
                 }
                 steps {
-                    sh "vegacapsule nodes unsafe-reset-all --remote --home-path ${env.CONFIG_HOME}"
+                    sh "vegacapsule nodes unsafe-reset-all --remote --home-path '${env.CONFIG_HOME}'"
                 }
             }
             stage('Start Network') {
@@ -242,7 +233,17 @@ def call() {
                     }
                 }
                 steps {
-                    sh "vegacapsule network start --home-path ${env.CONFIG_HOME}"
+                    sh "vegacapsule network start --home-path '${env.CONFIG_HOME}'"
+                }
+            }
+            stage('Write to s3'){
+                options {
+                    retry(3)
+                }
+                steps {
+                    sh label: "sync configs to s3", script: """
+                        aws s3 sync '${env.CONFIG_HOME}/' '${env.S3_CONFIG_HOME}/'
+                    """
                 }
             }
         }
