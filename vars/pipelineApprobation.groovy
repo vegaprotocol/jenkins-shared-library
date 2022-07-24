@@ -20,7 +20,7 @@ void call() {
         copyArtifactPermission('*'),
         parameters([
             string(
-                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
+                name: 'VEGA_BRANCH', defaultValue: pipelineDefaults.appr.vegaBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
             string(
                 name: 'SPECS_BRANCH', defaultValue: pipelineDefaults.appr.specsBranch,
@@ -70,9 +70,9 @@ void call() {
                     //
                     stage('Git Clone') {
                         parallel([
-                            'vega core': {
+                            'vega': {
                                 dir('vega') {
-                                    gitClone('vega', params.VEGA_CORE_BRANCH)
+                                    gitClone('vega', params.VEGA_BRANCH)
                                 }
                             },
                             'specs': {

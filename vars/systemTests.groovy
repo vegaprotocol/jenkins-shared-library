@@ -5,12 +5,9 @@ void call(Map config = [:]) {
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
-            string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.st.vegaCoreBranch),
-            string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.st.dataNodeBranch),
-            string(name: 'VEGAWALLET_BRANCH', value: config.vegawallet ?: pipelineDefaults.st.vegaWalletBranch),
+            string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.st.vegaBranch),
             string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?: pipelineDefaults.st.vegatoolsBranch),
             string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.st.devopsInfraBranch),
-            string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.st.protosBranch),
             string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.st.systemTestsBranch),
 
             // Build config

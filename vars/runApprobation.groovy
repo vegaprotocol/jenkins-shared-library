@@ -5,7 +5,7 @@ void call(Map config = [:]) {
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = [
             // Different repos branches
-            string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.appr.vegaCoreBranch),
+            string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.appr.vegaBranch),
             string(name: 'SPECS_INTERNAL_BRANCH', value: config.specsInternal ?: pipelineDefaults.appr.specsInternalBranch),
             string(name: 'MULTISIG_CONTROL_BRANCH', value: config.multisigControl ?: pipelineDefaults.appr.multisigControlBranch),
             string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.appr.systemTestsBranch),

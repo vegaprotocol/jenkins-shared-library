@@ -34,18 +34,12 @@ void call() {
             booleanParam(
                 name: 'DV_MAINNET', defaultValue: true,
                 description: 'Run network as Mainnet. LEAVE THIS SET TO TRUE, or else undefined behaviour.'),
-            string(
-                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.mnnt.protosBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.mnnt.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
         ],
         properties: [
             durabilityHint('PERFORMANCE_OPTIMIZED'),
-        ],
-        git: [
-            [name: 'protos', branch: 'PROTOS_BRANCH'],
         ],
         prepareStages: [
             'net': { Map vars ->

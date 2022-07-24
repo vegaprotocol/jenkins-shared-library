@@ -10,11 +10,8 @@ void call(Map config = [:]) {
   List buildParameters = [
       string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
       string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
-      string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.capsuleSystemTests.branchVega),
-      string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.capsuleSystemTests.branchDataNode),
+      string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.capsuleSystemTests.branchVega),
       string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.capsuleSystemTests.branchSystemTests),
-      string(name: 'VEGAWALLET_BRANCH', value: config.vegawallet ?: pipelineDefaults.capsuleSystemTests.branchVegawallet),
-      string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.capsuleSystemTests.branchProtos),
       string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?:  pipelineDefaults.capsuleSystemTests.branchVegatools),
 
       string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),

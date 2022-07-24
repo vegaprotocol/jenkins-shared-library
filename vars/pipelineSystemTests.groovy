@@ -21,9 +21,6 @@ void call() {
             string(
                 name: 'SYSTEM_TESTS_TEST_MARK', defaultValue: pipelineDefaults.st.testMark,
                 description: 'Run only a tests with the specified mark(s). This is actually a "pytest -m $TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html'),
-            string(
-                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.st.protosBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.st.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
@@ -33,7 +30,6 @@ void call() {
         ],
         git: [
             [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
-            [name: 'protos', branch: 'PROTOS_BRANCH'],
         ],
         prepareStages: [
             'st': { Map vars ->

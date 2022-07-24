@@ -18,8 +18,8 @@ void call(Map config = [:]) {
     }
     List buildParameters = [
             string(
-                name: 'VEGA_CORE_VERSION',
-                value: config.vegaCore ?: pipelineDefaults.dev.vegaCoreVersion
+                name: 'VEGA_VERSION',
+                value: config.vegaVersion ?: pipelineDefaults.dev.vegaVersion
             ),
             booleanParam(
                 name: 'BUILD_VEGA_CORE',

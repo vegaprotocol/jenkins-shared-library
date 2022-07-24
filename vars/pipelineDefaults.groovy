@@ -8,9 +8,7 @@ import groovy.transform.Field
 // Dockerised Vega pipeline
 @Field
 Map dv = [
-    vegaCoreBranch: '', // 'develop',
-    dataNodeBranch: '', // 'develop',
-    vegaWalletBranch: '', // 'develop',
+    vegaBranch: '', // 'develop',
     devopsInfraBranch: 'master',
     vegatoolsBranch: 'develop',
     networksBranch: 'master',
@@ -42,7 +40,6 @@ Map st = dv + [
     testDirectory: '',
     testFunction: '',
     testMark:'smoke',
-    protosBranch: 'develop',
     systemTestsDebug: false,
     genesisJSON: 'system-tests/docker/zero-genesis.json',
 ]
@@ -52,10 +49,7 @@ Map capsuleSystemTests = [
     branchDevopsInfra: 'master',
     branchVegaCapsule: 'v0.2.1',
     branchVega: 'develop',
-    branchDataNode: 'develop',
     branchSystemTests: 'develop',
-    branchVegawallet: 'develop',
-    branchProtos: 'develop',
     branchVegatools: 'develop',
 
     capsuleConfig: 'capsule_config.hcl',
@@ -131,7 +125,7 @@ Map fair = [
 // Approbation pipeline
 @Field
 Map appr = [
-    vegaCoreBranch: 'develop',
+    vegaBranch: 'develop',
     specsBranch: 'master',
     multisigControlBranch: 'develop',
     systemTestsBranch: 'develop',

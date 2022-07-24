@@ -20,9 +20,6 @@ void call() {
             string(
                 name: 'SYSTEM_TESTS_TEST_FUNCTION_ASSERT', defaultValue: pipelineDefaults.lnl.testFunctionAssert,
                 description: 'Specify which tests should be run after the network restart. These should validate the network state after resume from checkpoint'),
-            string(
-                name: 'PROTOS_BRANCH', defaultValue: pipelineDefaults.lnl.protosBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/protos repository'),
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG', defaultValue: pipelineDefaults.lnl.systemTestsDebug,
                 description: 'Enable debug logs for system-tests execution'),
@@ -32,7 +29,6 @@ void call() {
         ],
         git: [
             [name: 'system-tests', branch: 'SYSTEM_TESTS_BRANCH'],
-            [name: 'protos', branch: 'PROTOS_BRANCH'],
         ],
         prepareStages: [
             'st': { Map vars ->

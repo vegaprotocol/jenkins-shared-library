@@ -27,10 +27,7 @@ void call(Map additionalConfig) {
     branchDevopsInfra: 'master',
     branchVegaCapsule: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
     branchVega: 'develop',
-    branchDataNode: 'develop',
     branchSystemTests: 'develop',
-    branchVegawallet: 'develop',
-    branchProtos: 'develop',
     branchVegatools: 'develop',
     
     systemTestsTestFunction: '',
@@ -75,9 +72,7 @@ void call(Map additionalConfig) {
       [ name: 'devops-infra', branch: config.branchDevopsInfra ],
       [ name: 'vegacapsule', branch: config.branchVegaCapsule ],
       [ name: 'vega', branch: config.branchVega ],
-      [ name: 'data-node', branch: config.branchDataNode ],
       [ name: 'system-tests', branch: config.branchSystemTests ],
-      [ name: 'protos', branch: config.branchProtos ],
       [ name: 'vegatools', branch: config.branchVegatools ],
     ]
 
@@ -96,7 +91,7 @@ void call(Map additionalConfig) {
     def binaries = [
       [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
       [ repository: 'vega', name: 'vega', packages: './cmd/vega/' ],
-      [ repository: 'data-node', name: 'data-node', packages: './cmd/data-node/' ],
+      [ repository: 'vega', name: 'data-node', packages: './cmd/data-node/' ],
       [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     
