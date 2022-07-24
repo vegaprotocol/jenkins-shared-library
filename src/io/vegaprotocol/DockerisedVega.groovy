@@ -20,9 +20,7 @@ genesisFile
 checkpointFile
 ethEndpointUrl
 
-vegaCoreVersion
-dataNodeVersion
-vegaWalletVersion
+vegaVersion
 
 dockerImageVegaCore
 dockerImageDataNode
@@ -55,13 +53,11 @@ void init(Map config=[:]) {
 
     dlv = config.dlv ?: false
 
-    vegaCoreVersion = config.vegaCoreVersion
-    dataNodeVersion = config.dataNodeVersion
-    vegaWalletVersion = config.vegaWalletVersion
+    vegaVersion = config.vegaVersion
 
-    dockerImageVegaCore = "ghcr.io/vegaprotocol/vega/vega:${vegaCoreVersion}"
-    dockerImageDataNode = "ghcr.io/vegaprotocol/data-node/data-node:${dataNodeVersion}"
-    dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaWalletVersion}"
+    dockerImageVegaCore = "ghcr.io/vegaprotocol/vega/vega:${vegaVersion}"
+    dockerImageDataNode = "ghcr.io/vegaprotocol/data-node/data-node:${vegaVersion}"
+    dockerImageVegaWallet = "vegaprotocol/vegawallet:${vegaVersion}"
 
     assert config.vegatoolsScript : 'vegatoolsScript is required'
     vegatoolsScript = config.vegatoolsScript
@@ -78,8 +74,7 @@ String toString() {
         "validators: ${validators}, nonValidators: ${nonValidators}, " +
         "mainnet: \"${mainnet}\", genesisFile: \"${genesisFile}\", checkpointFile=\"${checkpointFile}\", " +
         "ethEndpointUrl: \"${ethEndpointUrl}\", " +
-        "dlv: ${dlv}, vegaCoreVersion: \"${vegaCoreVersion}\", dataNodeVersion: \"${dataNodeVersion}\", " +
-        "vegaWalletVersion: \"${vegaWalletVersion}\", " +
+        "dlv: ${dlv}, vegaVersion: \"${vegaVersion}\", " +
         "dockerImageVegaCore=\"${dockerImageVegaCore}\", dockerImageDataNode=\"${dockerImageDataNode}\", " +
         "dockerImageVegaWallet=\"${dockerImageVegaWallet}\", " +
         "vegatoolsScript=\"${vegatoolsScript}\"" +
@@ -88,14 +83,10 @@ String toString() {
 
 void run(String command, boolean resume = false) {
     String extraArguments = ''
-    if (vegaCoreVersion) {
-        extraArguments += " --vega-version \"${vegaCoreVersion}\""
-    }
-    if (dataNodeVersion) {
-        extraArguments += " --datanode-version \"${dataNodeVersion}\""
-    }
-    if (vegaWalletVersion) {
-        extraArguments += " --vegawallet-version \"${vegaWalletVersion}\""
+    if (vegaVersion) {
+        extraArguments += " --vega-version \"${vegaVersion}\""
+        extraArguments += " --datanode-version \"${vegaVersion}\""
+        extraArguments += " --vegawallet-version \"${vegaVersion}\""
     }
     if (mainnet) {
         extraArguments += ' --mainnet'

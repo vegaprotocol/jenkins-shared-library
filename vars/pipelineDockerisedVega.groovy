@@ -56,9 +56,7 @@ void call(Map config=[:]) {
             checkpointFile: params.DV_CHECKPOINT,
             ethEndpointUrl: params.DV_ETH_ENDPOINT,
             dlv: params.DV_VEGA_CORE_DLV,
-            vegaCoreVersion: params.VEGA_CORE_BRANCH ? dockerisedVegaPrefix : null,
-            dataNodeVersion: params.DATA_NODE_BRANCH ? dockerisedVegaPrefix : null,
-            vegaWalletVersion: params.VEGAWALLET_BRANCH ? dockerisedVegaPrefix : null,
+            vegaCoreVersion: params.VEGA_BRANCH ? dockerisedVegaPrefix : null,
             vegatoolsScript: "${env.WORKSPACE}/vegatools/build/vegatools-linux-amd64",
             tendermintLogLevel: params.DV_TENDERMINT_LOG_LEVEL,
             vegaCoreLogLevel: params.DV_VEGA_CORE_LOG_LEVEL,
@@ -273,17 +271,9 @@ void setupJobParameters(List inputParameters, List inputProperties) {
     List dockerisedVegaParameters = [
         /* Branches */
         string(
-            name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.dv.vegaCoreBranch,
+            name: 'VEGA_BRANCH', defaultValue: pipelineDefaults.dv.vegaBranch,
             description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
             e.g. "develop", "v0.44.0 or commit hash. Default empty: use latests published version.'''),
-        string(
-            name: 'DATA_NODE_BRANCH', defaultValue: pipelineDefaults.dv.dataNodeBranch,
-            description: '''Git branch, tag or hash of the vegaprotocol/data-node repository.
-            e.g. "develop", "v0.44.0" or commit hash. Default empty: use latests published version'''),
-        string(
-            name: 'VEGAWALLET_BRANCH', defaultValue: pipelineDefaults.dv.vegaWalletBranch,
-            description: '''Git branch, tag or hash of the vegaprotocol/vegawallet repository.
-            e.g. "develop", "v0.9.0" or commit hash. Default empty: use latest published version.'''),
         string(
             name: 'DEVOPS_INFRA_BRANCH', defaultValue: pipelineDefaults.dv.devopsInfraBranch,
             description: 'Git branch, tag or hash of the vegaprotocol/devops-infra repository'),
@@ -377,16 +367,10 @@ void gitClone(Map params, List<Map> inputGitRepos) {
     List<Map> gitRepos = inputGitRepos.clone()
     gitRepos.addAll([
         [   name: 'vega',
-            branch: params.VEGA_CORE_BRANCH,  // can be Job/Pipeline parameter name or branch name directly
+            branch: params.VEGA_BRANCH,  // can be Job/Pipeline parameter name or branch name directly
             // url: 'git@github.com:vegaprotocol/vega.git',
             // - Optional, default: "git@github.com:vegaprotocol/${name}.git"
             // dir: 'vega', - Optional, default: "${name}"
-        ],
-        [   name: 'data-node',
-            branch: params.DATA_NODE_BRANCH,
-        ],
-        [   name: 'vegawallet',
-            branch: params.VEGAWALLET_BRANCH,
         ],
         [   name: 'vegatools',
             branch: params.VEGATOOLS_BRANCH,
@@ -599,9 +583,9 @@ Map<String,Closure> getPreparevegaWalletStages(
     Map<String,String> dockerCredentials) {
     return ['wallet': {
         stage('Compile vegawallet') {
-            if (fileExists('vegawallet')) {
+            if (fileExists('vega')) {
                 retry(3) {
-                    dir('vegawallet') {
+                    dir('vega') {
                         sh label: 'Compile', script: '''
                             go build -o ./build/vegawallet-linux-amd64
                         '''
