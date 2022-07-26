@@ -15,6 +15,13 @@ void call() {
         passwordVariable: 'GITHUB_API_TOKEN',
         usernameVariable: 'GITHUB_API_USER'
     )
+    def networksNameMap = [
+        devnet: 'devnet1',
+        testnet: 'fairground',
+        stagnet: 'stagnet1',
+        stagnet2: 'stagnet2',
+    ]
+
     def doGitClone = { repo, branch ->
         dir(repo) {
             retry(3) {
@@ -329,11 +336,12 @@ void call() {
                 steps {
                     dir('devopsscripts') {
                         withCredentials([sshCredentials]) {
+
                             sh """
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
                                     --vega-binary "${env.WORKSPACE}/bin/vega" \
-                                    --network "${env.NET_NAME == 'testnet' ? 'fairground' : env.NET_NAME}" \
+                                    --network '""" + networksNameMap[env.NET_NAME] +"""' \
                                     --ssh-private-key "${env.PSSH_KEYFILE}"  \
                                     --ssh-user "${env.PSSH_USER}" \
                                     --no-secrets
