@@ -246,7 +246,7 @@ void call() {
                             ).trim()
                             sh script: netSsh("cp /home/vega/.local/state/vega/node/checkpoints/${newestFile} /tmp/${newestFile}")
                             sh script: netSsh("chown ${user}:${user} /tmp/${newestFile}")
-                            sh 'scp -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz:/tmp/${newestFile} .'
+                            sh "scp -i ${env.PSSH_KEYFILE} ${env.PSSH_USER}@n04.${env.NET_NAME}.vega.xyz:/tmp/${newestFile} ."
                             sh "mkdir -p checkpoint-store/Fairground/${version}"
                             sh "mv ${newestFile} checkpoint-store/Fairground/${version}/"
                             dir('checkpoint-store'){
