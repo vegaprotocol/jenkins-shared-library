@@ -333,7 +333,7 @@ void call() {
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
                                     --vega-binary "${env.WORKSPACE}/bin/vega" \
-                                    --network "${env.NET_NAME}" \
+                                    --network "${env.NET_NAME == 'testnet' ? 'fairground' : env.NET_NAME}" \
                                     --ssh-private-key "${env.PSSH_KEYFILE}"  \
                                     --ssh-user "${env.PSSH_USER}" \
                                     --no-secrets
