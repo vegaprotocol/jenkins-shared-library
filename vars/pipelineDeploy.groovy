@@ -143,7 +143,7 @@ void call() {
                                 doGitClone('vegatools', 'develop')
                             }
                             dir('vegatools') {
-                                sh "go instal ./..."
+                                sh "go install ./..."
                             }
                         }
                     }
