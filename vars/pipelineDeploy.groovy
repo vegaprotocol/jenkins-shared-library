@@ -54,7 +54,7 @@ void call() {
     }
 
     def netSsh = { command ->
-        return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo' + command + '"'
+        return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo ' + command + '"'
     }
 
     pipeline {
