@@ -237,7 +237,7 @@ void call() {
                                 returnStdout: true,
                             ).trim()
                             version = sh (
-                                script: netSsh('/home/vega/current/vega version | awk \'{print $3}\''),
+                                script: netSsh('/home/vega/current/vega version | awk \'{print \$3}\''),
                                 returnStdout: true,
                             ).trim()
                             user = sh (
