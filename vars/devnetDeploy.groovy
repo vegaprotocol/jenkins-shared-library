@@ -2,9 +2,9 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
-    String devnetDeployJob = '/private/cd/Deployments/Veganet/Devnet'
-    Boolean wait = config.wait ? "${config.wait}".toBoolean() : false
-    Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
+    String devnetDeployJob = '/private/Deployments/Veganet/Devnet'
+    Boolean wait = config.containsKey("wait") ? "${config.wait}".toBoolean() : false
+    Boolean ignoreFailure = config.containsKey("ignoreFailure") ? "${config.ignoreFailure}".toBoolean() : false
     String restart = pipelineDefaults.dev.restart
     if (config.restart == true) {
         restart = 'YES'
@@ -27,7 +27,7 @@ void call(Map config = [:]) {
             ),
             booleanParam(
                 name: 'DEPLOY_CONFIG',
-                value: config.deployConfig ? "${config.deployConfig}".toBoolean() : pipelineDefaults.dev.deployConfig
+                value: config.containsKey("deployConfig") ? "${config.deployConfig}".toBoolean() : pipelineDefaults.dev.deployConfig
             ),
             string(
                 name: 'RESTART',
@@ -35,11 +35,11 @@ void call(Map config = [:]) {
             ),
             booleanParam(
                 name: 'CREATE_MARKETS',
-                value: config.createMarkets ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
+                value: config.containsKey("createMarkets") ? "${config.createMarkets}".toBoolean() : pipelineDefaults.dev.createMarkets
             ),
             booleanParam(
                 name: 'BOUNCE_BOTS',
-                value: config.bounceBots ? "${config.bounceBots}".toBoolean() : pipelineDefaults.dev.bounceBots
+                value: config.containsKey("bounceBots") ? "${config.bounceBots}".toBoolean() : pipelineDefaults.dev.bounceBots
             ),
             string(
                 name: 'DEVOPS_INFRA_BRANCH',
@@ -53,9 +53,9 @@ void call(Map config = [:]) {
                 name: 'ANSIBLE_BRANCH',
                 value: config.ansibleBranch ?: pipelineDefaults.dev.ansibleBranch
             ),
-            string(
+            booleanParam(
                 name: 'REMOVE_WALLETS',
-                value: config.removeWallets ?: pipelineDefaults.dev.removeWallets
+                value: config.containsKey("removeWallets") ? "${config.removeWallets}".toBoolean() : pipelineDefaults.dev.removeWallets
             ),
         ]
 

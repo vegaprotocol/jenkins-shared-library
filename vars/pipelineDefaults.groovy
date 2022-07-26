@@ -50,7 +50,7 @@ Map st = dv + [
 @Field
 Map capsuleSystemTests = [
     branchDevopsInfra: 'master',
-    branchVegaCapsule: 'v0.2.0',
+    branchVegaCapsule: 'v0.2.1',
     branchVega: 'develop',
     branchDataNode: 'develop',
     branchSystemTests: 'develop',
@@ -65,6 +65,7 @@ Map capsuleSystemTests = [
     systemTestsTestDirectory: '',
     systemTestsDebug: false,
     systemTestsRunTimeout: '300',
+    systemTestsNetworkDir: 'tests',
     printNetworkLogsInJenkinsPipeline: false,
 ]
 
@@ -92,16 +93,20 @@ Map mnnt = st + [
 
 @Field
 Map restartOptions = [
-    restartOnly: 'Restart network',
-    restartFromCheckpoint: 'Restart from checkpoint',
-    dontRestart: 'Don\'t restart'
+    YES: 'YES',
+    NO: 'NO',
+    YES_FROM_CHECKPOINT: 'YES_FROM_CHECKPOINT',
+    // deprecated
+    restartOnly: 'YES',
+    restartFromCheckpoint: 'YES_FROM_CHECKPOINT',
+    dontRestart: 'NO'
 ]
 
 @Field
 Map dev = [
     vegaCoreVersion: '',
     deployConfig: true,
-    restart: restartOptions.restartOnly,
+    restart: restartOptions.YES,
     createMarkets: true,
     createIncentiveMarkets: true,
     bounceBots: true,

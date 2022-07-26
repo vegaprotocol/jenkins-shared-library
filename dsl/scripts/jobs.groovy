@@ -78,26 +78,62 @@ def jobs = [
         useScmDefinition: false,
         parameters: {
             booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-            stringParam('VEGACAPSULE_VERSION', 'ops-development', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
             stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
             stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
             choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
             booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
             booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 capsulePipelineWrapper()
-                """)
+                ''')
             }
         },
         env: [
+            NET_NAME: "stagnet3",
             S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
             NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646",
         ],
     ],
+    [
+        name: 'private/Deployments/Vegacapsule/Devnet 2',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
+            stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
+            stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
+            stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
+            choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
+            booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
+            booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: {
+            cps {
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
+                capsulePipelineWrapper()
+                ''')
+            }
+        },
+        env: [
+            NET_NAME: "devnet2",
+            S3_CONFIG_HOME: "s3://vegacapsule-test/devnet2",
+            NOMAD_ADDR: "https://n00.devnet.vega.xyz:4646",
+        ],
+    ],
+
     // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',
@@ -119,10 +155,13 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -136,12 +175,13 @@ def jobs = [
             choiceParam('RESTART', ['YES', 'NO'], 'Restart the Network') // do not support checkpoints for devnet
             // choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
-            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
-            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPS_INFRA_BRANCH', 'builtin-tm-35-part-1', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('ANSIBLE_BRANCH', 'builtin-tm-35', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -149,10 +189,13 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -164,12 +207,13 @@ def jobs = [
             booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
-            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -177,10 +221,13 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -192,12 +239,13 @@ def jobs = [
             booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
-            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],
     [
@@ -205,10 +253,13 @@ def jobs = [
         useScmDefinition: false,
         definition: {
             cps {
-                script("""
-                @Library('vega-shared-library@main') _
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
                 pipelineDeploy()
-                """)
+                ''')
             }
         },
         env: [
@@ -220,12 +271,13 @@ def jobs = [
             booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
-            booleanParam('CREATE_INCENTIVE_MARKETS', true, 'Create Markets for Incentive')
+            booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
             booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ]
 ]
