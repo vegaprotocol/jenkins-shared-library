@@ -15,6 +15,13 @@ void call() {
         passwordVariable: 'GITHUB_API_TOKEN',
         usernameVariable: 'GITHUB_API_USER'
     )
+    def networksNameMap = [
+        devnet: 'devnet1',
+        testnet: 'fairground',
+        stagnet: 'stagnet1',
+        stagnet2: 'stagnet2',
+    ]
+
     def doGitClone = { repo, branch ->
         dir(repo) {
             retry(3) {
@@ -246,12 +253,6 @@ void call() {
                 steps {
                     dir('devopsscripts') {
                         withCredentials([sshCredentials]) {
-                           networksNameMap = [
-                                devnet: 'devnet1',
-                                testnet: 'fairground',
-                                stagnet: 'stagnet1',
-                                stagnet2: 'stagnet2',
-                           ]
 
                             sh """
                                 go mod vendor
