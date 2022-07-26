@@ -112,72 +112,72 @@ void call(Map additionalConfig) {
     }
   }
 
-  stage('prepare system tests and network') {
-    def prepareSteps = [:]
-    prepareSteps['prepare multisig setup script'] = {
-      stage('prepare network config') {
-        dir('system-tests') {
-          sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testNetworkDir + '/config_system_tests.hcl'
-        }
-      }
-    }
-
-    prepareSteps['build system-tests docker images'] = {
-      stage('build system-tests docker images') {
-        dir('system-tests/scripts') {
-          timeout(time: 5, unit: 'MINUTES') {
-            ansiColor('xterm') {
-              sh 'make check'
-
-              withDockerRegistry([credentialsId: config.dockerCredentialsId, url: 'https://ghcr.io']) {
-                sh 'make prepare-test-docker-image'
-                sh 'make build-test-proto'
-              }
-            }
+  try {
+    stage('prepare system tests and network') {
+      def prepareSteps = [:]
+      prepareSteps['prepare multisig setup script'] = {
+        stage('prepare network config') {
+          dir('system-tests') {
+            sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testNetworkDir + '/config_system_tests.hcl'
           }
         }
       }
-    }
 
-    prepareSteps['start the network'] = {
-      stage('start the network') {
-        dir(testNetworkDir) {
-          try {
-            withCredentials([
-              usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
-            ]) {
-              sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-            }
+      prepareSteps['build system-tests docker images'] = {
+        stage('build system-tests docker images') {
+          dir('system-tests/scripts') {
             timeout(time: 5, unit: 'MINUTES') {
               ansiColor('xterm') {
-                sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
+                sh 'make check'
+
+                withDockerRegistry([credentialsId: config.dockerCredentialsId, url: 'https://ghcr.io']) {
+                  sh 'make prepare-test-docker-image'
+                  sh 'make build-test-proto'
+                }
               }
             }
-          } finally {
-            sh 'docker logout https://ghcr.io'
           }
-          sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-          sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-          sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
+        }
+      }
+
+      prepareSteps['start the network'] = {
+        stage('start the network') {
+          dir(testNetworkDir) {
+            try {
+              withCredentials([
+                usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
+              ]) {
+                sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+              }
+              timeout(time: 5, unit: 'MINUTES') {
+                ansiColor('xterm') {
+                  sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
+                }
+              }
+            } finally {
+              sh 'docker logout https://ghcr.io'
+            }
+            sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+            sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+            sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
+          }
+        }
+      }
+
+      parallel prepareSteps
+    }
+
+
+    stage('setup multisig contract') {
+      dir (testNetworkDir) {
+        timeout(time: 2, unit: 'MINUTES') {
+          ansiColor('xterm') {
+            sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
+          }
         }
       }
     }
 
-    parallel prepareSteps
-  }
-
-
-  stage('setup multisig contract') {
-    dir (testNetworkDir) {
-      timeout(time: 2, unit: 'MINUTES') {
-        ansiColor('xterm') {
-          sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
-        }
-      }
-    }
-  }
-
-  try {
     stage('run tests') {
       dir('system-tests/scripts') {
         withEnv([
@@ -200,20 +200,28 @@ void call(Map additionalConfig) {
       }
     }
   } finally {
-    stage('Stop network') {
-      dir(testNetworkDir) {
-        sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
-      }
-    }
-
-    stage('Archive network logs') {
-      dir(testNetworkDir) {
-        if (config.printNetworkLogs) {
-          sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet | tee ./testnet/network.log'
-        } else {
-          sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet > ./testnet/network.log'
+    try {
+      stage('Stop network') {
+        dir(testNetworkDir) {
+          sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
         }
       }
+    } catch(err) {
+      print("Ignore 'Stop network' issue " + err)
+    }
+
+    try {
+      stage('Archive network logs') {
+        dir(testNetworkDir) {
+          if (config.printNetworkLogs) {
+            sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet | tee ./testnet/network.log'
+          } else {
+            sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet > ./testnet/network.log'
+          }
+        }
+      }
+    } catch(err) {
+      print("Ignore 'Archive network logs' issue " + err)
     }
 
     stage('Post-steps') {
