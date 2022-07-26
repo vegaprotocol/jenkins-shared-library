@@ -246,11 +246,18 @@ void call() {
                 steps {
                     dir('devopsscripts') {
                         withCredentials([sshCredentials]) {
+                           networksNameMap = [
+                                devnet: 'devnet1',
+                                testnet: 'fairground',
+                                stagnet: 'stagnet1',
+                                stagnet2: 'stagnet2',
+                           ]
+
                             sh """
                                 go mod vendor
                                 go run main.go old-network remote load-latest-checkpoint \
                                     --vega-binary "${env.WORKSPACE}/bin/vega" \
-                                    --network "${env.NET_NAME}" \
+                                    --network '""" + networksNameMap[env.NET_NAME] +"""' \
                                     --ssh-private-key "${env.PSSH_KEYFILE}"  \
                                     --ssh-user "${env.PSSH_USER}" \
                                     --no-secrets
