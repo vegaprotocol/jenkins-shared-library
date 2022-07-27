@@ -111,7 +111,7 @@ Map dev = [
     createIncentiveMarkets: true,
     bounceBots: true,
     // tmp
-    devopsInfraBranch: 'builtin-tm-35-part-1',
+    devopsInfraBranch: 'master',
     devopsscriptsBranch: 'main',
     // tmp
     ansibleBranch: 'builtin-tm-35',
