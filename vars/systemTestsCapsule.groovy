@@ -5,8 +5,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
   Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
-  // TODO: update before merge
-  String systemTestsCapsuleJob = '/private/playgrounds/system-tests-one-repo'
+  String systemTestsCapsuleJob = '/common/system-tests'
 
   List buildParameters = [
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),

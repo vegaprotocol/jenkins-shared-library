@@ -12,7 +12,7 @@ void call() {
   properties([
     buildDiscarder(logRotator(daysToKeepStr: '14')),
     copyArtifactPermission('*'),
-    // parameters - set in DSL dsl/scripts/jobs.groovy
+    // parameters - set in DSL: dsl/scripts/jobs.groovy
   ])
 
   node('system-tests-capsule') {

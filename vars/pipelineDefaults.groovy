@@ -52,7 +52,7 @@ Map capsuleSystemTests = [
     branchVega: 'develop',
     branchProtos: 'develop',
     branchSystemTests: 'develop',
-    branchVegaCapsule: 'v0.2.1',
+    branchVegaCapsule: 'main',
     branchVegatools: 'develop',
     branchDevopsInfra: 'master',
     branchDevopsScripts: 'main',
