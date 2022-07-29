@@ -65,15 +65,14 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     Map repoToParam = [
         'vega': 'VEGA_CORE_BRANCH',
         'vega': 'VEGA_BRANCH',
-        'data-node': 'DATA_NODE_BRANCH',
-        'vegawallet': 'VEGAWALLET_BRANCH',
         'devops-infra': 'DEVOPS_INFRA_BRANCH',
         'vegatools': 'VEGATOOLS_BRANCH',
         'system-tests': 'SYSTEM_TESTS_BRANCH',
         'protos': 'PROTOS_BRANCH',
         'networks': 'NETWORKS_BRANCH',
         'checkpoint-store': 'CHECKPOINT_STORE_BRANCH',
-        'vegacapsule': 'VEGACAPSULE_BRANCH'
+        'vegacapsule': 'VEGACAPSULE_BRANCH',
+        'jenkins-shared-library': 'LIB_BRANCH'
     ]
 
     // For every COMMENT
