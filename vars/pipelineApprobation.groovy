@@ -108,7 +108,7 @@ void call() {
                     // Results
                     //
                     stage('Store results') {
-                        archiveArtifacts artifacts: 'results/output.csv',
+                        archiveArtifacts artifacts: 'results/*',
                                 allowEmptyArchive: true
                         scriptSlackMsg = sh(
                             script: "cat results/jenkins.txt",
