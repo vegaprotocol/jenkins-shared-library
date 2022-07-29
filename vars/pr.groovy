@@ -64,6 +64,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
 
     Map repoToParam = [
         'vega': 'VEGA_CORE_BRANCH',
+        'vega': 'VEGA_BRANCH',
         'data-node': 'DATA_NODE_BRANCH',
         'vegawallet': 'VEGAWALLET_BRANCH',
         'devops-infra': 'DEVOPS_INFRA_BRANCH',

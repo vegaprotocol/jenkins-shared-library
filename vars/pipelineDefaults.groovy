@@ -49,20 +49,18 @@ Map st = dv + [
 
 @Field
 Map capsuleSystemTests = [
-    branchDevopsInfra: 'master',
-    branchVegaCapsule: 'v0.2.1',
     branchVega: 'develop',
-    branchDataNode: 'develop',
-    branchSystemTests: 'develop',
-    branchVegawallet: 'develop',
     branchProtos: 'develop',
+    branchSystemTests: 'develop',
+    branchVegaCapsule: 'v0.2.1',
     branchVegatools: 'develop',
-
-    capsuleConfig: 'capsule_config.hcl',
+    branchDevopsInfra: 'master',
+    branchDevopsScripts: 'main',
 
     systemTestsTestFunction: '',
     systemTestsTestMark: 'smoke',
     systemTestsTestDirectory: '',
+    capsuleConfig: 'capsule_config.hcl',
     systemTestsDebug: false,
     systemTestsRunTimeout: '300',
     systemTestsNetworkDir: 'tests',
