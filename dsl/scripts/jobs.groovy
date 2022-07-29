@@ -279,6 +279,41 @@ def jobs = [
             stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
             stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
+    ],
+    // system-tests
+    [
+        name: 'private/playgrounds/system-tests-one-repo',
+        useScmDefinition: false,
+        definition: {
+            cps {
+                script('''
+                library (
+                    identifier: "vega-shared-library@${env.LIB_BRANCH}",
+                    changelog: false,
+                )
+                pipelineCapsuleSystemTests()
+                ''')
+            }
+        },
+        parameters: {
+            stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('PROTOS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/protos repository')
+            stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+            stringParam('VEGACAPSULE_BRANCH', 'v0.2.1', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+
+            stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
+            stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
+            booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
+            stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
+            booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+
+            stringParam('LIB_BRANCH', 'one-repo', 'Branch of jenkins-shared-library from which pipeline should be run')
+        }
     ]
 ]
 
