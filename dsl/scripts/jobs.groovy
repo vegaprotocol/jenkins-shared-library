@@ -282,7 +282,7 @@ def jobs = [
     ],
     // system-tests
     [
-        name: 'private/playgrounds/system-tests-one-repo',
+        name: 'common/system-tests',
         useScmDefinition: false,
         definition: {
             cps {
@@ -299,7 +299,7 @@ def jobs = [
             stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('PROTOS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/protos repository')
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-            stringParam('VEGACAPSULE_BRANCH', 'v0.2.1', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
@@ -312,7 +312,7 @@ def jobs = [
             stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
             booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
 
-            stringParam('LIB_BRANCH', 'one-repo', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ]
 ]

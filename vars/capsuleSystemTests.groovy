@@ -24,27 +24,25 @@ def boxPublicIP() {
 
 void call(Map additionalConfig) {
   def defaultCconfig = [
-    branchDevopsInfra: 'master',
-    branchVegaCapsule: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
     branchVega: 'develop',
-    branchDataNode: 'develop',
-    branchSystemTests: 'develop',
-    branchVegawallet: 'develop',
     branchProtos: 'develop',
+    branchSystemTests: 'develop',
+    branchVegaCapsule: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
     branchVegatools: 'develop',
-    
+    branchDevopsInfra: 'master',
+    branchDevopsScripts: 'main',
+
     systemTestsTestFunction: '',
     systemTestsTestMark: 'smoke',
     systemTestsTestDirectory: '',
-    systemTestsDebug: '',
-
     capsuleConfig: 'capsule_config.hcl',
+    systemTestsDebug: '',
+    systemTestsRunTimeout: 60,
+    printNetworkLogs: false,
 
     preapareSteps: {},
     gitCredentialsId: 'vega-ci-bot',
     ignoreFailure: false,
-    systemTestsRunTimeout: 60,
-    printNetworkLogs: false,
 
     dockerCredentialsId: 'github-vega-ci-bot-artifacts',
   ]
@@ -71,14 +69,14 @@ void call(Map additionalConfig) {
   }
 
   stage('get source codes') {
-    def repositories = [ 
-      [ name: 'devops-infra', branch: config.branchDevopsInfra ],
-      [ name: 'vegacapsule', branch: config.branchVegaCapsule ],
+    def repositories = [
       [ name: 'vega', branch: config.branchVega ],
-      [ name: 'data-node', branch: config.branchDataNode ],
-      [ name: 'system-tests', branch: config.branchSystemTests ],
       [ name: 'protos', branch: config.branchProtos ],
+      [ name: 'system-tests', branch: config.branchSystemTests ],
+      [ name: 'vegacapsule', branch: config.branchVegaCapsule ],
       [ name: 'vegatools', branch: config.branchVegatools ],
+      [ name: 'devops-infra', branch: config.branchDevopsInfra ],
+      [ name: 'devopsscripts', branch: config.branchDevopsScripts ],
     ]
 
     parallel repositories.collectEntries{value -> [value.name, { 
@@ -95,8 +93,8 @@ void call(Map additionalConfig) {
   stage('build binaries') {
     def binaries = [
       [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
-      [ repository: 'vega', name: 'vega', packages: './cmd/vega/' ],
-      [ repository: 'data-node', name: 'data-node', packages: './cmd/data-node/' ],
+      [ repository: 'vega', name: 'vega', packages: './cmd/vega' ],
+      [ repository: 'vega', name: 'data-node', packages: './cmd/data-node' ],
       [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
     ]
     

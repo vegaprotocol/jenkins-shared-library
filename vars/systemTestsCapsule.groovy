@@ -8,22 +8,22 @@ void call(Map config = [:]) {
   String systemTestsCapsuleJob = '/common/system-tests'
 
   List buildParameters = [
-      string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
-      string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
-      string(name: 'VEGA_CORE_BRANCH', value: config.vegaCore ?: pipelineDefaults.capsuleSystemTests.branchVega),
-      string(name: 'DATA_NODE_BRANCH', value: config.dataNode ?: pipelineDefaults.capsuleSystemTests.branchDataNode),
-      string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.capsuleSystemTests.branchSystemTests),
-      string(name: 'VEGAWALLET_BRANCH', value: config.vegawallet ?: pipelineDefaults.capsuleSystemTests.branchVegawallet),
+      string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
+      
+      string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.capsuleSystemTests.branchVega),
       string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.capsuleSystemTests.branchProtos),
+      string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.capsuleSystemTests.branchSystemTests),
+      string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
       string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?:  pipelineDefaults.capsuleSystemTests.branchVegatools),
-
+      string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
+      string(name: 'DEVOPSSCRIPTS_BRANCH', value: config.devopsScripts ?: pipelineDefaults.capsuleSystemTests.branchDevopsScripts),
+      
       string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
       string(name: 'SYSTEM_TESTS_TEST_MARK', value: config.testMark ?: pipelineDefaults.capsuleSystemTests.systemTestsTestMark),
       string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: config.testDirectory ?: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),
       string(name: 'CAPSULE_CONFIG', value: config.capsuleConfig ?: pipelineDefaults.capsuleSystemTests.capsuleConfig),
       booleanParam(
           name: 'SYSTEM_TESTS_DEBUG', value: config.systemTestsDebug ? "${config.systemTestsDebug}".toBoolean() : pipelineDefaults.capsuleSystemTests.systemTestsDebug),
-      string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
       booleanParam(name: 'PRINT_NETWORK_LOGS', value: config.printNetworkLogs ?: pipelineDefaults.capsuleSystemTests.printNetworkLogsInJenkinsPipeline),
   ]
 
