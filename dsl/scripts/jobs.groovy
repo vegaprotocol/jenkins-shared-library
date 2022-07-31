@@ -169,9 +169,9 @@ def jobs = [
             DNS_ALIAS: 'd',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES', 'NO'], 'Restart the Network') // do not support checkpoints for devnet
             // choiceParam('RESTART', ['YES', 'YES_FROM_CHECKPOINT', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
@@ -202,9 +202,9 @@ def jobs = [
             NET_NAME: 'stagnet',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
@@ -234,9 +234,9 @@ def jobs = [
             NET_NAME: 'stagnet2',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
@@ -266,9 +266,9 @@ def jobs = [
             NET_NAME: 'testnet',
         ],
         parameters: {
-            stringParam('VEGA_CORE_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
+            stringParam('VEGA_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_CORE_VERSION is to be build or downloaded')
+            booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
             booleanParam('CREATE_MARKETS', true, 'Create markets')
             booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
