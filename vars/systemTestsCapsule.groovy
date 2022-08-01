@@ -17,7 +17,8 @@ void call(Map config = [:]) {
       string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?:  pipelineDefaults.capsuleSystemTests.branchVegatools),
       string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
       string(name: 'DEVOPSSCRIPTS_BRANCH', value: config.devopsScripts ?: pipelineDefaults.capsuleSystemTests.branchDevopsScripts),
-      
+      string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: pipelineDefaults.capsuleSystemTests.jenkinsSharedLib),
+
       string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
       string(name: 'SYSTEM_TESTS_TEST_MARK', value: config.testMark ?: pipelineDefaults.capsuleSystemTests.systemTestsTestMark),
       string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: config.testDirectory ?: pipelineDefaults.capsuleSystemTests.systemTestsTestDirectory),

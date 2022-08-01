@@ -56,6 +56,7 @@ Map capsuleSystemTests = [
     branchVegatools: 'develop',
     branchDevopsInfra: 'master',
     branchDevopsScripts: 'main',
+    jenkinsSharedLib: 'main',
 
     systemTestsTestFunction: '',
     systemTestsTestMark: 'smoke',
