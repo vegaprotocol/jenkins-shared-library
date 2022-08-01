@@ -80,6 +80,7 @@ jenkins:
             labelString: general
             mode: NORMAL
             description: "general"
+            numExecutors: 2
           - <<: *instance-template
             description: "system-tests"
             instanceCapStr: "15"
