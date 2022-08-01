@@ -11,7 +11,6 @@ void call(Map config = [:]) {
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
       
       string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.capsuleSystemTests.branchVega),
-      string(name: 'PROTOS_BRANCH', value: config.protos ?: pipelineDefaults.capsuleSystemTests.branchProtos),
       string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.capsuleSystemTests.branchSystemTests),
       string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
       string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?:  pipelineDefaults.capsuleSystemTests.branchVegatools),

@@ -25,7 +25,6 @@ def boxPublicIP() {
 void call(Map additionalConfig) {
   def defaultCconfig = [
     branchVega: 'develop',
-    branchProtos: 'develop',
     branchSystemTests: 'develop',
     branchVegaCapsule: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
     branchVegatools: 'develop',
@@ -71,7 +70,6 @@ void call(Map additionalConfig) {
   stage('get source codes') {
     def repositories = [
       [ name: 'vega', branch: config.branchVega ],
-      [ name: 'protos', branch: config.branchProtos ],
       [ name: 'system-tests', branch: config.branchSystemTests ],
       [ name: 'vegacapsule', branch: config.branchVegaCapsule ],
       [ name: 'vegatools', branch: config.branchVegatools ],
