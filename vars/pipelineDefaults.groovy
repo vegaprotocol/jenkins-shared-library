@@ -103,7 +103,7 @@ Map restartOptions = [
 
 @Field
 Map dev = [
-    vegaCoreVersion: '',
+    vegaVersion: '',
     deployConfig: true,
     restart: restartOptions.YES,
     createMarkets: true,

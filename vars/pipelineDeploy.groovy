@@ -108,10 +108,10 @@ void call() {
                             }
                         }
                     }
-                    stage('vega core'){
+                    stage('vega'){
                         when {
                             expression {
-                                params.VEGA_VERSION && params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && params.BUILD_VEGA
                             }
                         }
                         steps {
@@ -158,15 +158,15 @@ void call() {
             }
             stage('Prepare'){
                 parallel {
-                    stage('Build Vega Core binary') {
+                    stage('Build Vega binary') {
                         when {
                             expression {
-                                params.VEGA_VERSION && params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && params.BUILD_VEGA
                             }
                         }
                         steps {
                             dir('vega') {
-                                sh label: 'Compile vega core', script: """
+                                sh label: 'Compile vega', script: """
                                     go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
                                 """
                                 sh label: 'Sanity check', script: '''
@@ -186,10 +186,10 @@ void call() {
                             }
                         }
                     }
-                    stage('Download Vega Core binary') {
+                    stage('Download Vega binary') {
                         when {
                             expression {
-                                params.VEGA_VERSION && !params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && !params.BUILD_VEGA
                             }
                         }
                         environment {
@@ -277,7 +277,7 @@ void call() {
                     }
                 }
             }
-            stage('Deploy Vega Core binary') {
+            stage('Deploy Vega binary') {
                 when {
                     expression {
                         params.VEGA_VERSION
@@ -367,6 +367,9 @@ void call() {
                     expression {
                         params.RESTART == 'YES' || params.RESTART == 'YES_FROM_CHECKPOINT'
                     }
+                }
+                environment {
+                    DATANODE_TAG = params.VEGA_VERSION
                 }
                 steps {
                     script {

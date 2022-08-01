@@ -12,7 +12,7 @@ void call() {
         disableConcurrentBuilds(),
         parameters([
             string(
-                name: 'VEGA_VERSION', defaultValue: pipelineDefaults.dev.vegaCoreVersion,
+                name: 'VEGA_VERSION', defaultValue: pipelineDefaults.dev.vegaVersion,
                 description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
                 Leave empty to not deploy a new version of vega core.'''),
             booleanParam(
