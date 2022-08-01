@@ -1,3 +1,4 @@
+/* groovylint-disable CompileStatic, DuplicateNumberLiteral, DuplicateStringLiteral, LineLength */
 // https://github.com/janinko/ghprb/issues/77
 def scmDefinition(args){
   return {
@@ -166,24 +167,26 @@ def jobs = [
         name: 'private/Deployments/Vegacapsule/Stagnet 3',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition('capsulePipelineWrapper()'),
-        env: [
-            NET_NAME: "stagnet3",
-            S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
-            NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646",
-        ],
+        definition: libDefinition('''capsulePipelineWrapper([
+            networkName: 'stagnet3',
+            nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
+            awsRegion: 'eu-west-2',
+            vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
+        ]'''),
+        env: [],
         disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition('capsulePipelineWrapper()'),
-        env: [
-            NET_NAME: "devnet2",
-            S3_CONFIG_HOME: "s3://vegacapsule-test/devnet2",
-            NOMAD_ADDR: "https://n00.devnet.vega.xyz:4646",
-        ],
+        definition: libDefinition('''capsulePipelineWrapper([
+            networkName: 'devnet2',
+            nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
+            awsRegion: 'eu-west-2',
+            vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
+        ])'''),
+        env: [],
         disableConcurrentBuilds: true,
     ],
 
