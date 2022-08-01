@@ -12,7 +12,7 @@ void call() {
         disableConcurrentBuilds(),
         parameters([
             string(
-                name: 'VEGA_CORE_VERSION', defaultValue: pipelineDefaults.dev.vegaCoreVersion,
+                name: 'VEGA_VERSION', defaultValue: pipelineDefaults.dev.vegaCoreVersion,
                 description: '''Git branch, tag or hash of the vegaprotocol/vega repository.
                 Leave empty to not deploy a new version of vega core.'''),
             booleanParam(
@@ -75,12 +75,12 @@ void call() {
                                 }
                             },
                             'vega core': {
-                                if (params.VEGA_CORE_VERSION) {
+                                if (params.VEGA_VERSION) {
                                     dir('vega') {
-                                        gitClone('vega', params.VEGA_CORE_VERSION)
+                                        gitClone('vega', params.VEGA_VERSION)
                                     }
                                 } else {
-                                    echo 'Skip: VEGA_CORE_VERSION not specified'
+                                    echo 'Skip: VEGA_VERSION not specified'
                                     Utils.markStageSkippedForConditional('vega core')
                                 }
                             },
@@ -98,7 +98,7 @@ void call() {
                     stage('Prepare') {
                         parallel([
                             "${buildVegaCoreStageName}": {
-                                if (params.VEGA_CORE_VERSION) {
+                                if (params.VEGA_VERSION) {
                                     dir('vega') {
                                         sh label: 'Compile vega core', script: """
                                             go build -v -o ./cmd/vega/vega-linux-amd64 ./cmd/vega
@@ -109,7 +109,7 @@ void call() {
                                         '''
                                     }
                                 } else {
-                                    echo 'Skip: VEGA_CORE_VERSION not specified'
+                                    echo 'Skip: VEGA_VERSION not specified'
                                     Utils.markStageSkippedForConditional(buildVegaCoreStageName)
                                 }
                             },
@@ -136,7 +136,7 @@ void call() {
                     //
                     String deployStageName = 'Deploy Vega Core binary'
                     stage(deployStageName) {
-                        if (params.VEGA_CORE_VERSION) {
+                        if (params.VEGA_VERSION) {
                             withEnv([
                                 "VEGA_CORE_BINARY=${env.WORKSPACE}/vega/cmd/vega/vega-linux-amd64",
                             ]) {
@@ -149,7 +149,7 @@ void call() {
                                 }
                             }
                         } else {
-                            echo 'Skip: VEGA_CORE_VERSION not specified'
+                            echo 'Skip: VEGA_VERSION not specified'
                             Utils.markStageSkippedForConditional(deployStageName)
                         }
                     }
@@ -280,7 +280,7 @@ void call() {
             } finally {
                 stage('Cleanup') {
                     slack.slackSendDeployStatus network: 'Devnet',
-                        version: params.VEGA_CORE_VERSION,
+                        version: params.VEGA_VERSION,
                         restart: params.RESTART != pipelineDefaults.restartOptions.dontRestart
                 }
             }

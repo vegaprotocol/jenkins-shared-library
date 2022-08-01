@@ -81,8 +81,8 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
-                        if (!params.VEGA_CORE_VERSION && params.RESTART == 'YES_FROM_CHECKPOINT') {
-                            error("When restarting from check point you need to provide VEGA_CORE_VERSION otherwise it will not work")
+                        if (!params.VEGA_VERSION && params.RESTART == 'YES_FROM_CHECKPOINT') {
+                            error("When restarting from check point you need to provide VEGA_VERSION otherwise it will not work")
                         }
                     }
                 }
@@ -111,12 +111,12 @@ void call() {
                     stage('vega core'){
                         when {
                             expression {
-                                params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && params.BUILD_VEGA_CORE
                             }
                         }
                         steps {
                             script {
-                                doGitClone('vega', params.VEGA_CORE_VERSION)
+                                doGitClone('vega', params.VEGA_VERSION)
                             }
                         }
                     }
@@ -161,7 +161,7 @@ void call() {
                     stage('Build Vega Core binary') {
                         when {
                             expression {
-                                params.VEGA_CORE_VERSION && params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && params.BUILD_VEGA_CORE
                             }
                         }
                         steps {
@@ -189,7 +189,7 @@ void call() {
                     stage('Download Vega Core binary') {
                         when {
                             expression {
-                                params.VEGA_CORE_VERSION && !params.BUILD_VEGA_CORE
+                                params.VEGA_VERSION && !params.BUILD_VEGA_CORE
                             }
                         }
                         environment {
@@ -197,7 +197,7 @@ void call() {
                         }
                         steps {
                             withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_CORE_VERSION} --pattern '*linux*'"
+                                sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
                             }
                             sh "mkdir -p bin"
                             sh "mv vega-linux-amd64 bin/vega"
@@ -280,7 +280,7 @@ void call() {
             stage('Deploy Vega Core binary') {
                 when {
                     expression {
-                        params.VEGA_CORE_VERSION
+                        params.VEGA_VERSION
                     }
                 }
                 environment {
@@ -330,7 +330,7 @@ void call() {
                         params.RESTART == 'YES_FROM_CHECKPOINT'
                     }
                     expression {
-                        params.VEGA_CORE_VERSION
+                        params.VEGA_VERSION
                     }
                 }
                 steps {
@@ -422,7 +422,7 @@ void call() {
                 script {
                     slack.slackSendDeployStatus (
                         network: "${env.NET_NAME}",
-                        version: params.VEGA_CORE_VERSION,
+                        version: params.VEGA_VERSION,
                         restart: params.RESTART != 'NO',
                     )
                 }
