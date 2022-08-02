@@ -368,6 +368,9 @@ void call() {
                         params.RESTART == 'YES' || params.RESTART == 'YES_FROM_CHECKPOINT'
                     }
                 }
+                environment {
+                    DATANODE_TAG = "${env.NET_NAME == 'devnet' ? params.VEGA_VERSION : ''}"
+                }
                 steps {
                     script {
                         veganet('start_datanode start')
