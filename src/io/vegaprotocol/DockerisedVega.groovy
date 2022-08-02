@@ -330,7 +330,7 @@ Map<String,String> getUsefulLinks(String ip, int node=0) {
     result['Known parties'] = "http://${ip}:${portbase + 10 * node + 3}/parties"
     result['Network parameters'] = "http://${ip}:${portbase + 10 * node + 3}/network/parameters"
     result['Gensis'] = "http://${ip}:${portbase + 10 * node + 1}/genesis"
-    result['More'] = 'https://github.com/vegaprotocol/protos/blob/develop/sources/data-node/grpc-rest-bindings.yml'
+    result['More'] = 'https://github.com/vegaprotocol/vega/blob/develop/protos/sources/data-node/grpc-rest-bindings.yml'
 
     return result
 }

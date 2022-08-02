@@ -21,7 +21,6 @@ void call() {
 
     capsuleSystemTests([
       branchVega: fne(params.VEGA_BRANCH, pipelineDefaults.capsuleSystemTests.branchVega),
-      branchProtos: fne(params.PROTOS_BRANCH, pipelineDefaults.capsuleSystemTests.branchProtos),
       branchSystemTests: fne(params.SYSTEM_TESTS_BRANCH, pipelineDefaults.capsuleSystemTests.branchSystemTests),
       branchVegaCapsule: fne(params.VEGACAPSULE_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
       branchVegatools: fne(params.VEGATOOLS_BRANCH, pipelineDefaults.capsuleSystemTests.branchVegatools),
