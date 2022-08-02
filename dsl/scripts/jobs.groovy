@@ -182,7 +182,7 @@ def jobs = [
             booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
             stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            stringParam('ANSIBLE_BRANCH', 'builtin-tm-35', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         }
     ],

@@ -112,7 +112,7 @@ Map dev = [
     devopsInfraBranch: 'master',
     devopsscriptsBranch: 'main',
     // tmp
-    ansibleBranch: 'builtin-tm-35',
+    ansibleBranch: 'master',
     removeWallets: false,
 ]
 
