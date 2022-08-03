@@ -140,7 +140,7 @@ def jobs = [
         name: 'private/Deployments/Vegacapsule/Stagnet 3',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition 'capsulePipelineWrapper()',
+        definition: libDefinition('capsulePipelineWrapper()'),
         env: [
             NET_NAME: "stagnet3",
             S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
@@ -151,7 +151,7 @@ def jobs = [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition 'capsulePipelineWrapper()',
+        definition: libDefinition('capsulePipelineWrapper()'),
         env: [
             NET_NAME: "devnet2",
             S3_CONFIG_HOME: "s3://vegacapsule-test/devnet2",
@@ -178,7 +178,7 @@ def jobs = [
     [
         name: 'private/Deployments/Veganet/Devnet',
         useScmDefinition: false,
-        definition: libDefinition 'pipelineDeploy()'
+        definition: libDefinition('pipelineDeploy()'),
         env: [
             NET_NAME: 'devnet',
             DNS_ALIAS: 'd',
@@ -193,7 +193,7 @@ def jobs = [
     [
         name: 'private/Deployments/Veganet/Stagnet',
         useScmDefinition: false,
-        definition: libDefinition 'pipelineDeploy()'
+        definition: libDefinition('pipelineDeploy()'),
         env: [
             NET_NAME: 'stagnet',
         ],
@@ -202,7 +202,7 @@ def jobs = [
     [
         name: 'private/Deployments/Veganet/Stagnet 2',
         useScmDefinition: false,
-        definition: libDefinition 'pipelineDeploy()'
+        definition: libDefinition('pipelineDeploy()'),
         env: [
             NET_NAME: 'stagnet2',
         ],
@@ -211,7 +211,7 @@ def jobs = [
     [
         name: 'private/Deployments/Veganet/Fairground',
         useScmDefinition: false,
-        definition: libDefinition 'pipelineDeploy()'
+        definition: libDefinition('pipelineDeploy()'),
         env: [
             NET_NAME: 'testnet',
         ],
@@ -221,14 +221,14 @@ def jobs = [
     [
         name: 'common/system-tests-wrapper',
         useScmDefinition: false,
-        definition: libDefinition 'capsuleSystemTests()',
+        definition: libDefinition('capsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
     ],
     [
         name: 'common/system-tests',
         useScmDefinition: false,
-        definition: libDefinition 'pipelineCapsuleSystemTests()',
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
     ],
