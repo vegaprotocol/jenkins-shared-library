@@ -204,31 +204,39 @@ void call(Map additionalConfig) {
             }
           }
           dir(testNetworkDir) {
-            archiveArtifacts artifacts: 'testnet/**/*',
-                      allowEmptyArchive: true
-
-            if (fileExists('log-output')) {
-              archiveArtifacts artifacts: 'log-output/**/*',
-                        allowEmptyArchive: true
+            archiveArtifacts(
+              artifacts: 'testnet/**/*',
+              allowEmptyArchive: true
+            )
+            script {
+              if (fileExists('log-output')) {
+                archiveArtifacts(
+                  artifacts: 'log-output/**/*',
+                  allowEmptyArchive: true
+                )
+              }
             }
           }
           dir('system-tests') {
-            archiveArtifacts artifacts: 'build/test-reports/**/*',
-                      allowEmptyArchive: true
-            archiveArtifacts artifacts: 'test_logs/**/*',
-                      allowEmptyArchive: true
+            archiveArtifacts(
+              artifacts: 'build/test-reports/**/*',
+              allowEmptyArchive: true
+            )
+            archiveArtifacts(
+              artifacts: 'test_logs/**/*',
+              allowEmptyArchive: true
+            )
 
-            junit checksName: 'System Tests',
+            junit(
+              checksName: 'System Tests',
               testResults: 'build/test-reports/system-test-results.xml',
               skipMarkingBuildUnstable: false,
               skipPublishingChecks: false,
+            )
           }
-          archiveArtifacts artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
-                      allowEmptyArchive: true
+          archiveArtifacts artifacts: pipelineDefaults.art.systemTestCapsuleJunit, allowEmptyArchive: true
         }
-        slack.slackSendCIStatus name: 'System Tests Capsule',
-          channel: '#qa-notify',
-          branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
+        slack.slackSendCIStatus name: 'System Tests Capsule', channel: '#qa-notify', branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
         cleanWs()
       }
     }
