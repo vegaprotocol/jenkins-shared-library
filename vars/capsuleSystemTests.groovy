@@ -24,7 +24,9 @@ def boxPublicIP() {
 
 void call(Map additionalConfig) {
   pipeline {
-    agent 'system-tests-capsule'
+    agent {
+      label 'system-tests-capsule'
+    }
     options {
       ansiColor('xterm')
       timestamps()
@@ -128,27 +130,26 @@ void call(Map additionalConfig) {
           }
 
           stage('start the network') {
-            options {
-
-            }
             steps {
-              dir(testNetworkDir) {
-                try {
-                  withCredentials([
-                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                  ]) {
-                    sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                  }
-                  timeout(time: 5, unit: 'MINUTES') {
+              script {
+                dir(testNetworkDir) {
+                  try {
+                    withCredentials([
+                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                    ]) {
+                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+                    }
+                    timeout(time: 5, unit: 'MINUTES') {
                       sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
+                    }
+                  } finally {
+                    sh 'docker logout https://ghcr.io'
                   }
-                } finally {
-                  sh 'docker logout https://ghcr.io'
                 }
-                sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-                sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-                sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
               }
+              sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
         }
@@ -234,9 +235,16 @@ void call(Map additionalConfig) {
               skipPublishingChecks: false,
             )
           }
-          archiveArtifacts artifacts: pipelineDefaults.art.systemTestCapsuleJunit, allowEmptyArchive: true
+          archiveArtifacts(
+            artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
+            allowEmptyArchive: true
+          )
         }
-        slack.slackSendCIStatus name: 'System Tests Capsule', channel: '#qa-notify', branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
+        slack.slackSendCIStatus(
+          name: 'System Tests Capsule',
+          channel: '#qa-notify',
+          branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
+        )
         cleanWs()
       }
     }
