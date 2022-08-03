@@ -240,11 +240,13 @@ void call(Map additionalConfig) {
             allowEmptyArchive: true
           )
         }
-        slack.slackSendCIStatus(
-          name: 'System Tests Capsule',
-          channel: '#qa-notify',
-          branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
-        )
+        script {
+          slack.slackSendCIStatus(
+            name: 'System Tests Capsule',
+            channel: '#qa-notify',
+            branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
+          )
+        }
         cleanWs()
       }
     }
