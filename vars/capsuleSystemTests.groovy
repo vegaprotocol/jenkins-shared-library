@@ -146,11 +146,11 @@ void call(Map additionalConfig) {
                   } finally {
                     sh 'docker logout https://ghcr.io'
                   }
+                  sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+                  sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+                  sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
                 }
               }
-              sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
         }
@@ -162,7 +162,7 @@ void call(Map additionalConfig) {
         }
         steps {
           dir(testNetworkDir) {
-                sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
+            sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
           }
         }
       }
