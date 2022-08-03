@@ -82,7 +82,9 @@ def libDefinition(methodName) {
             library (
                 identifier: "vega-shared-library@${env.JENKINS_SHARED_LIB_BRANCH}",
                 changelog: false,
-            )''' + methodName)
+            )
+
+            ''' + methodName)
         }
     }
 }
