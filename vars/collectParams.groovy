@@ -7,7 +7,7 @@
 def call(blackList=[]){
     params.findAll{
         // take all params that are not dc
-        !blackList.contains(it.key as String)
+        !blackList.contains(it.key as String) && it.value != null && it.value != ''
     }.collect{
         if (it.value instanceof Boolean){
             booleanParam(name: it.key, value: it.value)

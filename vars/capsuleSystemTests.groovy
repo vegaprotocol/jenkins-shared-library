@@ -183,12 +183,25 @@ void call(Map additionalConfig) {
           SYSTEM_TESTS_LOG_OUTPUT="\"${testNetworkDir}/log-output\""
         }
         steps {
+          // need to wrap TEST_DIRECTORY and split it by space if multiple directories are passed as current makefile does not support passing something like 'tests/API tests/LNL' in one throw
           dir('system-tests/scripts') {
-              sh 'make test'
+            script {
+              if ("${params.TEST_DIRECTORY}".split(' ').size() > 1){
+                "${params.TEST_DIRECTORY}".split(' ').each { dir ->
+                  withEnv([
+                    "TEST_DIRECTORY=${dir}"
+                  ]) {
+                    sh 'make test'
+                  }
+                }
+              }
+              else {
+                sh 'make test'
+              }
+            }
           }
         }
       }
-
     }
     post {
       always {
