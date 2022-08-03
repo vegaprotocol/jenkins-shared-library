@@ -176,7 +176,7 @@ void call(Map additionalConfig) {
           NETWORK_HOME_PATH = "\"${testNetworkDir}/testnet\""
           TEST_FUNCTION= "\"${params.SYSTEM_TESTS_TEST_FUNCTION}\""
           TEST_MARK= "\"${params.SYSTEM_TESTS_TEST_MARK}\""
-          TEST_DIRECTORY= "\"${params.SYSTEM_TESTS_TEST_DIRECTORY}\""
+          TEST_DIRECTORY= "${params.SYSTEM_TESTS_TEST_DIRECTORY}"
           USE_VEGACAPSULE= 'true'
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
           VEGACAPSULE_BIN_LINUX="\"${testNetworkDir}/vegacapsule\""
