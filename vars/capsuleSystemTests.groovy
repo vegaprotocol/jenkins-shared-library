@@ -23,31 +23,6 @@ def boxPublicIP() {
 }
 
 void call(Map additionalConfig) {
-  def defaultCconfig = [
-    branchVega: 'develop',
-    branchSystemTests: 'develop',
-    branchVegaCapsule: pipelineDefaults.capsuleSystemTests.branchVegaCapsule,
-    branchVegatools: 'develop',
-    branchDevopsInfra: 'master',
-    branchDevopsScripts: 'main',
-
-    systemTestsTestFunction: '',
-    systemTestsTestMark: 'smoke',
-    systemTestsTestDirectory: '',
-    capsuleConfig: 'capsule_config.hcl',
-    systemTestsDebug: '',
-    systemTestsRunTimeout: 60,
-    printNetworkLogs: false,
-
-    preapareSteps: {},
-    gitCredentialsId: 'vega-ci-bot',
-    ignoreFailure: false,
-
-    dockerCredentialsId: 'github-vega-ci-bot-artifacts',
-  ]
-  def config = defaultCconfig + additionalConfig
-  print "config: " + config
-
   pipeline {
     agent 'system-tests-capsule'
     stages {
@@ -61,7 +36,6 @@ void call(Map additionalConfig) {
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
-              config.preapareSteps()
             }
           }
         }
@@ -71,12 +45,12 @@ void call(Map additionalConfig) {
         steps {
           script {
             def repositories = [
-              [ name: 'vega', branch: config.branchVega ],
-              [ name: 'system-tests', branch: config.branchSystemTests ],
-              [ name: 'vegacapsule', branch: config.branchVegaCapsule ],
-              [ name: 'vegatools', branch: config.branchVegatools ],
-              [ name: 'devops-infra', branch: config.branchDevopsInfra ],
-              [ name: 'devopsscripts', branch: config.branchDevopsScripts ],
+              [ name: 'vega', branch: params.VEGA_BRANCH ],
+              [ name: 'system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
+              [ name: 'vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
+              [ name: 'vegatools', branch: params.VEGATOOLS_BRANCH ],
+              [ name: 'devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
+              [ name: 'devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
             ]
             parallel repositories.collectEntries{value -> [
                 value.name,
@@ -85,7 +59,7 @@ void call(Map additionalConfig) {
                     url: 'git@github.com:vegaprotocol/' + value.name + '.git',
                     branch: value.branch,
                     directory: value.name,
-                    credentialsId: config.gitCredentialsId,
+                    credentialsId: 'vega-ci-bot',
                     timeout: 2,
                   ])
                 }
@@ -132,7 +106,7 @@ void call(Map additionalConfig) {
           prepareSteps['prepare multisig setup script'] = {
             stage('prepare network config') {
               dir('system-tests') {
-                sh 'cp ./vegacapsule/' + config.capsuleConfig + ' ' + testNetworkDir + '/config_system_tests.hcl'
+                sh 'cp ./vegacapsule/' + params.CAPSULE_CONFIG + ' ' + testNetworkDir + '/config_system_tests.hcl'
               }
             }
           }
@@ -144,7 +118,7 @@ void call(Map additionalConfig) {
                   ansiColor('xterm') {
                     sh 'make check'
 
-                    withDockerRegistry([credentialsId: config.dockerCredentialsId, url: 'https://ghcr.io']) {
+                    withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
                       sh 'make prepare-test-docker-image'
                       sh 'make build-test-proto'
                     }
@@ -159,7 +133,7 @@ void call(Map additionalConfig) {
               dir(testNetworkDir) {
                 try {
                   withCredentials([
-                    usernamePassword(credentialsId: config.dockerCredentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')
+                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
                   ]) {
                     sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                   }
@@ -201,16 +175,16 @@ void call(Map additionalConfig) {
           withEnv([
               'TESTS_DIR=' + testNetworkDir,
               'NETWORK_HOME_PATH="' + testNetworkDir + '/testnet"',
-              'TEST_FUNCTION="' + config.systemTestsTestFunction + '"',
-              'TEST_MARK="' + config.systemTestsTestMark + '"',
-              'TEST_DIRECTORY="' + config.systemTestsTestDirectory + '"',
+              'TEST_FUNCTION="' + params.SYSTEM_TESTS_TEST_FUNCTION + '"',
+              'TEST_MARK="' + params.SYSTEM_TESTS_TEST_MARK + '"',
+              'TEST_DIRECTORY="' + params.SYSTEM_TESTS_TEST_DIRECTORY + '"',
               'USE_VEGACAPSULE=true',
-              'SYSTEM_TESTS_DEBUG=' + config.systemTestsDebug,
+              'SYSTEM_TESTS_DEBUG=' + params.SYSTEM_TESTS_DEBUG,
               'VEGACAPSULE_BIN_LINUX="' + testNetworkDir + '/vegacapsule"',
               'SYSTEM_TESTS_LOG_OUTPUT="' + testNetworkDir + '/log-output"'
           ]) {
               ansiColor('xterm') {
-                timeout(time: config.systemTestsRunTimeout, unit: 'MINUTES') {
+                timeout(time: params.TIMEOUT, unit: 'MINUTES') {
                   sh 'make test'
                 }
               }
@@ -228,7 +202,7 @@ void call(Map additionalConfig) {
           }
           dir(testNetworkDir) {
             script {
-              if (config.printNetworkLogs) {
+              if (params.PRINT_NETWORK_LOGS) {
                 sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet | tee ./testnet/network.log'
               } else {
                 sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet > ./testnet/network.log'
@@ -252,15 +226,15 @@ void call(Map additionalConfig) {
 
             junit checksName: 'System Tests',
               testResults: 'build/test-reports/system-test-results.xml',
-              skipMarkingBuildUnstable: config.ignoreFailure,
-              skipPublishingChecks: config.ignoreFailure
+              skipMarkingBuildUnstable: false,
+              skipPublishingChecks: false,
           }
           archiveArtifacts artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
                       allowEmptyArchive: true
         }
         slack.slackSendCIStatus name: 'System Tests Capsule',
           channel: '#qa-notify',
-          branch: 'st:' + config.branchSystemTests + ' | vega:' + config.branchVega
+          branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
         cleanWs()
       }
     }
