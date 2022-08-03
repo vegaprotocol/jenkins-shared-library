@@ -183,6 +183,7 @@ def jobs = [
             NET_NAME: 'devnet',
             DNS_ALIAS: 'd',
         ],
+        // overwrites
         parameters: veganetParams << {
             stringParam('VEGA_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
             booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_VERSION is to be build or downloaded')
@@ -196,7 +197,6 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet',
         ],
-        // overwrites
         parameters: veganetParams,
     ],
     [
