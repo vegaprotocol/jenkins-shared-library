@@ -4,10 +4,12 @@ void call() {
     agent none
     stages {
       stage('Call tests') {
-        build(
-          job: 'common/system-tests-wrapper',
-          parameters: collectParams(),
-        )
+        steps {
+          build(
+            job: 'common/system-tests-wrapper',
+            parameters: collectParams(),
+          )
+        }
       }
     }
   }
