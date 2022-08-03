@@ -25,8 +25,11 @@ def boxPublicIP() {
 void call(Map additionalConfig) {
   pipeline {
     agent 'system-tests-capsule'
+    options {
+      ansiColor('xterm')
+      timestamps()
+    }
     stages {
-
       stage('prepare') {
         steps {
           script {
@@ -87,49 +90,48 @@ void call(Map additionalConfig) {
         }
       }
 
-    stage('start nomad') {
-      steps {
-        dir('system-tests') {
-            sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testNetworkDir + '/nomad_config.hcl'
-        }
-        dir(testNetworkDir) {
-            sh 'daemonize -o ' + testNetworkDir + '/nomad.log -c ' + testNetworkDir + ' -p ' + testNetworkDir + '/vegacapsule_nomad.pid ' + testNetworkDir + '/vegacapsule nomad --nomad-config-path=' + testNetworkDir + '/nomad_config.hcl'
+      stage('start nomad') {
+        steps {
+          dir('system-tests') {
+              sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testNetworkDir + '/nomad_config.hcl'
+          }
+          dir(testNetworkDir) {
+              sh 'daemonize -o ' + testNetworkDir + '/nomad.log -c ' + testNetworkDir + ' -p ' + testNetworkDir + '/vegacapsule_nomad.pid ' + testNetworkDir + '/vegacapsule nomad --nomad-config-path=' + testNetworkDir + '/nomad_config.hcl'
+          }
         }
       }
-    }
 
 
-    stage('prepare system tests and network') {
-      steps {
-        script {
-          def prepareSteps = [:]
-          prepareSteps['prepare multisig setup script'] = {
-            stage('prepare network config') {
+      stage('prepare system tests and network') {
+        parallel {
+          stage('prepare network config') {
+            steps {
               dir('system-tests') {
                 sh 'cp ./vegacapsule/' + params.CAPSULE_CONFIG + ' ' + testNetworkDir + '/config_system_tests.hcl'
               }
             }
           }
 
-          prepareSteps['build system-tests docker images'] = {
-            stage('build system-tests docker images') {
+          stage('build system-tests docker images') {
+            options {
+              timeout(time: 5, unit: 'MINUTES')
+            }
+            steps {
               dir('system-tests/scripts') {
-                timeout(time: 5, unit: 'MINUTES') {
-                  ansiColor('xterm') {
-                    sh 'make check'
-
-                    withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                      sh 'make prepare-test-docker-image'
-                      sh 'make build-test-proto'
-                    }
-                  }
+                sh 'make check'
+                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
+                  sh 'make prepare-test-docker-image'
+                  sh 'make build-test-proto'
                 }
               }
             }
           }
 
-          prepareSteps['start the network'] = {
-            stage('start the network') {
+          stage('start the network') {
+            options {
+
+            }
+            steps {
               dir(testNetworkDir) {
                 try {
                   withCredentials([
@@ -138,9 +140,7 @@ void call(Map additionalConfig) {
                     sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                   }
                   timeout(time: 5, unit: 'MINUTES') {
-                    ansiColor('xterm') {
                       sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
-                    }
                   }
                 } finally {
                   sh 'docker logout https://ghcr.io'
@@ -151,47 +151,41 @@ void call(Map additionalConfig) {
               }
             }
           }
-
-          parallel prepareSteps
         }
       }
-    }
 
-    stage('setup multisig contract') {
-      steps {
-        dir(testNetworkDir) {
-          timeout(time: 2, unit: 'MINUTES') {
-            ansiColor('xterm') {
-              sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
-            }
+      stage('setup multisig contract') {
+        options {
+          timeout(time: 2, unit: 'MINUTES')
+        }
+        steps {
+          dir(testNetworkDir) {
+                sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
           }
         }
       }
-    }
 
-    stage('run tests') {
-      steps {
-        dir('system-tests/scripts') {
-          withEnv([
-              'TESTS_DIR=' + testNetworkDir,
-              'NETWORK_HOME_PATH="' + testNetworkDir + '/testnet"',
-              'TEST_FUNCTION="' + params.SYSTEM_TESTS_TEST_FUNCTION + '"',
-              'TEST_MARK="' + params.SYSTEM_TESTS_TEST_MARK + '"',
-              'TEST_DIRECTORY="' + params.SYSTEM_TESTS_TEST_DIRECTORY + '"',
-              'USE_VEGACAPSULE=true',
-              'SYSTEM_TESTS_DEBUG=' + params.SYSTEM_TESTS_DEBUG,
-              'VEGACAPSULE_BIN_LINUX="' + testNetworkDir + '/vegacapsule"',
-              'SYSTEM_TESTS_LOG_OUTPUT="' + testNetworkDir + '/log-output"'
-          ]) {
-              ansiColor('xterm') {
-                timeout(time: params.TIMEOUT, unit: 'MINUTES') {
-                  sh 'make test'
-                }
-              }
+      stage('run tests') {
+        options {
+          timeout(time: params.TIMEOUT, unit: 'MINUTES')
+        }
+        environment {
+          TESTS_DIR = "${testNetworkDir}"
+          NETWORK_HOME_PATH = "\"${testNetworkDir}/testnet\""
+          TEST_FUNCTION= "\"${params.SYSTEM_TESTS_TEST_FUNCTION}\""
+          TEST_MARK= "\"${params.SYSTEM_TESTS_TEST_MARK}\""
+          TEST_DIRECTORY= "\"${params.SYSTEM_TESTS_TEST_DIRECTORY}\""
+          USE_VEGACAPSULE= 'true'
+          SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
+          VEGACAPSULE_BIN_LINUX="\"${testNetworkDir}/vegacapsule\""
+          SYSTEM_TESTS_LOG_OUTPUT="\"${testNetworkDir}/log-output\""
+        }
+        steps {
+          dir('system-tests/scripts') {
+              sh 'make test'
           }
         }
       }
-    }
 
     }
     post {
