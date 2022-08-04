@@ -231,7 +231,8 @@ def jobs = [
     [
         name: 'common/system-tests',
         useScmDefinition: false,
-        definition: libDefinition('pipelineCapsuleSystemTests()'),
+        definition: libDefinition('capsuleSystemTests()'),
+        // definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
     ],
