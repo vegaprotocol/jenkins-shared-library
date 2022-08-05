@@ -412,6 +412,7 @@ void call() {
                 steps {
                     makeCommit(
                         directory: 'k8s',
+                        url: 'git@github.com:vegaprotocol/k8s.git',
                         branchName: "${env.NET_NAME}-wallet-update",
                         commitMessage: '[Automated] wallet version update',
                         commitAction: "echo ${params.VEGA_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
