@@ -195,23 +195,12 @@ def call() {
                     }
                     stage('Write to git') {
                         steps {
-                            dir('networks-internal') {
-                                sshagent(credentials: ['vega-ci-bot']) {
-                                    withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                        sh label: "sync configs to git", script: """
-                                            branchName="\$(date +%d-%m-%Y--%H-%M)-live-config-update"
-                                            git checkout -b "\$branchName"
-                                            git config --global user.email "vega-ci-bot@vega.xyz"
-                                            git config --global user.name "vega-ci-bot"
-                                            git commit -am "Live config update" || exit 0
-                                            git push -u origin "\$branchName"
-                                            prUrl="\$(gh pr create --title 'automated live config update' --body '${env.BUILD_URL}')"
-                                            sleep 5
-                                            gh pr merge "\${prUrl}" --auto --delete-branch --squash
-                                        """
-                                    }
-                                }
-                            }
+                            makeCommit(
+                                makeCheckout: false,
+                                directory: 'networks-internal',
+                                branchName: 'live-config-update',
+                                commitMessage: '[Automated] live config update',
+                            )
                         }
                     }
                 }

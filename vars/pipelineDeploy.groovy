@@ -403,6 +403,21 @@ void call() {
                     }
                 }
             }
+            stage('Deploy wallet') {
+                when {
+                    expression {
+                        params.DEPLOY_WALLET
+                    }
+                }
+                steps {
+                    makeCommit(
+                        directory: 'k8s',
+                        branchName: "${env.NET_NAME}-wallet-update",
+                        commitMessage: '[Automated] wallet version update',
+                        commitAction: "echo ${params.VEGA_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
+                    )
+                }
+            }
             stage('Bounce Bots') {
                 when {
                     expression {

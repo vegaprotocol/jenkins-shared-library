@@ -185,6 +185,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet',
             DNS_ALIAS: 'd',
+            DEPLOY_WALLET: 'true'
         ],
         // overwrites
         parameters: veganetParamsBase << {
