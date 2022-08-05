@@ -412,7 +412,7 @@ void call() {
                 steps {
                     makeCommit(
                         directory: 'k8s',
-                        branchName: 'live-config-update',
+                        branchName: "${env.NET_NAME}-wallet-update",
                         commitMessage: '[Automated] wallet version update',
                         commitAction: "echo ${params.VEGA_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
                     )
