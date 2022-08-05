@@ -406,7 +406,10 @@ void call() {
             stage('Deploy wallet') {
                 when {
                     expression {
-                        params.DEPLOY_WALLET && params.VEGA_VERSION
+                        params.DEPLOY_WALLET == 'true'
+                    }
+                    expression {
+                        params.VEGA_VERSION
                     }
                 }
                 steps {
