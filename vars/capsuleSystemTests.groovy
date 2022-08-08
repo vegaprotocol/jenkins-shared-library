@@ -12,7 +12,6 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
 }
 
 def boxPublicIP() {
-    def boxIp = "unknown";
     def commands = [
       'curl -4 icanhazip.com',
       'curl ifconfig.co',
@@ -22,12 +21,14 @@ def boxPublicIP() {
       'curl ident.me',
       'curl ipecho.net/plain'
     ]
-    commands.shuffle()
 
-    commands.each{ it -> 
+    for it in commands { 
       try {
         boxIp = sh(script: it, returnStdout:true).trim()
-        return boxIp;
+
+        if (boxIp != "") {
+          return boxIp;
+        }
       } catch(err) {
         // TODO: Add fallback to other services or linux commands
         print("Cannot get the box IP with command " + it + " : " + err)
