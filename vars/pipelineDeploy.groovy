@@ -369,7 +369,7 @@ void call() {
                     }
                 }
                 environment {
-                    DATANODE_TAG = "${env.NET_NAME == 'devnet' ? params.VEGA_VERSION : ''}"
+                    DATANODE_TAG = "${ (env.NET_NAME == 'devnet' ? params.VEGA_VERSION : '').replaceAll('/', '-') }"
                 }
                 steps {
                     script {
