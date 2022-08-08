@@ -22,7 +22,7 @@ def boxPublicIP() {
       'curl ipecho.net/plain'
     ]
 
-    for it in commands { 
+    for (it in commands) { 
       try {
         boxIp = sh(script: it, returnStdout:true).trim()
 
