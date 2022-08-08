@@ -42,6 +42,11 @@ void call(Map additionalConfig) {
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
+
+              print("Parameters")
+              print("==========")
+              print("${params}")
+
             }
           }
         }
