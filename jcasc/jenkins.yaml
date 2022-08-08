@@ -17,11 +17,11 @@ x-instance-template: &instance-template
   ebsEncryptRootVolume: UNENCRYPTED
   ebsOptimized: false
   hostKeyVerificationStrategy: ACCEPT_NEW
-  idleTerminationMinutes: "5"
+  idleTerminationMinutes: "1"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
-  instanceCapStr: "6"
+  instanceCapStr: "40"
   launchTimeoutStr: "200"
   maxTotalUses: 20
   metadataEndpointEnabled: true
@@ -31,7 +31,7 @@ x-instance-template: &instance-template
   minimumNumberOfSpareInstances: 0
   mode: EXCLUSIVE
   monitoring: false
-  numExecutors: 3
+  numExecutors: 1
   remoteAdmin: "ubuntu"
   remoteFS: "/jenkins"
   securityGroups: "jenkins-agent"
@@ -80,40 +80,29 @@ jenkins:
             labelString: general
             mode: NORMAL
             description: "general"
-            numExecutors: 2
           - <<: *instance-template
             description: "system-tests"
-            instanceCapStr: "15"
             labelString: "system-tests"
-            numExecutors: 2
           - <<: *instance-template
             description: "private-network"
             idleTerminationMinutes: "1"
-            instanceCapStr: "4"
+            instanceCapStr: "8"
             labelString: "private-network"
             maxTotalUses: 1
-            numExecutors: 1
             securityGroups: jenkins-dv-network
           - <<: *instance-template
             description: "system-tests-capsule"
             labelString: "system-tests-capsule"
-            instanceCapStr: "15"
-            numExecutors: 1
-            launchTimeoutStr: "200"
             type: M6iXlarge
           - <<: *instance-template
             description: "test-instance"
             ebsEncryptRootVolume: DEFAULT
-            idleTerminationMinutes: "30"
-            instanceCapStr: "2"
+            instanceCapStr: "5"
             labelString: "test-instance"
-            numExecutors: 1
-            launchTimeoutStr: "200"
           - <<: *instance-template
             description: "non-validator"
             instanceCapStr: "8"
             labelString: "non-validator"
-            numExecutors: 1
             securityGroups: "jenkins-non-validator"
             type: T3Medium
         useInstanceProfileForCredentials: false
