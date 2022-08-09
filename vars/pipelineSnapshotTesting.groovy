@@ -8,6 +8,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 void call(Map config=[:]) {
 
     String vegaNetwork = config.network ?: 'devnet1'
+    // todo: checkout ansible repo and read inventory
     Map<String, List<String>> serversByNetwork = [
         'devnet1': (1..4).collect { "n0${it}.d.vega.xyz" },
         'stagnet1': (1..5).collect { "n0${it}.s.vega.xyz" },
@@ -28,20 +29,6 @@ void call(Map config=[:]) {
     String defaultTimeout = config.timeout ?: '10'
     // usually setup+download etc takes 20-100sec
     String cronConfig = "H/${defaultTimeout.toInteger() + 2} * * * *"
-
-    properties([
-        buildDiscarder(logRotator(daysToKeepStr: '14')),
-        copyArtifactPermission('*'),
-        pipelineTriggers([cron(cronConfig)]),
-        parameters([
-            choice(
-                name: 'NETWORK', choices: vegaNetworkList, // defaultValue is the first from the list
-                description: 'Vega Network to connect to'),
-            string(
-                name: 'TIMEOUT', defaultValue: defaultTimeout,
-                description: 'Number of minutes after which the node will stop'),
-        ])
-    ])
 
     echo "params=${params}"
 
@@ -83,15 +70,15 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        List<String> networkServers = serversByNetwork[params.NETWORK].clone()
+                        List<String> networkServers = serversByNetwork[env.NETWORK].clone()
                         // Randomize order
                         // workaround to .shuffled() not implemented
-                        Random random = new Random();  
-                        for(int index = 0; index < networkServers.size(); index += 1) {  
-                            Collections.swap(networkServers, index, index + random.nextInt(networkServers.size() - index));  
+                        Random random = new Random();
+                        for(int index = 0; index < networkServers.size(); index += 1) {
+                            Collections.swap(networkServers, index, index + random.nextInt(networkServers.size() - index));
                         }
                         echo "Going to check servers: ${networkServers}"
-                        for(String server in networkServers) { 
+                        for(String server in networkServers) {
                             if (isRemoteServerAlive(server)) {
                                 remoteServer = server
                                 break
@@ -100,9 +87,9 @@ void call(Map config=[:]) {
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
-                            extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                            extraMsg = extraMsg ?: "${env.NETWORK} seems down. Snapshot test aborted."
                             currentBuild.result = 'ABORTED'
-                            error("${params.NETWORK} seems down")
+                            error("${env.NETWORK} seems down")
                         }
                         echo "Found available server: ${remoteServer}"
                     }
@@ -139,7 +126,7 @@ void call(Map config=[:]) {
                     stage("Initialize configs") {
                         sh label: 'vega init + copy genesis.json',
                             script: '''#!/bin/bash -e
-                                ./vega init full --home=./vega_config --output=json &&./vega tm init full --home=./tm_config
+                                ./vega init full --home=./vega_config --output=json && ./vega tm init full --home=./tm_config
                                 cp genesis.json ./tm_config/config/genesis.json
                             '''
                     }
@@ -164,7 +151,7 @@ void call(Map config=[:]) {
                                 RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
                                 PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
                             }
-                            
+
 
                             // Get trust block info
                             def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
@@ -179,9 +166,9 @@ void call(Map config=[:]) {
                             if ( !isRemoteServerAlive(remoteServer) ) {
                                 // Remote server stopped being available.
                                 // This is quite often for Devnet, when deployments happen all the time
-                                extraMsg = extraMsg ?: "${params.NETWORK} seems down. Snapshot test aborted."
+                                extraMsg = extraMsg ?: "${env.NETWORK} seems down. Snapshot test aborted."
                                 currentBuild.result = 'ABORTED'
-                                error("${params.NETWORK} seems down")
+                                error("${env.NETWORK} seems down")
                             } else {
                                 println("Remote server ${remoteServer} is still up.")
                                 // re-throw
@@ -245,15 +232,19 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Tendermint': {
-                                boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sh label: 'Start tendermint',
-                                        script: """#!/bin/bash -e
-                                            ./vega tm start --home=tm_config
-                                        """
-                                }
-                                if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                    extraMsg = extraMsg ?: "Tendermint stopped too early."
-                                    error("Tendermint stopped too early, Remote Server is still alive.")
+                                if (!env.DISABLE_TENDERMINT) {
+                                    boolean nice = nicelyStopAfter(params.TIMEOUT) {
+                                        sh label: 'Start tendermint',
+                                            script: """#!/bin/bash -e
+                                                ./vega tm start --home=tm_config
+                                            """
+                                    }
+                                    if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                        extraMsg = extraMsg ?: "Tendermint stopped too early."
+                                        error("Tendermint stopped too early, Remote Server is still alive.")
+                                    }
+                                } else {
+                                    echo "tendermint is embedded into vega right now"
                                 }
                             },
                             'Checks': {
@@ -350,7 +341,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(params.NETWORK, extraMsg, catchupTime)
+                    sendSlackMessage(env.NETWORK, extraMsg, catchupTime)
                 }
             }
         }
