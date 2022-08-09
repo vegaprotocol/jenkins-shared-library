@@ -249,6 +249,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Devnet',
+        useScmDefinition: false,
         env: [
             NETWORK: 'devnet',
             DISABLE_TENDERMINT: 'true'
@@ -261,6 +262,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Stagnet1',
+        useScmDefinition: false,
         env: [
             NETWORK: 'stagnet1',
         ],
