@@ -55,6 +55,12 @@ def createCommonPipeline(args){
         }
         if (args.get('useScmDefinition', true)) {
             definition scmDefinition(args)
+        }
+        else {
+            definition args.definition
+        }
+
+        if (args.get('useScmDefinition', true)) {
             properties {
                 pipelineTriggers {
                     triggers {
@@ -68,9 +74,6 @@ def createCommonPipeline(args){
                 }
             }
         }
-        else {
-            definition args.definition
-        }
         if (args.cron) {
             properties {
                 pipelineTriggers {
@@ -79,6 +82,13 @@ def createCommonPipeline(args){
                             spec(args.cron)
                         }
                     }
+                }
+            }
+        }
+        if (args.disableConcurrentBuilds) {
+            properties {
+                disableConcurrentBuilds {
+                    abortPrevious(args.abortPrevious ?: false)
                 }
             }
         }
@@ -159,6 +169,7 @@ def jobs = [
             S3_CONFIG_HOME: "s3://vegacapsule-test/stagnet3",
             NOMAD_ADDR: "https://n00.stagnet3.vega.xyz:4646",
         ],
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
@@ -170,6 +181,7 @@ def jobs = [
             S3_CONFIG_HOME: "s3://vegacapsule-test/devnet2",
             NOMAD_ADDR: "https://n00.devnet.vega.xyz:4646",
         ],
+        disableConcurrentBuilds: true,
     ],
 
     // DSL Job - the one that manages this file
@@ -179,6 +191,7 @@ def jobs = [
         description: h('this job is used to generate other jobs'),
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
+        disableConcurrentBuilds: true,
     ],
     // Jenkins Configuration As Code
     [
@@ -187,6 +200,7 @@ def jobs = [
         description: h('This job is used to auto apply changes to jenkins instance configuration'),
         jenkinsfile: 'jcasc/Jenkinsfile',
         branch: 'main',
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Veganet/Devnet',
@@ -203,6 +217,7 @@ def jobs = [
             booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_VERSION is to be build or downloaded')
             choiceParam('RESTART', ['YES', 'NO'], 'Restart the Network') // do not support checkpoints for devnet
         },
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Veganet/Stagnet',
@@ -212,6 +227,7 @@ def jobs = [
             NET_NAME: 'stagnet',
         ],
         parameters: veganetParams,
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Veganet/Stagnet 2',
@@ -221,6 +237,7 @@ def jobs = [
             NET_NAME: 'stagnet2',
         ],
         parameters: veganetParams,
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Veganet/Fairground',
@@ -230,6 +247,7 @@ def jobs = [
             NET_NAME: 'testnet',
         ],
         parameters: veganetParams,
+        disableConcurrentBuilds: true,
     ],
     // system-tests
     [
@@ -260,6 +278,7 @@ def jobs = [
         },
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Snapshots/Stagnet1',
@@ -273,6 +292,7 @@ def jobs = [
         },
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
     ],
 
 ]
