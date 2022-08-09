@@ -233,7 +233,7 @@ void call(Map config=[:]) {
                                                     --tendermint-home=tm_config \
                                                     --snapshot.log-level=debug
                                             """
-                                    else {
+                                    } else {
                                         sh label: 'Start vega node',
                                             script: """#!/bin/bash -e
                                                 ./vega node --home=vega_config \
