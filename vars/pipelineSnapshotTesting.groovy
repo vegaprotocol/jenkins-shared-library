@@ -226,11 +226,20 @@ void call(Map config=[:]) {
                             failFast: true,
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sh label: 'Start vega node',
-                                        script: """#!/bin/bash -e
-                                            ./vega node --home=vega_config \
-                                                --snapshot.log-level=debug
-                                        """
+                                    if (env.DISABLE_TENDERMINT) {
+                                        sh label: 'Start vega node',
+                                            script: """#!/bin/bash -e
+                                                ./vega start --home=vega_config \
+                                                    --tendermint-home=tm_config \
+                                                    --snapshot.log-level=debug
+                                            """
+                                    else {
+                                        sh label: 'Start vega node',
+                                            script: """#!/bin/bash -e
+                                                ./vega node --home=vega_config \
+                                                    --snapshot.log-level=debug
+                                            """
+                                    }
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
