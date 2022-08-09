@@ -251,7 +251,7 @@ def jobs = [
         name: 'private/Snapshots/Devnet',
         useScmDefinition: false,
         env: [
-            NETWORK: 'devnet',
+            NETWORK: 'devnet1',
             DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
