@@ -110,3 +110,37 @@ Map injectPRParams() {
     }
     return params
 }
+
+List<String> getAllLabelsFor(Map config = [:]) {
+    List<String> result = []
+    Map prData = getData(config + ['prFields': ['labels']])
+    prData.labels.each { labelData ->
+        result += labelData.name
+    }
+    result.removeAll([''])
+    return result
+}
+
+List<String> getAllLabels() {
+    if (env.CHANGE_URL) {
+        return getAllLabelsFor(url: env.CHANGE_URL)
+    }
+    return []
+}
+
+boolean hasLabelFor(Map config = [:]) {
+    List<String> allLabels = getAllLabels(config)
+    allLabels.each { label ->
+        if (label == config.label) {
+            return true
+        }
+    }
+    return false
+}
+
+boolean hasLabel(String label) {
+    if (env.CHANGE_URL) {
+        return hasLabelFor(label: label, url: env.CHANGE_URL)
+    }
+    return false
+}
