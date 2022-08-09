@@ -248,7 +248,7 @@ def jobs = [
         copyArtifacts: true,
     ],
     [
-        name: 'Snapshots/Devnet',
+        name: 'private/Snapshots/Devnet',
         env: [
             NETWORK: 'devnet',
             DISABLE_TENDERMINT: 'true'
@@ -260,7 +260,7 @@ def jobs = [
         cron: "H/12 * * * *",
     ],
     [
-        name: 'Snapshots/Stagnet1',
+        name: 'private/Snapshots/Stagnet1',
         env: [
             NETWORK: 'stagnet1',
         ],
