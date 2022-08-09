@@ -110,6 +110,9 @@ void call(Map config=[:]) {
                                         script: """#!/bin/bash -e
                                             scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega
                                         """
+                                    sh label: "vega version", script: """#!/bin/bash -e
+                                        ./vega version
+                                    """
                                 }
                             },
                             'genesis.json': {
@@ -118,6 +121,9 @@ void call(Map config=[:]) {
                                         script: """#!/bin/bash -e
                                             scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json genesis.json
                                         """
+                                    sh label: "print genesis.json", script: """#!/bin/bash -e
+                                        cat genesis.json
+                                    """
                                 }
                             }
                         ])
