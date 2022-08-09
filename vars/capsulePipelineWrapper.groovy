@@ -74,15 +74,11 @@ def call() {
                         }
                         steps {
                             // gh didn't work, don't know why, just replaced with jenkins native check out
-                            dir('networks-internal') {
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: 'main']],
-                                    userRemoteConfigs: [[
-                                        url: "git@github.com:vegaprotocol/networks-internal.git",
-                                        credentialsId: 'vega-ci-bot'
-                                    ]]])
-                            }
+                            gitClone(
+                                url: "git@github.com:vegaprotocol/networks-internal.git",
+                                credentialsId: 'vega-ci-bot',
+                                dir: 'networks-internal'
+                            )
                         }
                     }
                     stage('Build capsule') {
@@ -92,11 +88,13 @@ def call() {
                             }
                         }
                         steps {
-                            withGHCLI('credentialsId': env.GITHUB_CREDS) {
-                                sh "gh repo clone vegaprotocol/vegacapsule"
-                            }
+                            gitClone(
+                                url: "git@github.com:vegaprotocol/vegacapsule.git",
+                                credentialsId: 'vega-ci-bot',
+                                dir: 'vegacapsule',
+                                branch: params.VEGACAPSULE_VERSION,
+                            )
                             dir('vegacapsule') {
-                                sh "git checkout ${params.VEGACAPSULE_VERSION}"
                                 sh "go build -o vegacapsule ."
                                 sh "mv vegacapsule ../bin"
                             }
