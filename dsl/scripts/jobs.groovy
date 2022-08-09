@@ -71,7 +71,17 @@ def createCommonPipeline(args){
         else {
             definition args.definition
         }
-
+        if (args.cron) {
+            properties {
+                pipelineTriggers {
+                    triggers {
+                        cron {
+                            spec(args.cron)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -237,6 +247,30 @@ def jobs = [
         parameters: systemTestsParams,
         copyArtifacts: true,
     ],
+    [
+        name: 'Snapshots/Devnet',
+        env: [
+            NETWORK: 'devnet',
+            DISABLE_TENDERMINT: 'true'
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+    ],
+    [
+        name: 'Snapshots/Stagnet1',
+        env: [
+            NETWORK: 'stagnet1',
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+    ],
+
 ]
 
 // MAIN
