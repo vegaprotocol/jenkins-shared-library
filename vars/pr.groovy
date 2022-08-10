@@ -132,7 +132,7 @@ List<String> getAllLabels() {
 boolean hasLabelFor(Map config = [:]) {
     List<String> allLabels = getAllLabels(config)
     allLabels.each { label ->
-        if (label == config.label) {
+        if (label.toLowerCase() == config.label.toLowerCase()) {
             return true
         }
     }
