@@ -22,7 +22,7 @@ def boxPublicIP() {
       'curl ipecho.net/plain'
     ]
 
-    for (it in commands) { 
+    for (it in commands) {
       try {
         boxIp = sh(script: it, returnStdout:true).trim()
 
@@ -34,7 +34,7 @@ def boxPublicIP() {
         print("Cannot get the box IP with command " + it + " : " + err)
       }
     }
-    
+
     return ""
 }
 
@@ -138,6 +138,7 @@ void call(Map additionalConfig) {
           stage('build system-tests docker images') {
             options {
               timeout(time: 5, unit: 'MINUTES')
+              retry(3)
             }
             steps {
               dir('system-tests/scripts') {
