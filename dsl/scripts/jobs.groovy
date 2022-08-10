@@ -41,7 +41,10 @@ def createCommonPipeline(args){
         des += "${des ? '<br/>' : ''} ${standardDescription()}"
         description(des)
         logRotator {
-            daysToKeep(45)
+            daysToKeep(args.daysToKeep ?: 45)
+            numToKeep(args.numToKeep ?: 1000)
+            artifactDaysToKeep(args.daysToKeep ?: 45)
+            artifactNumToKeep(args.numToKeep ?: 1000)
         }
         if (args.parameters) {
             parameters args.parameters
@@ -256,6 +259,7 @@ def jobs = [
         definition: libDefinition('capsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
+        daysToKeep: 14,
     ],
     [
         name: 'common/system-tests',
@@ -264,6 +268,7 @@ def jobs = [
         // definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
+        daysToKeep: 14,
     ],
     [
         name: 'private/Snapshots/Devnet',
