@@ -136,7 +136,7 @@ void call() {
                         steps {
                             script {
                                 def repoVars = doGitClone('vega', params.VEGA_VERSION)
-                                env.DOCKER_IMAGE_TAG_HASH = sh (returnStdout: true, script: "echo \"${repoVars.GIT_COMMIT}\"|cut -b1-8").trim()
+                                env.DOCKER_IMAGE_TAG_HASH = repoVars.GIT_COMMIT?.substring(0, 8)
                             }
                         }
                     }

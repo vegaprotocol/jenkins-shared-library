@@ -69,7 +69,8 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'networks': 'NETWORKS_BRANCH',
         'checkpoint-store': 'CHECKPOINT_STORE_BRANCH',
         'vegacapsule': 'VEGACAPSULE_BRANCH',
-        'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH'
+        'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH',
+        'deploy-to-devnet': 'DEPLOY_TO_DEVNET'
     ]
 
     // For every COMMENT
