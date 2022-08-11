@@ -69,7 +69,8 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'networks': 'NETWORKS_BRANCH',
         'checkpoint-store': 'CHECKPOINT_STORE_BRANCH',
         'vegacapsule': 'VEGACAPSULE_BRANCH',
-        'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH'
+        'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH',
+        'deploy-to-devnet': 'DEPLOY_TO_DEVNET'
     ]
 
     // For every COMMENT
@@ -109,4 +110,38 @@ Map injectPRParams() {
         return params + customParams  // merge dictionaries
     }
     return params
+}
+
+List<String> getAllLabelsFor(Map config = [:]) {
+    List<String> result = []
+    Map prData = getData(config + ['prFields': ['labels']])
+    prData.labels.each { labelData ->
+        result += labelData.name
+    }
+    result.removeAll([''])
+    return result
+}
+
+List<String> getAllLabels() {
+    if (env.CHANGE_URL) {
+        return getAllLabelsFor(url: env.CHANGE_URL)
+    }
+    return []
+}
+
+boolean hasLabelFor(Map config = [:]) {
+    List<String> allLabels = getAllLabels(config)
+    allLabels.each { label ->
+        if (label.toLowerCase() == config.label.toLowerCase()) {
+            return true
+        }
+    }
+    return false
+}
+
+boolean hasLabel(String label) {
+    if (env.CHANGE_URL) {
+        return hasLabelFor(label: label, url: env.CHANGE_URL)
+    }
+    return false
 }

@@ -25,7 +25,13 @@ void call() {
     def doGitClone = { repo, branch ->
         dir(repo) {
             retry(3) {
-                checkout([
+                // returns object:
+                // [GIT_BRANCH:origin/master,
+                // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
+                // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
+                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41, 
+                // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
+                return checkout([
                     $class: 'GitSCM',
                     branches: [[name: branch]],
                     userRemoteConfigs: [[
@@ -64,6 +70,17 @@ void call() {
         return 'ssh -t -i $PSSH_KEYFILE $PSSH_USER@n04.$NET_NAME.vega.xyz "sudo ' + command + '"'
     }
 
+    def doesDockerImageExist = { imageName ->
+        timeout(time: 30, unit: 'SECONDS') { {
+            waitUntil {
+                script {
+                    def r = sh returnStatus: true, script: 'docker manifest inspect ' + imageName
+                    return r == 0
+                }
+            }
+        }
+    }
+
     pipeline {
         agent any
         options {
@@ -74,6 +91,8 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            DOCKER_IMAGE_TAG = params.VEGA_VERSION.replaceAll('/', '-')
+            DOCKER_IMAGE_TAG_HASH = ''
         }
         stages {
             stage('CI Config') {
@@ -116,7 +135,8 @@ void call() {
                         }
                         steps {
                             script {
-                                doGitClone('vega', params.VEGA_VERSION)
+                                def repoVars = doGitClone('vega', params.VEGA_VERSION)
+                                env.DOCKER_IMAGE_TAG_HASH = repoVars.GIT_COMMIT?.substring(0, 8)
                             }
                         }
                     }
@@ -202,6 +222,92 @@ void call() {
                             sh "mkdir -p bin"
                             sh "mv vega-linux-amd64 bin/vega"
                             sh "chmod +x bin/vega"
+                        }
+                    }
+                    stage('Build data-node docker image') {
+                        when {
+                            expression {
+                                env.DOCKER_IMAGE_TAG_HASH && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG_HASH}")
+                            }
+                        }
+                        environment {
+                            DATANODE_DOCKER_IMAGE_BRANCH = "ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG}"
+                            DATANODE_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG_HASH}"
+                        }
+                        stages {
+                            stage('Build') {
+                                steps {
+                                    dir('vega') {
+                                        sh label: 'Build docker image', script: """#!/bin/bash -e
+                                            docker build \
+                                                -f docker/data-node.dockerfile \
+                                                -t ${DATANODE_DOCKER_IMAGE_BRANCH} \
+                                                -t ${DATANODE_DOCKER_IMAGE_HASH} \
+                                                .
+                                        """
+                                    }
+                                    sh label: 'Sanity check', script: """#!/bin/bash -e
+                                        docker run --rm -it \
+                                            ${DATANODE_DOCKER_IMAGE_BRANCH} \
+                                            version
+                                    """
+                                }
+                            }
+                            stage('Publish') {
+                                steps {
+                                    withDockerRegistry(dockerCredentials) {
+                                        sh label: 'Publish docker image - branch tag', script: """#!/bin/bash -e
+                                            docker push ${DATANODE_DOCKER_IMAGE_BRANCH}
+                                        """
+                                        sh label: 'Publish docker image - hash tag', script: """#!/bin/bash -e
+                                            docker push ${DATANODE_DOCKER_IMAGE_HASH}
+                                        """
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    stage('Build vegawallet docker image') {
+                        when {
+                            expression {
+                                env.DOCKER_IMAGE_TAG_HASH && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG_HASH}")
+                            }
+                        }
+                        environment {
+                            VEGAWALLET_DOCKER_IMAGE_BRANCH = "ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG}"
+                            VEGAWALLET_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG_HASH}"
+                        }
+                        stages {
+                            stage('Build') {
+                                steps {
+                                    dir('vega') {
+                                        sh label: 'Build docker image', script: """#!/bin/bash -e
+                                            docker build \
+                                                -f docker/vegawallet.dockerfile \
+                                                -t ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
+                                                -t ${VEGAWALLET_DOCKER_IMAGE_HASH} \
+                                                .
+                                        """
+                                    }
+                                    sh label: 'Sanity check', script: """#!/bin/bash -e
+                                        docker run --rm -it \
+                                            ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
+                                            version
+                                    """
+                                }
+                            }
+                            stage('Publish') {
+                                steps {
+                                    withDockerRegistry(dockerCredentials) {
+                                        sh label: 'Publish docker image - branch tag', script: """#!/bin/bash -e
+                                            docker push ${VEGAWALLET_DOCKER_IMAGE_BRANCH}
+                                        """
+                                        sh label: 'Publish docker image - hash tag', script: """#!/bin/bash -e
+                                            docker push ${VEGAWALLET_DOCKER_IMAGE_HASH}
+                                        """
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -369,7 +475,7 @@ void call() {
                     }
                 }
                 environment {
-                    DATANODE_TAG = "${ (env.NET_NAME == 'devnet' ? params.VEGA_VERSION : '').replaceAll('/', '-') }"
+                    DATANODE_TAG = env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG
                 }
                 steps {
                     script {
@@ -409,13 +515,16 @@ void call() {
                         env.DEPLOY_WALLET && params.VEGA_VERSION
                     }
                 }
+                environment {
+                    VEGAWALLET_VERSION = env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG
+                }
                 steps {
                     makeCommit(
                         directory: 'k8s',
                         url: 'git@github.com:vegaprotocol/k8s.git',
                         branchName: "${env.NET_NAME}-wallet-update",
                         commitMessage: '[Automated] wallet version update',
-                        commitAction: "echo ${params.VEGA_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
+                        commitAction: "echo ${env.VEGAWALLET_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
                     )
                 }
             }
