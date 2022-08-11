@@ -71,7 +71,7 @@ void call() {
     }
 
     def doesDockerImageExist = { imageName ->
-        timeout(time: 30, unit: 'SECONDS') { {
+        timeout(time: 30, unit: 'SECONDS') {
             waitUntil {
                 script {
                     def r = sh returnStatus: true, script: 'docker manifest inspect ' + imageName
