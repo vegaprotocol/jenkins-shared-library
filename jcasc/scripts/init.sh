@@ -85,3 +85,5 @@ ssh-keyscan -t rsa,dsa "mainnet-observer.ops.vega.xyz" >> ~/.ssh/known_hosts || 
 ssh-keyscan -t rsa,dsa "testnet-observer.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 ssh-keyscan -t rsa,dsa "api-token.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 ssh-keyscan -t rsa,dsa "github.com" >> ~/.ssh/known_hosts || true
+
+export USE_GKE_GCLOUD_AUTH_PLUGIN="True"
