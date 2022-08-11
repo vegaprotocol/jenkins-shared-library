@@ -1,4 +1,4 @@
-/* groovylint-disable DuplicateMapLiteral, DuplicateStringLiteral, LineLength, MethodSize, NestedBlockDepth */
+/* groovylint-disable DuplicateMapLiteral, DuplicateNumberLiteral, DuplicateStringLiteral, LineLength, MethodSize, NestedBlockDepth */
 void templateConfigs(String envName, String netHome, String tmplHome, String additionalFlags) {
   sh label: 'generate templates: ' + envName, script: """
         vegacapsule template genesis \
@@ -110,6 +110,8 @@ void call(Map customConfig = [:]) {
     nomadAddress: '',
     awsRegion: '',
     vegacapsuleS3BucketName: '',
+    networksInternalBranch: 'main',
+    nomadNodesNumer: 0,
   ] + customConfig
 
   pipeline {
@@ -145,6 +147,10 @@ void call(Map customConfig = [:]) {
       }
 
       stage('Init binaries and tools') {
+        options {
+          timeout(10)
+        }
+
         parallel {
           stage('Check out vegaprotocol/networks-internal') {
             when {
@@ -157,11 +163,12 @@ void call(Map customConfig = [:]) {
               gitClone([
                   credentialsId: env.GITHUB_SSH_CREDS,
                   url: 'git@github.com:vegaprotocol/networks-internal.git',
-                  branch: 'main',
+                  branch: config.networksInternalBranch,
                   directory: 'networks-internal'
               ])
             }
           }
+
           stage('Build capsule') {
             when {
               expression {
@@ -295,6 +302,10 @@ void call(Map customConfig = [:]) {
       }
 
       stage('Sync remote state to local') {
+        options {
+          timeout(5)
+        }
+
         steps {
           dir('networks-internal/' + config.networkName + '/vegacapsule') {
             sh '''
@@ -311,6 +322,10 @@ void call(Map customConfig = [:]) {
       }
 
       stage('Stop Network') {
+        options {
+          timeout(10)
+        }
+
         when {
           expression {
             params.ACTION == 'STOP' || params.ACTION == 'RESTART'
@@ -318,12 +333,16 @@ void call(Map customConfig = [:]) {
         }
         steps {
           dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            sh "vegacapsule network stop --home-path './home'"
+            sh "vegacapsule network destroy --home-path './home'"
           }
         }
       }
 
       stage('Update networks configs') {
+        options {
+          timeout(10)
+        }
+
         when {
           expression {
             params.REGENERATE_CONFIGS
@@ -361,7 +380,7 @@ void call(Map customConfig = [:]) {
 
           stage('Template live config (git / networks-internal)') {
             environment {
-              FLAGS = "--out-dir '${env.WORKSPACE}/networks-internal/stagnet3/live-config'"
+              FLAGS = "--out-dir '${env.WORKSPACE}/networks-internal/${config.networkName}/live-config'"
             }
             steps {
               script {
@@ -377,16 +396,24 @@ void call(Map customConfig = [:]) {
             }
           }
 
-          makeCommit(
-              makeCheckout: false,
-              directory: 'networks-internal',
-              branchName: 'main',
-              commitMessage: '[Automated] live config update for ' + config.networkName,
-          )
+          stage('Write to git') {
+            steps {
+              makeCommit(
+                  makeCheckout: false,
+                  directory: 'networks-internal',
+                  branchName: 'live-config-update',
+                  commitMessage: '[Automated] live config update for ' + config.networkName,
+              )
+            }
+          }
         }
       }
 
       stage('Remove the network files') {
+        options {
+          timeout(20)
+        }
+
         when {
           expression {
             (params.ACTION == 'RESTART' || params.ACTION == 'START') && params.UNSAFE_RESET_ALL
@@ -400,14 +427,14 @@ void call(Map customConfig = [:]) {
                 keyFileVariable: 'PSSH_KEYFILE',
                 usernameVariable: 'PSSH_USER'
             )]) {
-              for (node in (1..9).toList()) {
+              for (node in (1..config.nomadNodesNumer).toList()) {
                 print('Clear the n0' + node + ' node')
 
 
                 sh '''ssh \
                   -o "StrictHostKeyChecking=no" \
                   -i "''' + PSSH_KEYFILE + '''" \
-                  ''' + PSSH_USER + '''@n0''' + node + '''.stagnet3.vega.xyz \
+                  ''' + PSSH_USER + '''@n0''' + node + '''.''' + config.networkName + '''.vega.xyz \
                     sudo rm -r /home/vega/.vega /home/vega/.tendermint /home/vega/.data-node || true'''
               }
             }
@@ -416,35 +443,51 @@ void call(Map customConfig = [:]) {
         }
       }
       stage('Start Network') {
+        options {
+          timeout(10)
+        }
+
         when {
           expression {
             params.ACTION == 'START' || params.ACTION == 'RESTART'
           }
         }
         steps {
-          dir('networks-internal/stagnet3/vegacapsule') {
-            sh "vegacapsule network start --home-path './home'"
+          dir('networks-internal/' + config.networkName + '/vegacapsule') {
+            sh "vegacapsule network start --home-path './home' --do-not-stop-on-failure"
           }
         }
       }
       stage('Write to s3') {
         options {
+          timeout(5)
           retry(3)
         }
         steps {
-          dir('networks-internal/stagnet3/vegacapsule') {
-            sh label: 'sync configs to s3', script: """
-                aws s3 sync \
+          dir('networks-internal/' + config.networkName + '/vegacapsule') {
+            sh label: 'Remove old network data from S3', script: """
+            aws s3 rm \
+               --recursive \
+               --only-show-errors \
+               's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
+            """
+            sh label: 'Sync configs to s3', script: """
+                aws s3 cp \
+                --recursive \
                 --only-show-errors \
                 --no-progress \
                   './home/' \
-                  's3://""" + env.S3_BUCKET_NAME + """/stagnet3'
+                  's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
             """
           }
         }
       }
 
       stage('Create markets') {
+        options {
+          timeout(40)
+        }
+
         steps {
           veganetSh(
             config.networkName,
@@ -458,6 +501,7 @@ void call(Map customConfig = [:]) {
       stage('Bounce bots') {
         options {
           retry(3)
+          timeout(20)
         }
 
         steps {

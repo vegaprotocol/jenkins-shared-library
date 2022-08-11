@@ -124,6 +124,8 @@ capsuleParams = {
     booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
     booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    stringParam('DEVOPS_INFRA_VERSION', 'main', h('version of the devops-infra repository (tag, branch, any revision)'))
+
 }
 
 veganetParamsBase = {
