@@ -475,7 +475,7 @@ void call() {
                     }
                 }
                 environment {
-                    DATANODE_TAG = env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG
+                    DATANODE_TAG = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}" 
                 }
                 steps {
                     script {
@@ -516,7 +516,7 @@ void call() {
                     }
                 }
                 environment {
-                    VEGAWALLET_VERSION = env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG
+                    VEGAWALLET_VERSION = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}"
                 }
                 steps {
                     makeCommit(
