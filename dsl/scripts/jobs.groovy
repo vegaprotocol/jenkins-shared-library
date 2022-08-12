@@ -153,6 +153,7 @@ systemTestsParams = {
     stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
     stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
     stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
+    stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
     stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
     booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
     stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
@@ -266,6 +267,14 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
         // definition: libDefinition('pipelineCapsuleSystemTests()'),
+        parameters: systemTestsParams,
+        copyArtifacts: true,
+        daysToKeep: 14,
+    ],
+    [
+        name: 'common/system-tests-demo',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParams,
         copyArtifacts: true,
         daysToKeep: 14,
