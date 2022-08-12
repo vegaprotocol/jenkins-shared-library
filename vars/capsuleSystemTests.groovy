@@ -78,7 +78,7 @@ void call(Map additionalConfig) {
               [ name: 'devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
               [ name: 'devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
             ]
-            parallel repositories.collectEntries{value -> [
+            def steps = repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
@@ -90,6 +90,12 @@ void call(Map additionalConfig) {
                   ])
                 }
               ]}
+            steps['pull system tests image'] = {
+                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
+                  sh "docker pull ghcr.io/vegaprotocol/system-tests:latest"
+                }
+            }
+            parallel steps
             }
           }
         }
