@@ -74,7 +74,7 @@ def createCommonPipeline(args){
         }
         if (args.copyArtifacts) {
             properties {
-                copyArtifactsPermission {
+                copyArtifactPermission {
                     projectNames('*')
                 }
             }
