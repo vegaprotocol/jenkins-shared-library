@@ -194,14 +194,14 @@ void call(Map additionalConfig) {
         }
         environment {
           TESTS_DIR = "${testNetworkDir}"
-          NETWORK_HOME_PATH = "\"${testNetworkDir}/testnet\""
-          TEST_FUNCTION= "\"${params.SYSTEM_TESTS_TEST_FUNCTION}\""
-          TEST_MARK= "\"${params.SYSTEM_TESTS_TEST_MARK}\""
-          TEST_DIRECTORY= "\"${params.SYSTEM_TESTS_TEST_DIRECTORY}\""
+          NETWORK_HOME_PATH = "${testNetworkDir}/testnet"
+          TEST_FUNCTION= "${params.SYSTEM_TESTS_TEST_FUNCTION}"
+          TEST_MARK= "${params.SYSTEM_TESTS_TEST_MARK}"
+          TEST_DIRECTORY= "${params.SYSTEM_TESTS_TEST_DIRECTORY}"
           USE_VEGACAPSULE= 'true'
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
-          VEGACAPSULE_BIN_LINUX="\"${testNetworkDir}/vegacapsule\""
-          SYSTEM_TESTS_LOG_OUTPUT="\"${testNetworkDir}/log-output\""
+          VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
+          SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
         }
         steps {
           dir('system-tests/scripts') {
@@ -249,7 +249,6 @@ void call(Map additionalConfig) {
               artifacts: 'test_logs/**/*',
               allowEmptyArchive: true
             )
-
             junit(
               checksName: 'System Tests',
               testResults: 'build/test-reports/system-test-results.xml',

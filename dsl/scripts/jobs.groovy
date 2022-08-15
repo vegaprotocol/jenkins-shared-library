@@ -143,21 +143,25 @@ veganetParams = veganetParamsBase << {
     choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
 }
 
-systemTestsParams = {
+systemTestsParamsGeneric = {
     stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
     stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
     stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
     stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-    stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-    stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-    stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
+    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
     booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
     stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
     booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
-    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+}
+
+systemTestsParamsWrapper = systemTestsParamsGeneric << {
+    stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+    stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+    stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
+    stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
 }
 
 def jobs = [
@@ -257,7 +261,7 @@ def jobs = [
         name: 'common/system-tests-wrapper',
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
-        parameters: systemTestsParams,
+        parameters: systemTestsParamsWrapper,
         copyArtifacts: true,
         daysToKeep: 14,
     ],
@@ -266,7 +270,19 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
         // definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParams,
+        parameters: systemTestsParamsWrapper,
+        copyArtifacts: true,
+        daysToKeep: 14,
+    ],
+    // this job spec is going to replace common/system-tests
+    [
+        name: 'common/system-tests-demo',
+        description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/'
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
+        parameters: systemTestsParams << {
+            choiceParam('SCENARIO', ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+        },
         copyArtifacts: true,
         daysToKeep: 14,
     ],
