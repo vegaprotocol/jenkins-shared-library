@@ -8,18 +8,18 @@ void call() {
       'smoke a-g': [
         pytestArgs: "--ignore-glob 'tests/[h-zH-Z]*/**.py'",
         mark: 'smoke'
-      ]
+      ],
       'smoke h-m': [
         pytestArgs: "--ignore-glob 'tests/[a-gA-Gn-zN-Z]*/**.py'",
         mark: 'smoke'
-      ]
+      ],
       'smoke n-z': [
         pytestArgs: "--ignore-glob 'tests/[a-mA-M]*/**.py'",
         mark: 'smoke'
       ],
       'network_infra_smoke a-z': [
         mark: 'network_infra_smoke'
-      ]
+      ],
     ],
     'NIGHTLY': [
       'full a-e': [
@@ -46,22 +46,22 @@ void call() {
         pytestArgs: '--ignore-glob tests/[o-zO-Z]*/**.py',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
-      ]
+      ],
       'network_infra o-u w-z': [
         pytestArgs: '--ignore-glob tests/[a-nA-Nv-vV-V]*/**.py',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
-      ]
+      ],
       'network_infra validators a-p': [
         pytestArgs: '--ignore-glob tests/validators/[r-zR-Z]*.py',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
-      ]
+      ],
       'network_infra validators r-z': [
         pytestArgs: '--ignore-glob tests/validators/[a-pA-P]*.py',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
-      ]
+      ],
     ]
   ][params.SCENARIO]
   pipeline {
