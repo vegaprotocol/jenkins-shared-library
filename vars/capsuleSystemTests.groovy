@@ -93,6 +93,7 @@ void call(Map additionalConfig) {
             steps['pull system tests image'] = {
                 withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
                   sh "docker pull ghcr.io/vegaprotocol/system-tests:latest"
+                  sh "docker tag ghcr.io/vegaprotocol/system-tests:latest system-tests:local"
                 }
             }
             parallel steps
