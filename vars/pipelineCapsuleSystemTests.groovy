@@ -70,25 +70,27 @@ void call() {
       stage('Call tests') {
         steps {
           script {
-            parallel scenario.collectEntries{ name, testSpec -> [
-              (name): {
-                childParams = collectParams()
-                if (testSpec.pytestArgs) {
-                  childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
-                }
-                if (testSpec.mark) {
-                  childParams += [string(name: 'SYSTEM_TESTS_TEST_MARK', value: testSpec.mark)]
-                }
-                if (testSpec.capsuleConfig) {
-                  childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
-                }
-                childs.add(
-                  build(
-                    job: wrapper,
-                    parameters: childParams,
+            parallel scenario.collectEntries { name, testSpec ->
+              [
+                (name): {
+                  childParams = collectParams()
+                  if (testSpec.pytestArgs) {
+                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
+                  }
+                  if (testSpec.mark) {
+                    childParams += [string(name: 'SYSTEM_TESTS_TEST_MARK', value: testSpec.mark)]
+                  }
+                  if (testSpec.capsuleConfig) {
+                    childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
+                  }
+                  childs.add(
+                    build(
+                      job: wrapper,
+                      parameters: childParams,
+                    )
                   )
-                )
-              ]}
+                ]
+              }
             }
           }
         }
