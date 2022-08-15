@@ -100,15 +100,16 @@ void call() {
         steps {
           sh "mkdir -p results"
           script {
+            def resultFile = 'build/test-reports/system-test-results.xml'
             childs.each {
               copyArtifacts(
-                  filter : "build/test-reports/system-test-results.xml",
-                  flatten: true,
+                  filter : resultFile,
                   projectName : wrapper,
                   // job object is in list, it's call for getNumber()
                   selector: specific(it.number as String)
               )
-              sh "mv system-tests-results.xml results/system-tests-results-${it.number}.xml"
+              sh "mv ${resultFile} results/system-tests-results-${it.number}.xml"
+              sh "rm -rf build"
             }
           }
           junit(
