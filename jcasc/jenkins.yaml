@@ -29,7 +29,7 @@ x-instance-template: &instance-template
   metadataTokensRequired: false
   minimumNumberOfInstances: 0
   minimumNumberOfSpareInstances: 0
-  mode: EXCLUSIVE
+  mode: NORMAL
   monitoring: false
   numExecutors: 1
   remoteAdmin: "ubuntu"
@@ -78,7 +78,6 @@ jenkins:
         templates:
           - <<: *instance-template
             labelString: general
-            mode: NORMAL
             description: "general"
           - <<: *instance-template
             description: "system-tests"
@@ -90,6 +89,7 @@ jenkins:
             instanceCapStr: "8"
             labelString: "private-network"
             maxTotalUses: 1
+            mode: EXCLUSIVE
             securityGroups: jenkins-dv-network
           - <<: *instance-template
             description: "system-tests-capsule"
@@ -100,10 +100,12 @@ jenkins:
             description: "test-instance"
             ebsEncryptRootVolume: DEFAULT
             instanceCapStr: "5"
+            mode: EXCLUSIVE
             labelString: "test-instance"
           - <<: *instance-template
             description: "non-validator"
             instanceCapStr: "8"
+            mode: EXCLUSIVE
             labelString: "non-validator"
             securityGroups: "jenkins-non-validator"
             type: T3Medium
