@@ -106,7 +106,7 @@ void call() {
                   flatten: true,
                   projectName : wrapper,
                   // job object is in list, it's call for getNumber()
-                  selector: buildParameter(it.number)
+                  selector: buildParameter(it.number as String)
               )
               sh "mv system-tests-results.xml results/system-tests-results-${it.number}.xml"
             }
