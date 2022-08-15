@@ -151,7 +151,6 @@ systemTestsParamsGeneric = {
     stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
     booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
     stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
     booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
@@ -162,6 +161,7 @@ systemTestsParamsWrapper = systemTestsParamsGeneric << {
     stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
     stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
     stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
+    stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
 }
 
 def jobs = [
