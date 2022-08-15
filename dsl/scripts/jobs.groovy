@@ -70,13 +70,16 @@ def createCommonPipeline(args){
                         githubPush()
                     }
                 }
-                if (args.copyArtifacts) {
-                    copyArtifactsPermission {
-                        projectNames('*')
-                    }
+            }
+        }
+        if (args.copyArtifacts) {
+            properties {
+                copyArtifactsPermission {
+                    projectNames('*')
                 }
             }
         }
+
         if (args.cron) {
             properties {
                 pipelineTriggers {
