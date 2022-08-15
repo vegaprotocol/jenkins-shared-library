@@ -2,37 +2,23 @@ void call() {
   println('pipelineCapsuleSystemTests params: ' + params)
   wrapper = 'common/system-tests-wrapper'
   childs = []
+  // this is default scenario for smoke test, but it will require changing for other types
+  scenario = [
+    'a-g': "--collect-only --ignore-glob 'tests/[h-zH-Z]*/**.py'",
+    'h-m': "--collect-only --ignore-glob 'tests/[a-gA-Gn-zN-Z]*/**.py'",
+    'n-z': "--collect-only --ignore-glob 'tests/[a-mA-M]*/**.py'",
+  ]
   pipeline {
     agent none
     stages {
       stage('Call tests') {
-        parallel {
-          stage('h-z') {
-            steps {
-              script {
+        steps {
+          script {
+            parallel scenario.collectEntries { name, pytestParam ->
+              (name): {
                 childs.add(build(
                   job: wrapper,
-                  parameters: collectParams() + [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: "--collect-only --ignore-glob 'tests/[h-zH-Z]*/**.py'")],
-                ))
-              }
-            }
-          }
-          stage('a-g + n-z') {
-            steps {
-              script {
-                childs.add(build(
-                  job: wrapper,
-                  parameters: collectParams() + [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: "--collect-only --ignore-glob 'tests/[a-gA-Gn-zN-Z]*/**.py'")],
-                ))
-              }
-            }
-          }
-          stage('a-m') {
-            steps {
-              script {
-                childs.add(build(
-                  job: wrapper,
-                  parameters: collectParams() + [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: "--collect-only --ignore-glob 'tests/[a-mA-M]*/**.py'")],
+                  parameters: collectParams() + [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: pytestParam)],
                 ))
               }
             }
