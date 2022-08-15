@@ -70,7 +70,7 @@ void call() {
       stage('Call tests') {
         steps {
           script {
-            parallel scenario.collectEntries { name, testSpec ->
+            parallel scenario.collectEntries{ name, testSpec -> [
               (name): {
                 childParams = collectParams()
                 if (testSpec.pytestArgs) {
@@ -88,7 +88,7 @@ void call() {
                     parameters: childParams,
                   )
                 )
-              }
+              ]}
             }
           }
         }
