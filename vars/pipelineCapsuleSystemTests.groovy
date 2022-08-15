@@ -89,8 +89,8 @@ void call() {
                       parameters: childParams,
                     )
                   )
-                ]
-              }
+                }
+              ]
             }
           }
         }
