@@ -280,7 +280,7 @@ def jobs = [
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParams << {
+        parameters: systemTestsParamsGeneric << {
             choiceParam('SCENARIO', ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         },
         copyArtifacts: true,
