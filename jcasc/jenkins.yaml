@@ -17,13 +17,13 @@ x-instance-template: &instance-template
   ebsEncryptRootVolume: UNENCRYPTED
   ebsOptimized: false
   hostKeyVerificationStrategy: ACCEPT_NEW
-  idleTerminationMinutes: "1"
+  idleTerminationMinutes: "5"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
   instanceCapStr: "40"
   launchTimeoutStr: "200"
-  maxTotalUses: 20
+  maxTotalUses: 100
   metadataEndpointEnabled: true
   metadataHopsLimit: 1
   metadataTokensRequired: false
@@ -83,6 +83,7 @@ jenkins:
           - <<: *instance-template
             description: "system-tests"
             labelString: "system-tests"
+            instanceCapStr: 200
           - <<: *instance-template
             description: "private-network"
             idleTerminationMinutes: "1"
@@ -93,6 +94,7 @@ jenkins:
           - <<: *instance-template
             description: "system-tests-capsule"
             labelString: "system-tests-capsule"
+            instanceCapStr: 200
             type: M6iXlarge
           - <<: *instance-template
             description: "test-instance"
