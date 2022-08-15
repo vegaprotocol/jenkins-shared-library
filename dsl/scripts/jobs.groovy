@@ -202,6 +202,7 @@ def jobs = [
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
+        numToKeep: 100,
     ],
     // Jenkins Configuration As Code
     [
@@ -211,6 +212,7 @@ def jobs = [
         jenkinsfile: 'jcasc/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
+        numToKeep: 100,
     ],
     [
         name: 'private/Deployments/Veganet/Devnet',
