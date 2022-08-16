@@ -225,15 +225,6 @@ void call(Map additionalConfig) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
           }
           dir(testNetworkDir) {
-            script {
-              if (params.PRINT_NETWORK_LOGS) {
-                sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet | tee ./testnet/network.log'
-              } else {
-                sh './vegacapsule network logs --home-path ' + testNetworkDir + '/testnet > ./testnet/network.log'
-              }
-            }
-          }
-          dir(testNetworkDir) {
             archiveArtifacts(
               artifacts: 'testnet/**/*',
               allowEmptyArchive: true
