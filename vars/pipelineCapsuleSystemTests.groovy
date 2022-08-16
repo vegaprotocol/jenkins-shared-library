@@ -92,8 +92,8 @@ void call() {
                     )
                   } finally {
                     echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
-                    lock('copy-artifacts') {
-                      def targetDir = 'build/test-reports-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
+                    node {
+                      def targetDir = 'test-reports-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
                       copyArtifacts(
                           projectName: downstreamBuildName,
                           selector: specific("${downstreamBuild.number}"),
@@ -101,6 +101,7 @@ void call() {
                           filter: 'build/test-reports/**/*',
                           target: targetDir
                       )
+                      sh "mv ${targetDir}/build/test-reports/* ${targetDir}"
                       archiveArtifacts(
                         artifacts: "${targetDir}/**/*",
                         allowEmptyArchive: true
@@ -109,7 +110,6 @@ void call() {
                           testResults: "${targetDir}/**/*",
                           skipMarkingBuildUnstable: false,
                           skipPublishingChecks: false
-                      
                     }
                   }
                 }
