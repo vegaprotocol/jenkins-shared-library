@@ -298,16 +298,6 @@ def jobs = [
     ],
     [
         name: 'common/system-tests',
-        useScmDefinition: false,
-        definition: libDefinition('capsuleSystemTests()'),
-        // definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsWrapper,
-        copyArtifacts: true,
-        daysToKeep: 14,
-    ],
-    // this job spec is going to replace common/system-tests
-    [
-        name: 'common/system-tests-demo',
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
