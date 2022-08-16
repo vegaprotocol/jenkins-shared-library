@@ -137,19 +137,19 @@ void call() {
                             }
                         }
                     }
-                    stage('Build vagacapsule') {
+                    stage('Build vegacapsule') {
                         steps {
-                            dir('vagacapsule') {
+                            dir('vegacapsule') {
                                 sh label: 'Compile', script: '''#!/bin/bash -e
                                     go build -v \
-                                        -o ../bin/ \
+                                        -o ../bin/vegacapsule \
                                         ./main.go
                                 '''
                             }
                             dir('bin') {
-                                sh label: 'Sanity check: vagacapsule', script: '''#!/bin/bash -e
-                                    file ./vagacapsule
-                                    ./vagacapsule --help
+                                sh label: 'Sanity check: vegacapsule', script: '''#!/bin/bash -e
+                                    file ./vegacapsule
+                                    ./vegacapsule --help
                                 '''
                             }
                         }
