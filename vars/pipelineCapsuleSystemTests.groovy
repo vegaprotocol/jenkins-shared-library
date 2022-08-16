@@ -118,10 +118,10 @@ void call() {
           }
         }
       }
-      post {
-        always {
-          cleanWs()
-        }
+    }
+    post {
+      always {
+        cleanWs()
       }
     }
   }
