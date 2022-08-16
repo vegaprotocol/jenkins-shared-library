@@ -318,7 +318,7 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 14,
         cron: 'H 0 * * *',
-    ]
+    ],
     [
         name: 'private/Snapshots/Devnet',
         useScmDefinition: false,
