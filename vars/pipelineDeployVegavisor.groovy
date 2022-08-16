@@ -132,7 +132,7 @@ void call() {
                                 '''
                                 sh label: 'Sanity check: visor', script: '''#!/bin/bash -e
                                     file ./visor
-                                    ./visor version
+                                    ./visor --help
                                 '''
                             }
                         }
@@ -143,13 +143,13 @@ void call() {
                                 sh label: 'Compile', script: '''#!/bin/bash -e
                                     go build -v \
                                         -o ../bin/ \
-                                        ./cmd/vagacapsule
+                                        ./main.go
                                 '''
                             }
                             dir('bin') {
                                 sh label: 'Sanity check: vagacapsule', script: '''#!/bin/bash -e
                                     file ./vagacapsule
-                                    ./vagacapsule version
+                                    ./vagacapsule --help
                                 '''
                             }
                         }
