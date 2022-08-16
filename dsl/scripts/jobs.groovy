@@ -282,7 +282,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineDeployVegavisor()'),
         env: [
-            NET_NAME: 'devnet2'
+            NET_NAME: 'devnet2',
         ],
         parameters: vegavisorParams,
         disableConcurrentBuilds: true,

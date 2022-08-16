@@ -140,11 +140,11 @@ void call() {
                     stage('Build vagacapsule') {
                         steps {
                             dir('vagacapsule') {
-                                sh label: 'Compile', script: """#!/bin/bash -e
+                                sh label: 'Compile', script: '''#!/bin/bash -e
                                     go build -v \
                                         -o ../bin/ \
                                         ./cmd/vagacapsule
-                                """
+                                '''
                             }
                             dir('bin') {
                                 sh label: 'Sanity check: vagacapsule', script: '''#!/bin/bash -e
