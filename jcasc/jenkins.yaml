@@ -95,7 +95,6 @@ jenkins:
             description: "system-tests-capsule"
             labelString: "system-tests-capsule"
             instanceCapStr: 200
-            type: M6iXlarge
           - <<: *instance-template
             description: "test-instance"
             ebsEncryptRootVolume: DEFAULT
