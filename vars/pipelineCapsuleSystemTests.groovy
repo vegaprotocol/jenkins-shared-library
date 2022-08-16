@@ -121,7 +121,9 @@ void call() {
     }
     post {
       always {
-        cleanWs()
+        node {
+          cleanWs()
+        }
       }
     }
   }
