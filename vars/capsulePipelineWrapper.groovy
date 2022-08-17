@@ -273,7 +273,7 @@ void call(Map customConfig = [:]) {
               gitClone([
                   credentialsId: env.GITHUB_SSH_CREDS,
                   url: 'git@github.com:vegaprotocol/devops-infra.git',
-                  branch: 'master',
+                  branch: params.DEVOPS_INFRA_VERSION,
                   directory: 'devops-infra'
               ])
             }

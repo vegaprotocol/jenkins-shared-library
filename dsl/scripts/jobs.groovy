@@ -116,16 +116,15 @@ def libDefinition(methodName) {
 capsuleParams = {
     booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
     stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
-    stringParam('VEGA_VERSION', 'v0.52.0', h('version of vega core (tag)'))
+    stringParam('VEGA_VERSION', '', h('version of vega core (tag)'))
     booleanParam('BUILD_VEGA_BINARY', false, h('determine whether vega binary is built or downloaded'))
-    stringParam('DATA_NODE_VERSION', 'v0.52.0', h('version of data node (tag)'))
+    stringParam('DATA_NODE_VERSION', '', h('version of data node (tag)'))
     booleanParam('BUILD_DATA_NODE_BINARY', false, h('determine whether data-node binary is built or downloaded'))
     choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
     booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
     booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
-
 }
 
 veganetParamsBase = {
@@ -170,11 +169,13 @@ def jobs = [
         useScmDefinition: false,
         parameters: capsuleParams,
         definition: libDefinition('''capsulePipelineWrapper([
-            networkName: 'stagnet3',
-            nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
-            awsRegion: 'eu-west-2',
-            vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
-        ]'''),
+                networkName: 'stagnet3',
+                nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
+                awsRegion: 'eu-west-2',
+                vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
+                networksInternalBranch: 'main',
+                nomadNodesNumer: 8,
+            ])'''),
         env: [],
         disableConcurrentBuilds: true,
     ],
@@ -183,11 +184,13 @@ def jobs = [
         useScmDefinition: false,
         parameters: capsuleParams,
         definition: libDefinition('''capsulePipelineWrapper([
-            networkName: 'devnet2',
-            nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
-            awsRegion: 'eu-west-2',
-            vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
-        ])'''),
+                networkName: 'stagnet3',
+                nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
+                awsRegion: 'eu-west-2',
+                vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
+                networksInternalBranch: 'main',
+                nomadNodesNumer: 4,
+            ])'''),
         env: [],
         disableConcurrentBuilds: true,
     ],
