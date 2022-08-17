@@ -119,10 +119,9 @@ def libDefinition(methodName) {
 capsuleParams = {
     booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
     stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
-    stringParam('VEGA_VERSION', '', h('version of vega core (tag)'))
-    booleanParam('BUILD_VEGA_BINARY', false, h('determine whether vega binary is built or downloaded'))
-    stringParam('DATA_NODE_VERSION', '', h('version of data node (tag)'))
-    booleanParam('BUILD_DATA_NODE_BINARY', false, h('determine whether data-node binary is built or downloaded'))
+    stringParam('VEGA_VERSION', '', h('version of vega core (tag, branch, commit or S3 path)'))
+    booleanParam('BUILD_VEGA_BINARIES', false, h('determine whether vega binaries are built or downloaded'))
+    stringParam('DATA_NODE_VERSION', '', h('version of data node (binary tag, or S3 path)'))
     choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
     booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
     booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
@@ -207,7 +206,7 @@ def jobs = [
         useScmDefinition: false,
         parameters: capsuleParams,
         definition: libDefinition('''capsulePipelineWrapper([
-                networkName: 'stagnet3',
+                networkName: 'devnet2',
                 nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
                 awsRegion: 'eu-west-2',
                 vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
