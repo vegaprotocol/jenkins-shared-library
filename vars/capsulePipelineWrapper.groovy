@@ -233,7 +233,7 @@ void call(Map customConfig = [:]) {
           stage('Download data-node binary from Github Release') {
             when {
               expression {
-                !isS3Link(params.DATA_NODE_VERSION) && params.BUILD_DATA_NODE_BINARY
+                !isS3Link(params.DATA_NODE_VERSION) && !params.BUILD_DATA_NODE_BINARY
               }
             }
 
