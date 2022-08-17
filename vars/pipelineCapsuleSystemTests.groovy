@@ -119,12 +119,5 @@ void call() {
         }
       }
     }
-    post {
-      always {
-        node {
-          cleanWs()
-        }
-      }
-    }
   }
 }
