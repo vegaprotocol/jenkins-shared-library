@@ -1,4 +1,4 @@
-/* groovylint-disable DuplicateMapLiteral, DuplicateNumberLiteral, DuplicateStringLiteral, LineLength, MethodSize, NestedBlockDepth */
+/* groovylint-disable DuplicateMapLiteral, DuplicateNumberLiteral, DuplicateStringLiteral, Indentation, LineLength, MethodSize, NestedBlockDepth */
 void templateConfigs(String envName, String netHome, String tmplHome, String additionalFlags) {
   sh label: 'generate templates: ' + envName, script: """
         vegacapsule template genesis \
@@ -333,6 +333,12 @@ void call(Map customConfig = [:]) {
         }
         steps {
           dir('networks-internal/' + config.networkName + '/vegacapsule') {
+            // Hotfix for https://github.com/vegaprotocol/vegacapsule/issues/228
+            sh '''nomad job status --short \
+              | grep -v Type \
+              | grep running \
+              | awk '{ print $1 }' \
+              | xargs -L 1 nomad job stop'''
             sh "vegacapsule network destroy --home-path './home'"
           }
         }
