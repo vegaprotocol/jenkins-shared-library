@@ -43,7 +43,7 @@ void templateConfigs(String envName, String netHome, String tmplHome, String add
 
 void getReleasedBinary(String ghCredentialsID, String binType, String version) {
   withGHCLI('credentialsId': ghCredentialsID) {
-        sh 'gh release --repo vegaprotocol/vega download ' + version + ' --pattern "' + binType + '-linux*"'
+    sh 'gh release --repo vegaprotocol/vega download ' + version + ' --pattern "' + binType + '-linux*"'
   }
 
   sh 'mv vega-linux-amd64 bin/' + binType
@@ -84,34 +84,14 @@ boolean isS3Link(String path) {
   return path.length() > 0 && path[0..4] == 's3://'
 }
 
-void veganetSh(String network, String command, String sshCredentialsId, String dockerCredentialsId) {
-  dir('devops-infra') {
-    withCredentials([sshUserPrivateKey(
-        credentialsId: sshCredentialsId,
-        keyFileVariable: 'PSSH_KEYFILE',
-        usernameVariable: 'PSSH_USER'
-    )]) {
-      withDockerRegistry([
-          credentialsId: dockerCredentialsId,
-          url: 'https://ghcr.io'
-      ]) {
-        withGoogleSA('gcp-k8s') {
-          sh label: 'Create markets',
-            script: './veganet.sh ' + network + ' ' + command
-        }
-      }
-    }
-  }
-}
-
 void call(Map customConfig = [:]) {
   Map config = [
-    networkName: '',
-    nomadAddress: '',
-    awsRegion: '',
-    vegacapsuleS3BucketName: '',
+    // networkName: '',
+    // nomadAddress: '',
+    // awsRegion: '',
+    // vegacapsuleS3BucketName: '',
     networksInternalBranch: 'main',
-    nomadNodesNumer: 0,
+    // nomadNodesNumer: 0,
   ] + customConfig
 
   pipeline {
@@ -293,7 +273,7 @@ void call(Map customConfig = [:]) {
               gitClone([
                   credentialsId: env.GITHUB_SSH_CREDS,
                   url: 'git@github.com:vegaprotocol/devops-infra.git',
-                  branch: 'stagnet3-markets',
+                  branch: 'master',
                   directory: 'devops-infra'
               ])
             }
@@ -496,10 +476,8 @@ void call(Map customConfig = [:]) {
 
         steps {
           veganetSh(
-            config.networkName,
-            'create_markets',
-            env.NETWORK_SSH_CREDENTIALS,
-            env.GITHUB_CREDS,
+            network: config.networkName,
+            command: 'create_markets',
           )
         }
       }
@@ -512,16 +490,28 @@ void call(Map customConfig = [:]) {
 
         steps {
           veganetSh(
-            config.networkName,
-            'bounce_bots',
-            env.NETWORK_SSH_CREDENTIALS,
-            env.GITHUB_CREDS,
+            network: config.networkName,
+            command: 'bounce_bots',
           )
         }
       }
     }
 
     post {
+      success {
+        retry(3) {
+          script {
+              slack.slackSendCISuccess name: 'Release the ' + config.networkName + ' network', channel: '#devops-notify'
+          }
+        }
+      }
+      unsuccessful {
+        retry(3) {
+          script {
+              slack.slackSendCIFailure name: 'Release the ' + config.networkName + ' network', channel: '#devops-notify'
+          }
+        }
+      }
       always {
         cleanWs()
       }
