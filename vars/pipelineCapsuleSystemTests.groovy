@@ -1,7 +1,8 @@
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
 void call() {
   println('pipelineCapsuleSystemTests params: ' + params)
-  wrapper = 'common/system-tests-wrapper'
-  childs = []
+  def downstreamBuildName = 'common/system-tests-wrapper'
   // this is default scenario for smoke test, but it will require changing for other types
   scenario = [
     'PR': [
@@ -26,7 +27,7 @@ void call() {
         pytestArgs: '--ignore-glob tests/[f-zF-Z]*/**.py',
         mark: 'full',
       ],
-      'full g-p': [
+      'full f-p': [
         pytestArgs: '--ignore-glob tests/[a-eA-Er-zR-Z]*/**.py',
         mark: 'full',
       ],
@@ -73,6 +74,7 @@ void call() {
             parallel scenario.collectEntries { name, testSpec ->
               [
                 (name): {
+                  RunWrapper downstreamBuild
                   childParams = collectParams()
                   if (testSpec.pytestArgs) {
                     childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
@@ -83,49 +85,46 @@ void call() {
                   if (testSpec.capsuleConfig) {
                     childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
                   }
-                  childs.add(
-                    build(
-                      job: wrapper,
+                  try {
+                    downstreamBuild = build(
+                      job: downstreamBuildName,
                       parameters: childParams,
                     )
-                  )
+                  } finally {
+                    echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
+                    node {
+                      def targetDir = 'test-reports-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
+                      copyArtifacts(
+                          projectName: downstreamBuildName,
+                          selector: specific("${downstreamBuild.number}"),
+                          fingerprintArtifacts: true,
+                          filter: 'build/test-reports/**/*',
+                          target: targetDir
+                      )
+                      sh "mv ${targetDir}/build/test-reports/* ${targetDir}"
+                      archiveArtifacts(
+                        artifacts: "${targetDir}/**/*",
+                        allowEmptyArchive: true
+                      )
+                      junit checksName: "System Tests results from ${name}",
+                          testResults: "${targetDir}/**/*",
+                          skipMarkingBuildUnstable: false,
+                          skipPublishingChecks: false
+                    }
+                  }
                 }
               ]
             }
           }
         }
       }
-      stage('Collect results') {
-        agent any
-        steps {
-          sh "mkdir -p results"
-          script {
-            def resultFile = 'build/test-reports/system-test-results.xml'
-            childs.each {
-              copyArtifacts(
-                  filter : resultFile,
-                  projectName : wrapper,
-                  // job object is in list, it's call for getNumber()
-                  selector: specific(it.number as String)
-              )
-              sh "mv ${resultFile} results/system-tests-results-${it.number}.xml"
-              sh "rm -rf build"
-            }
-          }
-          junit(
-            checksName: 'System Tests',
-            testResults: 'results/**.xml',
-            skipMarkingBuildUnstable: false,
-            skipPublishingChecks: false,
-          )
-        }
-        post {
-          always {
-            cleanWs()
-          }
+    }
+    post {
+      always {
+        node {
+          cleanWs()
         }
       }
     }
   }
 }
-
