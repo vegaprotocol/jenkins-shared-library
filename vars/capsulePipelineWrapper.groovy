@@ -314,11 +314,16 @@ void call(Map customConfig = [:]) {
         steps {
           dir('networks-internal/' + config.networkName + '/vegacapsule') {
             // Hotfix for https://github.com/vegaprotocol/vegacapsule/issues/228
+            sh 'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -'
+            sh 'sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"'
+            sh 'sudo apt-get update -y && sudo apt-get install -y nomad'
             sh '''nomad job status --short \
               | grep -v Type \
               | grep running \
               | awk '{ print $1 }' \
               | xargs -L 1 nomad job stop'''
+            // HOTFIX: END
+
             sh "vegacapsule network destroy --home-path './home'"
           }
         }
@@ -416,7 +421,6 @@ void call(Map customConfig = [:]) {
               for (node in (1..config.nomadNodesNumer).toList()) {
                 print('Clear the n0' + node + ' node')
 
-
                 sh '''ssh \
                   -o "StrictHostKeyChecking=no" \
                   -i "''' + PSSH_KEYFILE + '''" \
@@ -431,6 +435,7 @@ void call(Map customConfig = [:]) {
       stage('Start Network') {
         options {
           timeout(10)
+          retry(2)
         }
 
         when {
@@ -444,6 +449,7 @@ void call(Map customConfig = [:]) {
           }
         }
       }
+
       stage('Write to s3') {
         options {
           timeout(5)
