@@ -51,27 +51,6 @@ void getReleasedBinary(String ghCredentialsID, String binType, String version) {
   sh binType + ' version'
 }
 
-void compileCoreBinary(String ghCredentialsID, String binType, String version, String outDir) {
-  Map packagesMapping = [
-        'vega': 'cmd/vega/',
-        'vegawallet': 'cmd/vegawallet/',
-        'data-node': 'cmd/data-node/'
-    ]
-
-  if (!packagesMapping.containsKey(binType)) {
-    error('[compileBinary] invalid binary type. got: "' + binType + '"')
-  }
-
-  gitClone([
-      url: 'git@github.com:vegaprotocol/vegacapsule.git',
-      branch: 'main',
-      directory: version,
-      credentialsId: ghCredentialsID
-  ])
-  sh label: 'Building ' + binType,
-        script: 'go mod vendor && go build -o ' + outDir + '/' + binType + ' ' + packagesMapping[binType]
-}
-
 void downloadS3Binary(String s3Path, String binName, String outDir) {
   sh label: 'Download the ' + binName + ' from the S3',
        script: 'aws s3 cp --only-show-errors --no-progress "' + s3Path + '" "' + outDir + '/' + binName + '"'
@@ -149,6 +128,35 @@ void call(Map customConfig = [:]) {
             }
           }
 
+          stage('Build core binaries') {
+            when {
+              expression {
+                params.BUILD_VEGA_BINARIES
+              }
+            }
+
+            steps {
+              script {
+                gitClone([
+                  url: 'git@github.com:vegaprotocol/vega.git',
+                  branch: params.VEGA_VERSION,
+                  directory: 'vega',
+                  credentialsId: env.GITHUB_SSH_CREDS
+                ])
+
+                dir('vega') {
+                  sh label: 'Building core binaries',
+                      script: 'go mod vendor && go build -o ../bin ./...'
+                }
+
+                sh label: 'Vega version', script: './bin/vega version'
+                sh label: 'Data node version', script: './bin/data-node version'
+                sh label: 'Vegawallet version', script: './bin/vegawallet version'
+                sh label: 'Visor version', script: './bin/visor --help'
+              }
+            }
+          }
+
           stage('Build capsule') {
             when {
               expression {
@@ -195,7 +203,7 @@ void call(Map customConfig = [:]) {
           stage('Download vega binary from Github Release') {
             when {
               expression {
-                !isS3Link(params.VEGA_VERSION) && !params.BUILD_VEGA_BINARY
+                !isS3Link(params.VEGA_VERSION) && !params.BUILD_VEGA_BINARIES
               }
             }
 
@@ -207,7 +215,7 @@ void call(Map customConfig = [:]) {
           stage('Download vega binary from S3') {
             when {
               expression {
-                isS3Link(params.VEGA_VERSION) && !params.BUILD_VEGA_BINARY
+                isS3Link(params.VEGA_VERSION) && !params.BUILD_VEGA_BINARIES
               }
             }
 
@@ -216,24 +224,10 @@ void call(Map customConfig = [:]) {
             }
           }
 
-          stage('Build vega binary') {
-            when {
-              expression {
-                params.BUILD_VEGA_BINARY
-              }
-            }
-
-            steps {
-              dir('core-vega') {
-                compileCoreBinary(env.GITHUB_SSH_CREDS, 'vega', params.VEGA_VERSION, '../bin')
-              }
-            }
-          }
-
           stage('Download data-node binary from Github Release') {
             when {
               expression {
-                !isS3Link(params.DATA_NODE_VERSION) && !params.BUILD_DATA_NODE_BINARY
+                !isS3Link(params.DATA_NODE_VERSION) && !params.BUILD_VEGA_BINARIES
               }
             }
 
@@ -245,26 +239,12 @@ void call(Map customConfig = [:]) {
           stage('Download data-node binary from S3') {
             when {
               expression {
-                isS3Link(params.DATA_NODE_VERSION) && !params.BUILD_DATA_NODE_BINARY
+                isS3Link(params.DATA_NODE_VERSION) && !params.BUILD_VEGA_BINARIES
               }
             }
 
             steps {
               downloadS3Binary(params.DATA_NODE_VERSION, 'data-node', env.WORKSPACE + '/bin')
-            }
-          }
-
-          stage('Build  data-node binary') {
-            when {
-              expression {
-                params.BUILD_DATA_NODE_BINARY
-              }
-            }
-
-            steps {
-              dir('core-vega') {
-                compileCoreBinary(env.GITHUB_SSH_CREDS, 'data-node', params.DATA_NODE_VERSION, '../bin')
-              }
             }
           }
 
