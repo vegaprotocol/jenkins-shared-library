@@ -301,7 +301,8 @@ void call(Map customConfig = [:]) {
               | grep -v Type \
               | grep running \
               | awk '{ print $1 }' \
-              | xargs -L 1 nomad job stop'''
+              | xargs -L 1 nomad job stop \
+              || echo 'OK' '''
             // HOTFIX: END
 
             sh "vegacapsule network destroy --home-path './home'"
