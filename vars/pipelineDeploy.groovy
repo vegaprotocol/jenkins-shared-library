@@ -220,8 +220,20 @@ void call() {
                                 sh "gh release --repo vegaprotocol/vega download ${params.VEGA_VERSION} --pattern '*linux*'"
                             }
                             sh "mkdir -p bin"
-                            sh "mv vega-linux-amd64 bin/vega"
-                            sh "chmod +x bin/vega"
+                            script {
+                                if (fileExists('vega-linux-amd64.zip')) {
+                                    sh 'unzip -j vega-linux-amd64.zip vega -d ./bin'
+                                } else if (fileExists('vega-linux-amd64')) {
+                                    sh "mv vega-linux-amd64 ./bin/vega"
+                                    sh "chmod +x ./bin/vega"
+                                } else {
+                                    sh 'ls -lah'
+                                    error 'vega-linux-amd64 binary is missing'
+                                }
+                            }
+                            sh label: 'Sanity check', script: """#!/bin/bash -e
+                                ./bin/vega version
+                            """
                         }
                     }
                     stage('Build data-node docker image') {
