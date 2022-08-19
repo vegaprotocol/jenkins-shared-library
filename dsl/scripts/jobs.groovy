@@ -181,6 +181,7 @@ systemTestsParamsWrapper = systemTestsParamsGeneric << {
     stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
     stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
     stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
+    stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
     stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
 }
 
