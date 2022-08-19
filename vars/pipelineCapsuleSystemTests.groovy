@@ -110,14 +110,14 @@ void call() {
                   }
                   // Now fail if the downstream job failed
                   if (downstreamBuild.result == 'UNSTABLE') {
-                      unstable("""UNSTABLE - Downstream 'Deploy to Devnet' pipeline failed.
+                      unstable("""UNSTABLE - Downstream 'System-Tests ${name}' pipeline failed.
                           Click for details: ${downstreamBuild.absoluteUrl}""")
                   } else if (downstreamBuild.result == 'ABORTED') {
                       currentBuild.result = 'ABORTED'
-                      error("""ABORTED - Downstream 'Deploy to Devnet' pipeline failed.
+                      error("""ABORTED - Downstream 'System-Tests ${name}' pipeline failed.
                           Click for details: ${downstreamBuild.absoluteUrl}""")
                   } else if (downstreamBuild.result != 'SUCCESS') {
-                      error("""${downstreamBuild.result} - Downstream 'Deploy to Devnet' pipeline failed.
+                      error("""${downstreamBuild.result} - Downstream 'System-Tests ${name}' pipeline failed.
                           Click for details: ${downstreamBuild.absoluteUrl}""")
                   }
                 }
