@@ -146,7 +146,7 @@ Map appr = [
 
 @Field
 Map art = [
-    systemTestCapsuleJunit: 'build/test-reports/system-test-results.xml',
+    systemTestCapsuleJunit: '*/build/test-reports/**/*',
     systemTestsJunit: 'output/junit-report/system-tests.xml',
     systemTestsLogs: 'output/test_logs',
     checkpointEnd: 'output/network/checkpoint-at-the-end.json',

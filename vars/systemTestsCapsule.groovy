@@ -33,27 +33,27 @@ void call(Map config = [:]) {
       wait: true,
       parameters: buildParameters)
 
-    // try {
-    //   echo "System-Tests with Vegacapsule execution pipeline: ${st.absoluteUrl}"
+    try {
+      echo "System-Tests with Vegacapsule execution pipeline: ${st.absoluteUrl}"
 
-    //   sh label: 'remove old junit result file', script: """#!/bin/bash -e
-    //       rm -f "${pipelineDefaults.art.systemTestCapsuleJunit} || echo 'No need to cleanup JUnit'"
-    //   """
+      sh label: 'remove old junit result file', script: """#!/bin/bash -e
+          rm -f "${pipelineDefaults.art.systemTestCapsuleJunit} || echo 'No need to cleanup JUnit'"
+      """
 
-    //   copyArtifacts(
-    //       projectName: systemTestsCapsuleJob,
-    //       selector: specific("${st.number}"),
-    //       fingerprintArtifacts: true,
-    //       filter: pipelineDefaults.art.systemTestCapsuleJunit
-    //   )
+      copyArtifacts(
+          projectName: systemTestsCapsuleJob,
+          selector: specific("${st.number}"),
+          fingerprintArtifacts: true,
+          filter: pipelineDefaults.art.systemTestCapsuleJunit
+      )
 
-    //   junit checksName: 'System Tests Capsule',
-    //       testResults: pipelineDefaults.art.systemTestCapsuleJunit,
-    //       skipMarkingBuildUnstable: ignoreFailure,
-    //       skipPublishingChecks: ignoreFailure
-    // } catch (e) {
-    //   echo "Ignoring error in gathering results from downstream build: ${e}"
-    // }
+      junit checksName: 'System Tests Capsule',
+          testResults: pipelineDefaults.art.systemTestCapsuleJunit,
+          skipMarkingBuildUnstable: ignoreFailure,
+          skipPublishingChecks: ignoreFailure
+    } catch (e) {
+      echo "Ignoring error in gathering results from downstream build: ${e}"
+    }
 
     // now fail
     if (st.result != 'SUCCESS') {
