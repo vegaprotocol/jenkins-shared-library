@@ -339,7 +339,7 @@ void call() {
             stage('Backup') {
                 when {
                     expression {
-                        env.NET_NAME == 'testnet'
+                        env.NET_NAME == 'testnet' && params.BACKUP_CHAIN_DATA
                     }
                 }
                 steps {
@@ -351,7 +351,7 @@ void call() {
             stage('Store checkpoint') {
                 when {
                     expression {
-                        env.NET_NAME == 'testnet'
+                        env.NET_NAME == 'testnet' && params.BACKUP_CHAIN_DATA
                     }
                 }
                 steps {
@@ -442,6 +442,18 @@ void call() {
                     }
                 }
             }
+            stage('Reset chain state') {
+                when {
+                    expression {
+                        params.RESTART == 'YES'
+                    }
+                }
+                steps {
+                    script {
+                        veganet('nukedata vegareinit')
+                    }
+                }
+            }
             stage('Load checkpoint') {
                 when {
                     expression {
@@ -465,18 +477,6 @@ void call() {
                                     --no-secrets
                             """
                         }
-                    }
-                }
-            }
-            stage('Reset chain state') {
-                when {
-                    expression {
-                        params.RESTART == 'YES'
-                    }
-                }
-                steps {
-                    script {
-                        veganet('nukedata vegareinit')
                     }
                 }
             }
