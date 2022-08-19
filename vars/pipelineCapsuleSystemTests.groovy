@@ -74,7 +74,6 @@ void call() {
             parallel scenario.collectEntries { name, testSpec ->
               [
                 (name): {
-                  RunWrapper downstreamBuild
                   childParams = collectParams()
                   if (testSpec.pytestArgs) {
                     childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
@@ -85,32 +84,41 @@ void call() {
                   if (testSpec.capsuleConfig) {
                     childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
                   }
-                  try {
-                    downstreamBuild = build(
-                      job: downstreamBuildName,
-                      parameters: childParams,
+                  RunWrapper downstreamBuild = build(
+                    job: downstreamBuildName,
+                    parameters: childParams,
+                    propagate: false,  // don't fail yet
+                  )
+                  echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
+                  node {
+                    def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
+                    // Copy all artifacts
+                    copyArtifacts(
+                        projectName: downstreamBuildName,
+                        selector: specific("${downstreamBuild.number}"),
+                        fingerprintArtifacts: true,
+                        target: targetDir
                     )
-                  } finally {
-                    echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
-                    node {
-                      def targetDir = 'test-reports-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
-                      copyArtifacts(
-                          projectName: downstreamBuildName,
-                          selector: specific("${downstreamBuild.number}"),
-                          fingerprintArtifacts: true,
-                          filter: 'build/test-reports/**/*',
-                          target: targetDir
-                      )
-                      sh "mv ${targetDir}/build/test-reports/* ${targetDir}"
-                      archiveArtifacts(
-                        artifacts: "${targetDir}/**/*",
-                        allowEmptyArchive: true
-                      )
-                      junit checksName: "System Tests results from ${name}",
-                          testResults: "${targetDir}/**/*",
-                          skipMarkingBuildUnstable: false,
-                          skipPublishingChecks: false
-                    }
+                    archiveArtifacts(
+                      artifacts: "${targetDir}/**/*",
+                      allowEmptyArchive: true
+                    )
+                    junit checksName: "System Tests results from ${name}",
+                        testResults: "${targetDir}/build/test-reports/**/*",
+                        skipPublishingChecks: false,
+                        skipMarkingBuildUnstable: false
+                  }
+                  // Now fail if the downstream job failed
+                  if (downstreamBuild.result == 'UNSTABLE') {
+                      unstable("""UNSTABLE - Downstream 'Deploy to Devnet' pipeline failed.
+                          Click for details: ${downstreamBuild.absoluteUrl}""")
+                  } else if (downstreamBuild.result == 'ABORTED') {
+                      currentBuild.result = 'ABORTED'
+                      error("""ABORTED - Downstream 'Deploy to Devnet' pipeline failed.
+                          Click for details: ${downstreamBuild.absoluteUrl}""")
+                  } else if (downstreamBuild.result != 'SUCCESS') {
+                      error("""${downstreamBuild.result} - Downstream 'Deploy to Devnet' pipeline failed.
+                          Click for details: ${downstreamBuild.absoluteUrl}""")
                   }
                 }
               ]
