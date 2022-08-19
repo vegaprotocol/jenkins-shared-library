@@ -145,6 +145,7 @@ veganetParams = veganetParamsBase << {
     booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_VERSION is to be build or downloaded')
     stringParam('VEGA_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
     choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
+    booleanParam('BACKUP_CHAIN_DATA', true, 'Determine whether chain data needs to be copied to backup and last checkpoint saved in github - available only in testnet')
 }
 
 vegavisorParams = {
