@@ -7,15 +7,15 @@ void call() {
   scenario = [
     'PR': [
       'smoke a-g': [
-        pytestArgs: "--ignore-glob 'tests/[h-zH-Z]*/**.py'",
+        pytestDirectory: "tests/[a-gA-G]*",
         mark: 'smoke'
       ],
       'smoke h-m': [
-        pytestArgs: "--ignore-glob 'tests/[a-gA-Gn-zN-Z]*/**.py'",
+        pytestDirectory: "tests/[h-mH-M]*",
         mark: 'smoke'
       ],
       'smoke n-z': [
-        pytestArgs: "--ignore-glob 'tests/[a-mA-M]*/**.py'",
+        pytestArgs: "--ignore-glob 'tests/[a-mA-M]*'",
         mark: 'smoke'
       ],
       'network_infra_smoke a-z': [
@@ -23,43 +23,43 @@ void call() {
       ],
     ],
     'NIGHTLY': [
-      'full a-e': [
-        pytestArgs: '--ignore-glob tests/[f-zF-Z]*/**.py',
+      'full a-f': [
+        pytestDirectory: "tests/[a-fA-F]*",
         mark: 'full',
       ],
-      'full f-p': [
-        pytestArgs: '--ignore-glob tests/[a-eA-Er-zR-Z]*/**.py',
+      'full g-n': [
+        pytestDirectory: "tests/[g-nG-N]*",
         mark: 'full',
       ],
-      'full r': [
-        pytestArgs: '--ignore-glob tests/[a-pA-Ps-zS-Z]*/**.py',
+      'full o-r': [
+        pytestDirectory: "tests/[o-rO-R]*",
         mark: 'full',
       ],
       'full s': [
-        pytestArgs: '--ignore-glob tests/[a-rA-Rt-zT-Z]*/**.py',
+        pytestDirectory: "tests/[sS]*",
         mark: 'full',
       ],
       'full t-z': [
-        pytestArgs: '--ignore-glob tests/[a-sA-S]*/**.py',
+        pytestArgs: "--ignore-glob 'tests/[a-sA-S]*'",
         mark: 'full',
       ],
       'network_infra a-n': [
-        pytestArgs: '--ignore-glob tests/[o-zO-Z]*/**.py',
+        pytestDirectory: "tests/[a-nA-N]*",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra o-u w-z': [
-        pytestArgs: '--ignore-glob tests/[a-nA-Nv-vV-V]*/**.py',
+      'network_infra o-z without validators': [
+        pytestArgs: "--ignore-glob 'tests/[a-nA-N]*' --ignore-glob 'tests/validators/*'",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators a-p': [
-        pytestArgs: '--ignore-glob tests/validators/[r-zR-Z]*.py',
+        pytestDirectory: "tests/validators/[a-pA-P]*",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators r-z': [
-        pytestArgs: '--ignore-glob tests/validators/[a-pA-P]*.py',
+        pytestDirectory: "tests/validators/[r-zR-Z]*",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
@@ -68,6 +68,13 @@ void call() {
   pipeline {
     agent none
     stages {
+      stage('config') {
+        agent any
+        steps {
+          sh "printenv"
+          echo "params=${params.inspect()}"
+        }
+      }
       stage('Call tests') {
         steps {
           script {
@@ -77,6 +84,9 @@ void call() {
                   childParams = collectParams()
                   if (testSpec.pytestArgs) {
                     childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
+                  }
+                  if (testSpec.pytestDirectory) {
+                    childParams += [string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: testSpec.pytestDirectory)]
                   }
                   if (testSpec.mark) {
                     childParams += [string(name: 'SYSTEM_TESTS_TEST_MARK', value: testSpec.mark)]
