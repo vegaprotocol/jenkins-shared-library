@@ -247,6 +247,10 @@ void call(Map additionalConfig) {
               artifacts: 'test_logs/**/*',
               allowEmptyArchive: true
             )
+            archiveArtifacts(
+              artifacts: 'checkpoints/**/*',
+              allowEmptyArchive: true
+            )
             junit(
               checksName: 'System Tests',
               testResults: 'build/test-reports/system-test-results.xml',
