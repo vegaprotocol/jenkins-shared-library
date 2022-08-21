@@ -53,6 +53,8 @@ void call() {
                             sh label: 'Run Integration Tests', script: '''
                                 scripts/run-docker-integration-test.sh ${BUILD_NUMBER}
                             '''
+                            junit checksName: 'Integration Tests results',
+                                testResults: "test_logs/*-integration/integration-test-results.xml"
                         }
                     }
                     stage('Notebook Tests') {
@@ -60,6 +62,8 @@ void call() {
                             sh label: 'Example Notebook Tests', script: '''
                                 scripts/run-docker-example-notebook-test.sh
                             '''
+                            junit checksName: 'Notebook Tests results',
+                                testResults: "test_logs/*-notebook/notebook-test-results.xml"
                         }
                     }
                 }
