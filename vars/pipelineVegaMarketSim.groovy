@@ -96,13 +96,13 @@ void sendSlackMessage() {
     String color = ''
 
     if (currentResult == 'SUCCESS') {
-        msg = ":large_green_circle: Approbation <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: Vega Market SIM <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: Approbation aborted <${jobURL}|${jobName}>"
+        msg = ":black_circle: Vega Market SIM aborted <${jobURL}|${jobName}>"
         color = '#000000'
     } else {
-        msg = ":red_circle: Approbation <${jobURL}|${jobName}>"
+        msg = ":red_circle: Vega Market SIM <${jobURL}|${jobName}>"
         color = 'danger'
     }
 
