@@ -329,6 +329,20 @@ def jobs = [
         cron: 'H 0 * * *',
     ],
     [
+        name: 'common/vega-market-sim',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaMarketSim()'),
+        parameters: {
+            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+            stringParam('TIMEOUT', '30', 'Number of minutes after which the job will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        copyArtifacts: true,
+        daysToKeep: 14,
+    ],
+    [
         name: 'private/Snapshots/Devnet',
         useScmDefinition: false,
         env: [
