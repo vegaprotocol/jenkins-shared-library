@@ -1,6 +1,10 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call() {
+  if (currentBuild.upstreamBuilds) {
+    RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+    currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
+  }
   println('pipelineCapsuleSystemTests params: ' + params)
   def downstreamBuildName = 'common/system-tests-wrapper'
   // this is default scenario for smoke test, but it will require changing for other types
