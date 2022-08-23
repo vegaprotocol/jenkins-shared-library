@@ -103,7 +103,7 @@ void call() {
 void sendSlackMessage() {
     String slackChannel = '#vega-market-sim-notify'
     String jobURL = env.RUN_DISPLAY_URL
-    String jobName = currentBuild.displayName
+    String jobName = currentBuild.id
 
     String currentResult = currentBuild.result ?: currentBuild.currentResult
     String duration = currentBuild.durationString - ' and counting'
