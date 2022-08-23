@@ -5,6 +5,7 @@ void call() {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
+            ansiColor('xterm')
         }
         environment {
             CGO_ENABLED = 0
