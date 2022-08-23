@@ -1,4 +1,9 @@
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 void call() {
+    if (currentBuild.upstreamBuilds) {
+        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+        currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
+    }
     pipeline {
         agent any
         options {
@@ -98,14 +103,19 @@ void sendSlackMessage() {
     String color = ''
 
     if (currentResult == 'SUCCESS') {
-        msg = ":large_green_circle: Vega Market SIM <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: Vega Market Sim <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: Vega Market SIM aborted <${jobURL}|${jobName}>"
+        msg = ":black_circle: Vega Market Sim aborted <${jobURL}|${jobName}>"
         color = '#000000'
     } else {
-        msg = ":red_circle: Vega Market SIM <${jobURL}|${jobName}>"
+        msg = ":red_circle: Vega Market Sim <${jobURL}|${jobName}>"
         color = 'danger'
+    }
+
+    if (currentBuild.upstreamBuilds) {
+        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+        msg += " for <${upBuild.absoluteUrl}|${upBuild.fullProjectName} #${upBuild.id}>"
     }
 
     msg += " (${duration})"

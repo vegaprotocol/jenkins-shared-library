@@ -22,7 +22,7 @@ void call(Map config = [:]) {
       parameters: buildParameters)
 
     try {
-      echo "Vega Market SIM test execution pipeline: ${vms.absoluteUrl}"
+      echo "Vega Market Sim test execution pipeline: ${vms.absoluteUrl}"
     } catch (e) {
       echo "Ignoring error in gathering results from downstream build: ${e}"
     }
@@ -30,17 +30,17 @@ void call(Map config = [:]) {
     // now fail
     if (vms.result != 'SUCCESS') {
       if (ignoreFailure) {
-        catchError(message: 'Vega Market SIM Failed', buildResult: null, stageResult: vms.result) {
+        catchError(message: 'Vega Market Sim Failed', buildResult: null, stageResult: vms.result) {
             error("Ignore failure and keep job green, but mark stage as ${vms.result}")
         }
       } else {
         if (vms.result == 'UNSTABLE') {
-            unstable('UNSTABLE - Vega Market SIM')
+            unstable('UNSTABLE - Vega Market Sim')
         } else if (vms.result == 'ABORTED') {
             currentBuild.result = 'ABORTED'
-            error('ABORTED - Vega Market SIM')
+            error('ABORTED - Vega Market Sim')
         } else {
-            error("${vms.result} - Vega Market SIM")
+            error("${vms.result} - Vega Market Sim")
         }
       }
     }
