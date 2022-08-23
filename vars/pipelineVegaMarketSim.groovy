@@ -42,7 +42,7 @@ void call() {
                 options { retry(3) }
                 steps {
                     sh label: 'Build docker image', script: '''
-                        docker build --tag="${DOCKER_IMAGE_NAME_LOCAL}" -t vegasim_test .
+                        scripts/build-docker-test.sh
                     '''
                 }
             }
@@ -79,9 +79,6 @@ void call() {
                 sendSlackMessage()
                 retry(3) {
                     cleanWs()
-                    sh label: 'Clean docker images', script: '''#!/bin/bash -e
-                        [ -z "$(docker images -q "${DOCKER_IMAGE_NAME_LOCAL}")" ] || docker rmi "${DOCKER_IMAGE_NAME_LOCAL}"
-                    '''
                 }
             }
         }
