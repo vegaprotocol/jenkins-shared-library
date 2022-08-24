@@ -337,6 +337,7 @@ def jobs = [
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')
+            booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,

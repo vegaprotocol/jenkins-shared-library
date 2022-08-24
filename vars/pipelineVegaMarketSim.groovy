@@ -68,6 +68,11 @@ void call() {
                         }
                     }
                     stage('Notebook Tests') {
+                        when {
+                            expression {
+                                params.RUN_EXTRA_TESTS
+                            }
+                        }
                         steps {
                             sh label: 'Example Notebook Tests', script: '''
                                 scripts/run-docker-example-notebook-test.sh
