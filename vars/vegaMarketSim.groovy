@@ -9,6 +9,10 @@ void call(Map config = [:]) {
 
   List buildParameters = [
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : "30"),
+      booleanParam(
+          name: 'RUN_EXTRA_TESTS',
+          value: config.runExtraTests ? "${config.runExtraTests}".toBoolean() : false
+      ),
       
       string(name: 'VEGA_VERSION', value: config.vegaVersion ?: "develop"),
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
