@@ -47,26 +47,6 @@ void call() {
         pytestArgs: "--ignore-glob 'tests/[a-sA-S]*'",
         mark: 'full',
       ],
-      'network_infra a-n': [
-        pytestDirectory: "tests/[a-nA-N]*",
-        mark: 'network_infra',
-        capsuleConfig: 'capsule_config_network_infra.hcl'
-      ],
-      'network_infra o-z without validators': [
-        pytestArgs: "--ignore-glob 'tests/[a-nA-N]*' --ignore-glob 'tests/validators/*'",
-        mark: 'network_infra',
-        capsuleConfig: 'capsule_config_network_infra.hcl'
-      ],
-      'network_infra validators a-p': [
-        pytestDirectory: "tests/validators/[a-pA-P]*",
-        mark: 'network_infra',
-        capsuleConfig: 'capsule_config_network_infra.hcl'
-      ],
-      'network_infra validators r-z': [
-        pytestDirectory: "tests/validators/[r-zR-Z]*",
-        mark: 'network_infra',
-        capsuleConfig: 'capsule_config_network_infra.hcl'
-      ],
     ]
   ][params.SCENARIO]
   pipeline {
