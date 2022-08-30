@@ -26,7 +26,7 @@ void call(Map additionalConfig) {
   Map config = defaultCconfig + additionalConfig
 
   if (config.vegaUrl && !config.url) {
-    config.url == "git@github.com:vegaprotocol/${config.vegaUrl}.git"
+    config.url = "git@github.com:vegaprotocol/${config.vegaUrl}.git"
   }
 
   ['branch', 'url', 'credentialsId'].each { item ->
