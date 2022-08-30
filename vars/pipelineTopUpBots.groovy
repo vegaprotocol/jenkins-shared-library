@@ -21,9 +21,10 @@ def call() {
                 steps {
                     sh 'printenv'
                     echo "params=${params.inspect()}"
-                    dir('devops-infra') {
-                        gitClone('devops-infra', params.DEVOPS_INFRA_BRANCH)
-                    }
+                    gitClone(
+                        directory:'devops-infra',
+                        branch: params.DEVOPS_INFRA_BRANCH,
+                    )
                 }
             }
             stage('Fairground: status') {

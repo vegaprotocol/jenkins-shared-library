@@ -386,7 +386,7 @@ def jobs = [
         cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
         description: 'Top-Up bots on the Fairground network. Runs every 4 hours.',
-        definition: libDefinition('pipelineFairgroundTopUpBots()'),
+        definition: libDefinition('pipelineTopUpBots()'),
     ],
 ]
 
