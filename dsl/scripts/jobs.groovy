@@ -372,7 +372,22 @@ def jobs = [
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
-
+    [
+        name: 'private/Automations/Top Up bots - Fairground',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        env: [
+            NETWORK: 'testnet',
+        ],
+        cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Top-Up bots on the Fairground network. Runs every 4 hours.',
+        definition: libDefinition('pipelineFairgroundTopUpBots()'),
+    ],
 ]
 
 // MAIN
