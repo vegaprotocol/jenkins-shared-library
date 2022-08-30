@@ -23,7 +23,7 @@ def call() {
                     echo "params=${params.inspect()}"
                     gitClone(
                         vegaUrl: 'devops-infra',
-                        dir:'devops-infra',
+                        directory:'devops-infra',
                         branch: params.DEVOPS_INFRA_BRANCH,
                     )
                 }
