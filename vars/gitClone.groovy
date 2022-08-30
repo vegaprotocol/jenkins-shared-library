@@ -19,7 +19,7 @@ void call(Map additionalConfig) {
       branch: 'main',
       vegaUrl: '',
       url: '',
-      credentialsId: '',
+      credentialsId: 'vega-ci-bot',
       timeout: 3,
   ]
 
