@@ -7,7 +7,8 @@ void call(Map additionalConfig) {
       sshCredentialsId: 'ubuntu-ansible-key',
       dockerCredentialsId: 'github-vega-ci-bot-artifacts',
       gcpCredentials: 'gcp-k8s',
-      timeout: 15
+      timeout: 15,
+      label: null,
   ]
 
   Map config = defaultCconfig + additionalConfig
@@ -23,7 +24,7 @@ void call(Map additionalConfig) {
             url: 'https://ghcr.io'
         ]) {
           withGoogleSA(config.gcpCredentials) {
-            sh label: 'Create markets',
+            sh label: config.label,
               script: './veganet.sh ' + config.network + ' ' + config.command
           }
         }
