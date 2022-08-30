@@ -92,6 +92,7 @@ void call(Map customConfig = [:]) {
       GITHUB_CREDS = 'github-vega-ci-bot-artifacts'
       GITHUB_SSH_CREDS = 'vega-ci-bot'
       NETWORK_SSH_CREDENTIALS = 'ubuntu-ansible-key'
+      VEGA_BINARIES_COMMIT_HASH = params.VEGA_BINARIES_COMMIT_HASH ?: ''
     }
 
     stages {

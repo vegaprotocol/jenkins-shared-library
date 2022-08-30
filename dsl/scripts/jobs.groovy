@@ -129,6 +129,10 @@ capsuleParams = {
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
 }
 
+devnetCapsuleParamss = capsuleParams << {
+    stringParam('VEGA_BINARIES_COMMIT_HASH', '', 'Hash of binaries to release to the network. Binary must be publish to S3 before')
+}
+
 veganetParamsBase = {
     booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
     booleanParam('CREATE_MARKETS', true, 'Create markets')
@@ -206,7 +210,7 @@ def jobs = [
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
         useScmDefinition: false,
-        parameters: capsuleParams,
+        parameters: devnetCapsuleParamss,
         definition: libDefinition('''capsulePipelineWrapper([
                 networkName: 'devnet2',
                 nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
