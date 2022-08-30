@@ -373,7 +373,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Automations/Bots Topup Fairground',
+        name: 'private/Automations/BotsTopupFairground',
         useScmDefinition: false,
         parameters: {
             booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
