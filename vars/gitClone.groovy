@@ -17,12 +17,17 @@ void call(Map additionalConfig) {
   Map defaultCconfig = [
       directory: '',
       branch: 'main',
+      vegaUrl: '',
       url: '',
       credentialsId: '',
-      timeout: 3
+      timeout: 3,
   ]
 
   Map config = defaultCconfig + additionalConfig
+
+  if (config.vegaUrl && !config.url) {
+    config.url == "git@github.com:vegaprotocol/${config.vegaUrl}.git"
+  }
 
   ['branch', 'url', 'credentialsId'].each { item ->
     if (config[item]?.length() < 1) {
