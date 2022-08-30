@@ -22,8 +22,8 @@ def call() {
                     sh 'printenv'
                     echo "params=${params.inspect()}"
                     gitClone(
-                        vegaUrl: 'devops-infra'
-                        directory:'devops-infra',
+                        vegaUrl: 'devops-infra',
+                        dir:'devops-infra',
                         branch: params.DEVOPS_INFRA_BRANCH,
                     )
                 }
