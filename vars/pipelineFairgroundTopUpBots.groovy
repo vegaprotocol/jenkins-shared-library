@@ -61,10 +61,8 @@ def call() {
         }
         post {
             always {
-                cleanWs()
-            }
-            unsuccessful {
                 slack.slackSendCIStatus channel: '#env-deploy', name: 'Fairground Top-Up Bots', branch: 'Top-Up'
+                cleanWs()
             }
         }
     }
