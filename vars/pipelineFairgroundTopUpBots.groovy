@@ -13,6 +13,9 @@ def call() {
             timestamps()
             ansiColor('x-term')
         }
+        environment {
+            CREDENTIALS_ID = 'ssh-vega-network'
+        }
         stages {
             stage('Checkout') {
                 steps {
@@ -26,7 +29,7 @@ def call() {
             stage('Fairground: status') {
                 steps {
                     veganetSh(
-                        credentialsId: 'ssh-vega-network'
+                        credentialsId: env.CREDENTIALS_ID,
                         network: env.NETWORK,
                         command: 'status',
                     )
@@ -41,7 +44,7 @@ def call() {
                     stage('Liqbot') {
                         steps {
                             veganetSh(
-                                credentialsId: 'ssh-vega-network'
+                                credentialsId: env.CREDENTIALS_ID,
                                 network: env.NETWORK,
                                 command: 'bounce_liqbots',
                             )
@@ -50,7 +53,7 @@ def call() {
                     stage('Traderbot') {
                         steps {
                             veganetSh(
-                                credentialsId: 'ssh-vega-network'
+                                credentialsId: env.CREDENTIALS_ID,
                                 network: env.NETWORK,
                                 command: 'bounce_traderbots',
                             )
