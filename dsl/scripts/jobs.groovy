@@ -319,7 +319,6 @@ def jobs = [
     [
         name: 'common/system-tests-nightly',
         description: 'This job is executed every 24h to ensure stability of the system',
-        disableConcurrentBuilds: true,
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParamsGeneric << {
@@ -328,6 +327,18 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 14,
         cron: 'H 0 * * *',
+    ],
+    [
+        name: 'common/system-tests-queued',
+        description: 'Trigger this job multiple times to queue multiple system tests runs in the row',
+        disableConcurrentBuilds: true,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
+        parameters: systemTestsParamsGeneric << {
+            choiceParam('SCENARIO', ['NIGHTLY', 'PR'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+        },
+        copyArtifacts: true,
+        daysToKeep: 14,
     ],
     [
         name: 'common/vega-market-sim',
