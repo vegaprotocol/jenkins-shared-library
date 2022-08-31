@@ -134,14 +134,6 @@ void call(Map additionalConfig) {
 
       stage('prepare system tests and network') {
         parallel {
-          stage('prepare network config') {
-            steps {
-              dir('system-tests') {
-                sh 'cp ./vegacapsule/' + params.CAPSULE_CONFIG + ' ' + testNetworkDir + '/config_system_tests.hcl'
-              }
-            }
-          }
-
           stage('build system-tests docker images') {
             options {
               timeout(time: 5, unit: 'MINUTES')
@@ -169,7 +161,10 @@ void call(Map additionalConfig) {
                       sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                     }
                     timeout(time: 5, unit: 'MINUTES') {
-                      sh './vegacapsule network bootstrap --config-path ./config_system_tests.hcl --home-path ' + testNetworkDir + '/testnet'
+                      sh '''./vegacapsule network bootstrap \
+                        --config-path ' + testNetworkDir + '/system-tests/vegacapsule/' + params.CAPSULE_CONFIG + ' \
+                        --home-path ' + testNetworkDir + '/testnet
+                      '''
                     }
                   } finally {
                     sh 'docker logout https://ghcr.io'
