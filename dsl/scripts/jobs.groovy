@@ -319,6 +319,7 @@ def jobs = [
     [
         name: 'common/system-tests-nightly',
         description: 'This job is executed every 24h to ensure stability of the system',
+        disableConcurrentBuilds: true,
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParamsGeneric << {
