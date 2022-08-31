@@ -162,8 +162,8 @@ void call(Map additionalConfig) {
                     }
                     timeout(time: 5, unit: 'MINUTES') {
                       sh '''./vegacapsule network bootstrap \
-                        --config-path ' + testNetworkDir + '/system-tests/vegacapsule/' + params.CAPSULE_CONFIG + ' \
-                        --home-path ' + testNetworkDir + '/testnet
+                        --config-path ''' + testNetworkDir + '''/system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
+                        --home-path ''' + testNetworkDir + '''/testnet
                       '''
                     }
                   } finally {
