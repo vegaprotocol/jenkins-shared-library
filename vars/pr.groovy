@@ -106,12 +106,12 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     return result
 }
 
-Map injectPRParams() {
+Map getPRParams() {
     if (env.CHANGE_URL) {
         Map customParams = getConnectedChangesInOtherRepos(url: env.CHANGE_URL)
-        return params + customParams  // merge dictionaries
+        return customParams
     }
-    return params
+    return [:]
 }
 
 List<String> getAllLabelsFor(Map config = [:]) {
