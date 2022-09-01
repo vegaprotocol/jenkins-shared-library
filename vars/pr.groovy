@@ -114,6 +114,17 @@ Map injectPRParams() {
     return params
 }
 
+def getOriginRepo(def origin) {
+    if (env.CHANGE_URL) {
+        def prParams = pr.getData(url: env.CHANGE_URL, prFields:['headRepositoryOwner', 'headRepository'])
+        echo "prParams = ${prParams}"
+        return "${prParams.headRepositoryOwner.login}/${prParams.headRepository.name}"
+    } else {
+        return origin
+    }
+}
+
+
 List<String> getAllLabelsFor(Map config = [:]) {
     List<String> result = []
     Map prData = getData(config + ['prFields': ['labels']])
