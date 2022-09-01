@@ -71,18 +71,18 @@ void call(Map additionalConfig) {
         steps {
           script {
             def repositories = [
-              [ name: 'vega', branch: params.VEGA_BRANCH ],
-              [ name: 'system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
-              [ name: 'vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
-              [ name: 'vegatools', branch: params.VEGATOOLS_BRANCH ],
-              [ name: 'devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
-              [ name: 'devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
+              [ name: params.ORIGIN_REPO, branch: params.VEGA_BRANCH ],
+              [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
+              [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
+              [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
+              [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
+              [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
             ]
             def steps = repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
-                    url: 'git@github.com:vegaprotocol/' + value.name + '.git',
+                    url: 'git@github.com:' + value.name + '.git',
                     branch: value.branch,
                     directory: value.name,
                     credentialsId: 'vega-ci-bot',

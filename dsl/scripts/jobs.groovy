@@ -165,6 +165,7 @@ vegavisorParams = {
 }
 
 systemTestsParamsGeneric = {
+    stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code')
     stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
     stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
@@ -334,6 +335,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: {
+            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code')
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')

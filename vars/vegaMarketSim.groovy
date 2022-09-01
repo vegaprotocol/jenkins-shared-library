@@ -1,5 +1,5 @@
-/* groovylint-disable 
-  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral, 
+/* groovylint-disable
+  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
   FactoryMethodName, VariableTypeRequired */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
@@ -13,7 +13,7 @@ void call(Map config = [:]) {
           name: 'RUN_EXTRA_TESTS',
           value: config.runExtraTests ? "${config.runExtraTests}".toBoolean() : false
       ),
-      
+      string(name: 'ORIGIN_REPO', value: config.originRepo ?: 'vegaprotocol/vega'),
       string(name: 'VEGA_VERSION', value: config.vegaVersion ?: "develop"),
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: "main"),

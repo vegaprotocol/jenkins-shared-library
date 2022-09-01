@@ -20,8 +20,11 @@ void call() {
         copyArtifactPermission('*'),
         parameters([
             string(
-                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
+                name: 'ORIGIN_REPO', defaultValue: 'vegaprotocol/vega',
                 description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
+            string(
+                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
+                description: 'Git branch, tag or hash of the origin repo repository'),
             string(
                 name: 'SPECS_BRANCH', defaultValue: pipelineDefaults.appr.specsBranch,
                 description: 'Git branch, tag or hash of the vegaprotocol/specs repository'),
@@ -72,22 +75,22 @@ void call() {
                         parallel([
                             'vega core': {
                                 dir('vega') {
-                                    gitClone('vega', params.VEGA_CORE_BRANCH)
+                                    gitClone(params.ORIGIN_REPO, params.VEGA_CORE_BRANCH)
                                 }
                             },
                             'specs': {
                                 dir('specs') {
-                                    gitClone('specs', params.SPECS_BRANCH)
+                                    gitClone('vegaprotocol/specs', params.SPECS_BRANCH)
                                 }
                             },
                             'MultisigControl': {
                                 dir('MultisigControl') {
-                                    gitClone('MultisigControl', params.MULTISIG_CONTROL_BRANCH)
+                                    gitClone('vegaprotocol/MultisigControl', params.MULTISIG_CONTROL_BRANCH)
                                 }
                             },
                             'system-tests': {
                                 dir('system-tests') {
-                                    gitClone('system-tests', params.SYSTEM_TESTS_BRANCH)
+                                    gitClone('vegaprotocol/system-tests', params.SYSTEM_TESTS_BRANCH)
                                 }
                             }
                         ])
@@ -145,7 +148,7 @@ void gitClone(String repo, String branch) {
             $class: 'GitSCM',
             branches: [[name: branch]],
             userRemoteConfigs: [[
-                url: "git@github.com:vegaprotocol/${repo}.git",
+                url: "git@github.com:${repo}.git",
                 credentialsId: 'vega-ci-bot'
             ]]])
     }

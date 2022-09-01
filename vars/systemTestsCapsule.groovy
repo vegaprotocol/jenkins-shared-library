@@ -1,5 +1,5 @@
-/* groovylint-disable 
-  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral, 
+/* groovylint-disable
+  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
   FactoryMethodName, VariableTypeRequired */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
@@ -9,7 +9,7 @@ void call(Map config = [:]) {
 
   List buildParameters = [
       string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.capsuleSystemTests.systemTestsRunTimeout),
-      
+      string(name: 'ORIGIN_REPO', value: config.originRepo ?: 'vegaprotocol/vega'),
       string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.capsuleSystemTests.branchVega),
       string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.capsuleSystemTests.branchSystemTests),
       string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
