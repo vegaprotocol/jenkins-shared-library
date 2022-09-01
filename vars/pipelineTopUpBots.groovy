@@ -1,10 +1,3 @@
-/* groovylint-disable DuplicateStringLiteral */
-/* groovylint-disable DuplicateNumberLiteral */
-/* groovylint-disable MethodSize */
-/* groovylint-disable NestedBlockDepth */
-import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
-import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
-
 def call() {
     pipeline {
         agent any
