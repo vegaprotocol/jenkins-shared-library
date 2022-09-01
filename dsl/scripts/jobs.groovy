@@ -388,6 +388,54 @@ def jobs = [
         description: 'Top-Up bots on the Fairground network. Runs every 4 hours.',
         definition: libDefinition('pipelineTopUpBots()'),
     ],
+    [
+        name: 'private/Automations/BotsTopupDevnet',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        env: [
+            NETWORK: 'devnet',
+        ],
+        cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Top-Up bots on the Devnet network. Runs every 4 hours.',
+        definition: libDefinition('pipelineTopUpBots()'),
+    ],
+    [
+        name: 'private/Automations/BotsTopupStagnet2',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        env: [
+            NETWORK: 'stagnet2',
+        ],
+        cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Top-Up bots on the Devnet network. Runs every 4 hours.',
+        definition: libDefinition('pipelineTopUpBots()'),
+    ],
+    [
+        name: 'private/Automations/BotsTopupStagnet3',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
+            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        env: [
+            NETWORK: 'stagnet3',
+        ],
+        cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Top-Up bots on the Devnet network. Runs every 4 hours.',
+        definition: libDefinition('pipelineTopUpBots()'),
+    ],
 ]
 
 // MAIN
