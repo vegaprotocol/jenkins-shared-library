@@ -60,7 +60,7 @@ def call() {
         post {
             always {
                 script {
-                    slack.slackSendCIStatus channel: '#env-deploy', name: 'Fairground Top-Up Bots', branch: 'Top-Up'
+                    slack.slackSendCIStatus channel: '#env-deploy', name: env.JOB_NAME, branch: 'Top-Up'
                 }
                 cleanWs()
             }
