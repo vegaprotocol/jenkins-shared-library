@@ -42,7 +42,7 @@ String getFirstComment(Map config = [:]) {
 
 List<String> getAllComments(Map config = [:]) {
     List<String> result = []
-    Map prData = getData(config + ['prFields': ['body', 'comments', 'reviews']])
+    Map prData = getData(config + ['prFields': ['body', 'comments', 'reviews', 'headRepositoryOwner', 'headRepository']])
     result += prData.body
     prData.comments.each { commentData ->
         result += commentData.body
