@@ -39,7 +39,7 @@ void call() {
                     dir('extern/vega') {
                         checkout(
                             [$class: 'GitSCM', branches: [[name: "${params.VEGA_VERSION}" ]],
-                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: 'git@github.com:${params.ORIGIN_REPO}.git']]]
+                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: "git@github.com:${params.ORIGIN_REPO}.git"]]]
                         )
                     }
                 }
