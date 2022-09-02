@@ -28,7 +28,7 @@ void call() {
                 options { retry(3) }
                 steps {
                     checkout(
-                        [$class: 'GitSCM', branches: [[name: "${params.VEGA_MARKET_SIM_BRANCH}" ]], 
+                        [$class: 'GitSCM', branches: [[name: "${params.VEGA_MARKET_SIM_BRANCH}" ]],
                         userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: 'git@github.com:vegaprotocol/vega-market-sim.git']]]
                     )
                 }
@@ -38,8 +38,8 @@ void call() {
                 steps {
                     dir('extern/vega') {
                         checkout(
-                            [$class: 'GitSCM', branches: [[name: "${params.VEGA_VERSION}" ]], 
-                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: 'git@github.com:vegaprotocol/vega.git']]]
+                            [$class: 'GitSCM', branches: [[name: "${params.VEGA_VERSION}" ]],
+                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: 'git@github.com:${params.ORIGIN_REPO}.git']]]
                         )
                     }
                 }
