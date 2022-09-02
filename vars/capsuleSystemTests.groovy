@@ -84,7 +84,7 @@ void call(Map additionalConfig) {
                   gitClone([
                     url: 'git@github.com:' + value.name + '.git',
                     branch: value.branch,
-                    directory: value.name,
+                    directory: value.name.split('/')[1],
                     credentialsId: 'vega-ci-bot',
                     timeout: 2,
                   ])
