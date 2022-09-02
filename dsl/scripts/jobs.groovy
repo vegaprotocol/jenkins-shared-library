@@ -288,11 +288,11 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet2',
+        name: 'private/Deployments/Vegavisor/Devnet3',
         useScmDefinition: false,
         definition: libDefinition('pipelineDeployVegavisor()'),
         env: [
-            NET_NAME: 'devnet2',
+            NET_NAME: 'devnet3',
         ],
         parameters: vegavisorParams,
         disableConcurrentBuilds: true,
