@@ -258,16 +258,6 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Veganet/Stagnet',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineDeploy()'),
-        env: [
-            NET_NAME: 'stagnet',
-        ],
-        parameters: veganetParams,
-        disableConcurrentBuilds: true,
-    ],
-    [
         name: 'private/Deployments/Veganet/Stagnet 2',
         useScmDefinition: false,
         definition: libDefinition('pipelineDeploy()'),
@@ -351,20 +341,6 @@ def jobs = [
         env: [
             NETWORK: 'devnet1',
             DISABLE_TENDERMINT: 'true'
-        ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-        definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Snapshots/Stagnet1',
-        useScmDefinition: false,
-        env: [
-            NETWORK: 'stagnet1',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
