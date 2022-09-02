@@ -61,24 +61,26 @@ void call() {
                         steps {
                             script {
                                 doGitClone('vega', params.VEGA_VERSION)
-                                def versionHash = sh(
-                                    script: """
-                                    ls -lah
-                                    git rev-parse --short HEAD
-                                    """,
-                                    returnStdout: true,
-                                ).trim()
-                                def orgVersion = sh(
-                                    script: "grep -o '\"v0.*\"' version/version.go",
-                                    returnStdout: true,
-                                ).trim()
-                                orgVersion = orgVersion.replace('"', '')
-                                def timestamp = new Date().format("yyyyMMddHHmm")
-                                versionTag = orgVersion + '-' + timestamp + '-' + versionHash
                             }
-                            sh label: 'Add hash to version', script: """#!/bin/bash -e
-                                sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                            """
+                            dir('vega') {
+                                script {
+                                    def versionHash = sh(
+                                        script: "git rev-parse --short HEAD",
+                                        returnStdout: true,
+                                    ).trim()
+                                    def orgVersion = sh(
+                                        script: "grep -o '\"v0.*\"' version/version.go",
+                                        returnStdout: true,
+                                    ).trim()
+                                    orgVersion = orgVersion.replace('"', '')
+                                    def timestamp = new Date().format("yyyyMMddHHmm")
+                                    versionTag = orgVersion + '-' + timestamp + '-' + versionHash
+                                }
+                                sh label: 'Add hash to version', script: """#!/bin/bash -e
+                                    sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
+                                """
+                                print('Binary version ' + versionTag)
+                            }
                         }
                     }
                     stage('vegacapsule'){
