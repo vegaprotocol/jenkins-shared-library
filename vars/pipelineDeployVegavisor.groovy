@@ -36,16 +36,7 @@ void call() {
         }
     }
 
-    def waitForURL = { address ->
-        timeout(3) {
-            waitUntil {
-                script {
-                    def r = sh returnStatus: true, script: 'curl -X GET ' + address
-                    return r == 0
-                }
-            }
-        }
-    }
+    def versionTag = 'UNKNOWN'
 
     pipeline {
         agent any
@@ -71,6 +62,20 @@ void call() {
                             script {
                                 doGitClone('vega', params.VEGA_VERSION)
                             }
+                            def versionHash = sh(
+                                script: "git rev-parse --short HEAD",
+                                returnStdout: true,
+                            ).trim()
+                            def orgVersion = sh(
+                                script: "grep -o '\"v0.*\"' version/version.go",
+                                returnStdout: true,
+                            ).trim()
+                            orgVersion = orgVersion.replace('"', '')
+                            def timestamp = new Date().format("yyyyMMddHHmm")
+                            versionTag = orgVersion + '-' + timestamp + '-' + versionHash
+                            sh label: 'Add hash to version', script: """#!/bin/bash -e
+                                sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
+                            """
                         }
                     }
                     stage('vegacapsule'){
@@ -169,6 +174,30 @@ void call() {
                                     go run main.go smart-contracts get-status --network "${NET_NAME}"
                                 """
                             }
+                        }
+                    }
+                }
+            }  // End: Prepare
+            stage('Publish to GitHub vega-dev-releases') {
+                environment {
+                    TAG_NAME = "${versionTag}"
+                }
+                steps {
+                    sh label: 'zip binaries', script: """#!/bin/bash -e
+                        rm -rf ./release
+                        mkdir -p ./release
+                        zip ./release/vega-linux-amd64.zip ./bin/vega
+                        zip ./release/data-node-linux-amd64.zip ./bin/data-node
+                        zip ./release/vegawallet-linux-amd64.zip ./bin/vegawallet
+                        zip ./release/visor-linux-amd64.zip ./bin/visor
+                    """
+                    script {
+                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                            sh label: 'Upload artifacts', script: """#!/bin/bash -e
+                                gh release view $TAG_NAME --repo vegaprotocol/repoplayground \
+                                && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/repoplayground \
+                                || gh release create $TAG_NAME ./release/* --repo vegaprotocol/repoplayground
+                            """
                         }
                     }
                 }
