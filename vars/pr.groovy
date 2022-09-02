@@ -116,7 +116,10 @@ Map injectPRParams() {
 
 def getOriginRepo(def origin) {
     if (env.CHANGE_URL) {
-        def prParams = pr.getData(url: env.CHANGE_URL, prFields:['headRepositoryOwner', 'headRepository'])
+        def prParams = getData(
+            url: env.CHANGE_URL,
+            prFields:['headRepositoryOwner', 'headRepository']
+        )
         echo "prParams = ${prParams}"
         return "${prParams.headRepositoryOwner.login}/${prParams.headRepository.name}"
     } else {
