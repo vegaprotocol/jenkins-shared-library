@@ -21,7 +21,7 @@ void call() {
         parameters([
             string(
                 name: 'ORIGIN_REPO', defaultValue: 'vegaprotocol/vega',
-                description: 'Git branch, tag or hash of the vegaprotocol/vega repository'),
+                description: 'repo which acts as source of vegaprotocol (used for forks builds)'),
             string(
                 name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
                 description: 'Git branch, tag or hash of the origin repo repository'),
