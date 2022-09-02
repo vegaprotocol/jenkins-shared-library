@@ -73,8 +73,7 @@ void call() {
                                         returnStdout: true,
                                     ).trim()
                                     orgVersion = orgVersion.replace('"', '')
-                                    def timestamp = new Date().format("yyyyMMddHHmm")
-                                    versionTag = orgVersion + '-' + timestamp + '-' + versionHash
+                                    versionTag = orgVersion + '-' + versionHash
                                 }
                                 sh label: 'Add hash to version', script: """#!/bin/bash -e
                                     sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
