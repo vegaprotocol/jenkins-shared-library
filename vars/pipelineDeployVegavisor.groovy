@@ -62,10 +62,10 @@ void call() {
                             script {
                                 doGitClone('vega', params.VEGA_VERSION)
                                 def versionHash = sh(
-                                    script: "
+                                    script: """
                                     ls -lah
                                     git rev-parse --short HEAD
-                                    ",
+                                    """,
                                     returnStdout: true,
                                 ).trim()
                                 def orgVersion = sh(
