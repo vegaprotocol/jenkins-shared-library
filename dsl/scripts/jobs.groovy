@@ -361,6 +361,20 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
+        name: 'private/Snapshots/Fairground',
+        useScmDefinition: false,
+        env: [
+            NETWORK: 'fairground',
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
         name: 'private/Snapshots/Stagnet1',
         useScmDefinition: false,
         env: [
