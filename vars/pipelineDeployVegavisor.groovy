@@ -58,10 +58,14 @@ void call() {
             stage('Checkout') {
                 parallel {
                     stage('vega'){
+                        when {
+                            expression { params.VEGA_VERSION }
+                        }
                         steps {
                             script {
                                 doGitClone('vega', params.VEGA_VERSION)
                             }
+                            // add commit hash to version
                             dir('vega') {
                                 script {
                                     def versionHash = sh(
@@ -82,20 +86,20 @@ void call() {
                             }
                         }
                     }
-                    stage('vegacapsule'){
-                        steps {
-                            script {
-                                doGitClone('vegacapsule', params.VEGACAPSULE_BRANCH)
-                            }
-                        }
-                    }
-                    stage('devopsscripts'){
-                        steps {
-                            script {
-                                doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
-                            }
-                        }
-                    }
+                    // stage('vegacapsule'){
+                    //     steps {
+                    //         script {
+                    //             doGitClone('vegacapsule', params.VEGACAPSULE_BRANCH)
+                    //         }
+                    //     }
+                    // }
+                    // stage('devopsscripts'){
+                    //     steps {
+                    //         script {
+                    //             doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
+                    //         }
+                    //     }
+                    // }
                     stage('ansible'){
                         steps {
                             script {
@@ -103,18 +107,21 @@ void call() {
                             }
                         }
                     }
-                    stage('networks-internal') {
-                        steps {
-                            script {
-                                doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
-                            }
-                        }
-                    }
+                    // stage('networks-internal') {
+                    //     steps {
+                    //         script {
+                    //             doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
+                    //         }
+                    //     }
+                    // }
                 }
             }
             stage('Prepare'){
                 parallel {
                     stage('Build vaga, data-node, vegawallet and visor') {
+                        when {
+                            expression { params.VEGA_VERSION }
+                        }
                         steps {
                             dir('vega') {
                                 sh label: 'Compile', script: """#!/bin/bash -e
@@ -146,81 +153,84 @@ void call() {
                             }
                         }
                     }
-                    stage('Build vegacapsule') {
-                        steps {
-                            dir('vegacapsule') {
-                                sh label: 'Compile', script: '''#!/bin/bash -e
-                                    go build -v \
-                                        -o ../bin/vegacapsule \
-                                        ./main.go
-                                '''
-                            }
-                            dir('bin') {
-                                sh label: 'Sanity check: vegacapsule', script: '''#!/bin/bash -e
-                                    file ./vegacapsule
-                                    ./vegacapsule --help
-                                '''
-                            }
-                        }
-                    }
-                    stage('Setup devopsscripts') {
-                        steps {
-                            dir('devopsscripts') {
-                                sh label: 'Download dependencies', script: '''#!/bin/bash -e
-                                    go mod download
-                                '''
-                                withCredentials([githubAPICredentials]) {
-                                    sh label: 'Setup secret', script: '''#!/bin/bash -e
-                                        printf "%s" "$GITHUB_API_TOKEN" > ./secret.txt
-                                    '''
-                                }
-                                sh label: 'Sanity check: devopsscripts', script: """#!/bin/bash -e
-                                    go run main.go smart-contracts get-status --network "${NET_NAME}"
-                                """
-                            }
-                        }
-                    }
+                    // stage('Build vegacapsule') {
+                    //     steps {
+                    //         dir('vegacapsule') {
+                    //             sh label: 'Compile', script: '''#!/bin/bash -e
+                    //                 go build -v \
+                    //                     -o ../bin/vegacapsule \
+                    //                     ./main.go
+                    //             '''
+                    //         }
+                    //         dir('bin') {
+                    //             sh label: 'Sanity check: vegacapsule', script: '''#!/bin/bash -e
+                    //                 file ./vegacapsule
+                    //                 ./vegacapsule --help
+                    //             '''
+                    //         }
+                    //     }
+                    // }
+                    // stage('Setup devopsscripts') {
+                    //     steps {
+                    //         dir('devopsscripts') {
+                    //             sh label: 'Download dependencies', script: '''#!/bin/bash -e
+                    //                 go mod download
+                    //             '''
+                    //             withCredentials([githubAPICredentials]) {
+                    //                 sh label: 'Setup secret', script: '''#!/bin/bash -e
+                    //                     printf "%s" "$GITHUB_API_TOKEN" > ./secret.txt
+                    //                 '''
+                    //             }
+                    //             sh label: 'Sanity check: devopsscripts', script: """#!/bin/bash -e
+                    //                 go run main.go smart-contracts get-status --network "${env.NET_NAME}"
+                    //             """
+                    //         }
+                    //     }
+                    // }
                 }
             }  // End: Prepare
-            stage('Publish to GitHub vega-dev-releases') {
-                environment {
-                    TAG_NAME = "${versionTag}"
-                }
-                steps {
-                    sh label: 'zip binaries', script: """#!/bin/bash -e
-                        rm -rf ./release
-                        mkdir -p ./release
-                        zip ./release/vega-linux-amd64.zip ./bin/vega
-                        zip ./release/data-node-linux-amd64.zip ./bin/data-node
-                        zip ./release/vegawallet-linux-amd64.zip ./bin/vegawallet
-                        zip ./release/visor-linux-amd64.zip ./bin/visor
-                    """
-                    script {
-                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
-                            sh label: 'Upload artifacts', script: """#!/bin/bash -e
-                                gh release view $TAG_NAME --repo vegaprotocol/repoplayground \
-                                && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/repoplayground \
-                                || gh release create $TAG_NAME ./release/* --repo vegaprotocol/repoplayground
-                            """
-                        }
-                    }
-                }
-            }
+            // stage('Publish to GitHub vega-dev-releases') {
+            //     environment {
+            //         TAG_NAME = "${versionTag}"
+            //     }
+            //     steps {
+            //         sh label: 'zip binaries', script: """#!/bin/bash -e
+            //             rm -rf ./release
+            //             mkdir -p ./release
+            //             zip ./release/vega-linux-amd64.zip ./bin/vega
+            //             zip ./release/data-node-linux-amd64.zip ./bin/data-node
+            //             zip ./release/vegawallet-linux-amd64.zip ./bin/vegawallet
+            //             zip ./release/visor-linux-amd64.zip ./bin/visor
+            //         """
+            //         script {
+            //             withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+            //                 sh label: 'Upload artifacts', script: """#!/bin/bash -e
+            //                     gh release view $TAG_NAME --repo vegaprotocol/repoplayground \
+            //                     && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/repoplayground \
+            //                     || gh release create $TAG_NAME ./release/* --repo vegaprotocol/repoplayground
+            //                 """
+            //             }
+            //         }
+            //     }
+            // }
             stage('Deploy to Network') {
                 when {
-                    expression {
-                        env.NET_NAME
-                    }
+                    expression { env.ANSIBLE_LIMIT }
+                    expression { env.ANSIBLE_ACTION }
                 }
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                 }
                 steps {
-                    sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
-                        cp ./bin/vega ./ansible/roles/barenode/files/bin/
-                        cp ./bin/data-node ./ansible/roles/barenode/files/bin/
-                        cp ./bin/visor ./ansible/roles/barenode/files/bin/
-                    """
+                    script {
+                        if (params.VEGA_VERSION) {
+                            sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
+                                cp ./bin/vega ./ansible/roles/barenode/files/bin/
+                                cp ./bin/data-node ./ansible/roles/barenode/files/bin/
+                                cp ./bin/visor ./ansible/roles/barenode/files/bin/
+                            """
+                        }
+                    }
                     dir('ansible') {
                         withCredentials([sshCredentials]) {
                             // Note: environment variables PSSH_KEYFILE and PSSH_USER
@@ -231,8 +241,8 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${env.NET_NAME}" \
-                                    -e '{"restart_network":true}' \
+                                    --limit "${env.ANSIBLE_LIMIT}" \
+                                    -e '{"${env.ANSIBLE_ACTION}":true}' \
                                     playbooks/playbook-barenode.yaml
                             """
                         }

@@ -149,19 +149,14 @@ veganetParams = veganetParamsBase << {
 }
 
 vegavisorParams = {
-    stringParam('VEGA_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository")
-    booleanParam('REGENERATE_CONFIG', true, 'Should the Vega Network config be re-generated, e.g. genesis.json')
+    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
 
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
     stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
     stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-
-    booleanParam('CREATE_MARKETS', true, 'Create markets')
-    booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
-    booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
-    booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
 }
 
 systemTestsParamsGeneric = {
@@ -288,11 +283,13 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet3',
+        name: 'private/Deployments/Vegavisor/Restart-Devnet-3',
         useScmDefinition: false,
         definition: libDefinition('pipelineDeployVegavisor()'),
         env: [
             NET_NAME: 'devnet3',
+            ANSIBLE_LIMIT: 'devnet3',
+            ANSIBLE_ACTION: 'restart_network',
         ],
         parameters: vegavisorParams,
         disableConcurrentBuilds: true,
