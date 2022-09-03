@@ -36,7 +36,7 @@ void call() {
         }
     }
 
-    def versionTag = 'UNKNOWN'
+    // def versionTag = 'UNKNOWN'
 
     pipeline {
         agent any
@@ -66,24 +66,24 @@ void call() {
                                 doGitClone('vega', params.VEGA_VERSION)
                             }
                             // add commit hash to version
-                            dir('vega') {
-                                script {
-                                    def versionHash = sh(
-                                        script: "git rev-parse --short HEAD",
-                                        returnStdout: true,
-                                    ).trim()
-                                    def orgVersion = sh(
-                                        script: "grep -o '\"v0.*\"' version/version.go",
-                                        returnStdout: true,
-                                    ).trim()
-                                    orgVersion = orgVersion.replace('"', '')
-                                    versionTag = orgVersion + '-' + versionHash
-                                }
-                                sh label: 'Add hash to version', script: """#!/bin/bash -e
-                                    sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                                """
-                                print('Binary version ' + versionTag)
-                            }
+                            // dir('vega') {
+                            //     script {
+                            //         def versionHash = sh(
+                            //             script: "git rev-parse --short HEAD",
+                            //             returnStdout: true,
+                            //         ).trim()
+                            //         def orgVersion = sh(
+                            //             script: "grep -o '\"v0.*\"' version/version.go",
+                            //             returnStdout: true,
+                            //         ).trim()
+                            //         orgVersion = orgVersion.replace('"', '')
+                            //         versionTag = orgVersion + '-' + versionHash
+                            //     }
+                            //     sh label: 'Add hash to version', script: """#!/bin/bash -e
+                            //         sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
+                            //     """
+                            //     print('Binary version ' + versionTag)
+                            // }
                         }
                     }
                     // stage('vegacapsule'){
