@@ -310,7 +310,7 @@ def jobs = [
             ANSIBLE_ACTION: 'restart_node',
         ],
         parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
     ],
