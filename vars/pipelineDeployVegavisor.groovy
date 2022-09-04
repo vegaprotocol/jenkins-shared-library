@@ -220,6 +220,7 @@ void call() {
                 }
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
+                    HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
                 }
                 steps {
                     script {
@@ -232,19 +233,21 @@ void call() {
                         }
                     }
                     dir('ansible') {
-                        withCredentials([sshCredentials]) {
-                            // Note: environment variables PSSH_KEYFILE and PSSH_USER
-                            //        are set by withCredentials wrapper
-                            sh label: 'ansible deploy run', script: """#!/bin/bash -e
-                                ansible-playbook \
-                                    --diff \
-                                    -u "\${PSSH_USER}" \
-                                    --private-key "\${PSSH_KEYFILE}" \
-                                    --inventory inventories \
-                                    --limit "${env.ANSIBLE_LIMIT}" \
-                                    -e '{"${env.ANSIBLE_ACTION}":true}' \
-                                    playbooks/playbook-barenode.yaml
-                            """
+                        withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
+                            withCredentials([sshCredentials]) {
+                                // Note: environment variables PSSH_KEYFILE and PSSH_USER
+                                //        are set by withCredentials wrapper
+                                sh label: 'ansible deploy run', script: """#!/bin/bash -e
+                                    ansible-playbook \
+                                        --diff \
+                                        -u "\${PSSH_USER}" \
+                                        --private-key "\${PSSH_KEYFILE}" \
+                                        --inventory inventories \
+                                        --limit "${env.ANSIBLE_LIMIT}" \
+                                        -e '{"${env.ANSIBLE_ACTION}":true}' \
+                                        playbooks/playbook-barenode.yaml
+                                """
+                            }
                         }
                     }
                 }
