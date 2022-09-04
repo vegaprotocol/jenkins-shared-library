@@ -306,7 +306,6 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
             NET_NAME: 'devnet3',
-            ANSIBLE_LIMIT: 'devnet3',
             ANSIBLE_ACTION: 'restart_node',
         ],
         parameters: vegavisorRestartNodeParams << {

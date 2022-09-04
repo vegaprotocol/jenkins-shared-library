@@ -215,7 +215,7 @@ void call() {
             // }
             stage('Restart Node') {
                 when {
-                    expression { env.ANSIBLE_LIMIT }
+                    expression { env.ANSIBLE_ACTION }
                     expression { params.NODE }
                 }
                 environment {
