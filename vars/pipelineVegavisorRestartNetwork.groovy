@@ -213,7 +213,7 @@ void call() {
             //         }
             //     }
             // }
-            stage('Deploy to Network') {
+            stage('Restart Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
                     expression { env.ANSIBLE_ACTION }
@@ -237,7 +237,7 @@ void call() {
                             withCredentials([sshCredentials]) {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                 //        are set by withCredentials wrapper
-                                sh label: 'ansible deploy run', script: """#!/bin/bash -e
+                                sh label: 'ansible playbook run', script: """#!/bin/bash -e
                                     ansible-playbook \
                                         --diff \
                                         -u "\${PSSH_USER}" \

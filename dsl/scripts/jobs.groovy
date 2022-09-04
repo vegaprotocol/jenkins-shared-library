@@ -148,15 +148,21 @@ veganetParams = veganetParamsBase << {
     booleanParam('BACKUP_CHAIN_DATA', true, 'Determine whether chain data needs to be copied to backup and last checkpoint saved in github - available only in testnet')
 }
 
-vegavisorParams = {
-    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-
+vegavisorParamsBase = {
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
     stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
     stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+}
+
+vegavisorRestartNetworkParams = vegavisorParamsBase << {
+    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+}
+
+vegavisorRestartNodeParams = vegavisorParamsBase << {
+    booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
 }
 
 systemTestsParamsGeneric = {
@@ -283,15 +289,29 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Restart-Devnet-3',
+        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineDeployVegavisor()'),
+        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
             NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
             ANSIBLE_ACTION: 'restart_network',
         ],
-        parameters: vegavisorParams,
+        parameters: vegavisorRestartNetworkParams,
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        env: [
+            NET_NAME: 'devnet3',
+            ANSIBLE_LIMIT: 'devnet3',
+            ANSIBLE_ACTION: 'restart_node',
+        ],
+        parameters: vegavisorRestartNodeParams << {
+            choiceParam('NODE', (0..15).collect { "n${val.padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
+        },
         disableConcurrentBuilds: true,
     ],
     // system-tests
