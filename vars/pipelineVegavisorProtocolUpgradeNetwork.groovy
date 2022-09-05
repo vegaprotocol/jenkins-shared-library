@@ -217,7 +217,6 @@ void call() {
             stage('Protocol Upgrade Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
-                    expression { env.ANSIBLE_ACTION }
                 }
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')

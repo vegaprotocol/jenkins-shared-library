@@ -321,7 +321,9 @@ def jobs = [
             NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
         ],
-        parameters: vegavisorRestartNetworkParams,
+        parameters: vegavisorParamsBase << {
+            stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
+        },
         disableConcurrentBuilds: true,
     ],
     // system-tests
