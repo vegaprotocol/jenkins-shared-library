@@ -148,20 +148,21 @@ veganetParams = veganetParamsBase << {
     booleanParam('BACKUP_CHAIN_DATA', true, 'Determine whether chain data needs to be copied to backup and last checkpoint saved in github - available only in testnet')
 }
 
-vegavisorParams = {
-    stringParam('VEGA_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository")
-    booleanParam('REGENERATE_CONFIG', true, 'Should the Vega Network config be re-generated, e.g. genesis.json')
-
+vegavisorParamsBase = {
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
     stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
     stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+}
 
-    booleanParam('CREATE_MARKETS', true, 'Create markets')
-    booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
-    booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
-    booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
+vegavisorRestartNetworkParams = vegavisorParamsBase << {
+    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+}
+
+vegavisorRestartNodeParams = vegavisorParamsBase << {
+    booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
 }
 
 systemTestsParamsGeneric = {
@@ -278,13 +279,41 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet2',
+        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineDeployVegavisor()'),
+        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
-            NET_NAME: 'devnet2',
+            NET_NAME: 'devnet3',
+            ANSIBLE_LIMIT: 'devnet3',
+            ANSIBLE_ACTION: 'restart_network',
         ],
-        parameters: vegavisorParams,
+        parameters: vegavisorRestartNetworkParams,
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        env: [
+            NET_NAME: 'devnet3',
+            ANSIBLE_ACTION: 'restart_node',
+        ],
+        parameters: vegavisorRestartNodeParams << {
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Vegavisor/Devnet-3-Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'devnet3',
+            ANSIBLE_LIMIT: 'devnet3',
+        ],
+        parameters: vegavisorParamsBase << {
+            stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
+        },
         disableConcurrentBuilds: true,
     ],
     // system-tests
@@ -341,6 +370,20 @@ def jobs = [
         env: [
             NETWORK: 'devnet1',
             DISABLE_TENDERMINT: 'true'
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Fairground',
+        useScmDefinition: false,
+        env: [
+            NETWORK: 'fairground',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
