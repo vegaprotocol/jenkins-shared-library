@@ -142,7 +142,7 @@ void call() {
                                             sh label: 'get version', script: '''#!/bin/bash -e
                                                 ./vega version
                                                 ./data-node version
-                                                ./visor version
+                                                ./visor --help
                                             '''
                                         }
                                     }
