@@ -313,6 +313,17 @@ def jobs = [
         },
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/Vegavisor/Devnet-3-Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'devnet3',
+            ANSIBLE_LIMIT: 'devnet3',
+        ],
+        parameters: vegavisorRestartNetworkParams,
+        disableConcurrentBuilds: true,
+    ],
     // system-tests
     [
         name: 'common/system-tests-wrapper',
