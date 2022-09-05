@@ -238,7 +238,7 @@ void call() {
                                 script: "go run main.go network get-block-height --network ${env.NET_NAME}",
                                 returnStdout: true,
                             ).trim() as int
-                            protocolUpgradeBlock += 150
+                            protocolUpgradeBlock += 240
                         }
                     }
                     dir('ansible') {
