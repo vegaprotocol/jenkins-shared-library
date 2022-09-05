@@ -235,7 +235,7 @@ void call() {
                     script {
                         dir('devopsscripts') {
                             protocolUpgradeBlock = sh(
-                                script: "go run main.go network get-block --network ${env.NET_NAME}",
+                                script: "go run main.go network get-block-height --network ${env.NET_NAME}",
                                 returnStdout: true,
                             ).trim() as int
                             protocolUpgradeBlock += 150
