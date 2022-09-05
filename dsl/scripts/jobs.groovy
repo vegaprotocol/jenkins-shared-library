@@ -279,6 +279,16 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
+        name: 'private/Deployments/Vegavisor/Publish-vega-dev-releases',
+        description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaDevRelease()'),
+        parameters: {
+            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    [
         name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
