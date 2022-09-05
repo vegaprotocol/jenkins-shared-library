@@ -285,6 +285,7 @@ def jobs = [
         definition: libDefinition('pipelineVegaDevRelease()'),
         parameters: {
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,
     ],
