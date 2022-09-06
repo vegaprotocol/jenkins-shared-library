@@ -219,9 +219,27 @@ void call(Map additionalConfig) {
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
           }
+          dir('docker-inspect') {
+            sh label: 'create folder to dump container informations', 
+              script: 'mkdir docker-containers'
+            sh label: 'dump docker containers info', 
+              script: '''for docker_id in $(docker ps --all --format "{{- .ID -}}"); do 
+                docker inspect "$docker_id" > "$docker_id.log"; 
+              done;'''
+
+            archiveArtifacts(
+              artifacts: 'docker-containers/*.log',
+              allowEmptyArchive: true
+            )
+          }
+
           dir(testNetworkDir) {
             archiveArtifacts(
               artifacts: 'testnet/**/*',
+              allowEmptyArchive: true
+            )
+            archiveArtifacts(
+              artifacts: 'nomad.log',
               allowEmptyArchive: true
             )
             script {
