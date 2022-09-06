@@ -18,8 +18,6 @@ void call() {
     def networksNameMap = [
         devnet: 'devnet1',
         testnet: 'fairground',
-        stagnet: 'stagnet1',
-        stagnet2: 'stagnet2',
     ]
 
     def doGitClone = { repo, branch ->
@@ -29,7 +27,7 @@ void call() {
                 // [GIT_BRANCH:origin/master,
                 // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41, 
+                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
                 return checkout([
                     $class: 'GitSCM',
@@ -487,7 +485,7 @@ void call() {
                     }
                 }
                 environment {
-                    DATANODE_TAG = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}" 
+                    DATANODE_TAG = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}"
                 }
                 steps {
                     script {

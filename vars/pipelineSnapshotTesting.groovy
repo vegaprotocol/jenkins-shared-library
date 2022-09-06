@@ -11,8 +11,6 @@ void call(Map config=[:]) {
     // todo: checkout ansible repo and read inventory
     Map<String, List<String>> serversByNetwork = [
         'devnet1': (1..4).collect { "n0${it}.d.vega.xyz" },
-        'stagnet1': (1..5).collect { "n0${it}.s.vega.xyz" },
-        'stagnet2': (1..5).collect { "n0${it}.stagnet2.vega.xyz" } + (1..5).collect { "v0${it}.stagnet2.vega.xyz" },
         'stagnet3': (1..9).collect { "n0${it}.stagnet3.vega.xyz" },
         'fairground': (1..9).collect { "n0${it}.testnet.vega.xyz" },
     ]
