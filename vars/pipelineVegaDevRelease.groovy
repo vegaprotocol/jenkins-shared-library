@@ -72,6 +72,11 @@ void call() {
                             // add commit hash to version
                             dir('vega') {
                                 script {
+                                    // counter can duplicate
+                                    def counter = sh(
+                                        script: "git rev-list --no-merges --count HEAD",
+                                        returnStdout: true,
+                                    ).trim()
                                     def versionHash = sh(
                                         script: "git rev-parse --short HEAD",
                                         returnStdout: true,
@@ -81,7 +86,7 @@ void call() {
                                         returnStdout: true,
                                     ).trim()
                                     orgVersion = orgVersion.replace('"', '')
-                                    versionTag = orgVersion + '-' + versionHash
+                                    versionTag = orgVersion + '-' + counter + '-' + versionHash
                                 }
                                 sh label: 'Add hash to version', script: """#!/bin/bash -e
                                     sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
