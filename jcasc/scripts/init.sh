@@ -8,16 +8,6 @@ cat > ~/.ssh/config <<EOF
         HostName n03.d.vega.xyz
     Host n04-d
         HostName n04.d.vega.xyz
-    Host n01-s
-        HostName n01.s.vega.xyz
-    Host n02-s
-        HostName n02.s.vega.xyz
-    Host n03-s
-        HostName n03.s.vega.xyz
-    Host n04-s
-        HostName n04.s.vega.xyz
-    Host n05-s
-        HostName n05.s.vega.xyz
     Host n01-testnet
         HostName n01.testnet.vega.xyz
     Host n02-testnet
@@ -52,24 +42,6 @@ for i in {1..4}; do
     ssh-keygen -R "n0$i.d.vega.xyz" || true
     # Readd
     ssh-keyscan -t rsa,dsa "n0$i.d.vega.xyz" >> ~/.ssh/known_hosts || true
-done
-# Update known_hosts for Stagnet
-for i in {1..5}; do
-    # Remove
-    ssh-keygen -R "n0$i.s.vega.xyz" || true
-    # Readd
-    ssh-keyscan -t rsa,dsa "n0$i.s.vega.xyz" >> ~/.ssh/known_hosts || true
-done
-# Update known_hosts for Stagnet 2
-for i in {1..5}; do
-    # Remove
-    ssh-keygen -R "n0$i.stagnet2.vega.xyz" || true
-    # Readd
-    ssh-keyscan -t rsa,dsa "n0$i.stagnet2.vega.xyz" >> ~/.ssh/known_hosts || true
-    # Remove
-    ssh-keygen -R "v0$i.stagnet2.vega.xyz" || true
-    # Readd
-    ssh-keyscan -t rsa,dsa "v0$i.stagnet2.vega.xyz" >> ~/.ssh/known_hosts || true
 done
 # Update Fairground
 for i in {01..12}; do
