@@ -226,7 +226,7 @@ void call(Map additionalConfig) {
           }
           dir('docker-inspect') {
             sh label: 'create folder to dump container informations', 
-              scritp: 'mkdir docker-containers'
+              script: 'mkdir docker-containers'
             sh label: 'dump docker containers info', 
               script: '''for docker_id in $(docker ps --all --format "{{- .ID -}}"); do 
                 docker inspect "$docker_id" > "$docker_id.log"; 
