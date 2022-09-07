@@ -116,7 +116,7 @@ void call() {
                     stage('devopsscripts'){
                         when {
                             expression {
-                                params.RESTART == 'YES_FROM_CHECKPOINT'
+                                params.RESTART == 'YES_FROM_CHECKPOINT' || params.CREATE_MARKETS || params.CREATE_INCENTIVE_MARKETS
                             }
                         }
                         steps {
@@ -293,7 +293,7 @@ void call() {
                                     dir('vega') {
                                         sh label: 'Build docker image', script: """#!/bin/bash -e
                                             docker build \
-                                                -f docker/vegawallet.dockerfile \
+                          x                      -f docker/vegawallet.dockerfile \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_HASH} \
                                                 .
@@ -493,6 +493,18 @@ void call() {
                     }
                 }
             }
+            
+            stage('Wait for network') {
+                steps {
+                    script {
+                        def dnsAlias = env.DNS_ALIAS ?: env.NET_NAME
+                        waitForURL('https://n01.' + dnsAlias + '.vega.xyz/markets')
+                        waitForURL('https://n01.' + dnsAlias + '.vega.xyz/statistics')
+                        waitForURL('https://wallet.' + dnsAlias + '.vega.xyz/api/v1/status')
+                        sleep(30)
+                    }
+                }
+            }
             stage('Create Markets') {
                 when {
                     expression {
@@ -501,8 +513,6 @@ void call() {
                 }
                 steps {
                     script {
-                        def dnsAlias = env.DNS_ALIAS ?: env.NET_NAME
-                        waitForURL('https://wallet.' + dnsAlias + '.vega.xyz/api/v1/status')
                         veganet('create_markets')
                     }
                 }
@@ -516,6 +526,43 @@ void call() {
                 steps {
                     script {
                         veganet('incentive_create_markets')
+                    }
+                }
+            }
+            stage('Provide liquidity commitment') {
+                when {
+                    allOf {
+                        expression {
+                            params.CREATE_INCENTIVE_MARKETS || params.CREATE_MARKETS
+                        }
+                        expression {
+                            env.NET_NAME == "devnet"
+                        }
+                    }
+                }
+                steps {
+                    script {
+                        def secrets = [
+                            [path: 'wallet/markets-creator/' + env.NET_NAME, engineVersion: 2, secretValues: [
+                                [envVar: 'wallet_name', vaultKey: 'wallet-name'],
+                                [envVar: 'wallet_pass', vaultKey: 'wallet-password'],
+                                [envVar: 'wallet_uri', vaultKey: 'wallet-uri'],
+                                [envVar: 'data_node_host', vaultKey: 'data-node-host'],
+                            ]]
+                        ]
+
+                        withVault([vaultSecrets: secrets]) {
+                            dir('devopsscripts') {
+                                sh '''
+                                go mod vendor;
+                                go run main.go markets liquidity-provision-commitment \
+                                    --data-node-host "$data_node_host" \
+                                    --wallet-uri "$wallet_uri" \
+                                    --wallet-name $wallet_name \
+                                    --wallet-password $wallet_pass \
+                                    --no-secrets'''
+                            }
+                        }
                     }
                 }
             }
