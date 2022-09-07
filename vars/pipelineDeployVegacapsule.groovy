@@ -469,6 +469,12 @@ void call(Map customConfig = [:]) {
       }
 
       stage('Create markets') {
+        when {
+          expression {
+            params.CREATE_MARKETS
+          }
+        }
+        
         options {
           timeout(40)
         }

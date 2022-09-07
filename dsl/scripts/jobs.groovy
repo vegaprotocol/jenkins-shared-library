@@ -37,19 +37,25 @@ def standardDescription() {
 
 def createCommonPipeline(args){
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
+
+    def description = args.get('description', '')
+    description += "${description ? '<br/>' : ''} ${standardDescription()}"
+
     return pipelineJob(args.name) {
-        def des = args.get('description', '')
-        des += "${des ? '<br/>' : ''} ${standardDescription()}"
+
         description(des)
+
         logRotator {
             daysToKeep(args.daysToKeep ?: 45)
             numToKeep(args.numToKeep ?: 1000)
             artifactDaysToKeep(args.daysToKeep ?: 45)
             artifactNumToKeep(args.numToKeep ?: 1000)
         }
+
         if (args.parameters) {
             parameters args.parameters
         }
+
         environmentVariables {
             keepBuildVariables(true)
             keepSystemVariables(true)
@@ -57,6 +63,7 @@ def createCommonPipeline(args){
                 env(key.toUpperCase(), value)
             }
         }
+
         if (args.get('useScmDefinition', true)) {
             definition scmDefinition(args)
         }
@@ -64,38 +71,32 @@ def createCommonPipeline(args){
             definition args.definition
         }
 
-        if (args.get('useScmDefinition', true)) {
-            properties {
-                pipelineTriggers {
-                    triggers {
-                        githubPush()
-                    }
-                }
-            }
-        }
-        if (args.copyArtifacts) {
-            properties {
+        properties {
+            if (args.copyArtifacts) {
                 copyArtifactPermission {
                     projectNames('*')
                 }
             }
-        }
-
-        if (args.cron) {
-            properties {
-                pipelineTriggers {
-                    triggers {
+            if (args.disableConcurrentBuilds) {
+                disableConcurrentBuilds {
+                    abortPrevious(args.abortPrevious ?: false)
+                }
+            }
+            pipelineTriggers {
+                triggers {
+                    if (args.get('useScmDefinition', true)) {
+                        githubPush()
+                    }
+                    if (args.cron) {
                         cron {
                             spec(args.cron)
                         }
                     }
-                }
-            }
-        }
-        if (args.disableConcurrentBuilds) {
-            properties {
-                disableConcurrentBuilds {
-                    abortPrevious(args.abortPrevious ?: false)
+                    if (args.parametrizedCron) {
+                        parametrizedCron {
+                            parameterizedSpecification(args.parametrizedCron)
+                        }
+                    }
                 }
             }
         }
@@ -127,6 +128,7 @@ capsuleParams = {
     booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
+    booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
 }
 
 veganetParamsBase = {
@@ -196,7 +198,7 @@ def jobs = [
         name: 'private/Deployments/Vegacapsule/Stagnet 3',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition('''capsulePipelineWrapper([
+        definition: libDefinition('''pipelineDeployVegacapsule([
                 networkName: 'stagnet3',
                 nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
                 awsRegion: 'eu-west-2',
@@ -204,14 +206,15 @@ def jobs = [
                 networksInternalBranch: 'main',
                 nomadNodesNumer: 8,
             ])'''),
-        env: [],
         disableConcurrentBuilds: true,
+        // weekdays 5AM UTC, jenkins prefred minute
+        parametrizedCron: 'H 5 * * 1-5 %VEGA_VERSION=develop;BUILD_VEGA_BINARIES=true;CREATE_MARKETS=false'
     ],
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
         useScmDefinition: false,
         parameters: capsuleParams,
-        definition: libDefinition('''capsulePipelineWrapper([
+        definition: libDefinition('''pipelineDeployVegacapsule([
                 networkName: 'devnet2',
                 nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
                 awsRegion: 'eu-west-2',
@@ -219,7 +222,6 @@ def jobs = [
                 networksInternalBranch: 'main',
                 nomadNodesNumer: 4,
             ])'''),
-        env: [],
         disableConcurrentBuilds: true,
     ],
 
