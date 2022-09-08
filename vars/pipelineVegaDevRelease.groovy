@@ -37,7 +37,6 @@ void call() {
     }
 
     def versionTag = 'UNKNOWN'
-    def protocolUpgradeBlock = -1
 
     pipeline {
         agent any
@@ -212,6 +211,34 @@ void call() {
             }
             //
             // End PUBLISH
+            //
+            //
+            // Begin DEPLOY
+            //
+            stage('Deploy') {
+                parallel {
+                    stage('Devnet 3'){
+                        when {
+                            expression { params.DEPLOY_TO_DEVNET_3 }
+                        }
+                        steps {
+                            script {
+                                build(
+                                    job: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
+                                    propagate: false,
+                                    wait: false,
+                                    parameters: [
+                                        string(name: 'RELEASE_VERSION', value: versionTag),
+                                        string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            //
+            // End Deploy
             //
         }
         post {

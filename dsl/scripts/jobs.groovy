@@ -159,6 +159,7 @@ vegavisorParamsBase = {
 vegavisorRestartNetworkParams = vegavisorParamsBase << {
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+    stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
 }
 
 vegavisorRestartNodeParams = vegavisorParamsBase << {
@@ -275,6 +276,7 @@ def jobs = [
         definition: libDefinition('pipelineVegaDevRelease()'),
         parameters: {
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            booleanParam('DEPLOY_TO_DEVNET_3', true, 'Trigger deployment to Devnet 3')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,
@@ -284,9 +286,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
-            NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
-            ANSIBLE_ACTION: 'restart_network',
         ],
         parameters: vegavisorRestartNetworkParams,
         disableConcurrentBuilds: true,

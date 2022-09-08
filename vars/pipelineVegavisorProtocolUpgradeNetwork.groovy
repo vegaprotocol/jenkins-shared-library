@@ -190,30 +190,6 @@ void call() {
                     }
                 }
             }  // End: Prepare
-            // stage('Publish to GitHub vega-dev-releases') {
-            //     environment {
-            //         TAG_NAME = "${versionTag}"
-            //     }
-            //     steps {
-            //         sh label: 'zip binaries', script: """#!/bin/bash -e
-            //             rm -rf ./release
-            //             mkdir -p ./release
-            //             zip ./release/vega-linux-amd64.zip ./bin/vega
-            //             zip ./release/data-node-linux-amd64.zip ./bin/data-node
-            //             zip ./release/vegawallet-linux-amd64.zip ./bin/vegawallet
-            //             zip ./release/visor-linux-amd64.zip ./bin/visor
-            //         """
-            //         script {
-            //             withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
-            //                 sh label: 'Upload artifacts', script: """#!/bin/bash -e
-            //                     gh release view $TAG_NAME --repo vegaprotocol/repoplayground \
-            //                     && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/repoplayground \
-            //                     || gh release create $TAG_NAME ./release/* --repo vegaprotocol/repoplayground
-            //                 """
-            //             }
-            //         }
-            //     }
-            // }
             stage('Protocol Upgrade Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
