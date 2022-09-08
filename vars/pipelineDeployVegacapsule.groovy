@@ -88,6 +88,8 @@ void call(Map customConfig = [:]) {
       AWS_ACCESS_KEY_ID = credentials('jenkins-vegacapsule-aws-id')
       S3_BUCKET_NAME = "${config.vegacapsuleS3BucketName}"
       AWS_REGION = "${config.awsRegion}"
+      VEGA_BINARIES_RELEASED_VERSION = "${params.VEGA_VERSION ?: "${config.networkName}-${env.BUILD_NUMBER}"}"
+      VEGACAPSULE_S3_RELEASE_TARGET = "bin/${VEGA_BINARIES_RELEAED_VERSION}"
 
       PATH = "${env.WORKSPACE}/bin:${env.PATH}"
       GITHUB_CREDS = 'github-vega-ci-bot-artifacts'
@@ -261,6 +263,12 @@ void call(Map customConfig = [:]) {
           }
 
           stage('Pull devops-infra') {
+            when {
+              expression {
+                params.CREATE_MARKETS || params.BOUNCE_BOTS
+              }
+            }
+
             steps {
               gitClone([
                   credentialsId: env.GITHUB_SSH_CREDS,
@@ -273,53 +281,66 @@ void call(Map customConfig = [:]) {
         }
       }
 
-      stage('Sync remote state to local') {
-        options {
-          timeout(5)
-        }
+      stage('Prepare deployment') {
+        parallel {
+          stage('Upload binaries to s3') {
+            steps {
+              sh "aws s3 sync bin/ s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
+              sh "aws s3 ls s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
+            }
+          }
 
-        steps {
-          dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            sh '''
-                mkdir -p "./home"
-                aws s3 sync \
-                --only-show-errors \
-                --no-progress \
-                  "s3://''' + env.S3_BUCKET_NAME + '''/''' + config.networkName + '''" \
-                  "./home/"
-            '''
-            // sh "if [ -d '${env.CONFIG_HOME}/config.hcl' ]; then cat '${env.CONFIG_HOME}/config.hcl'; fi"
+          stage('Sync remote state to local') {
+            options {
+              timeout(5)
+            }
+
+            steps {
+              dir('networks-internal/' + config.networkName + '/vegacapsule') {
+                sh '''
+                    mkdir -p "./home"
+                    aws s3 sync \
+                    --only-show-errors \
+                    --no-progress \
+                      "s3://''' + env.S3_BUCKET_NAME + '''/''' + config.networkName + '''" \
+                      "./home/"
+                '''
+                // sh "if [ -d '${env.CONFIG_HOME}/config.hcl' ]; then cat '${env.CONFIG_HOME}/config.hcl'; fi"
+              }
+            }
+          }
+
+          stage('Stop Network') {
+            options {
+              timeout(10)
+            }
+
+            when {
+              expression {
+                params.ACTION == 'STOP' || params.ACTION == 'RESTART'
+              }
+            }
+            steps {
+              dir('networks-internal/' + config.networkName + '/vegacapsule') {
+                // Hotfix for https://github.com/vegaprotocol/vegacapsule/issues/228
+                sh 'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -'
+                sh 'sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"'
+                sh 'sudo apt-get update -y && sudo apt-get install -y nomad'
+                sh '''nomad job status --short \
+                  | grep -v Type \
+                  | grep running \
+                  | awk '{ print $1 }' \
+                  | xargs -L 1 nomad job stop \
+                  || echo 'OK' '''
+                // HOTFIX: END
+
+                sh "vegacapsule network destroy --home-path './home'"
+              }
+            }
           }
         }
-      }
 
-      stage('Stop Network') {
-        options {
-          timeout(10)
-        }
 
-        when {
-          expression {
-            params.ACTION == 'STOP' || params.ACTION == 'RESTART'
-          }
-        }
-        steps {
-          dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            // Hotfix for https://github.com/vegaprotocol/vegacapsule/issues/228
-            sh 'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -'
-            sh 'sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"'
-            sh 'sudo apt-get update -y && sudo apt-get install -y nomad'
-            sh '''nomad job status --short \
-              | grep -v Type \
-              | grep running \
-              | awk '{ print $1 }' \
-              | xargs -L 1 nomad job stop \
-              || echo 'OK' '''
-            // HOTFIX: END
-
-            sh "vegacapsule network destroy --home-path './home'"
-          }
-        }
       }
 
       stage('Update networks configs') {
@@ -474,7 +495,7 @@ void call(Map customConfig = [:]) {
             params.CREATE_MARKETS
           }
         }
-        
+
         options {
           timeout(40)
         }
@@ -520,6 +541,12 @@ void call(Map customConfig = [:]) {
       }
 
       stage('Bounce bots') {
+        when {
+          expression {
+            params.BOUNCE_BOTS
+          }
+        }
+
         options {
           retry(3)
           timeout(20)

@@ -129,6 +129,7 @@ capsuleParams = {
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
     booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
+    booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
 }
 
 veganetParamsBase = {
@@ -208,7 +209,7 @@ def jobs = [
             ])'''),
         disableConcurrentBuilds: true,
         // weekdays 5AM UTC, jenkins prefred minute
-        parametrizedCron: 'H 5 * * 1-5 %VEGA_VERSION=develop;BUILD_VEGA_BINARIES=true;CREATE_MARKETS=false'
+        parametrizedCron: 'H 5 * * 1-5 %VEGA_VERSION=develop;BUILD_VEGA_BINARIES=true;UNSAFE_RESET_ALL=true;REGENERATE_CONFIGS=true'
     ],
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
