@@ -36,8 +36,6 @@ void call() {
         }
     }
 
-    // def versionTag = 'UNKNOWN'
-
     pipeline {
         agent any
         options {
@@ -65,25 +63,6 @@ void call() {
                             script {
                                 doGitClone('vega', params.VEGA_VERSION)
                             }
-                            // add commit hash to version
-                            // dir('vega') {
-                            //     script {
-                            //         def versionHash = sh(
-                            //             script: "git rev-parse --short HEAD",
-                            //             returnStdout: true,
-                            //         ).trim()
-                            //         def orgVersion = sh(
-                            //             script: "grep -o '\"v0.*\"' version/version.go",
-                            //             returnStdout: true,
-                            //         ).trim()
-                            //         orgVersion = orgVersion.replace('"', '')
-                            //         versionTag = orgVersion + '-' + versionHash
-                            //     }
-                            //     sh label: 'Add hash to version', script: """#!/bin/bash -e
-                            //         sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                            //     """
-                            //     print('Binary version ' + versionTag)
-                            // }
                         }
                     }
                     // stage('vegacapsule'){
@@ -116,7 +95,7 @@ void call() {
                     // }
                 }
             }
-            stage('Prepare'){
+            stage('Prepare') {
                 parallel {
                     stage('Build vaga, data-node, vegawallet and visor') {
                         when {
@@ -189,34 +168,9 @@ void call() {
                     // }
                 }
             }  // End: Prepare
-            // stage('Publish to GitHub vega-dev-releases') {
-            //     environment {
-            //         TAG_NAME = "${versionTag}"
-            //     }
-            //     steps {
-            //         sh label: 'zip binaries', script: """#!/bin/bash -e
-            //             rm -rf ./release
-            //             mkdir -p ./release
-            //             zip ./release/vega-linux-amd64.zip ./bin/vega
-            //             zip ./release/data-node-linux-amd64.zip ./bin/data-node
-            //             zip ./release/vegawallet-linux-amd64.zip ./bin/vegawallet
-            //             zip ./release/visor-linux-amd64.zip ./bin/visor
-            //         """
-            //         script {
-            //             withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
-            //                 sh label: 'Upload artifacts', script: """#!/bin/bash -e
-            //                     gh release view $TAG_NAME --repo vegaprotocol/repoplayground \
-            //                     && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/repoplayground \
-            //                     || gh release create $TAG_NAME ./release/* --repo vegaprotocol/repoplayground
-            //                 """
-            //             }
-            //         }
-            //     }
-            // }
             stage('Restart Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
-                    expression { env.ANSIBLE_ACTION }
                 }
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -244,7 +198,7 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
-                                        -e '{"${env.ANSIBLE_ACTION}":true}' \
+                                        -e '{"restart_network": true, "release_version": "${params.RELEASE_VERSION}"}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
