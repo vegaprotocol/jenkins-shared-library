@@ -100,9 +100,9 @@ void call() {
             // End Git CLONE
             //
             //
-            // Begin COMPILE
+            // Begin COMPILE & ZIP
             //
-            stage('Compile') {
+            stage('Compile and zip') {
                 matrix {
                     axes {
                         axis {
@@ -153,42 +153,29 @@ void call() {
                                 }
                             }
                         }
+                        stage("zip") {
+                            environment {
+                                GOOS         = "${GOOS}"
+                                GOARCH       = "${GOARCH}"
+                            }
+                            steps {
+                                sh label: 'create release directory', script: """#!/bin/bash -e
+                                    mkdir -p ../release
+                                """
+                                dir("build-${GOOS}-${GOARCH}") {
+                                    sh label: 'zip binaries', script: """#!/bin/bash -e
+                                        zip ../release/vega-${GOOS}-${GOARCH}.zip ./vega
+                                        zip ../release/data-node-${GOOS}-${GOARCH}.zip ./data-node
+                                        zip ../release/visor-${GOOS}-${GOARCH}.zip ./visor
+                                    """
+                                }
+                            }
+                        }
                     }
                 }
             }
             //
-            // End COMPILE
-            //
-            //
-            // Begin ZIP
-            //
-            stage('zip') {
-                steps {
-                    sh label: 'zip binaries', script: """#!/bin/bash -e
-                        rm -rf ./release
-                        mkdir -p ./release
-                        # linux amd64
-                        zip ./release/vega-linux-amd64.zip ./build-linux-amd64/vega
-                        zip ./release/data-node-linux-amd64.zip ./build-linux-amd64/data-node
-                        zip ./release/visor-linux-amd64.zip ./build-linux-amd64/visor
-                        # linux arm64
-                        zip ./release/vega-linux-arm64.zip ./build-linux-arm64/vega
-                        zip ./release/data-node-linux-arm64.zip ./build-linux-arm64/data-node
-                        zip ./release/visor-linux-arm64.zip ./build-linux-arm64/visor
-
-                        # MacOS amd64
-                        zip ./release/vega-darwin-amd64.zip ./build-darwin-amd64/vega
-                        zip ./release/data-node-darwin-amd64.zip ./build-darwin-amd64/data-node
-                        zip ./release/visor-darwin-amd64.zip ./build-darwin-amd64/visor
-                        # MacOS arm64
-                        zip ./release/vega-darwin-arm64.zip ./build-darwin-arm64/vega
-                        zip ./release/data-node-darwin-arm64.zip ./build-darwin-arm64/data-node
-                        zip ./release/visor-darwin-arm64.zip ./build-darwin-arm64/visor
-                    """
-                }
-            }
-            //
-            // End ZIP
+            // End COMPILE & ZIP
             //
             //
             // Begin PUBLISH
