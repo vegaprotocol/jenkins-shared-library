@@ -160,7 +160,7 @@ void call() {
                             }
                             steps {
                                 sh label: 'create release directory', script: """#!/bin/bash -e
-                                    mkdir -p ../release
+                                    mkdir -p ./release
                                 """
                                 dir("build-${GOOS}-${GOARCH}") {
                                     sh label: 'zip binaries', script: """#!/bin/bash -e
