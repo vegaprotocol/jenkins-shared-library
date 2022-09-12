@@ -293,7 +293,7 @@ void call() {
                                     dir('vega') {
                                         sh label: 'Build docker image', script: """#!/bin/bash -e
                                             docker build \
-                          x                      -f docker/vegawallet.dockerfile \
+                                                -f docker/vegawallet.dockerfile \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_HASH} \
                                                 .
