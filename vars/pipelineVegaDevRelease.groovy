@@ -211,7 +211,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
+                                    job: 'private/Deployments/Devnet-3/Restart-Network',
                                     propagate: false,
                                     wait: false,
                                     parameters: [

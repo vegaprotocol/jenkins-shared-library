@@ -270,7 +270,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Publish-vega-dev-releases',
+        name: 'private/Deployments/Publish-vega-dev-releases',
         description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaDevRelease()'),
@@ -282,7 +282,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Network',
+        name: 'private/Deployments/Devnet-3/Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
@@ -292,7 +292,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet-3-Restart-Node',
+        name: 'private/Deployments/Devnet-3/Restart-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
@@ -305,7 +305,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Vegavisor/Devnet-3-Protocol-Upgrade',
+        name: 'private/Deployments/Devnet-3/Protocol-Upgrade',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -393,6 +393,22 @@ def jobs = [
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Automations/Checkpoint-Backup',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam('DEVNET', false, 'Backup the latest checkpoint from the Devnet')
+            booleanParam('DEVNET_3', false, 'Backup the latest checkpoint from the Devnet 3')
+            booleanParam('FAIRGROUND', true, 'Backup the latest checkpoint from the Fairground network')
+            booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
+            stringParam('CHECKPOINT_STORE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        //cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
+        definition: libDefinition('pipelineCheckpointBackup()'),
     ],
     [
         name: 'private/Automations/BotsTopupFairground',

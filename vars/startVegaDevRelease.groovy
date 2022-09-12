@@ -9,7 +9,7 @@ void call(Map config = [:]) {
 
     // docs: https://www.jenkins.io/doc/pipeline/steps/pipeline-build-step/
     build(
-        job: 'private/Deployments/Vegavisor/Publish-vega-dev-releases',
+        job: 'private/Deployments/Publish-vega-dev-releases',
         propagate: false,
         wait: false,
         parameters: [
