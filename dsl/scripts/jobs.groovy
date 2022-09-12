@@ -402,7 +402,7 @@ def jobs = [
             booleanParam('DEVNET_3', false, 'Backup the latest checkpoint from the Devnet 3')
             booleanParam('FAIRGROUND', true, 'Backup the latest checkpoint from the Fairground network')
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
-            stringParam('CHECKPOINT_STORE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+            stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         //cron: 'H */2 * * *',

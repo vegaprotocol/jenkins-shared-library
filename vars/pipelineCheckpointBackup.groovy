@@ -70,6 +70,7 @@ void call() {
                 when {
                     expression { params.DEVNET }
                 }
+                options { retry(3) }
                 steps {
                     dir('checkpoint-store') {
                         withCredentials([sshCredentials]) {
@@ -77,8 +78,8 @@ void call() {
                                 go run scripts/main.go \
                                     download-latest \
                                     --network devnet \
-                                    --ssh-user "${env.PSSH_USER}" \
-                                    --ssh-private-keyfile "${env.PSSH_KEYFILE}"
+                                    --ssh-user "\${PSSH_USER}" \
+                                    --ssh-private-keyfile "\${PSSH_KEYFILE}"
                             """
                         }
                     }
@@ -88,6 +89,7 @@ void call() {
                 when {
                     expression { params.DEVNET_3 }
                 }
+                options { retry(3) }
                 steps {
                     dir('checkpoint-store') {
                         withCredentials([sshCredentials]) {
@@ -95,9 +97,10 @@ void call() {
                                 go run scripts/main.go \
                                     download-latest \
                                     --network devnet3 \
-                                    --ssh-user "${env.PSSH_USER}" \
-                                    --ssh-private-keyfile "${env.PSSH_KEYFILE}" \
-                                    --vega-home /home/vega/vega_home
+                                    --ssh-user "\${PSSH_USER}" \
+                                    --ssh-private-keyfile "\${PSSH_KEYFILE}" \
+                                    --vega-home /home/vega/vega_home \
+                                    --debug
                             """
                         }
                     }
@@ -107,6 +110,7 @@ void call() {
                 when {
                     expression { params.FAIRGROUND }
                 }
+                options { retry(3) }
                 steps {
                     dir('checkpoint-store') {
                         withCredentials([sshCredentials]) {
@@ -114,8 +118,8 @@ void call() {
                                 go run scripts/main.go \
                                     download-latest \
                                     --network fairground \
-                                    --ssh-user "${env.PSSH_USER}" \
-                                    --ssh-private-keyfile "${env.PSSH_KEYFILE}"
+                                    --ssh-user "\${PSSH_USER}" \
+                                    --ssh-private-keyfile "\${PSSH_KEYFILE}"
                             """
                         }
                     }
@@ -125,6 +129,7 @@ void call() {
                 when {
                     expression { params.MAINNET }
                 }
+                options { retry(3) }
                 steps {
                     dir('checkpoint-store') {
                         withCredentials([sshCredentials]) {
@@ -132,8 +137,8 @@ void call() {
                                 go run scripts/main.go \
                                     download-latest \
                                     --network mainnet \
-                                    --ssh-user "${env.PSSH_USER}" \
-                                    --ssh-private-keyfile "${env.PSSH_KEYFILE}" \
+                                    --ssh-user "\${PSSH_USER}" \
+                                    --ssh-private-keyfile "\${PSSH_KEYFILE}" \
                                     --vega-home /home/vega/vega_volume/vega
                             """
                         }
