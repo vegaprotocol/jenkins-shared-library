@@ -71,6 +71,7 @@ void call(Map customConfig = [:]) {
     // vegacapsuleS3BucketName: '',
     networksInternalBranch: 'main',
     // nomadNodesNumer: 0,
+    devopsscriptsBranch: 'main',
   ] + customConfig
 
   pipeline {
@@ -124,6 +125,17 @@ void call(Map customConfig = [:]) {
                   url: 'git@github.com:vegaprotocol/networks-internal.git',
                   branch: config.networksInternalBranch,
                   directory: 'networks-internal'
+              ])
+            }
+          }
+
+          stage('Check out vegaprotocol/devopsinfra') {
+            steps {
+              gitClone([
+                  credentialsId: env.GITHUB_SSH_CREDS,
+                  url: 'git@github.com:vegaprotocol/devopsscripts.git',
+                  branch: config.devopsscriptsBranch,
+                  directory: 'devopsscripts'
               ])
             }
           }
@@ -462,10 +474,42 @@ void call(Map customConfig = [:]) {
         }
 
         steps {
+          sleep 60
           veganetSh(
             network: config.networkName,
             command: 'create_markets',
           )
+        }
+      }
+
+      stage('Provide liquidity commitment') {
+        options {
+          timeout(15)
+        }
+
+        steps {
+          script {
+            def secrets = [
+              [path: 'wallet/markets-creator/' + config.networkName, engineVersion: 2, secretValues: [
+                  [envVar: 'wallet_name', vaultKey: 'wallet-name'],
+                  [envVar: 'wallet_pass', vaultKey: 'wallet-password'],
+                  [envVar: 'wallet_uri', vaultKey: 'wallet-uri'],
+                  [envVar: 'data_node_host', vaultKey: 'data-node-host'],
+              ]]
+            ]
+
+            withVault([vaultSecrets: secrets]) {
+              dir('devopsscripts') {
+                sh 'go mod vendor'
+                sh '''go run main.go markets liquidity-provision-commitment \
+                    --data-node-host "$data_node_host" \
+                    --wallet-uri "$wallet_uri" \
+                    --wallet-name $wallet_name \
+                    --wallet-password $wallet_pass \
+                    --no-secrets'''
+              }
+            }
+          }
         }
       }
 
