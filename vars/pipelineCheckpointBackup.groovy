@@ -85,6 +85,7 @@ void call() {
                                     --ssh-user "\${PSSH_USER}" \
                                     --ssh-private-keyfile "\${PSSH_KEYFILE}"
                             """
+                            sh 'git add devnet/*'
                         }
                     }
                 }
@@ -106,6 +107,7 @@ void call() {
                                     --vega-home /home/vega/vega_home \
                                     --debug
                             """
+                            sh 'git add devnet3/*'
                         }
                     }
                 }
@@ -125,6 +127,7 @@ void call() {
                                     --ssh-user "\${PSSH_USER}" \
                                     --ssh-private-keyfile "\${PSSH_KEYFILE}"
                             """
+                            sh 'git add fairground/*'
                         }
                     }
                 }
@@ -145,6 +148,7 @@ void call() {
                                     --ssh-private-keyfile "\${PSSH_KEYFILE}" \
                                     --vega-home /home/vega/vega_volume/vega
                             """
+                            sh 'git add mainnet/*'
                         }
                     }
                 }
@@ -152,18 +156,12 @@ void call() {
             stage('Commit changes') {
                 steps {
                     dir('checkpoint-store') {
-                        sh label: 'Commit changes', script: """#!/bin/bash -e
-                            echo pwd
-                            pwd
-                            echo diff
-                            git diff
-                            echo add
-                            git add .
-                            echo diff
-                            git diff
-                            echo status
-                            git status
-                        """
+                        sshagent(credentials: ['vega-ci-bot']) {
+                            sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                            sh 'git config --global user.name "vega-ci-bot"'
+                            sh "git commit -m 'Automated update of checkpoints'"
+                            sh "git push origin HEAD:main"
+                        }
                     }
                 }
             }
