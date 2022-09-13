@@ -160,7 +160,6 @@ vegavisorRestartNetworkParams = vegavisorParamsBase << {
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-    booleanParam('USE_CHECKPOINT', true, 'This will download latest checkpoint and use it to restart the network with')
     stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
 }
 
