@@ -47,7 +47,10 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
-                    echo "IP=${agent.getPublicIP()}"
+                    script {
+                        publicIP = agent.getPublicIP()
+                        print("Jenkins Agent public IP is: " + publicIP)
+                    }
                 }
             }
             stage('Git clone'){
