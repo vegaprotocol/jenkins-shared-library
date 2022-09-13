@@ -47,6 +47,7 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    echo "IP=${agent.getPublicIP()}"
                 }
             }
             stage('Git clone'){
@@ -149,7 +150,12 @@ void call() {
                 steps {
                     dir('checkpoint-store') {
                         sh label: 'Commit changes', script: """#!/bin/bash -e
+                            echo pwd
+                            pwd
+                            echo diff
                             git diff
+                            echo status
+                            git status
                         """
                     }
                 }
