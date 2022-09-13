@@ -65,13 +65,16 @@ void call() {
                             }
                         }
                     }
-                    // stage('vegacapsule'){
-                    //     steps {
-                    //         script {
-                    //             doGitClone('vegacapsule', params.VEGACAPSULE_BRANCH)
-                    //         }
-                    //     }
-                    // }
+                    stage('checkpoint-store'){
+                        when {
+                            expression { params.USE_CHECKPOINT }
+                        }
+                        steps {
+                            script {
+                                doGitClone('checkpoint-store', params.CHECKPOINT_STORE_BRANCH)
+                            }
+                        }
+                    }
                     // stage('devopsscripts'){
                     //     steps {
                     //         script {
@@ -132,23 +135,60 @@ void call() {
                             }
                         }
                     }
-                    // stage('Build vegacapsule') {
-                    //     steps {
-                    //         dir('vegacapsule') {
-                    //             sh label: 'Compile', script: '''#!/bin/bash -e
-                    //                 go build -v \
-                    //                     -o ../bin/vegacapsule \
-                    //                     ./main.go
-                    //             '''
-                    //         }
-                    //         dir('bin') {
-                    //             sh label: 'Sanity check: vegacapsule', script: '''#!/bin/bash -e
-                    //                 file ./vegacapsule
-                    //                 ./vegacapsule --help
-                    //             '''
-                    //         }
-                    //     }
-                    // }
+                    stage('Checkpoint') {
+                        when {
+                            expression { params.USE_CHECKPOINT }
+                        }
+                        stages {
+                            stage('Prepare scripts') {
+                                options { retry(3) }
+                                steps {
+                                    dir('checkpoint-store/scripts') {
+                                        sh '''#!/bin/bash -e
+                                            go mod download -x
+                                        '''
+                                    }
+                                }
+                            }
+                            stage('download') {
+                                options { retry(3) }
+                                steps {
+                                    dir('checkpoint-store') {
+                                        withCredentials([sshCredentials]) {
+                                            sh label: 'Download latest checkpoint', script: """#!/bin/bash -e
+                                                go run scripts/main.go \
+                                                    download-latest \
+                                                    --network "${env.NET_NAME}" \
+                                                    --ssh-user "\${PSSH_USER}" \
+                                                    --ssh-private-keyfile "\${PSSH_KEYFILE}" \
+                                                    --vega-home /home/vega/vega_home
+                                            """
+                                            sh "git add ${env.NET_NAME}/*"
+                                        }
+                                    }
+                                }
+                            }
+                            stage('Commit changes') {
+                                steps {
+                                    dir('checkpoint-store') {
+                                        script {
+                                            def changesToCommit = sh(script:'git diff --cached', returnStdout:true).trim()
+                                            if (changesToCommit == '') {
+                                                print('No changes to commit')
+                                            } else {
+                                                sshagent(credentials: ['vega-ci-bot']) {
+                                                    sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                                    sh 'git config --global user.name "vega-ci-bot"'
+                                                    sh "git commit -m 'Automated update of checkpoints'"
+                                                    sh "git push origin HEAD:main"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // stage('Setup devopsscripts') {
                     //     steps {
                     //         dir('devopsscripts') {

@@ -160,6 +160,8 @@ vegavisorRestartNetworkParams = vegavisorParamsBase << {
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+    booleanParam('USE_CHECKPOINT', true, 'This will download latest checkpoint and use it to restart the network with')
+    stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
 }
 
 vegavisorRestartNodeParams = vegavisorParamsBase << {
@@ -286,9 +288,12 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
+            NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
         ],
-        parameters: vegavisorRestartNetworkParams,
+        parameters: vegavisorRestartNetworkParams << {
+            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
+        },
         disableConcurrentBuilds: true,
     ],
     [
