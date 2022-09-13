@@ -43,6 +43,27 @@ for i in {1..4}; do
     # Readd
     ssh-keyscan -t rsa,dsa "n0$i.d.vega.xyz" >> ~/.ssh/known_hosts || true
 done
+# Update Devnet 3
+for i in {00..50}; do
+    # Remove
+    ssh-keygen -R "n$i.devnet3.vega.xyz" || true
+    # Readd
+    ssh-keyscan -t rsa,dsa "n$i.devnet3.vega.xyz" >> ~/.ssh/known_hosts || true
+done
+# Update Stagnet 1
+for i in {00..50}; do
+    # Remove
+    ssh-keygen -R "n$i.stagnet1.vega.xyz" || true
+    # Readd
+    ssh-keyscan -t rsa,dsa "n$i.stagnet1.vega.xyz" >> ~/.ssh/known_hosts || true
+done
+# Update Stagnet 3
+for i in {00..50}; do
+    # Remove
+    ssh-keygen -R "n$i.stagnet3.vega.xyz" || true
+    # Readd
+    ssh-keyscan -t rsa,dsa "n$i.stagnet3.vega.xyz" >> ~/.ssh/known_hosts || true
+done
 # Update Fairground
 for i in {01..12}; do
     # Remove
