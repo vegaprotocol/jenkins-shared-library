@@ -157,6 +157,10 @@ void call() {
                             pwd
                             echo diff
                             git diff
+                            echo add
+                            git add .
+                            echo diff
+                            git diff
                             echo status
                             git status
                         """
