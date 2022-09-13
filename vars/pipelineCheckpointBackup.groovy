@@ -156,11 +156,18 @@ void call() {
             stage('Commit changes') {
                 steps {
                     dir('checkpoint-store') {
-                        sshagent(credentials: ['vega-ci-bot']) {
-                            sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
-                            sh 'git config --global user.name "vega-ci-bot"'
-                            sh "git commit -m 'Automated update of checkpoints'"
-                            sh "git push origin HEAD:main"
+                        script {
+                            def changesToCommit = sh(script:'git diff --cached', returnStdout:true).trim()
+                            if (changesToCommit == '') {
+                                print('No changes to commit')
+                            } else {
+                                sshagent(credentials: ['vega-ci-bot']) {
+                                    sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                    sh 'git config --global user.name "vega-ci-bot"'
+                                    sh "git commit -m 'Automated update of checkpoints'"
+                                    sh "git push origin HEAD:main"
+                                }
+                            }
                         }
                     }
                 }
