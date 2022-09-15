@@ -284,6 +284,11 @@ void call(Map customConfig = [:]) {
       stage('Prepare deployment') {
         parallel {
           stage('Upload binaries to s3') {
+            when {
+              expression {
+                params.BUILD_VEGA_BINARIES && params.PUBLISH_BINARIES
+              }
+            }
             steps {
               sh "aws s3 sync bin/ s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
               sh "aws s3 ls s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
