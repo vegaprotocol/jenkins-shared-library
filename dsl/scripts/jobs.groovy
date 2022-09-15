@@ -38,12 +38,12 @@ def standardDescription() {
 def createCommonPipeline(args){
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
 
-    def description = args.get('description', '')
-    description += "${description ? '<br/>' : ''} ${standardDescription()}"
+    def des = args.get('description', '')
+    des += "${description ? '<br/>' : ''} ${standardDescription()}"
 
     return pipelineJob(args.name) {
 
-        description(description)
+        description(des)
 
         logRotator {
             daysToKeep(args.daysToKeep ?: 45)
