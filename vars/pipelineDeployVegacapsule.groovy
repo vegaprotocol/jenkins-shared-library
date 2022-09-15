@@ -73,6 +73,7 @@ void call(Map customConfig = [:]) {
     // nomadNodesNumer: 0,
     devopsscriptsBranch: 'main',
   ] + customConfig
+  String releasedVersion = params.VEGA_VERSION ?: config.networkName + '-' + env.BUILD_NUMBER
 
   pipeline {
     agent any
@@ -88,8 +89,7 @@ void call(Map customConfig = [:]) {
       AWS_ACCESS_KEY_ID = credentials('jenkins-vegacapsule-aws-id')
       S3_BUCKET_NAME = "${config.vegacapsuleS3BucketName}"
       AWS_REGION = "${config.awsRegion}"
-      VEGA_BINARIES_RELEASED_VERSION = "${params.VEGA_VERSION ?: "${config.networkName}-${env.BUILD_NUMBER}"}"
-      VEGACAPSULE_S3_RELEASE_TARGET = "bin/${VEGA_BINARIES_RELEAED_VERSION}"
+      VEGACAPSULE_S3_RELEASE_TARGET = "bin/${releasedVersion}"
 
       PATH = "${env.WORKSPACE}/bin:${env.PATH}"
       GITHUB_CREDS = 'github-vega-ci-bot-artifacts'
@@ -102,6 +102,7 @@ void call(Map customConfig = [:]) {
         steps {
           script {
             print('Parameters: ' + params)
+            print('VEGACAPSULE_S3_RELEASE_TARGET: ' + env.VEGACAPSULE_S3_RELEASE_TARGET)
 
             sh label: 'Prepare binaries directory', script: 'mkdir -p bin'
           }
