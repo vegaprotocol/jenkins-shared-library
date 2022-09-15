@@ -203,62 +203,62 @@ void call() {
                             }
                         }
                     }
-                    stage('Generate genesis') {
-                        stages {
-                            stage('Prepare scripts') {
-                                options { retry(3) }
-                                steps {
-                                    dir('networks-internal/scripts') {
-                                        sh '''#!/bin/bash -e
-                                            go mod download -x
-                                        '''
-                                    }
-                                }
+                }
+            }  // End: Prepare
+            stage('Generate genesis') {
+                stages {
+                    stage('Prepare scripts') {
+                        options { retry(3) }
+                        steps {
+                            dir('networks-internal/scripts') {
+                                sh '''#!/bin/bash -e
+                                    go mod download -x
+                                '''
                             }
-                            stage('Generate new genesis') {
-                                environment {
-                                    CHECKPOINT_PATH = "${params.USE_CHECKPOINT ? env.LATEST_CHECKPOINT_PATH : ''}"
-                                }
-                                options { retry(3) }
-                                steps {
-                                    dir('networks-internal') {
-                                        sh label: 'Generate genesis', script: """#!/bin/bash -e
-                                            go run scripts/main.go \
-                                                generate-genesis \
-                                                --network "${env.NET_NAME}" \
-                                                --validator-ids n01,n02,n03,n04 \
-                                                --checkpoint "${env.CHECKPOINT_PATH}"
-                                        """
-                                        sh "git add ${env.NET_NAME}/*"
-                                    }
-                                }
+                        }
+                    }
+                    stage('Generate new genesis') {
+                        environment {
+                            CHECKPOINT_PATH = "${params.USE_CHECKPOINT ? env.LATEST_CHECKPOINT_PATH : ' '}"
+                        }
+                        options { retry(3) }
+                        steps {
+                            dir('networks-internal') {
+                                sh label: 'Generate genesis', script: """#!/bin/bash -e
+                                    go run scripts/main.go \
+                                        generate-genesis \
+                                        --network "${env.NET_NAME}" \
+                                        --validator-ids n01,n02,n03,n04 \
+                                        --checkpoint "${env.CHECKPOINT_PATH}"
+                                """
+                                sh "git add ${env.NET_NAME}/*"
                             }
-                            stage('Commit changes') {
-                                environment {
-                                    NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
-                                }
-                                steps {
-                                    dir('networks-internal') {
-                                        script {
-                                            sshagent(credentials: ['vega-ci-bot']) {
-                                                // NOTE: the script to generate genesis.json is run from latest version from NETWORKS_INTERNAL_BRANCH
-                                                // but the result might be commited to a different branch: NETWORKS_INTERNAL_GENESIS_BRANCH
-                                                sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
-                                                sh 'git config --global user.name "vega-ci-bot"'
-                                                sh "git stash"
-                                                sh "git switch ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
-                                                sh "git checkout stash -- ${env.NET_NAME}/*"
-                                                sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
-                                                sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
-                                            }
-                                        }
+                        }
+                    }
+                    stage('Commit changes') {
+                        environment {
+                            NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
+                        }
+                        steps {
+                            dir('networks-internal') {
+                                script {
+                                    sshagent(credentials: ['vega-ci-bot']) {
+                                        // NOTE: the script to generate genesis.json is run from latest version from NETWORKS_INTERNAL_BRANCH
+                                        // but the result might be commited to a different branch: NETWORKS_INTERNAL_GENESIS_BRANCH
+                                        sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                        sh 'git config --global user.name "vega-ci-bot"'
+                                        sh "git stash"
+                                        sh "git switch ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git checkout stash -- ${env.NET_NAME}/*"
+                                        sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
+                                        sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }  // End: Prepare
+            }
             stage('Restart Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
