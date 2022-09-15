@@ -89,13 +89,13 @@ void call() {
                             }
                         }
                     }
-                    // stage('networks-internal') {
-                    //     steps {
-                    //         script {
-                    //             doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
-                    //         }
-                    //     }
-                    // }
+                    stage('networks-internal') {
+                        steps {
+                            script {
+                                doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
+                            }
+                        }
+                    }
                 }
             }
             stage('Prepare') {
@@ -187,27 +187,81 @@ void call() {
                                     }
                                 }
                             }
+                            stage('Get latest checkpoint path') {
+                                steps {
+                                    dir('checkpoint-store') {
+                                        script {
+                                            env.LATEST_CHECKPOINT_PATH = sh(script: """#!/bin/bash -e
+                                                go run scripts/main.go \
+                                                    local-latest \
+                                                    --network "${env.NET_NAME}"
+                                            """, returnStdout:true).trim()
+                                        }
+                                        print("Latest checkpoint path: ${env.LATEST_CHECKPOINT_PATH}")
+                                    }
+                                }
+                            }
                         }
                     }
-                    // stage('Setup devopsscripts') {
-                    //     steps {
-                    //         dir('devopsscripts') {
-                    //             sh label: 'Download dependencies', script: '''#!/bin/bash -e
-                    //                 go mod download
-                    //             '''
-                    //             withCredentials([githubAPICredentials]) {
-                    //                 sh label: 'Setup secret', script: '''#!/bin/bash -e
-                    //                     printf "%s" "$GITHUB_API_TOKEN" > ./secret.txt
-                    //                 '''
-                    //             }
-                    //             sh label: 'Sanity check: devopsscripts', script: """#!/bin/bash -e
-                    //                 go run main.go smart-contracts get-status --network "${env.NET_NAME}"
-                    //             """
-                    //         }
-                    //     }
-                    // }
                 }
             }  // End: Prepare
+            stage('Generate genesis') {
+                stages {
+                    stage('Prepare scripts') {
+                        options { retry(3) }
+                        steps {
+                            dir('networks-internal/scripts') {
+                                sh '''#!/bin/bash -e
+                                    go mod download -x
+                                '''
+                            }
+                        }
+                    }
+                    // TODO: get list of validator ids
+                    // TODO: generate vegawallet config toml file
+                    stage('Generate new genesis') {
+                        environment {
+                            VALIDATOR_IDS = "n01,n02,n03,n04"
+                            CHECKPOINT_ARG = "${params.USE_CHECKPOINT ? '--checkpoint "' + env.LATEST_CHECKPOINT_PATH + '"' : ' '}"
+                        }
+                        options { retry(3) }
+                        steps {
+                            dir('networks-internal') {
+                                sh label: 'Generate genesis', script: """#!/bin/bash -e
+                                    go run scripts/main.go \
+                                        generate-genesis \
+                                        --network "${env.NET_NAME}" \
+                                        --validator-ids "${env.VALIDATOR_IDS}" \
+                                        ${env.CHECKPOINT_ARG}
+                                """
+                                sh "git add ${env.NET_NAME}/*"
+                            }
+                        }
+                    }
+                    stage('Commit changes') {
+                        environment {
+                            NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
+                        }
+                        steps {
+                            dir('networks-internal') {
+                                script {
+                                    sshagent(credentials: ['vega-ci-bot']) {
+                                        // NOTE: the script to generate genesis.json is run from latest version from NETWORKS_INTERNAL_BRANCH
+                                        // but the result might be commited to a different branch: NETWORKS_INTERNAL_GENESIS_BRANCH
+                                        sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
+                                        sh 'git config --global user.name "vega-ci-bot"'
+                                        sh "git stash"
+                                        sh "git switch ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git checkout stash -- ${env.NET_NAME}/*"
+                                        sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
+                                        sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             stage('Restart Network') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
