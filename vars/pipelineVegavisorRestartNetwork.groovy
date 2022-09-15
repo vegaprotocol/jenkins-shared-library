@@ -219,7 +219,7 @@ void call() {
                     }
                     stage('Generate new genesis') {
                         environment {
-                            CHECKPOINT_PATH = "${params.USE_CHECKPOINT ? env.LATEST_CHECKPOINT_PATH : ' '}"
+                            CHECKPOINT_ARG = "${params.USE_CHECKPOINT ? '--checkpoint "' + env.LATEST_CHECKPOINT_PATH + '"' : ' '}"
                         }
                         options { retry(3) }
                         steps {
@@ -229,7 +229,7 @@ void call() {
                                         generate-genesis \
                                         --network "${env.NET_NAME}" \
                                         --validator-ids n01,n02,n03,n04 \
-                                        --checkpoint "${env.CHECKPOINT_PATH}"
+                                        ${env.CHECKPOINT_ARG}
                                 """
                                 sh "git add ${env.NET_NAME}/*"
                             }
