@@ -43,7 +43,7 @@ def createCommonPipeline(args){
 
     return pipelineJob(args.name) {
 
-        description(des)
+        description(description)
 
         logRotator {
             daysToKeep(args.daysToKeep ?: 45)
