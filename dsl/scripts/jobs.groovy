@@ -122,6 +122,7 @@ capsuleParams = {
     stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
     stringParam('VEGA_VERSION', '', h('version of vega core (tag, branch, commit or S3 path)'))
     booleanParam('BUILD_VEGA_BINARIES', false, h('determine whether vega binaries are built or downloaded'))
+    booleanParam('PUBLISH_BINARIES', false, h('determine whether binaries are published to S3'))
     stringParam('DATA_NODE_VERSION', '', h('version of data node (binary tag, or S3 path)'))
     choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
     booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
@@ -209,7 +210,16 @@ def jobs = [
             ])'''),
         disableConcurrentBuilds: true,
         // weekdays 5AM UTC, jenkins prefred minute
-        parametrizedCron: 'H 5 * * 1-5 %VEGA_VERSION=develop;BUILD_VEGA_BINARIES=true;UNSAFE_RESET_ALL=true;REGENERATE_CONFIGS=true'
+        parametrizedCron: 'H 5 * * 1-5 %' + [
+            'VEGA_VERSION=develop',
+            'BUILD_VEGA_BINARIES=true',
+            'UNSAFE_RESET_ALL=true',
+            'REGENERATE_CONFIGS=true'
+            'PUBLISH_BINARIES=true',
+            'ACTION=RESTART',
+            'CREATE_MARKETS=true',
+            'BOUNCE_BOTS=true',
+        ].join(';'),
     ],
     [
         name: 'private/Deployments/Vegacapsule/Devnet 2',
