@@ -289,6 +289,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
+            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet3',
         ],
         parameters: vegavisorRestartNetworkParams << {
             booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
