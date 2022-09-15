@@ -217,8 +217,11 @@ void call() {
                             }
                         }
                     }
+                    // TODO: get list of validator ids
+                    // TODO: generate vegawallet config toml file
                     stage('Generate new genesis') {
                         environment {
+                            VALIDATOR_IDS = "n01,n02,n03,n04"
                             CHECKPOINT_ARG = "${params.USE_CHECKPOINT ? '--checkpoint "' + env.LATEST_CHECKPOINT_PATH + '"' : ' '}"
                         }
                         options { retry(3) }
@@ -228,7 +231,7 @@ void call() {
                                     go run scripts/main.go \
                                         generate-genesis \
                                         --network "${env.NET_NAME}" \
-                                        --validator-ids n01,n02,n03,n04 \
+                                        --validator-ids "${env.VALIDATOR_IDS}" \
                                         ${env.CHECKPOINT_ARG}
                                 """
                                 sh "git add ${env.NET_NAME}/*"
