@@ -154,7 +154,7 @@ veganetParams = veganetParamsBase << {
 
 vegavisorParamsBase = {
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-    stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+    stringParam('DEVOPTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
     stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
     stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
@@ -169,6 +169,12 @@ vegavisorRestartNetworkParams = vegavisorParamsBase << {
 
 vegavisorRestartNodeParams = vegavisorParamsBase << {
     booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
+}
+
+vegavisorProtocolUpgradeParams = vegavisorParamsBase << {
+    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+    stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
 }
 
 systemTestsParamsGeneric = {
@@ -333,9 +339,7 @@ def jobs = [
             NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
         ],
-        parameters: vegavisorParamsBase << {
-            stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
-        },
+        parameters: vegavisorProtocolUpgradeParams,
         disableConcurrentBuilds: true,
     ],
     //
@@ -375,9 +379,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorParamsBase << {
-            stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
-        },
+        parameters: vegavisorProtocolUpgradeParams,
         disableConcurrentBuilds: true,
     ],
     // system-tests

@@ -54,6 +54,14 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    script {
+                        if ( params.VEGA_VERSION == '' && params.RELEASE_VERSION == '') {
+                            error "You need to set VEGA_VERSION or RELEASE_VERSION parameter."
+                        }
+                        if ( params.VEGA_VERSION != '' && params.RELEASE_VERSION != '') {
+                            error "You cannot set both VEGA_VERSION or RELEASE_VERSION parameter."
+                        }
+                    }
                 }
             }
             stage('Checkout') {
@@ -94,10 +102,10 @@ void call() {
                     //         }
                     //     }
                     // }
-                    stage('devopsscripts'){
+                    stage('devopstools'){
                         steps {
                             script {
-                                doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
+                                doGitClone('devopstools', params.DEVOPSTOOLS_BRANCH)
                             }
                         }
                     }
@@ -154,37 +162,12 @@ void call() {
                             }
                         }
                     }
-                    // stage('Build vegacapsule') {
-                    //     steps {
-                    //         dir('vegacapsule') {
-                    //             sh label: 'Compile', script: '''#!/bin/bash -e
-                    //                 go build -v \
-                    //                     -o ../bin/vegacapsule \
-                    //                     ./main.go
-                    //             '''
-                    //         }
-                    //         dir('bin') {
-                    //             sh label: 'Sanity check: vegacapsule', script: '''#!/bin/bash -e
-                    //                 file ./vegacapsule
-                    //                 ./vegacapsule --help
-                    //             '''
-                    //         }
-                    //     }
-                    // }
-                    stage('Setup devopsscripts') {
+                    stage('Setup devopstools') {
                         steps {
-                            dir('devopsscripts') {
+                            dir('devopstools') {
                                 sh label: 'Download dependencies', script: '''#!/bin/bash -e
                                     go mod download
                                 '''
-                                withCredentials([githubAPICredentials]) {
-                                    sh label: 'Setup secret', script: '''#!/bin/bash -e
-                                        printf "%s" "$GITHUB_API_TOKEN" > ./secret.txt
-                                    '''
-                                }
-                                sh label: 'Sanity check: devopsscripts', script: """#!/bin/bash -e
-                                    go run main.go smart-contracts get-status --network "${env.NET_NAME}"
-                                """
                             }
                         }
                     }
@@ -197,6 +180,7 @@ void call() {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
+                    UPGRADE_VERSION = "${ params.VEGA_VERSION ? versionTag : params.RELEASE_VERSION }"
                 }
                 steps {
                     script {
@@ -209,9 +193,9 @@ void call() {
                         }
                     }
                     script {
-                        dir('devopsscripts') {
+                        dir('devopstools') {
                             protocolUpgradeBlock = sh(
-                                script: "go run main.go network get-block-height --network ${env.NET_NAME}",
+                                script: "go run main.go network stats --block --network ${env.NET_NAME}",
                                 returnStdout: true,
                             ).trim() as int
                             protocolUpgradeBlock += 240
@@ -229,7 +213,7 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
-                                        -e '{"protocol_upgrade":true, "protocol_upgrade_version":"${versionTag}", "protocol_upgrade_block":${protocolUpgradeBlock}}' \
+                                        -e '{"protocol_upgrade":true, "protocol_upgrade_version":"${env.UPGRADE_VERSION}", "protocol_upgrade_block":${protocolUpgradeBlock}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
