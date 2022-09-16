@@ -295,6 +295,9 @@ def jobs = [
         },
         disableConcurrentBuilds: true,
     ],
+    //
+    // Devnet 3
+    //
     [
         name: 'private/Deployments/Devnet-3/Restart-Network',
         useScmDefinition: false,
@@ -329,6 +332,48 @@ def jobs = [
         env: [
             NET_NAME: 'devnet3',
             ANSIBLE_LIMIT: 'devnet3',
+        ],
+        parameters: vegavisorParamsBase << {
+            stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    //
+    // Stagnet 1
+    //
+    [
+        name: 'private/Deployments/Stagnet-1/Restart-Network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_LIMIT: 'stagnet1',
+        ],
+        parameters: vegavisorRestartNetworkParams << {
+            booleanParam('USE_CHECKPOINT', true, 'This will download latest checkpoint and use it to restart the network with')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Stagnet-1/Restart-Node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_ACTION: 'restart_node',
+        ],
+        parameters: vegavisorRestartNodeParams << {
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.stagnet1.vega.xyz" }, 'Choose which node to restart')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorParamsBase << {
             stringParam('VEGA_VERSION', 'develop', 'Upgrade Vega Network to this version. It can be Git branch, tag or hash of the vegaprotocol/vega repository')
