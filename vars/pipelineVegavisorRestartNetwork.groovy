@@ -215,17 +215,29 @@ void call() {
                                     go mod download -x
                                 '''
                             }
+                            dir('ansible/scripts') {
+                                sh '''#!/bin/bash -e
+                                    go mod download -x
+                                '''
+                            }
                         }
                     }
-                    // TODO: get list of validator ids
                     // TODO: generate vegawallet config toml file
                     stage('Generate new genesis') {
                         environment {
-                            VALIDATOR_IDS = "n01,n02,n03,n04"
                             CHECKPOINT_ARG = "${params.USE_CHECKPOINT ? '--checkpoint "' + env.LATEST_CHECKPOINT_PATH + '"' : ' '}"
                         }
                         options { retry(3) }
                         steps {
+                            dir('ansible') {
+                                script {
+                                    env.VALIDATOR_IDS = sh(script:"""
+                                        go run scripts/main.go \
+                                            get-validator-ids \
+                                            --network "${env.NET_NAME}"
+                                    """, returnStdout:true).trim()
+                                }
+                            }
                             dir('networks-internal') {
                                 sh label: 'Generate genesis', script: """#!/bin/bash -e
                                     go run scripts/main.go \
