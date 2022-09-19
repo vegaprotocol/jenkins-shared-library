@@ -178,6 +178,7 @@ vegavisorProtocolUpgradeParams = vegavisorParamsBase << {
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+    booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
 }
 
 systemTestsParamsGeneric = {
@@ -300,6 +301,7 @@ def jobs = [
         parameters: {
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             booleanParam('DEPLOY_TO_DEVNET_3', true, 'Trigger deployment to Devnet 3')
+            booleanParam('DEPLOY_TO_STAGNET_1', true, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,

@@ -222,6 +222,24 @@ void call() {
                             }
                         }
                     }
+                    stage('Stagnet 1'){
+                        when {
+                            expression { params.DEPLOY_TO_STAGNET_1 }
+                        }
+                        steps {
+                            script {
+                                build(
+                                    job: 'private/Deployments/Devnet-3/Protocol-Upgrade',
+                                    propagate: false,
+                                    wait: false,
+                                    parameters: [
+                                        string(name: 'RELEASE_VERSION', value: versionTag),
+                                        string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
+                                    ]
+                                )
+                            }
+                        }
+                    }
                 }
             }
             //

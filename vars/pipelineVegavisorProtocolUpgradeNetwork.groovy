@@ -198,7 +198,7 @@ void call() {
                                 script: "go run main.go network stats --block --network ${env.NET_NAME}",
                                 returnStdout: true,
                             ).trim() as int
-                            protocolUpgradeBlock += 50
+                            protocolUpgradeBlock += 200
                         }
                     }
                     dir('ansible') {
@@ -214,7 +214,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag protocol-upgrade \
-                                        -e '{"protocol_upgrade_version":"${env.UPGRADE_VERSION}", "protocol_upgrade_block":${protocolUpgradeBlock}}' \
+                                        -e '{"protocol_upgrade_version": "${env.UPGRADE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
