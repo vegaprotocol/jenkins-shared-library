@@ -189,7 +189,6 @@ void call() {
             // }  // End: Prepare
             stage('Restart Node') {
                 when {
-                    expression { env.ANSIBLE_ACTION }
                     expression { params.NODE }
                 }
                 environment {
