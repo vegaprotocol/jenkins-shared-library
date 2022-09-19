@@ -198,7 +198,7 @@ void call() {
                                 script: "go run main.go network stats --block --network ${env.NET_NAME}",
                                 returnStdout: true,
                             ).trim() as int
-                            protocolUpgradeBlock += 240
+                            protocolUpgradeBlock += 50
                         }
                     }
                     dir('ansible') {
@@ -213,7 +213,8 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
-                                        -e '{"protocol_upgrade":true, "protocol_upgrade_version":"${env.UPGRADE_VERSION}", "protocol_upgrade_block":${protocolUpgradeBlock}}' \
+                                        --tag protocol-upgrade \
+                                        -e '{"protocol_upgrade_version":"${env.UPGRADE_VERSION}", "protocol_upgrade_block":${protocolUpgradeBlock}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }

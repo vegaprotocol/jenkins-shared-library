@@ -209,7 +209,8 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${params.NODE}" \
-                                        -e '{"${env.ANSIBLE_ACTION}":true, "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --tag "${params.ACTION}" \
+                                        --extra-vars '{"unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }

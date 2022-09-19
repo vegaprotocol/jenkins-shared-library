@@ -161,13 +161,16 @@ vegavisorParamsBase = {
 }
 
 vegavisorRestartNetworkParams = vegavisorParamsBase << {
+    choiceParam('ACTION', ['restart-network', 'quick-restart-network', 'create-network'], h('action to be performed with a network: 1. restart-network - regular restart, 2. quick-restart-network - fast restart without config updates, 3. create-network - reset network'))
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
     stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+    booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
 }
 
 vegavisorRestartNodeParams = vegavisorParamsBase << {
+    choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
     booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
 }
 
@@ -324,7 +327,6 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
             NET_NAME: 'devnet3',
-            ANSIBLE_ACTION: 'restart_node',
         ],
         parameters: vegavisorRestartNodeParams << {
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
@@ -364,7 +366,6 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
             NET_NAME: 'stagnet1',
-            ANSIBLE_ACTION: 'restart_node',
         ],
         parameters: vegavisorRestartNodeParams << {
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.stagnet1.vega.xyz" }, 'Choose which node to restart')
