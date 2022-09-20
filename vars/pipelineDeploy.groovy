@@ -535,9 +535,6 @@ void call() {
                         expression {
                             params.CREATE_INCENTIVE_MARKETS || params.CREATE_MARKETS
                         }
-                        expression {
-                            env.NET_NAME == "devnet"
-                        }
                     }
                 }
                 steps {
