@@ -22,6 +22,9 @@ def call() {
                 }
             }
             stage('Fairground: status') {
+                when {
+                    expression { env.CHECK_NETWORK_STATUS }
+                }
                 steps {
                     veganetSh(
                         credentialsId: env.CREDENTIALS_ID,

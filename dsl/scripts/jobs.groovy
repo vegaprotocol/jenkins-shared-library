@@ -488,6 +488,7 @@ def jobs = [
         },
         env: [
             NETWORK: 'testnet',
+            CHECK_NETWORK_STATUS: true,
         ],
         cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
@@ -504,6 +505,7 @@ def jobs = [
         },
         env: [
             NETWORK: 'devnet',
+            CHECK_NETWORK_STATUS: true,
         ],
         cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
@@ -520,6 +522,7 @@ def jobs = [
         },
         env: [
             NETWORK: 'stagnet3',
+            CHECK_NETWORK_STATUS: false,
         ],
         cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
