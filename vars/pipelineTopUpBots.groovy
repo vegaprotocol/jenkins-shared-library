@@ -21,9 +21,9 @@ def call() {
                     )
                 }
             }
-            stage('Fairground: status') {
+            stage('Network status') {
                 when {
-                    expression { env.CHECK_NETWORK_STATUS }
+                    expression { env.CHECK_NETWORK_STATUS == 'true' }
                 }
                 steps {
                     veganetSh(
