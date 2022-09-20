@@ -229,7 +229,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Devnet-3/Protocol-Upgrade',
+                                    job: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
