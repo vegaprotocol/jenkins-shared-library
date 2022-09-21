@@ -13,3 +13,8 @@ String gitHash(String directory, int hashLength=8) {
 
     return hash.substring(0, hashLength)
 }
+
+// escapePath takes string and return string with escaped some characters which can be used as a path in the bash
+String escapePath(String path) {
+  return path.replace(' ', '\\ ')
+}

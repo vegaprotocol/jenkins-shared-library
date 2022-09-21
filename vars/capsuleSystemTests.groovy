@@ -38,11 +38,26 @@ def boxPublicIP() {
     return ""
 }
 
-void call(Map additionalConfig) {
+boolean containsSteps(Map variable) {
+  return variable.length > 0
+}
+
+void call(Map additionalConfig=[:], customParameters=[:]) {
+  Map defaultConfig = [
+    postNetworkGenerateStages: [:],
+    postNetworkStartStages: [:],
+    vegacapsuleConfig: params.CAPSULE_CONFIG,
+
+    systemTestsBranch: params.SYSTEM_TESTS_BRANCH,
+  ]
+  Map config = defaultConfig + additionalConfig
+  params = params + customParameters
+
   pipeline {
     agent {
       label 'system-tests-capsule'
     }
+    
     options {
       ansiColor('xterm')
       timestamps()
@@ -53,14 +68,18 @@ void call(Map additionalConfig) {
           script {
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
+              networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
+
               publicIP = boxPublicIP()
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
 
-              print("Parameters")
+              print("Parameters") 
               print("==========")
               print("${params}")
+              print("PATH = " + env.PATH)
+              print("networkPath = " + networkPath)
 
             }
           }
@@ -72,13 +91,13 @@ void call(Map additionalConfig) {
           script {
             def repositories = [
               [ name: params.ORIGIN_REPO, branch: params.VEGA_BRANCH ],
-              [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
+              [ name: 'vegaprotocol/system-tests', branch: config.systemTestsBranch ],
               [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
             ]
-            def steps = repositories.collectEntries{value -> [
+            def reposSteps = repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
@@ -89,14 +108,14 @@ void call(Map additionalConfig) {
                     timeout: 2,
                   ])
                 }
-              ]}
-            steps['pull system tests image'] = {
+            ]}
+            reposSteps['pull system tests image'] = {
                 withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
                   sh "docker pull ghcr.io/vegaprotocol/system-tests:latest"
                   sh "docker tag ghcr.io/vegaprotocol/system-tests:latest system-tests:local"
                 }
             }
-            parallel steps
+            parallel reposSteps
             }
           }
         }
@@ -132,54 +151,70 @@ void call(Map additionalConfig) {
       }
 
 
-      stage('prepare system tests and network') {
-        parallel {
-          stage('build system-tests docker images') {
-            options {
-              timeout(time: 5, unit: 'MINUTES')
-              retry(3)
-            }
-            steps {
-              dir('system-tests/scripts') {
-                sh 'make check'
-                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  sh 'make prepare-test-docker-image'
-                  sh 'make build-test-proto'
+      stage('start the network') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+
+                    print("PATH = " + env.PATH)
+            dir(testNetworkDir) {
+              try {
+                withCredentials([
+                  usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                ]) {
+                  sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                 }
+                timeout(time: 3, unit: 'MINUTES') {
+                  sh '''./vegacapsule network generate \
+                    --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + config.vegacapsuleConfig + ''' \
+                    --home-path ''' + testNetworkDir + '''/testnet
+                  '''
+                }
+
+                if (config.containsKey('postNetworkGenerateStages') && containsSteps(config.postNetworkGenerateStages)) {
+                  parallel config.postNetworkGenerateStages
+                }
+
+                timeout(time: 3, unit: 'MINUTES') {
+                  sh '''./vegacapsule network start \
+                    --home-path ''' + testNetworkDir + '''/testnet
+                  '''
+                }
+              } finally {
+                sh 'docker logout https://ghcr.io'
               }
+              
+              sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
+        }
+      }
 
-          stage('start the network') {
-            steps {
-              script {
-                dir(testNetworkDir) {
-                  try {
-                    withCredentials([
-                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                    ]) {
-                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                    }
-                    timeout(time: 5, unit: 'MINUTES') {
-                      sh '''./vegacapsule network bootstrap \
-                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
-                        --home-path ''' + testNetworkDir + '''/testnet
-                      '''
-                    }
-                  } finally {
-                    sh 'docker logout https://ghcr.io'
-                  }
-                  sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-                  sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-                  sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
-                }
-              }
+      stage('build system-tests docker images') {
+        options {
+          timeout(time: 5, unit: 'MINUTES')
+          retry(3)
+        }
+        steps {
+          dir('system-tests/scripts') {
+            sh 'make check'
+            withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
+              sh 'make prepare-test-docker-image'
+              sh 'make build-test-proto'
             }
           }
         }
       }
 
       stage('setup multisig contract') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
         options {
           timeout(time: 2, unit: 'MINUTES')
         }
@@ -187,8 +222,15 @@ void call(Map additionalConfig) {
           dir(testNetworkDir) {
             sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
           }
+
+          script {
+            if (config.containsKey('postNetworkStartStages') && containsSteps(config.postNetworkStartStages)) {
+              parallel config.postNetworkStartStages
+            }
+          }
         }
       }
+
 
       stage('run tests') {
         options {
@@ -211,8 +253,8 @@ void call(Map additionalConfig) {
           }
         }
       }
-
     }
+
     post {
       always {
         catchError {
@@ -280,7 +322,7 @@ void call(Map additionalConfig) {
           slack.slackSendCIStatus(
             name: 'System Tests Capsule',
             channel: '#qa-notify',
-            branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
+            branch: 'st:' + config.systemTestsBranch + ' | vega:' + params.VEGA_BRANCH
           )
         }
         cleanWs()
