@@ -224,7 +224,7 @@ void call(Map additionalConfig) {
               script: 'mkdir docker-containers'
             sh label: 'dump docker containers info', 
               script: '''for docker_id in $(docker ps --all --format "{{- .ID -}}"); do 
-                docker inspect "$docker_id" > "$docker_id.log"; 
+                docker inspect "$docker_id" > "$docker_id.log" || echo "Container $docker_id not found";
               done;'''
 
             archiveArtifacts(
