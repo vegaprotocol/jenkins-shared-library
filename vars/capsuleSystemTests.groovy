@@ -1,51 +1,8 @@
-/* groovylint-disable
-  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
-  FactoryMethodName, VariableTypeRequired */
-void buildGoBinary(String directory, String outputBinary, String packages) {
-  timeout(time: 5, unit: 'MINUTES') {
-    dir(directory) {
-      // sh 'go mod vendor'
-      sh "go build -o ${outputBinary} ${packages}"
-      sh "chmod +x ${outputBinary}"
-    }
-  }
-}
-
-def boxPublicIP() {
-    def commands = [
-      'curl -4 icanhazip.com',
-      'curl ifconfig.co',
-      'curl ipinfo.io/ip',
-      'curl api.ipify.org',
-      'dig +short myip.opendns.com @resolver1.opendns.com',
-      'curl ident.me',
-      'curl ipecho.net/plain'
-    ]
-
-    for (it in commands) {
-      try {
-        boxIp = sh(script: it, returnStdout:true).trim()
-
-        if (boxIp != "") {
-          return boxIp;
-        }
-      } catch(err) {
-        // TODO: Add fallback to other services or linux commands
-        print("Cannot get the box IP with command " + it + " : " + err)
-      }
-    }
-
-    return ""
-}
-
-boolean containsSteps(Map variable) {
-  return variable.length > 0
-}
-
 void call(Map additionalConfig=[:], customParameters=[:]) {
   Map defaultConfig = [
     postNetworkGenerateStages: [:],
     postNetworkStartStages: [:],
+    systemTestsSiblingsStages: [:],
     vegacapsuleConfig: params.CAPSULE_CONFIG,
 
     systemTestsBranch: params.SYSTEM_TESTS_BRANCH,
@@ -55,7 +12,7 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
 
   pipeline {
     agent {
-      label 'system-tests-capsule'
+      label 'test-instance'
     }
     
     options {
@@ -70,7 +27,7 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
-              publicIP = boxPublicIP()
+              publicIP = agent.getPublicIP()
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
@@ -128,11 +85,13 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
               [ repository: 'vega', name: 'vega', packages: './cmd/vega' ],
               [ repository: 'vega', name: 'data-node', packages: './cmd/data-node' ],
               [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
+              [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
+              [ repository: 'vegatools', name: 'vegatools', packages: './'],
             ]
             parallel binaries.collectEntries{value -> [
               value.name,
               {
-                buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+                vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
               }
             ]}
           }
@@ -150,71 +109,79 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
         }
       }
 
+      stage('prepare system tests and network') {
+        parallel {
+          stage('start the network') {
+            environment {
+              PATH = "${networkPath}:${env.PATH}"
+            }
 
-      stage('start the network') {
-        environment {
-          PATH = "${networkPath}:${env.PATH}"
-        }
-
-        steps {
-          script {
-
-                    print("PATH = " + env.PATH)
-            dir(testNetworkDir) {
-              try {
-                withCredentials([
-                  usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                ]) {
-                  sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                }
-                timeout(time: 3, unit: 'MINUTES') {
-                  sh '''./vegacapsule network generate \
-                    --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + config.vegacapsuleConfig + ''' \
-                    --home-path ''' + testNetworkDir + '''/testnet
-                  '''
-                }
-
-                if (config.containsKey('postNetworkGenerateStages') && containsSteps(config.postNetworkGenerateStages)) {
-                  parallel config.postNetworkGenerateStages
+            steps {
+              script {
+                dir(testNetworkDir) {
+                    withCredentials([
+                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                    ]) {
+                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+                    }
+                    timeout(time: 3, unit: 'MINUTES') {
+                      sh '''./vegacapsule network generate \
+                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + config.vegacapsuleConfig + ''' \
+                        --home-path ''' + testNetworkDir + '''/testnet
+                      '''
+                    }
                 }
 
-                timeout(time: 3, unit: 'MINUTES') {
-                  sh '''./vegacapsule network start \
-                    --home-path ''' + testNetworkDir + '''/testnet
-                  '''
+                if (config.containsKey('postNetworkGenerateStages') && config.postNetworkGenerateStages.size() > 0) {
+                  vegautils.runSteps config.postNetworkGenerateStages
                 }
-              } finally {
-                sh 'docker logout https://ghcr.io'
+
+                dir(testNetworkDir) {
+                  try {
+                    timeout(time: 3, unit: 'MINUTES') {
+                      sh '''./vegacapsule network start \
+                        --home-path ''' + testNetworkDir + '''/testnet
+                      '''
+                    }
+                  } finally {
+                    sh 'docker logout https://ghcr.io'
+                  }
+                  
+                  sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+                  sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+                  sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
+                }
               }
-              
-              sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
-        }
-      }
 
-      stage('build system-tests docker images') {
-        options {
-          timeout(time: 5, unit: 'MINUTES')
-          retry(3)
-        }
-        steps {
-          dir('system-tests/scripts') {
-            sh 'make check'
-            withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-              sh 'make prepare-test-docker-image'
-              sh 'make build-test-proto'
+          stage('build system-tests docker images') {
+            options {
+              timeout(time: 5, unit: 'MINUTES')
+              retry(3)
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make check'
+                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
+                  sh 'make prepare-test-docker-image'
+                  sh 'make build-test-proto'
+                }
+              }
             }
           }
         }
       }
 
       stage('setup multisig contract') {
-        environment {
-          PATH = "${networkPath}:${env.PATH}"
+        when {
+          not {
+            expression {
+              params.SKIP_MULTISIGN_SETUP
+            }
+          }
         }
+        
         options {
           timeout(time: 2, unit: 'MINUTES')
         }
@@ -222,15 +189,26 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
           dir(testNetworkDir) {
             sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
           }
+        }
+      }
 
+      stage('post start network steps') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        options {
+          timeout(time: 10, unit: 'MINUTES')
+        }
+
+        steps {
           script {
-            if (config.containsKey('postNetworkStartStages') && containsSteps(config.postNetworkStartStages)) {
+            if (config.containsKey('postNetworkStartStages') && config.postNetworkStartStages.size() > 0) {
               parallel config.postNetworkStartStages
             }
           }
         }
       }
-
 
       stage('run tests') {
         options {
@@ -247,9 +225,22 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
         }
+
         steps {
-          dir('system-tests/scripts') {
-              sh 'make test'
+          script {
+            Map runStages = [
+              'run system-tests': {
+                dir('system-tests/scripts') {
+                    sleep 36000
+                    sh 'make test'
+                }
+              }
+            ]
+            if (config.containsKey('systemTestsSiblingsStages') && config.systemTestsSiblingsStages.size() > 0) {
+              runStages = runStages + config.systemTestsSiblingsStages
+            }
+
+            parallel runStages
           }
         }
       }
@@ -330,14 +321,3 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
     }
   }
 }
-
-/**
- * Example usage
- */
-// call([
-//   systemTestsTestFunction: 'test_importWalletValidRecoverPhrase',
-//   preapareSteps: {
-//     // Move it to AMI, will be removed soon
-//       sh 'sudo apt-get install -y daemonize'
-//   }
-// ])

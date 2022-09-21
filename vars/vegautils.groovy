@@ -18,3 +18,27 @@ String gitHash(String directory, int hashLength=8) {
 String escapePath(String path) {
   return path.replace(' ', '\\ ')
 }
+
+/* groovylint-disable
+  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
+  FactoryMethodName, VariableTypeRequired */
+void buildGoBinary(String directory, String outputBinary, String packages) {
+  timeout(time: 5, unit: 'MINUTES') {
+    dir(directory) {
+      // sh 'go mod vendor'
+      sh "go build -o ${outputBinary} ${packages}"
+      sh "chmod +x ${outputBinary}"
+    }
+  }
+}
+
+// Run stages defined in map but run them sequentially. This function is similar to parallel()
+void runSteps(Map steps) {
+  steps.each{ stageName, stepFunction -> 
+    print('Running the ' + stageName + ' step')
+
+    stepFunction()
+
+    print('The ' + stageName + ' step finished')
+  }
+}
