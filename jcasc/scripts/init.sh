@@ -43,12 +43,12 @@ for i in {1..4}; do
     # Readd
     ssh-keyscan -t rsa,dsa "n0$i.d.vega.xyz" >> ~/.ssh/known_hosts || true
 done
-# Update Devnet 3
+# Update Devnet 1
 for i in {00..50}; do
     # Remove
-    ssh-keygen -R "n$i.devnet3.vega.xyz" || true
+    ssh-keygen -R "n$i.devnet1.vega.xyz" || true
     # Readd
-    ssh-keyscan -t rsa,dsa "n$i.devnet3.vega.xyz" >> ~/.ssh/known_hosts || true
+    ssh-keyscan -t rsa,dsa "n$i.devnet1.vega.xyz" >> ~/.ssh/known_hosts || true
 done
 # Update Stagnet 1
 for i in {00..50}; do

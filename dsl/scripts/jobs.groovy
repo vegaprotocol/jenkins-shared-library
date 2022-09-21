@@ -300,23 +300,23 @@ def jobs = [
         definition: libDefinition('pipelineVegaDevRelease()'),
         parameters: {
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-            booleanParam('DEPLOY_TO_DEVNET_3', true, 'Trigger deployment to Devnet 3')
+            booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
             booleanParam('DEPLOY_TO_STAGNET_1', true, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,
     ],
     //
-    // Devnet 3
+    // Devnet 1
     //
     [
-        name: 'private/Deployments/Devnet-3/Restart-Network',
+        name: 'private/Deployments/Devnet-1/Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
-            NET_NAME: 'devnet3',
-            ANSIBLE_LIMIT: 'devnet3',
-            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet3',
+            NET_NAME: 'devnet1',
+            ANSIBLE_LIMIT: 'devnet1',
+            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
         ],
         parameters: vegavisorRestartNetworkParams << {
             booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
@@ -324,24 +324,24 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Devnet-3/Restart-Node',
+        name: 'private/Deployments/Devnet-1/Restart-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
-            NET_NAME: 'devnet3',
+            NET_NAME: 'devnet1',
         ],
         parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet3.vega.xyz" }, 'Choose which node to restart')
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Devnet-3/Protocol-Upgrade',
+        name: 'private/Deployments/Devnet-1/Protocol-Upgrade',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
-            NET_NAME: 'devnet3',
-            ANSIBLE_LIMIT: 'devnet3',
+            NET_NAME: 'devnet1',
+            ANSIBLE_LIMIT: 'devnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams,
         disableConcurrentBuilds: true,
@@ -467,7 +467,7 @@ def jobs = [
         useScmDefinition: false,
         parameters: {
             booleanParam('DEVNET', false, 'Backup the latest checkpoint from the Devnet')
-            booleanParam('DEVNET_3', false, 'Backup the latest checkpoint from the Devnet 3')
+            booleanParam('DEVNET_1', false, 'Backup the latest checkpoint from the Devnet 1')
             booleanParam('FAIRGROUND', true, 'Backup the latest checkpoint from the Fairground network')
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')

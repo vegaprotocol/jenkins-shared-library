@@ -204,14 +204,14 @@ void call() {
             //
             stage('Deploy') {
                 parallel {
-                    stage('Devnet 3'){
+                    stage('Devnet 1'){
                         when {
-                            expression { params.DEPLOY_TO_DEVNET_3 }
+                            expression { params.DEPLOY_TO_DEVNET_1 }
                         }
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Devnet-3/Restart-Network',
+                                    job: 'private/Deployments/Devnet-1/Restart-Network',
                                     propagate: false,
                                     wait: false,
                                     parameters: [

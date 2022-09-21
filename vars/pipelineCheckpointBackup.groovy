@@ -90,9 +90,9 @@ void call() {
                     }
                 }
             }
-            stage('Devnet 3 - download latest checkpoint') {
+            stage('Devnet 1 - download latest checkpoint') {
                 when {
-                    expression { params.DEVNET_3 }
+                    expression { params.DEVNET_1 }
                 }
                 options { retry(3) }
                 steps {
@@ -101,13 +101,13 @@ void call() {
                             sh label: 'Download latest checkpoint', script: """#!/bin/bash -e
                                 go run scripts/main.go \
                                     download-latest \
-                                    --network devnet3 \
+                                    --network devnet1 \
                                     --ssh-user "\${PSSH_USER}" \
                                     --ssh-private-keyfile "\${PSSH_KEYFILE}" \
                                     --vega-home /home/vega/vega_home \
                                     --debug
                             """
-                            sh 'git add devnet3/*'
+                            sh 'git add devnet1/*'
                         }
                     }
                 }
