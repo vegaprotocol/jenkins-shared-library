@@ -291,7 +291,12 @@ void call(Map customConfig = [:]) {
               }
             }
             steps {
-              sh "aws s3 sync bin/ s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
+              sh '''
+                  aws s3 sync \
+                    --no-progress \
+                    --only-show-errors \
+                    bin/ s3://''' + env.S3_BUCKET_NAME + '''/''' + env.VEGACAPSULE_S3_RELEASE_TARGET + '''/
+                  '''
               sh "aws s3 ls s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
             }
           }
@@ -452,25 +457,8 @@ void call(Map customConfig = [:]) {
           }
         }
       }
-      stage('Start Network') {
-        options {
-          timeout(10)
-          retry(2)
-        }
 
-        when {
-          expression {
-            params.ACTION == 'START' || params.ACTION == 'RESTART'
-          }
-        }
-        steps {
-          dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            sh "vegacapsule network start --home-path './home' --do-not-stop-on-failure"
-          }
-        }
-      }
-
-      stage('Write to s3') {
+      stage('Write configuration to s3') {
         options {
           timeout(5)
           retry(3)
@@ -491,6 +479,24 @@ void call(Map customConfig = [:]) {
                   './home/' \
                   's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
             """
+          }
+        }
+      }
+
+      stage('Start Network') {
+        options {
+          timeout(10)
+          retry(2)
+        }
+
+        when {
+          expression {
+            params.ACTION == 'START' || params.ACTION == 'RESTART'
+          }
+        }
+        steps {
+          dir('networks-internal/' + config.networkName + '/vegacapsule') {
+            sh "vegacapsule network start --home-path './home' --do-not-stop-on-failure"
           }
         }
       }
