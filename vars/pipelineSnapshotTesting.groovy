@@ -192,7 +192,7 @@ void call(Map config=[:]) {
                                     ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
-                                    ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 10240
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 20480
                                     ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                     ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                     cat tm_config/config/config.toml
@@ -210,7 +210,7 @@ void call(Map config=[:]) {
                                     ./dasel put string -f tm_config/config/config.toml statesync.chunk-request-timeout "30s"
                                     ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
                                     ./dasel put string -f tm_config/config/config.toml p2p.bootstrap-peers ${PERSISTENT_PEERS}
-                                    ./dasel put int -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 10240
+                                    ./dasel put int -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 20480
                                     ./dasel put string -f tm_config/config/config.toml p2p.external-address "${jenkinsAgentPublicIP}:26656"
                                     ./dasel put bool -f tm_config/config/config.toml p2p.allow-duplicate-ip true
                                     cat tm_config/config/config.toml
