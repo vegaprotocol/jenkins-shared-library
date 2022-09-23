@@ -336,7 +336,7 @@ def jobs = [
         },
         disableConcurrentBuilds: true,
         // once at 7am utc restart random node
-        parameterizedCron: 'H 7 * * * %RANDOME_NODE=true',
+        parameterizedCron: 'H/30 * * * * %RANDOME_NODE=true',
     ],
     [
         name: 'private/Deployments/Devnet-1/Protocol-Upgrade',
@@ -377,7 +377,7 @@ def jobs = [
         },
         disableConcurrentBuilds: true,
         // once at 7am utc restart random node
-        parameterizedCron: 'H 7 * * * %RANDOME_NODE=true',
+        parameterizedCron: 'H/30 * * * * %RANDOME_NODE=true',
     ],
     [
         name: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
