@@ -173,8 +173,6 @@ vegavisorRestartNodeParams = vegavisorParamsBase << {
     choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
     booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
     booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
-    stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository used to select random node.')
-
 }
 
 vegavisorProtocolUpgradeParams = vegavisorParamsBase << {
