@@ -172,6 +172,9 @@ vegavisorRestartNetworkParams = vegavisorParamsBase << {
 vegavisorRestartNodeParams = vegavisorParamsBase << {
     choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
     booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
+    booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
+    stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository used to select random node.')
+
 }
 
 vegavisorProtocolUpgradeParams = vegavisorParamsBase << {
@@ -334,6 +337,8 @@ def jobs = [
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
+        // once at 7am utc restart random node
+        parameterizedCron: 'H 7 * * * %RANDOME_NODE=true',
     ],
     [
         name: 'private/Deployments/Devnet-1/Protocol-Upgrade',
@@ -373,6 +378,8 @@ def jobs = [
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.stagnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
+        // once at 7am utc restart random node
+        parameterizedCron: 'H 7 * * * %RANDOME_NODE=true',
     ],
     [
         name: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
