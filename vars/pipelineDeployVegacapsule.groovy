@@ -303,7 +303,12 @@ void call(Map customConfig = [:]) {
               }
             }
             steps {
-              sh "aws s3 sync bin/ s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
+              sh '''
+                  aws s3 sync \
+                    --no-progress \
+                    --only-show-errors \
+                    bin/ s3://''' + env.S3_BUCKET_NAME + '''/''' + env.VEGACAPSULE_S3_RELEASE_TARGET + '''/
+                  '''
               sh "aws s3 ls s3://${env.S3_BUCKET_NAME}/${env.VEGACAPSULE_S3_RELEASE_TARGET}/"
             }
           }
@@ -464,11 +469,36 @@ void call(Map customConfig = [:]) {
           }
         }
       }
+      
+      stage('Write configuration to s3') {
+        options {
+          timeout(5)
+          retry(3)
+        }
+        steps {
+          dir('networks-internal/' + config.networkName + '/vegacapsule') {
+            sh label: 'Remove old network data from S3', script: """
+            aws s3 rm \
+               --recursive \
+               --only-show-errors \
+               's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
+            """
+            sh label: 'Sync configs to s3', script: """
+                aws s3 cp \
+                --recursive \
+                --only-show-errors \
+                --no-progress \
+                  './home/' \
+                  's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
+            """
+          }
+        }
+      }
 
       stage('Start Network') {
         options {
           timeout(10)
-          retry(3)
+          retry(2)
         }
 
         when {
@@ -504,32 +534,6 @@ void call(Map customConfig = [:]) {
                 forceRestart: true,
                 timeout: 10,
             ])
-          }
-        }
-      }
-
-
-      stage('Write to s3') {
-        options {
-          timeout(5)
-          retry(3)
-        }
-        steps {
-          dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            sh label: 'Remove old network data from S3', script: """
-            aws s3 rm \
-               --recursive \
-               --only-show-errors \
-               's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
-            """
-            sh label: 'Sync configs to s3', script: """
-                aws s3 cp \
-                --recursive \
-                --only-show-errors \
-                --no-progress \
-                  './home/' \
-                  's3://""" + env.S3_BUCKET_NAME + """/""" + config.networkName + """'
-            """
           }
         }
       }
