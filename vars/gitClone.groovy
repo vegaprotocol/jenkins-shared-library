@@ -4,7 +4,7 @@
 void doClone(Map config) {
   retry(3) {
     timeout(time: config.timeout, unit: 'MINUTES') {
-      checkout([
+      return checkout([
         $class: 'GitSCM',
         branches: [[name: config?.branch]],
         userRemoteConfigs: [[
@@ -42,7 +42,7 @@ void call(Map additionalConfig) {
   }
 
   dir(config.directory) {
-    doClone(config)
+    return doClone(config)
   }
 }
 
