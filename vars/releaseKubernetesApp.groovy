@@ -1,8 +1,8 @@
 void call(Map additionalConfig=[:]) {
     Map defaultConfig = [
-        // networkName: "",
-        // application: "",
-        // version: "",
+        networkName: "",
+        application: "",
+        version: "",
         directory: 'k8s',
         timeout: 10,
         period: 60,

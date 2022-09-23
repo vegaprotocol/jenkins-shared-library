@@ -109,7 +109,7 @@ void call(Map customConfig = [:]) {
         }
       }
 
-      stage('Init binaries and tools') {
+      stage('Checkout repositories') {
         options {
           timeout(10)
         }
@@ -143,6 +143,25 @@ void call(Map customConfig = [:]) {
             }
           }
 
+          stage('Check out vegaprotocol/vega') {
+            steps {
+              gitClone([
+                url: 'git@github.com:vegaprotocol/vega.git',
+                branch: params.VEGA_VERSION,
+                directory: 'vega',
+                credentialsId: env.GITHUB_SSH_CREDS
+              ])
+            }
+          }
+        }
+      }
+
+      stage('Init binaries and tools') {
+        options {
+          timeout(10)
+        }
+
+        parallel {
           stage('Build core binaries') {
             when {
               expression {
@@ -152,13 +171,6 @@ void call(Map customConfig = [:]) {
 
             steps {
               script {
-                gitClone([
-                  url: 'git@github.com:vegaprotocol/vega.git',
-                  branch: params.VEGA_VERSION,
-                  directory: 'vega',
-                  credentialsId: env.GITHUB_SSH_CREDS
-                ])
-
                 dir('vega') {
                   sh label: 'Building core binaries',
                       script: 'go mod vendor && go build -o ../bin ./...'
@@ -452,10 +464,11 @@ void call(Map customConfig = [:]) {
           }
         }
       }
+
       stage('Start Network') {
         options {
           timeout(10)
-          retry(2)
+          retry(3)
         }
 
         when {
@@ -469,6 +482,32 @@ void call(Map customConfig = [:]) {
           }
         }
       }
+
+      stage('Update vega-wallet') {
+        options {
+          timeout(10)
+        }
+
+        when {
+          expression {
+            params.ACTION == 'START' || params.ACTION == 'RESTART'
+          }
+        }
+        steps {
+          script {
+            String vegaCoreGitHash = vegautils.gitHash('vega', 8)
+            
+            releaseKubernetesApp([
+                networkName: config.networkName,
+                application: "vegawallet",
+                version: vegaCoreGitHash,
+                forceRestart: true,
+                timeout: 10,
+            ])
+          }
+        }
+      }
+
 
       stage('Write to s3') {
         options {
