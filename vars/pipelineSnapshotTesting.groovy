@@ -29,7 +29,6 @@ void call(Map config=[:]) {
     String cronConfig = "H/${defaultTimeout.toInteger() + 2} * * * *"
 
     echo "params=${params}"
-
     node('non-validator') {
         /* groovylint-disable-next-line NoDef, VariableTypeRequired */
         def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
@@ -68,7 +67,7 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        List<String> networkServers = serversByNetwork[env.NETWORK].clone()
+                        List<String> networkServers = serversByNetwork[env.NET_NAME].clone()
                         // Randomize order
                         // workaround to .shuffled() not implemented
                         Random random = new Random();
@@ -85,9 +84,9 @@ void call(Map config=[:]) {
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
-                            extraMsg = extraMsg ?: "${env.NETWORK} seems down. Snapshot test aborted."
+                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
                             currentBuild.result = 'ABORTED'
-                            error("${env.NETWORK} seems down")
+                            error("${env.NET_NAME} seems down")
                         }
                         echo "Found available server: ${remoteServer}"
                     }
@@ -170,9 +169,9 @@ void call(Map config=[:]) {
                             if ( !isRemoteServerAlive(remoteServer) ) {
                                 // Remote server stopped being available.
                                 // This is quite often for Devnet, when deployments happen all the time
-                                extraMsg = extraMsg ?: "${env.NETWORK} seems down. Snapshot test aborted."
+                                extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
                                 currentBuild.result = 'ABORTED'
-                                error("${env.NETWORK} seems down")
+                                error("${env.NET_NAME} seems down")
                             } else {
                                 println("Remote server ${remoteServer} is still up.")
                                 // re-throw
@@ -354,7 +353,7 @@ void call(Map config=[:]) {
                 throw e
             } finally {
                 stage('Notification') {
-                    sendSlackMessage(env.NETWORK, extraMsg, catchupTime)
+                    sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
                 }
             }
         }
