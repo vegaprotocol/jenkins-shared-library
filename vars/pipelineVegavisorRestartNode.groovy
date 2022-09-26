@@ -22,6 +22,7 @@ void call() {
             skipDefaultCheckout()
             timeout(time: 40, unit: 'MINUTES')
             timestamps()
+            lock(resource: env.NET_NAME)
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"

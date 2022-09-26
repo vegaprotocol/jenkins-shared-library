@@ -442,7 +442,7 @@ def jobs = [
         name: 'private/Snapshots/Devnet',
         useScmDefinition: false,
         env: [
-            NETWORK: 'devnet1',
+            NET_NAME: 'devnet1',
             DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
@@ -457,7 +457,7 @@ def jobs = [
         name: 'private/Snapshots/Fairground',
         useScmDefinition: false,
         env: [
-            NETWORK: 'fairground',
+            NET_NAME: 'fairground',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
