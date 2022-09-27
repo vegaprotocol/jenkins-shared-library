@@ -63,7 +63,25 @@ void call() {
                         }
                         steps {
                             script {
-                                doGitClone('vega', params.VEGA_VERSION)
+                                gitClone(
+                                    dir: 'vega',
+                                    branch: params.VEGA_VERSION,
+                                    vegaUrl: 'vega',
+                                )
+                            }
+                        }
+                    }
+                    stage('k8s'){
+                        when {
+                            expression { params.VEGA_VERSION }
+                        }
+                        steps {
+                            script {
+                                gitClone(
+                                    dir: 'k8s',
+                                    branch: 'main',
+                                    vegaUrl: 'k8s',
+                                )
                             }
                         }
                     }
@@ -73,28 +91,30 @@ void call() {
                         }
                         steps {
                             script {
-                                doGitClone('checkpoint-store', params.CHECKPOINT_STORE_BRANCH)
+                                gitClone(
+                                    dir: 'checkpoint-store',
+                                    vegaUrl: 'checkpoint-store',
+                                    branch: params.CHECKPOINT_STORE_BRANCH)
                             }
                         }
                     }
-                    // stage('devopsscripts'){
-                    //     steps {
-                    //         script {
-                    //             doGitClone('devopsscripts', params.DEVOPSSCRIPTS_BRANCH)
-                    //         }
-                    //     }
-                    // }
                     stage('ansible'){
                         steps {
                             script {
-                                doGitClone('ansible', params.ANSIBLE_BRANCH)
+                                gitClone(
+                                    dir: 'ansible',
+                                    vegaUrl: 'ansible',
+                                    branch: params.ANSIBLE_BRANCH)
                             }
                         }
                     }
                     stage('networks-internal') {
                         steps {
                             script {
-                                doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
+                                gitClone(
+                                    dir: 'networks-internal',
+                                    vegaUrl: 'networks-internal',
+                                    branch: params.NETWORKS_INTERNAL_BRANCH)
                             }
                         }
                     }
@@ -334,6 +354,24 @@ void call() {
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
+                        }
+                    }
+                }
+            }
+            stage('Update faucet & wallet') {
+                when {
+                    expression { params.VEGA_VERSION }
+                }
+                steps {
+                    script {
+                        ['vegawallet', 'faucet'].each { app ->
+                            makeCommit(
+                                directory: 'k8s',
+                                makeCheckout: false,
+                                branchName: "${env.NET_NAME}-${app}-update-${params.VEGA_VERSION}",
+                                commitMessage: '[Automated] ${app} version update - ${env.BUILD_URL}',
+                                commitAction: "echo ${params.VEGA_VERSION} > charts/apps/${app}/${env.NET_NAME}/VERSION"
+                            )
                         }
                     }
                 }
