@@ -43,6 +43,7 @@ void call() {
             timeout(time: 40, unit: 'MINUTES')
             timestamps()
             lock(resource: env.NET_NAME)
+            ansiColor('x-term')
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
