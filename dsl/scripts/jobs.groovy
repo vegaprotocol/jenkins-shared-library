@@ -464,7 +464,7 @@ def jobs = [
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         definition: libDefinition('pipelineSnapshotTesting()'),
-        //cron: "H/12 * * * *",
+        cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
