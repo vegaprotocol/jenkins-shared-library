@@ -6,15 +6,6 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
-    Map dockerCredentials = [
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        url: 'https://ghcr.io'
-    ]
-    def githubAPICredentials = usernamePassword(
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        passwordVariable: 'GITHUB_API_TOKEN',
-        usernameVariable: 'GITHUB_API_USER'
-    )
 
     pipeline {
         agent any

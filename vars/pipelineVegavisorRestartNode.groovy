@@ -6,15 +6,6 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
-    Map dockerCredentials = [
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        url: 'https://ghcr.io'
-    ]
-    def githubAPICredentials = usernamePassword(
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        passwordVariable: 'GITHUB_API_TOKEN',
-        usernameVariable: 'GITHUB_API_USER'
-    )
 
     pipeline {
         agent any
@@ -106,6 +97,28 @@ void call() {
         post {
             always {
                 cleanWs()
+            }
+            unsuccessful {
+                script {
+                    if (params.RANDOM_NODE) {
+                        slackSend(
+                            channel: "#snapshot-notify",
+                            color: 'danger',
+                            message: "Restart node (`${nodeName}`) from local snapshot has failed.",
+                        )
+                    }
+                }
+            }
+            success {
+                script {
+                    if (params.RANDOM_NODE) {
+                        slackSend(
+                            channel: "#snapshot-notify",
+                            color: 'good',
+                            message: "Restart node (`${nodeName}`) from local snapshot has succeeded.",
+                        )
+                    }
+                }
             }
         }
     }
