@@ -104,7 +104,9 @@ void call() {
                         slackSend(
                             channel: "#snapshot-notify",
                             color: 'danger',
-                            message: "Restart node (`${nodeName}`) from local snapshot has failed.",
+                            message: slack.composeMessage(
+                                name: "Restart node (`${nodeName}`) from local snapshot has failed.",
+                            )
                         )
                     }
                 }
@@ -115,7 +117,9 @@ void call() {
                         slackSend(
                             channel: "#snapshot-notify",
                             color: 'good',
-                            message: "Restart node (`${nodeName}`) from local snapshot has succeeded.",
+                            message: slack.composeMessage(
+                                name: "Restart node (`${nodeName}`) from local snapshot has succeeded.",
+                            )
                         )
                     }
                 }
