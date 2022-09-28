@@ -254,6 +254,9 @@ void call() {
                             dir('ansible') {
                                 script {
                                     env.VALIDATOR_IDS = sh(script:"""
+                                        pwd
+                                        ls -lah
+                                        ls -lah scripts
                                         go run scripts/main.go \
                                             get-validator-ids \
                                             --network "${env.NET_NAME}"
