@@ -469,7 +469,7 @@ void call(Map customConfig = [:]) {
           }
         }
       }
-      
+
       stage('Write configuration to s3') {
         options {
           timeout(5)
@@ -513,7 +513,7 @@ void call(Map customConfig = [:]) {
         }
       }
 
-      stage('Update vega-wallet') {
+      stage('Update vega-wallet && faucet') {
         options {
           timeout(10)
         }
@@ -526,10 +526,17 @@ void call(Map customConfig = [:]) {
         steps {
           script {
             String vegaCoreGitHash = vegautils.gitHash('vega', 8)
-            
+
             releaseKubernetesApp([
                 networkName: config.networkName,
                 application: "vegawallet",
+                version: vegaCoreGitHash,
+                forceRestart: true,
+                timeout: 10,
+            ])
+            releaseKubernetesApp([
+                networkName: config.networkName,
+                application: "faucet",
                 version: vegaCoreGitHash,
                 forceRestart: true,
                 timeout: 10,

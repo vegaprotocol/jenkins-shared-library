@@ -493,7 +493,7 @@ void call() {
                     }
                 }
             }
-            
+
             stage('Wait for network') {
                 steps {
                     script {
@@ -563,23 +563,21 @@ void call() {
                     }
                 }
             }
-            stage('Deploy wallet') {
-                when {
-                    expression {
-                        env.DEPLOY_WALLET && params.VEGA_VERSION
-                    }
-                }
-                environment {
-                    VEGAWALLET_VERSION = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}"
-                }
+            stage('Update faucet & wallet') {
                 steps {
-                    makeCommit(
-                        directory: 'k8s',
-                        url: 'git@github.com:vegaprotocol/k8s.git',
-                        branchName: "${env.NET_NAME}-wallet-update",
-                        commitMessage: '[Automated] wallet version update',
-                        commitAction: "echo ${env.VEGAWALLET_VERSION} > charts/apps/vegawallet/${env.NET_NAME}/VERSION"
-                    )
+                    script {
+                        ['vegawallet', 'faucet'].each { app ->
+                            releaseKubernetesApp(
+                                networkName: env.NET_NAME,
+                                application: app,
+                                directory: 'k8s',
+                                makeCheckout: false,
+                                version: env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG,
+                                forceRestart: false,
+                                timeout: 60,
+                            )
+                        }
+                    }
                 }
             }
             stage('Bounce Bots') {
