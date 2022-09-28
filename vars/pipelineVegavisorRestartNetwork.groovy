@@ -16,26 +16,6 @@ void call() {
         usernameVariable: 'GITHUB_API_USER'
     )
 
-    def doGitClone = { repo, branch ->
-        dir(repo) {
-            retry(3) {
-                // returns object:
-                // [GIT_BRANCH:origin/master,
-                // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
-                return checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: branch]],
-                    userRemoteConfigs: [[
-                        url: "git@github.com:vegaprotocol/${repo}.git",
-                        credentialsId: 'vega-ci-bot'
-                    ]]])
-            }
-        }
-    }
-
     pipeline {
         agent any
         options {
@@ -64,7 +44,7 @@ void call() {
                         steps {
                             script {
                                 gitClone(
-                                    dir: 'vega',
+                                    directory: 'vega',
                                     branch: params.VEGA_VERSION,
                                     vegaUrl: 'vega',
                                 )
@@ -78,7 +58,7 @@ void call() {
                         steps {
                             script {
                                 gitClone(
-                                    dir: 'k8s',
+                                    directory: 'k8s',
                                     branch: 'main',
                                     vegaUrl: 'k8s',
                                 )
@@ -92,7 +72,7 @@ void call() {
                         steps {
                             script {
                                 gitClone(
-                                    dir: 'checkpoint-store',
+                                    directory: 'checkpoint-store',
                                     vegaUrl: 'checkpoint-store',
                                     branch: params.CHECKPOINT_STORE_BRANCH)
                             }
@@ -102,7 +82,7 @@ void call() {
                         steps {
                             script {
                                 gitClone(
-                                    dir: 'ansible',
+                                    directory: 'ansible',
                                     vegaUrl: 'ansible',
                                     branch: params.ANSIBLE_BRANCH)
                             }
@@ -112,7 +92,7 @@ void call() {
                         steps {
                             script {
                                 gitClone(
-                                    dir: 'networks-internal',
+                                    directory: 'networks-internal',
                                     vegaUrl: 'networks-internal',
                                     branch: params.NETWORKS_INTERNAL_BRANCH)
                             }
