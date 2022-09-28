@@ -69,15 +69,22 @@ void call() {
     }
 
     def doesDockerImageExist = { imageName ->
-        timeout(time: 30, unit: 'SECONDS') {
-            waitUntil {
-                script {
-                    def r = sh returnStatus: true, script: 'docker manifest inspect ' + imageName
-                    return r == 0
+        try {
+            timeout(time: 30, unit: 'SECONDS') {
+                waitUntil {
+                    script {
+                        def r = sh returnStatus: true, script: 'docker manifest inspect ' + imageName
+                        return r == 0
+                    }
                 }
             }
+        } catch(err) {
+            print(err)
+            return false
         }
     }
+
+    String dockerImageTagHash
 
     pipeline {
         agent any
@@ -90,7 +97,6 @@ void call() {
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             DOCKER_IMAGE_TAG = params.VEGA_VERSION.replaceAll('/', '-')
-            DOCKER_IMAGE_TAG_HASH = ''
         }
         stages {
             stage('CI Config') {
@@ -134,7 +140,9 @@ void call() {
                         steps {
                             script {
                                 def repoVars = doGitClone('vega', params.VEGA_VERSION)
-                                env.DOCKER_IMAGE_TAG_HASH = repoVars.GIT_COMMIT?.substring(0, 8)
+                                dockerImageTagHash = repoVars.GIT_COMMIT?.substring(0, 8)
+
+                                print('docker_image_tag: ' + dockerImageTagHash)
                             }
                         }
                     }
@@ -142,6 +150,13 @@ void call() {
                         steps {
                             script {
                                 doGitClone('ansible', params.ANSIBLE_BRANCH)
+                            }
+                        }
+                    }
+                    stage('k8s'){
+                        steps {
+                            script {
+                                doGitClone('k8s', params.K8S_BRANCH?:'main')
                             }
                         }
                     }
@@ -237,12 +252,12 @@ void call() {
                     stage('Build data-node docker image') {
                         when {
                             expression {
-                                env.DOCKER_IMAGE_TAG_HASH && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG_HASH}")
+                                dockerImageTagHash && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/data-node:${dockerImageTagHash}")
                             }
                         }
                         environment {
                             DATANODE_DOCKER_IMAGE_BRANCH = "ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG}"
-                            DATANODE_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/data-node:${env.DOCKER_IMAGE_TAG_HASH}"
+                            DATANODE_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/data-node:${dockerImageTagHash}"
                         }
                         stages {
                             stage('Build') {
@@ -257,7 +272,7 @@ void call() {
                                         """
                                     }
                                     sh label: 'Sanity check', script: """#!/bin/bash -e
-                                        docker run --rm -it \
+                                        docker run --rm \
                                             ${DATANODE_DOCKER_IMAGE_BRANCH} \
                                             version
                                     """
@@ -280,12 +295,12 @@ void call() {
                     stage('Build vegawallet docker image') {
                         when {
                             expression {
-                                env.DOCKER_IMAGE_TAG_HASH && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG_HASH}")
+                                dockerImageTagHash && !doesDockerImageExist("ghcr.io/vegaprotocol/vega/vegawallet:${dockerImageTagHash}")
                             }
                         }
                         environment {
                             VEGAWALLET_DOCKER_IMAGE_BRANCH = "ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG}"
-                            VEGAWALLET_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/vegawallet:${env.DOCKER_IMAGE_TAG_HASH}"
+                            VEGAWALLET_DOCKER_IMAGE_HASH = "ghcr.io/vegaprotocol/vega/vegawallet:${dockerImageTagHash}"
                         }
                         stages {
                             stage('Build') {
@@ -293,14 +308,14 @@ void call() {
                                     dir('vega') {
                                         sh label: 'Build docker image', script: """#!/bin/bash -e
                                             docker build \
-                          x                      -f docker/vegawallet.dockerfile \
+                                                -f docker/vegawallet.dockerfile \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
                                                 -t ${VEGAWALLET_DOCKER_IMAGE_HASH} \
                                                 .
                                         """
                                     }
                                     sh label: 'Sanity check', script: """#!/bin/bash -e
-                                        docker run --rm -it \
+                                        docker run --rm \
                                             ${VEGAWALLET_DOCKER_IMAGE_BRANCH} \
                                             version
                                     """
@@ -485,7 +500,7 @@ void call() {
                     }
                 }
                 environment {
-                    DATANODE_TAG = "${env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG}"
+                    DATANODE_TAG = "${dockerImageTagHash ?: env.DOCKER_IMAGE_TAG}"
                 }
                 steps {
                     script {
@@ -572,7 +587,7 @@ void call() {
                                 application: app,
                                 directory: 'k8s',
                                 makeCheckout: false,
-                                version: env.DOCKER_IMAGE_TAG_HASH ?: env.DOCKER_IMAGE_TAG,
+                                version: dockerImageTagHash ?: env.DOCKER_IMAGE_TAG,
                                 forceRestart: false,
                                 timeout: 60,
                             )

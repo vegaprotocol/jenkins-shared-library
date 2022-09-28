@@ -143,6 +143,7 @@ veganetParamsBase = {
     stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
     stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
     stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    stringParam('K8S_BRANCH', 'main', 'Branch of k8s repository')
 }
 
 veganetParams = veganetParamsBase << {
