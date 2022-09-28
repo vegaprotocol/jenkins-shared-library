@@ -365,12 +365,14 @@ void call() {
                 steps {
                     script {
                         ['vegawallet', 'faucet'].each { app ->
-                            makeCommit(
+                            releaseKubernetesApp(
+                                networkName: env.NET_NAME,
+                                application: app,
                                 directory: 'k8s',
                                 makeCheckout: false,
-                                branchName: "${env.NET_NAME}-${app}-update-${params.VEGA_VERSION}",
-                                commitMessage: '[Automated] ${app} version update - ${env.BUILD_URL}',
-                                commitAction: "echo ${params.VEGA_VERSION} > charts/apps/${app}/${env.NET_NAME}/VERSION"
+                                version: params.VEGA_VERSION,
+                                forceRestart: false,
+                                timeout: 60,
                             )
                         }
                     }
