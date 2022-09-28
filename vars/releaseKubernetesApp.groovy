@@ -8,6 +8,7 @@ void call(Map additionalConfig=[:]) {
         period: 60,
         forceRestart: false,
         k8sObjectName: '',
+        makeCheckout: true,
     ]
 
     Map config = defaultConfig + additionalConfig
@@ -33,10 +34,11 @@ void call(Map additionalConfig=[:]) {
     }
 
     makeCommit(
+        makeCheckout: config.makeCheckout,
         directory: config.directory,
         url: 'git@github.com:vegaprotocol/k8s.git',
         branchName: config.networkName + '-' + config.application + '-update',
-        commitMessage: '[Automated] ' + config.application + ' version update for ' + config.networkName,
+        commitMessage: '[Automated] ' + config.application + ' version update for ' + config.networkName + " ${env.BUILD_URL}",
         commitAction: 'echo ' + config.version + ' > charts/apps/' + config.application + '/' + config.networkName + '/VERSION'
     )
 
