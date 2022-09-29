@@ -353,7 +353,7 @@ void call(Map customConfig = [:]) {
                   | grep -v Type \
                   | grep running \
                   | awk '{ print $1 }' \
-                  | xargs -L 1 nomad job stop \
+                  | xargs -L 1 nomad job stop -purge \
                   || echo 'OK' '''
                 // HOTFIX: END
 
