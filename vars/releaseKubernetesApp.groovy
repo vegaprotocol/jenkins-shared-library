@@ -56,7 +56,6 @@ void call(Map additionalConfig=[:]) {
                         script: '''
                         #!/bin/bash +x
                         kubectl get ''' + config.k8sObjectName + ''' -n ''' + config.networkName + ''' -o yaml \
-                            | grep "''' + config.application + '''" \
                             | grep "image:" \
                             | grep ''' + config.version + ''' \
                             || echo "NOT READY"
