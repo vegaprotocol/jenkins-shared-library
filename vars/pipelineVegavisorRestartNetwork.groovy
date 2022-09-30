@@ -279,7 +279,7 @@ void call() {
                                         sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                         sh 'git config --global user.name "vega-ci-bot"'
                                         sh "git stash"
-                                        sh "git switch ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git switch --force ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
                                         sh "git checkout stash -- ${env.NET_NAME}/*"
                                         sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
                                         sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
