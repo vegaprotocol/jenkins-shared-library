@@ -361,7 +361,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorRestartNetworkParams << {
-            booleanParam('USE_CHECKPOINT', true, 'This will download latest checkpoint and use it to restart the network with')
+            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
         },
         disableConcurrentBuilds: true,
     ],
