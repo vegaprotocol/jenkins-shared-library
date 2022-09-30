@@ -302,7 +302,7 @@ def jobs = [
         parameters: {
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
-            booleanParam('DEPLOY_TO_STAGNET_1', true, 'Trigger deployment to Stagnet 1')
+            booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,
