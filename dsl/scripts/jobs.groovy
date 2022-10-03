@@ -390,6 +390,45 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams,
         disableConcurrentBuilds: true,
     ],
+    // fairground
+    [
+        name: 'private/Deployments/Fairground/Restart-Network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_LIMIT: 'fairground',
+        ],
+        parameters: vegavisorRestartNetworkParams << {
+            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
+        },
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Fairground/Restart-Node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: vegavisorRestartNodeParams << {
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
+        },
+        disableConcurrentBuilds: true,
+        // once at 7am utc restart random node
+        parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/Fairground/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_LIMIT: 'fairground',
+        ],
+        parameters: vegavisorProtocolUpgradeParams,
+        disableConcurrentBuilds: true,
+    ],
     // system-tests
     [
         name: 'common/system-tests-wrapper',
