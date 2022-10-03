@@ -116,7 +116,10 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp genesis.json from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json genesis.json
+                                            ssh -i \"\${PSSH_KEYFILE}\" -t \"\${PSSH_USER}\"@\"${remoteServer}\" 'sudo cp /home/vega/.tendermint/config/genesis.json /tmp/genesis.json && chmod a+rwx /tmp/genesis.json'
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/tmp/genesis.json genesis.json
+                                            ssh -i \"\${PSSH_KEYFILE}\" -t \"\${PSSH_USER}\"@\"${remoteServer}\" 'sudo rm /tmp/genesis.json'
+
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json
