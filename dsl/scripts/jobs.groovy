@@ -335,7 +335,7 @@ def jobs = [
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
-        // once at 7am utc restart random node
+        // restart a random node every 30min
         parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
@@ -376,7 +376,7 @@ def jobs = [
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.stagnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
-        // once at 7am utc restart random node
+        // restart a random node every 30min
         parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
@@ -415,8 +415,8 @@ def jobs = [
             choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
-        // once at 7am utc restart random node
-        parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+        // restart a random node every 30min
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
         name: 'private/Deployments/Fairground/Protocol-Upgrade',
