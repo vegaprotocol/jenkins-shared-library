@@ -24,36 +24,31 @@ def call() {
                     }
                 }
             }
-            stage('Top ups') {
-                failFast false
-                parallel {
-                    stage('Liqbot') {
-                        steps {
-                            dir ('devopstools') {
-                                withCredentials([
-                                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                                ]) {
-                                    sh "go run main.go topup liqbot --network ${env.NET_NAME} --github-token ${TOKEN}"
-                                }
-                            }
-                            withGoogleSA('gcp-k8s') {
-                                    sh "kubectl rollout restart statefulset liqbot-app -n ${env.NET_NAME}"
-                            }
+            stage('Top ups Liqbot') {
+                steps {
+                    dir ('devopstools') {
+                        withCredentials([
+                            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                        ]) {
+                            sh "go run main.go topup liqbot --network ${env.NET_NAME} --github-token ${TOKEN}"
                         }
                     }
-                    stage('Traderbot') {
-                        steps {
-                            dir ('devopstools') {
-                                withCredentials([
-                                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                                ]) {
-                                    sh "go run main.go topup traderbot --network ${env.NET_NAME} --github-token ${TOKEN}"
-                                }
-                            }
-                            withGoogleSA('gcp-k8s') {
-                                    sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
-                            }
+                    withGoogleSA('gcp-k8s') {
+                            sh "kubectl rollout restart statefulset liqbot-app -n ${env.NET_NAME}"
+                    }
+                }
+            }
+            stage('Top ups Traderbot') {
+                steps {
+                    dir ('devopstools') {
+                        withCredentials([
+                            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                        ]) {
+                            sh "go run main.go topup traderbot --network ${env.NET_NAME} --github-token ${TOKEN}"
                         }
+                    }
+                    withGoogleSA('gcp-k8s') {
+                            sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
                     }
                 }
             }
