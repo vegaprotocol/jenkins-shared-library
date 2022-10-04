@@ -28,6 +28,20 @@ void call() {
             }
             stage('Checkout') {
                 parallel {
+                    stage('vega'){
+                        when {
+                            expression { params.VEGA_VERSION }
+                        }
+                        steps {
+                            script {
+                                gitClone(
+                                    directory: 'vega',
+                                    branch: params.VEGA_VERSION,
+                                    vegaUrl: 'vega',
+                                )
+                            }
+                        }
+                    }
                     stage('ansible'){
                         steps {
                             gitClone(
@@ -56,6 +70,41 @@ void call() {
                     }
                 }
             }
+            stage('Build vaga, data-node, vegawallet and visor') {
+                when {
+                    expression { params.VEGA_VERSION }
+                }
+                steps {
+                    dir('vega') {
+                        sh label: 'Compile', script: """#!/bin/bash -e
+                            go build -v \
+                                -o ../bin/ \
+                                ./cmd/vega \
+                                ./cmd/data-node \
+                                ./cmd/vegawallet \
+                                ./cmd/visor
+                        """
+                    }
+                    dir('bin') {
+                        sh label: 'Sanity check: vega', script: '''#!/bin/bash -e
+                            file ./vega
+                            ./vega version
+                        '''
+                        sh label: 'Sanity check: data-node', script: '''#!/bin/bash -e
+                            file ./data-node
+                            ./data-node version
+                        '''
+                        sh label: 'Sanity check: vegawallet', script: '''#!/bin/bash -e
+                            file ./vegawallet
+                            ./vegawallet version
+                        '''
+                        sh label: 'Sanity check: visor', script: '''#!/bin/bash -e
+                            file ./visor
+                            ./visor --help
+                        '''
+                    }
+                }
+            }
             stage('Restart Node') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -73,6 +122,13 @@ void call() {
                                         ).trim()
                                     }
                                 }
+                                if (params.VEGA_VERSION) {
+                                    sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
+                                        cp ./bin/vega ./ansible/roles/barenode/files/bin/
+                                        cp ./bin/data-node ./ansible/roles/barenode/files/bin/
+                                        cp ./bin/visor ./ansible/roles/barenode/files/bin/
+                                    """
+                                }
                             }
                             dir('ansible') {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
@@ -85,7 +141,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${params.RANDOM_NODE ? nodeName : params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
