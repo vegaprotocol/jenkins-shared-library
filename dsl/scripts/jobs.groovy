@@ -412,7 +412,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
+            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.testnet.vega.xyz" }, 'Choose which node to restart')
         },
         disableConcurrentBuilds: true,
         // restart a random node every 30min
