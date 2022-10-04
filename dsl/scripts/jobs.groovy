@@ -437,6 +437,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         },
         cron: 'H/30 * * * *',
