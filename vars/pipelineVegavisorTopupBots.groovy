@@ -26,23 +26,32 @@ def call() {
             }
             stage('Top ups') {
                 failFast false
-                environment {
-                    REMOVE_BOT_WALLETS = "${params.REMOVE_BOT_WALLETS ? "true" : ""}"
-                }
                 parallel {
                     stage('Liqbot') {
                         steps {
                             dir ('devopstools') {
-                                // TODO - restart bots?
-                                sh "go run main.go topup liqbot --network fairground --github-token token"
+                                withCredentials([
+                                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                                ]) {
+                                    sh "go run main.go topup liqbot --network ${env.NET_NAME} --github-token ${TOKEN}"
+                                }
+                            }
+                            withGoogleSA('gcp-k8s') {
+                                    sh "kubectl rollout restart statefulset liqbot-app -n ${env.NET_NAME}"
                             }
                         }
                     }
                     stage('Traderbot') {
                         steps {
                             dir ('devopstools') {
-                                // TODO - restart bots?
-                                sh "go run main.go topup traderbot --network fairground --github-token token"
+                                withCredentials([
+                                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                                ]) {
+                                    sh "go run main.go topup traderbot --network ${env.NET_NAME} --github-token ${TOKEN}"
+                                }
+                            }
+                            withGoogleSA('gcp-k8s') {
+                                    sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
                             }
                         }
                     }
@@ -51,9 +60,9 @@ def call() {
         }
         post {
             always {
-                script {
-                    slack.slackSendCIStatus channel: '#env-deploy', name: env.JOB_NAME, branch: 'Top-Up'
-                }
+                // script {
+                //     slack.slackSendCIStatus channel: '#env-deploy', name: env.JOB_NAME, branch: 'Top-Up'
+                // }
                 cleanWs()
             }
         }

@@ -429,6 +429,19 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams,
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/Fairground/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: {
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
     // system-tests
     [
         name: 'common/system-tests-wrapper',
