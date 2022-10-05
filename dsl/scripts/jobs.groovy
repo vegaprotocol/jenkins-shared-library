@@ -133,26 +133,6 @@ capsuleParams = {
     booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
 }
 
-veganetParamsBase = {
-    booleanParam('DEPLOY_CONFIG', true, 'Deploy some Vega Network config, e.g. genesis file')
-    booleanParam('CREATE_MARKETS', true, 'Create markets')
-    booleanParam('CREATE_INCENTIVE_MARKETS', false, 'Create Markets for Incentive')
-    booleanParam('BOUNCE_BOTS', true, 'Start & Top up liqbot and traderbot with fake/ERC20 tokens')
-    booleanParam('REMOVE_WALLETS', false, 'Remove bot wallets on top up')
-    stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-    stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-    stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
-    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    stringParam('K8S_BRANCH', 'main', 'Branch of k8s repository')
-}
-
-veganetParams = veganetParamsBase << {
-    booleanParam('BUILD_VEGA_CORE', false, 'Decide if VEGA_VERSION is to be build or downloaded')
-    stringParam('VEGA_VERSION', '', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
-    choiceParam('RESTART', ['YES_FROM_CHECKPOINT', 'YES', 'NO'], 'Restart the Network')
-    booleanParam('BACKUP_CHAIN_DATA', true, 'Determine whether chain data needs to be copied to backup and last checkpoint saved in github - available only in testnet')
-}
-
 vegavisorParamsBase = {
     stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
     stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
@@ -166,6 +146,7 @@ vegavisorRestartNetworkParams = vegavisorParamsBase << {
     stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
     Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+    stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
     stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
     booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
 }
@@ -255,22 +236,6 @@ def jobs = [
         branch: 'main',
         disableConcurrentBuilds: true,
         numToKeep: 100,
-    ],
-    [
-        name: 'private/Deployments/Veganet/Devnet',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineDeploy()'),
-        env: [
-            NET_NAME: 'devnet',
-            DNS_ALIAS: 'd',
-        ],
-        // overwrites
-        parameters: veganetParamsBase << {
-            stringParam('VEGA_VERSION', 'develop', "Git branch, tag or hash of the vegaprotocol/vega repository. Leave empty to not deploy a new version of vega core. If you decide not to build binary by yourself you need to set version according to the versions available on releases page: https://github.com/vegaprotocol/vega/releases")
-            booleanParam('BUILD_VEGA_CORE', true, 'Decide if VEGA_VERSION is to be build or downloaded')
-            choiceParam('RESTART', ['YES', 'NO'], 'Restart the Network') // do not support checkpoints for devnet
-        },
-        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/Publish-vega-dev-releases',
@@ -514,23 +479,6 @@ def jobs = [
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
         definition: libDefinition('pipelineCheckpointBackup()'),
-    ],
-    [
-        name: 'private/Automations/BotsTopupDevnet',
-        useScmDefinition: false,
-        parameters: {
-            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
-            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-        env: [
-            NETWORK: 'devnet',
-            CHECK_NETWORK_STATUS: true,
-        ],
-        cron: 'H */2 * * *',
-        disableConcurrentBuilds: true,
-        description: 'Top-Up bots on the Devnet network. Runs every 4 hours.',
-        definition: libDefinition('pipelineTopUpBots()'),
     ],
     [
         name: 'private/Automations/BotsTopupStagnet3',
