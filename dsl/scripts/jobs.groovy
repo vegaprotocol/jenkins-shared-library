@@ -236,21 +236,6 @@ def jobs = [
             'BOUNCE_BOTS=true',
         ].join(';'),
     ],
-    [
-        name: 'private/Deployments/Vegacapsule/Devnet 2',
-        useScmDefinition: false,
-        parameters: capsuleParams,
-        definition: libDefinition('''pipelineDeployVegacapsule([
-                networkName: 'devnet2',
-                nomadAddress: 'https://n00.devnet2.vega.xyz:4646',
-                awsRegion: 'eu-west-2',
-                vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
-                networksInternalBranch: 'main',
-                nomadNodesNumer: 4,
-            ])'''),
-        disableConcurrentBuilds: true,
-    ],
-
     // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',
