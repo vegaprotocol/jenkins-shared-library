@@ -365,7 +365,7 @@ def jobs = [
         },
         disableConcurrentBuilds: true,
         // restart a random node every 30min
-        parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
         name: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
