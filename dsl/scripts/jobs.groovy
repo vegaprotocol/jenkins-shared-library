@@ -273,16 +273,6 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Veganet/Fairground',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineDeploy()'),
-        env: [
-            NET_NAME: 'testnet',
-        ],
-        parameters: veganetParams,
-        disableConcurrentBuilds: true,
-    ],
-    [
         name: 'private/Deployments/Publish-vega-dev-releases',
         description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
         useScmDefinition: false,
@@ -524,23 +514,6 @@ def jobs = [
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
         definition: libDefinition('pipelineCheckpointBackup()'),
-    ],
-    [
-        name: 'private/Automations/BotsTopupFairground',
-        useScmDefinition: false,
-        parameters: {
-            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
-            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-        env: [
-            NETWORK: 'testnet',
-            CHECK_NETWORK_STATUS: true,
-        ],
-        cron: 'H */2 * * *',
-        disableConcurrentBuilds: true,
-        description: 'Top-Up bots on the Fairground network. Runs every 4 hours.',
-        definition: libDefinition('pipelineTopUpBots()'),
     ],
     [
         name: 'private/Automations/BotsTopupDevnet',
