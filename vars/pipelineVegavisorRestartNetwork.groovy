@@ -328,10 +328,31 @@ void call() {
                         }
                     }
                 }
+                post {
+                    success {
+                        script {
+                            String duration = currentBuild.durationString - ' and counting'
+                            slackSend(
+                                channel: '#env-deploy',
+                                color: 'good',
+                                message: ":astronaut: Successfully started ${params.RELEASE_VERSION} on ${env.NET_NAME} <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
+                            )
+                        }
+                    }
+                    unsuccessful {
+                        script {
+                            slackSend(
+                                channel: '#env-deploy',
+                                color: 'danger',
+                                message: ":scream: Failed to start ${params.RELEASE_VERSION} on ${env.NET_NAME} <${jobURL}|more> :boom: (${duration})",
+                            )
+                        }
+                    }
+                }
             }
             stage('Update faucet & wallet') {
                 when {
-                    expression { params.VEGA_VERSION }
+                    expression { params.DOCKER_VERSION }
                 }
                 steps {
                     script {
@@ -341,7 +362,7 @@ void call() {
                                 application: app,
                                 directory: 'k8s',
                                 makeCheckout: false,
-                                version: params.VEGA_VERSION,
+                                version: params.DOCKER_VERSION,
                                 forceRestart: false,
                                 timeout: 60,
                             )
