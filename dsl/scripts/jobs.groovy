@@ -353,7 +353,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
         disableConcurrentBuilds: true,
     ],
     [
