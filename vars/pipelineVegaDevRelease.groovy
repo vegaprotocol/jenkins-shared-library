@@ -1,3 +1,6 @@
+
+def versionHash
+
 void call() {
     // NOTE: environment variables PSSH_USER and PSSH_KEYFILE are used by veganet.sh script
     /* groovylint-disable-next-line NoDef, VariableTypeRequired */
@@ -76,7 +79,7 @@ void call() {
                                         script: "git rev-list --no-merges --count HEAD",
                                         returnStdout: true,
                                     ).trim()
-                                    def versionHash = sh(
+                                    versionHash = sh(
                                         script: "git rev-parse --short HEAD",
                                         returnStdout: true,
                                     ).trim()
@@ -216,6 +219,7 @@ void call() {
                                     wait: false,
                                     parameters: [
                                         string(name: 'RELEASE_VERSION', value: versionTag),
+                                        string(name: 'DOCKER_VERSION', value: versionHash),
                                         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
                                     ]
                                 )
