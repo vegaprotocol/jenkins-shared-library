@@ -89,6 +89,28 @@ void call() {
                             }
                         }
                     }
+                    stage('devopstools') {
+                        when {
+                            anyOf {
+                                expression {
+                                    params.CREATE_MARKETS
+                                }
+                                not {
+                                    expression {
+                                        params.USE_CHECKPOINT
+                                    }
+                                }
+                            }
+                        }
+                        steps {
+                            script {
+                                gitClone(
+                                    directory: 'devopstools',
+                                    vegaUrl: 'devopstools',
+                                    branch: params.DEVOPSTOOLS_BRANCH)
+                            }
+                        }
+                    }
                 }
             }
             stage('Prepare') {
@@ -327,6 +349,34 @@ void call() {
                     }
                 }
             }
+            stage('provide liquidity') {
+                when {
+                    not {
+                        expression {
+                            params.USE_CHECKPOINT
+                        }
+                    }
+                }
+                steps {
+                    dir('devopstools') {
+                        sh 'go run main.go network self-delegate --network' + env.NET_NAME
+                    }
+                }
+            }
+            stage('Create markets & provide lp'){
+                when {
+                    expression {
+                        params.CREATE_MARKETS
+                    }
+                }
+                steps {
+                    dir('devopstools') {
+                        sh 'go run main.go market propose --network' + env.NET_NAME
+                        sleep 30 * 7
+                        sh 'go run main.go market provide-lp --network' + env.NET_NAME
+                    }
+                }
+            }
             stage('Update faucet & wallet') {
                 when {
                     expression { params.DOCKER_VERSION }
@@ -345,6 +395,20 @@ void call() {
                             )
                         }
                     }
+                }
+            }
+            stage('Top up bots') {
+                when {
+                    expression {
+                        params.TOP_UP_BOTS
+                    }
+                }
+                steps {
+                    build(
+                        job: "private/Deployments/${env.BOT_JOB_NS ?: (env.NET_NAME as String).capitalize()}/Topup-Bots",
+                        propagate: false,  // don't fail
+                        wait: false, // don't wait
+                    )
                 }
             }
         }

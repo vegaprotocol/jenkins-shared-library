@@ -152,9 +152,13 @@ def vegavisorRestartNetworkParams(args=[:]) {
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
-        stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
         booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
         booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', false), 'This will download latest checkpoint and use it to restart the network with')
+        booleanParam('CREATE_MARKETS', args.get('CREATE_MARKETS', false), h('create markets using veganet.sh'))
+        booleanParam('TOP_UP_BOTS', args.get('TOP_UP_BOTS', false), h('trigger top up job'))
+        stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+        stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+        stringParam('DEVOPSTOOLS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
     }
 }
 
@@ -281,7 +285,10 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
             NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams(
+            'CREATE_MARKETS': true,
+            'TOP_UP_BOTS': true,
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -391,6 +398,36 @@ def jobs = [
             stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         },
         cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'devnet1',
+            BOT_JOB_NS: 'Devnet-1',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            BOT_JOB_NS: 'Stagnet-1',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
     // system-tests
