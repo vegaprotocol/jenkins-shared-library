@@ -243,29 +243,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Generate vegawallet config') {
-                        options { retry(3) }
-                        steps {
-                            dir('ansible') {
-                                script {
-                                    env.DATA_NODE_IDS = sh(script:"""
-                                        go run scripts/main.go \
-                                            get-data-node-ids \
-                                            --network "${env.NET_NAME}"
-                                    """, returnStdout:true).trim()
-                                }
-                            }
-                            dir('networks-internal') {
-                                sh label: 'Generate vegawallet config', script: """#!/bin/bash -e
-                                    go run scripts/main.go \
-                                        generate-vegawallet-config \
-                                        --network "${env.NET_NAME}" \
-                                        --data-node-ids "${env.DATA_NODE_IDS}"
-                                """
-                                sh "git add ${env.NET_NAME}/*"
-                            }
-                        }
-                    }
                     stage('Commit changes') {
                         environment {
                             NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
