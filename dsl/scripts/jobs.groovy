@@ -158,7 +158,6 @@ def vegavisorRestartNetworkParams(args=[:]) {
         booleanParam('TOP_UP_BOTS', args.get('TOP_UP_BOTS', false), h('trigger top up job'))
         stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
         stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
-        stringParam('DEVOPSTOOLS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
     }
 }
 
