@@ -360,7 +360,7 @@ void call() {
                 }
                 steps {
                     sleep 30
-                    wtihDevopstools(
+                    withDevopstools(
                         command: 'network self-delegate'
                     )
                 }
@@ -372,7 +372,7 @@ void call() {
                     }
                 }
                 steps {
-                    wtihDevopstools(
+                    withDevopstools(
                         command: 'market propose'
                     )
                     sleep 30 * 7
