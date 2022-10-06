@@ -1,18 +1,26 @@
-void call(Map additionalConfig=[:], customParameters=[:]) {
+void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
-    postNetworkGenerateStages: [:],
-    postNetworkStartStages: [:],
-    systemTestsSiblingsStages: [:],
+    hooks: [:],
+    agentLabel: 'test-instance',
     vegacapsuleConfig: params.CAPSULE_CONFIG,
 
     systemTestsBranch: params.SYSTEM_TESTS_BRANCH,
   ]
+
   Map config = defaultConfig + additionalConfig
-  params = params + customParameters
+  params = params + parametersOverride
+
+  Map pipelineHooks = [
+      postNetworkGenerate: [:],
+      postNetworkStart: [:],
+      runTests: [:],
+      postRunTests: [:],
+      postPipeline: [:],
+  ] + config.hooks
 
   pipeline {
     agent {
-      label 'test-instance'
+      label config.agentLabel
     }
     
     options {
@@ -131,26 +139,6 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
                       '''
                     }
                 }
-
-                if (config.containsKey('postNetworkGenerateStages') && config.postNetworkGenerateStages.size() > 0) {
-                  vegautils.runSteps config.postNetworkGenerateStages
-                }
-
-                dir(testNetworkDir) {
-                  try {
-                    timeout(time: 3, unit: 'MINUTES') {
-                      sh '''./vegacapsule network start \
-                        --home-path ''' + testNetworkDir + '''/testnet
-                      '''
-                    }
-                  } finally {
-                    sh 'docker logout https://ghcr.io'
-                  }
-                  
-                  sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-                  sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-                  sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
-                }
               }
             }
           }
@@ -168,6 +156,49 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
                   sh 'make build-test-proto'
                 }
               }
+            }
+          }
+        }
+      }
+
+      stage('post network generate steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postNetworkGenerate') && pipelineHooks.postNetworkGenerate.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postNetworkGenerate
+          }
+        }
+      }
+
+      stage('start network') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            dir(testNetworkDir) {
+              try {
+                timeout(time: 3, unit: 'MINUTES') {
+                  sh '''./vegacapsule network start \
+                    --home-path ''' + testNetworkDir + '''/testnet
+                  '''
+                }
+              } finally {
+                sh 'docker logout https://ghcr.io'
+              }
+              
+              // sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
         }
@@ -193,6 +224,11 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
       }
 
       stage('post start network steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postNetworkStart') && pipelineHooks.postNetworkStart.size() > 0
+          }
+        }
         environment {
           PATH = "${networkPath}:${env.PATH}"
         }
@@ -203,9 +239,7 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
 
         steps {
           script {
-            if (config.containsKey('postNetworkStartStages') && config.postNetworkStartStages.size() > 0) {
-              parallel config.postNetworkStartStages
-            }
+            parallel pipelineHooks.postNetworkStart
           }
         }
       }
@@ -224,6 +258,7 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
+          PATH = "${networkPath}:${env.PATH}"
         }
 
         steps {
@@ -231,16 +266,34 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
             Map runStages = [
               'run system-tests': {
                 dir('system-tests/scripts') {
-                    sleep 36000
                     sh 'make test'
                 }
               }
             ]
-            if (config.containsKey('systemTestsSiblingsStages') && config.systemTestsSiblingsStages.size() > 0) {
-              runStages = runStages + config.systemTestsSiblingsStages
+            if (pipelineHooks.containsKey('runTests') && pipelineHooks.runTests.size() > 0) {
+              runStages = runStages + pipelineHooks.runTests
             }
 
             parallel runStages
+          }
+        }
+      }
+
+
+
+      stage('post run tests steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postRunTests') && pipelineHooks.postRunTests.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postRunTests
           }
         }
       }
@@ -308,6 +361,11 @@ void call(Map additionalConfig=[:], customParameters=[:]) {
             artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
             allowEmptyArchive: true
           )
+          script {
+            if (pipelineHooks.containsKey('postPipeline') && pipelineHooks.postPipeline.size() > 0) {
+              parallel pipelineHooks.postPipeline
+            }
+          }
         }
         script {
           slack.slackSendCIStatus(

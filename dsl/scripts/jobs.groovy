@@ -131,6 +131,7 @@ capsuleParams = {
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
     booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
     booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
+    booleanParam('SKIP_MULTISIGN_SETUP', false, h('When true validators are not added to multisig as signers'))
 }
 
 veganetParamsBase = {
