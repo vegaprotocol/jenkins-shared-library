@@ -117,77 +117,96 @@ def libDefinition(methodName) {
     }
 }
 
-capsuleParams = {
-    booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-    stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
-    stringParam('VEGA_VERSION', '', h('version of vega core (tag, branch, commit or S3 path)'))
-    booleanParam('BUILD_VEGA_BINARIES', false, h('determine whether vega binaries are built or downloaded'))
-    booleanParam('PUBLISH_BINARIES', false, h('determine whether binaries are published to S3'))
-    stringParam('DATA_NODE_VERSION', '', h('version of data node (binary tag, or S3 path)'))
-    choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
-    booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
-    booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
-    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
-    booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
-    booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
+def capsuleParams() {
+    return {
+        booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
+        stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
+        stringParam('VEGA_VERSION', '', h('version of vega core (tag, branch, commit or S3 path)'))
+        booleanParam('BUILD_VEGA_BINARIES', false, h('determine whether vega binaries are built or downloaded'))
+        booleanParam('PUBLISH_BINARIES', false, h('determine whether binaries are published to S3'))
+        stringParam('DATA_NODE_VERSION', '', h('version of data node (binary tag, or S3 path)'))
+        choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
+        booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
+        booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
+        booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
+        booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
+    }
 }
 
-vegavisorParamsBase = {
-    stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-    stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-    stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
-    stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
-    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+def vegavisorParamsBase() {
+    return {
+        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    }
 }
 
-vegavisorRestartNetworkParams = vegavisorParamsBase << {
-    choiceParam('ACTION', ['restart-network', 'quick-restart-network', 'create-network'], h('action to be performed with a network: 1. restart-network - regular restart, 2. quick-restart-network - fast restart without config updates, 3. create-network - reset network'))
-    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-    stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-    stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
-    stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
-    booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
+def vegavisorRestartNetworkParams(args=[:]) {
+    return vegavisorParamsBase() << {
+        choiceParam('ACTION', ['restart-network', 'quick-restart-network', 'create-network'], h('action to be performed with a network: 1. restart-network - regular restart, 2. quick-restart-network - fast restart without config updates, 3. create-network - reset network'))
+        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+        stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
+        stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+        booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
+        booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', false), 'This will download latest checkpoint and use it to restart the network with')
+    }
 }
 
-vegavisorRestartNodeParams = vegavisorParamsBase << {
-    choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
-    booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-    booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
-    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-    stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+def vegavisorRestartNodeParams(args=[:]) {
+    return vegavisorParamsBase() << {
+        choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
+        booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
+        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
+        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+        choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" }, 'Choose which node to restart')
+    }
 }
 
-vegavisorProtocolUpgradeParams = vegavisorParamsBase << {
-    stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-    Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-    stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-    booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
+def vegavisorProtocolUpgradeParams() {
+    return vegavisorParamsBase() << {
+        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
+        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
+        booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
+    }
 }
 
-systemTestsParamsGeneric = {
-    stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
-    stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-    stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-    stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-    stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-    stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-    stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-    stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
-    stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
-    booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+def systemTestsParamsGeneric(args=[:]) {
+    return {
+        stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
+        stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+        stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+        stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+        stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
+        stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
+        booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+        if (args.sceanrio){
+            choiceParam('SCENARIO', args.scenario == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+        }
+    }
 }
 
-systemTestsParamsWrapper = systemTestsParamsGeneric << {
-    stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-    stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-    stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
-    stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
-    stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
-    stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
+def systemTestsParamsWrapper() {
+    return systemTestsParamsGeneric() << {
+        stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+        stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+        stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
+        stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
+        stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
+        stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
+    }
 }
 
 def jobs = [
@@ -195,7 +214,7 @@ def jobs = [
     [
         name: 'private/Deployments/Vegacapsule/Stagnet 3',
         useScmDefinition: false,
-        parameters: capsuleParams,
+        parameters: capsuleParams(),
         definition: libDefinition('''pipelineDeployVegacapsule([
                 networkName: 'stagnet3',
                 nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
@@ -262,9 +281,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
             NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
         ],
-        parameters: vegavisorRestartNetworkParams << {
-            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
-        },
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -274,9 +291,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
         ],
-        parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.devnet1.vega.xyz" }, 'Choose which node to restart')
-        },
+        parameters: vegavisorRestartNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -289,7 +304,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams,
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     //
@@ -303,9 +318,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorRestartNetworkParams << {
-            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
-        },
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -315,9 +328,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.stagnet1.vega.xyz" }, 'Choose which node to restart')
-        },
+        parameters: vegavisorRestartNodeParams(name: 'stagnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -330,7 +341,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams,
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     // fairground
@@ -342,9 +353,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorRestartNetworkParams << {
-            booleanParam('USE_CHECKPOINT', false, 'This will download latest checkpoint and use it to restart the network with')
-        },
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -354,9 +363,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: vegavisorRestartNodeParams << {
-            choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.testnet.vega.xyz" }, 'Choose which node to restart')
-        },
+        parameters: vegavisorRestartNodeParams(name: 'testnet'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -369,7 +376,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams,
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -391,7 +398,7 @@ def jobs = [
         name: 'common/system-tests-wrapper',
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
-        parameters: systemTestsParamsWrapper,
+        parameters: systemTestsParamsWrapper(),
         copyArtifacts: true,
         daysToKeep: 14,
     ],
@@ -400,9 +407,7 @@ def jobs = [
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric << {
-            choiceParam('SCENARIO', ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
-        },
+        parameters: systemTestsParamsGeneric(scenario: 'PR'),
         copyArtifacts: true,
         daysToKeep: 14,
     ],
@@ -411,9 +416,7 @@ def jobs = [
         description: 'This job is executed every 24h to ensure stability of the system',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric << {
-            choiceParam('SCENARIO', ['NIGHTLY', 'PR'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
-        },
+        parameters: systemTestsParamsGeneric(scenario: 'NIGHTLY'),
         copyArtifacts: true,
         daysToKeep: 14,
         cron: 'H 0 * * *',
