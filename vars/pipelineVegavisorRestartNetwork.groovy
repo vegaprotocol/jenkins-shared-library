@@ -359,7 +359,7 @@ void call() {
                 }
                 steps {
                     dir('devopstools') {
-                        sh 'go run main.go network self-delegate --network' + env.NET_NAME
+                        sh 'go run main.go network self-delegate --network ' + env.NET_NAME
                     }
                 }
             }
@@ -371,9 +371,9 @@ void call() {
                 }
                 steps {
                     dir('devopstools') {
-                        sh 'go run main.go market propose --network' + env.NET_NAME
+                        sh 'go run main.go market propose --network ' + env.NET_NAME
                         sleep 30 * 7
-                        sh 'go run main.go market provide-lp --network' + env.NET_NAME
+                        sh 'go run main.go market provide-lp --network ' + env.NET_NAME
                     }
                 }
             }
