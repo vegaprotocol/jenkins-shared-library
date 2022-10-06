@@ -76,7 +76,7 @@ void call(Map customConfig = [:]) {
   String releasedVersion = params.VEGA_VERSION ?: config.networkName + '-' + env.BUILD_NUMBER
   def vegacapsuleSecrets = [
     [path: 'service/' + config.networkName + '/network_components', engineVersion: 2, secretValues: [
-        [envVar: 'POSTGRES_PASSWORD', vaultKey: 'POSTGRES_PASSWORD'],
+        [envVar: 'POSTGRES_VEGA_PASSWORD', vaultKey: 'POSTGRES_PASSWORD'],
     ]],
     [path: 'service/' + config.networkName + '/ethereum_node', engineVersion: 2, secretValues: [
         [envVar: 'INFURA_URL', vaultKey: 'url'],
