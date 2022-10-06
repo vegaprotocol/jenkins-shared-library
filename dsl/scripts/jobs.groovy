@@ -400,6 +400,36 @@ def jobs = [
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'devnet1',
+            BOT_JOB_NS: 'Devnet-1',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            BOT_JOB_NS: 'Stagnet-1',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
     // system-tests
     [
         name: 'common/system-tests-wrapper',

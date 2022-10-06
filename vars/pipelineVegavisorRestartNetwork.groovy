@@ -405,7 +405,7 @@ void call() {
                 }
                 steps {
                     build(
-                        job: "private/Deployments/${(env.NET_NAME as String).capitalize()}/Topup-Bots",
+                        job: "private/Deployments/${env.BOT_JOB_NS ?: (env.NET_NAME as String).capitalize()}/Topup-Bots",
                         propagate: false,  // don't fail
                         wait: false, // don't wait
                     )
