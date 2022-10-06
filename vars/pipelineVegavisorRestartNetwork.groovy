@@ -103,11 +103,12 @@ void call() {
                             }
                         }
                         steps {
-                            script {
-                                gitClone(
-                                    directory: 'devopstools',
-                                    vegaUrl: 'devopstools',
-                                    branch: params.DEVOPSTOOLS_BRANCH)
+                            gitClone(
+                                directory: 'devopstools',
+                                vegaUrl: 'devopstools',
+                                branch: params.DEVOPSTOOLS_BRANCH)
+                            dir ('devopstools') {
+                                sh 'go mod download'
                             }
                         }
                     }
@@ -358,10 +359,10 @@ void call() {
                     }
                 }
                 steps {
-                    dir('devopstools') {
-                        sleep 30
-                        sh 'go run main.go network self-delegate --network ' + env.NET_NAME
-                    }
+                    sleep 30
+                    wtihDevopstools(
+                        command: 'network self-delegate'
+                    )
                 }
             }
             stage('Create markets & provide lp'){
@@ -371,11 +372,13 @@ void call() {
                     }
                 }
                 steps {
-                    dir('devopstools') {
-                        sh 'go run main.go market propose --network ' + env.NET_NAME
-                        sleep 30 * 7
-                        sh 'go run main.go market provide-lp --network ' + env.NET_NAME
-                    }
+                    wtihDevopstools(
+                        command: 'market propose'
+                    )
+                    sleep 30 * 7
+                    withDevopstools(
+                        command: 'market provide-lp'
+                    )
                 }
             }
             stage('Update faucet & wallet') {
