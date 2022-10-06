@@ -349,7 +349,7 @@ void call() {
                     }
                 }
             }
-            stage('provide liquidity') {
+            stage('Validators self-delegate') {
                 when {
                     not {
                         expression {
