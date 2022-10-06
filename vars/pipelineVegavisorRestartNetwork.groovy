@@ -44,7 +44,7 @@ void call() {
                     }
                     stage('k8s'){
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { params.DOCKER_VERSION }
                         }
                         steps {
                             script {
