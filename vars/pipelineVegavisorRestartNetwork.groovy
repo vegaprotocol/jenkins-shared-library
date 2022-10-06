@@ -95,9 +95,14 @@ void call() {
                                 expression {
                                     params.CREATE_MARKETS
                                 }
-                                not {
+                                allOf {
+                                    not {
+                                        expression {
+                                            params.USE_CHECKPOINT
+                                        }
+                                    }
                                     expression {
-                                        params.USE_CHECKPOINT
+                                        ['restart-network', 'quick-restart-network'].contains(params.ACTION)
                                     }
                                 }
                             }
