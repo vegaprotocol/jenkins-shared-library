@@ -359,6 +359,7 @@ void call() {
                 }
                 steps {
                     dir('devopstools') {
+                        sleep 30
                         sh 'go run main.go network self-delegate --network ' + env.NET_NAME
                     }
                 }
