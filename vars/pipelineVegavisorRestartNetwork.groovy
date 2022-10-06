@@ -91,8 +91,15 @@ void call() {
                     }
                     stage('devopstools') {
                         when {
-                            expression {
-                                params.CREATE_MARKETS
+                            anyOf {
+                                expression {
+                                    params.CREATE_MARKETS
+                                }
+                                not {
+                                    expression {
+                                        params.USE_CHECKPOINT
+                                    }
+                                }
                             }
                         }
                         steps {
