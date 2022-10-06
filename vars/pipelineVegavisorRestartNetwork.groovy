@@ -69,6 +69,23 @@ void call() {
                             }
                         }
                     }
+                    stage('provide liquidity') {
+                        when {
+                            not {
+                                expression {
+                                    params.USE_CHECKPOINT
+                                }
+                            }
+                            expression {
+                                ['restart-network', 'quick-restart-network'].contains(params.ACTION)
+                            }
+                        }
+                        steps {
+                            dir('devopstools') {
+                                sh 'go run main.go network self-delegate --network' + env.NET_NAME
+                            }
+                        }
+                    }
                     stage('ansible'){
                         steps {
                             script {
@@ -89,33 +106,18 @@ void call() {
                             }
                         }
                     }
-                    stage('devops-infra') {
+                    stage('devopstools') {
                         when {
                             expression {
-                                params.CREATE_MARKETS || params.CREATE_INCENTIVE_MARKETS
+                                params.CREATE_MARKETS
                             }
                         }
                         steps {
                             script {
                                 gitClone(
-                                    directory: 'devops-infra',
-                                    vegaUrl: 'devops-infra',
-                                    branch: params.DEVOPS_INFRA_BRANCH)
-                            }
-                        }
-                    }
-                    stage('devopsscripts') {
-                        when {
-                            expression {
-                                params.CREATE_MARKETS || params.CREATE_INCENTIVE_MARKETS
-                            }
-                        }
-                        steps {
-                            script {
-                                gitClone(
-                                    directory: 'devopsscripts',
-                                    vegaUrl: 'devopsscripts',
-                                    branch: params.DEVOPSSCRIPTS_BRANCH)
+                                    directory: 'devopstools',
+                                    vegaUrl: 'devopstools',
+                                    branch: params.DEVOPSTOOLS_BRANCH)
                             }
                         }
                     }
@@ -364,59 +366,21 @@ void call() {
                     }
                 }
                 options {
-                    timeout(40)
+                    timeout(unit: 'SECONDS', time: 30 * 7)
                 }
                 steps {
-                    veganetSh(
-                        network: config.networkName,
-                        command: 'create_markets',
-                    )
-                }
-            }
-            stage('Create Incentive Markets') {
-                when {
-                    expression {
-                        params.CREATE_INCENTIVE_MARKETS
+                    dir('devopstools') {
+                        sh 'go run main.go market propose --network' + env.NET_NAME
                     }
-                }
-                steps {
-                    veganetSh(
-                        network: config.networkName,
-                        command: 'incentive_create_markets',
-                    )
                 }
             }
             stage('Provide liquidity commitment') {
                 when {
-                    allOf {
-                        expression {
-                            params.CREATE_INCENTIVE_MARKETS || params.CREATE_MARKETS
-                        }
-                    }
+                    params.CREATE_MARKETS
                 }
                 steps {
-                    script {
-                        def secrets = [
-                            [path: 'wallet/markets-creator/' + env.NET_NAME, engineVersion: 2, secretValues: [
-                                [envVar: 'wallet_name', vaultKey: 'wallet-name'],
-                                [envVar: 'wallet_pass', vaultKey: 'wallet-password'],
-                                [envVar: 'wallet_uri', vaultKey: 'wallet-uri'],
-                                [envVar: 'data_node_host', vaultKey: 'data-node-host'],
-                            ]]
-                        ]
-
-                        withVault([vaultSecrets: secrets]) {
-                            dir('devopsscripts') {
-                                sh '''
-                                go mod vendor;
-                                go run main.go markets liquidity-provision-commitment \
-                                    --data-node-host "$data_node_host" \
-                                    --wallet-uri "$wallet_uri" \
-                                    --wallet-name $wallet_name \
-                                    --wallet-password $wallet_pass \
-                                    --no-secrets'''
-                            }
-                        }
+                    dir('devopstools') {
+                        sh 'go run main.go market provide-lp --network' + env.NET_NAME
                     }
                 }
             }
