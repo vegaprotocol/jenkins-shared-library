@@ -84,7 +84,7 @@ void call() {
         steps {
           script {
             if (scenario == null) {
-              error('Invalid scenario. Please update the 'SCENARIO' parameter. Selected the ' + params.SCENARIO)
+              error('Invalid scenario. Please update the "SCENARIO" parameter. Selected the ' + params.SCENARIO)
             }
 
             parallel scenario.collectEntries { name, testSpec ->
