@@ -69,23 +69,6 @@ void call() {
                             }
                         }
                     }
-                    stage('provide liquidity') {
-                        when {
-                            not {
-                                expression {
-                                    params.USE_CHECKPOINT
-                                }
-                            }
-                            expression {
-                                ['restart-network', 'quick-restart-network'].contains(params.ACTION)
-                            }
-                        }
-                        steps {
-                            dir('devopstools') {
-                                sh 'go run main.go network self-delegate --network' + env.NET_NAME
-                            }
-                        }
-                    }
                     stage('ansible'){
                         steps {
                             script {
@@ -356,6 +339,23 @@ void call() {
                                 message: ":scream: Failed to start ${params.RELEASE_VERSION} on ${env.NET_NAME} <${jobURL}|more> :boom: (${duration})",
                             )
                         }
+                    }
+                }
+            }
+            stage('provide liquidity') {
+                when {
+                    not {
+                        expression {
+                            params.USE_CHECKPOINT
+                        }
+                    }
+                    expression {
+                        ['restart-network', 'quick-restart-network'].contains(params.ACTION)
+                    }
+                }
+                steps {
+                    dir('devopstools') {
+                        sh 'go run main.go network self-delegate --network' + env.NET_NAME
                     }
                 }
             }
