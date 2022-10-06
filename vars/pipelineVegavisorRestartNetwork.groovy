@@ -95,14 +95,9 @@ void call() {
                                 expression {
                                     params.CREATE_MARKETS
                                 }
-                                allOf {
-                                    not {
-                                        expression {
-                                            params.USE_CHECKPOINT
-                                        }
-                                    }
+                                not {
                                     expression {
-                                        ['restart-network', 'quick-restart-network'].contains(params.ACTION)
+                                        params.USE_CHECKPOINT
                                     }
                                 }
                             }
@@ -361,9 +356,6 @@ void call() {
                             params.USE_CHECKPOINT
                         }
                     }
-                    expression {
-                        ['restart-network', 'quick-restart-network'].contains(params.ACTION)
-                    }
                 }
                 steps {
                     dir('devopstools') {
@@ -371,27 +363,16 @@ void call() {
                     }
                 }
             }
-            stage('Create markets'){
+            stage('Create markets & provide lp'){
                 when {
                     expression {
                         params.CREATE_MARKETS
                     }
                 }
-                options {
-                    timeout(unit: 'SECONDS', time: 30 * 7)
-                }
                 steps {
                     dir('devopstools') {
                         sh 'go run main.go market propose --network' + env.NET_NAME
-                    }
-                }
-            }
-            stage('Provide liquidity commitment') {
-                when {
-                    params.CREATE_MARKETS
-                }
-                steps {
-                    dir('devopstools') {
+                        sleep 30 * 7
                         sh 'go run main.go market provide-lp --network' + env.NET_NAME
                     }
                 }
