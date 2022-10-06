@@ -192,7 +192,7 @@ def systemTestsParamsGeneric(args=[:]) {
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
-        if (args.sceanrio){
+        if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.scenario == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
     }
@@ -407,7 +407,7 @@ def jobs = [
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric(scenario: 'PR'),
+        parameters: systemTestsParamsGeneric('SCENARIO': 'PR'),
         copyArtifacts: true,
         daysToKeep: 14,
     ],
@@ -416,7 +416,7 @@ def jobs = [
         description: 'This job is executed every 24h to ensure stability of the system',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric(scenario: 'NIGHTLY'),
+        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY'),
         copyArtifacts: true,
         daysToKeep: 14,
         cron: 'H 0 * * *',
