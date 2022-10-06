@@ -69,6 +69,7 @@ void call() {
       ],
     ]
   ][params.SCENARIO]
+
   pipeline {
     agent none
     stages {
@@ -82,6 +83,10 @@ void call() {
       stage('Call tests') {
         steps {
           script {
+            if (scenario == null) {
+              error('Invalid scenario. Please update the 'SCENARIO' parameter. Selected the ' + params.SCENARIO)
+            }
+
             parallel scenario.collectEntries { name, testSpec ->
               [
                 (name): {
