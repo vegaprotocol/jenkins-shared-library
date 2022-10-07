@@ -131,7 +131,6 @@ capsuleParams = {
     stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
     booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
     booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
-    booleanParam('SKIP_MULTISIGN_SETUP', false, h('When true validators are not added to multisig as signers'))
 }
 
 veganetParamsBase = {
@@ -203,8 +202,18 @@ systemTestsParamsWrapper = systemTestsParamsGeneric << {
     stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
     stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
     stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
-    stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
+    stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from') // Is it required???
     stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
+    booleanParam('SKIP_MULTISIGN_SETUP', false, h('When true validators are not added to multisig as signers'))
+}
+
+lnlSystemTestsparams = systemTestsParamsGeneric << {
+    stringParam('SYSTEM_TESTS_TEST_FUNCTION', 'test_checkpoint_loaded', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+    stringParam('SYSTEM_TESTS_TEST_MARK', '', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+    stringParam('SYSTEM_TESTS_TEST_DIRECTORY', 'tests/LNL', 'Run tests from files in this directory and all sub-directories')
+    stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
+    stringParam('CAPSULE_CONFIG', 'mainnet_config.hcl', 'Run tests using the given vegacapsule config file')
+    booleanParam('SKIP_MULTISIGN_SETUP', true, h('When true validators are not added to multisig as signers'))
 }
 
 def jobs = [
@@ -397,6 +406,14 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
         parameters: systemTestsParamsWrapper,
+        copyArtifacts: true,
+        daysToKeep: 14,
+    ],
+    [
+        name: 'common/system-tests-lnl-mainnet',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleLNL()'),
+        parameters: lnlSystemTestsparams,
         copyArtifacts: true,
         daysToKeep: 14,
     ],
