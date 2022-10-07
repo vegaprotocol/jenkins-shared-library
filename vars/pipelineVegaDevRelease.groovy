@@ -26,7 +26,7 @@ void call() {
                 // [GIT_BRANCH:origin/master,
                 // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41, 
+                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
                 return checkout([
                     $class: 'GitSCM',
@@ -80,7 +80,7 @@ void call() {
                                         returnStdout: true,
                                     ).trim()
                                     versionHash = sh(
-                                        script: "git rev-parse --short HEAD",
+                                        script: "git rev-parse HEAD | cut -b1-8",
                                         returnStdout: true,
                                     ).trim()
                                     def orgVersion = sh(
