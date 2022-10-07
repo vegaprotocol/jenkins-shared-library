@@ -473,10 +473,25 @@ def jobs = [
         daysToKeep: 14,
     ],
     [
-        name: 'private/Snapshots/Devnet',
+        name: 'private/Snapshots/Devnet1',
         useScmDefinition: false,
         env: [
             NET_NAME: 'devnet1',
+            DISABLE_TENDERMINT: 'true'
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Stagnet1',
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'stagnet1',
             DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
