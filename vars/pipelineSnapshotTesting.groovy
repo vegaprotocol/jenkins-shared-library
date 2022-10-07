@@ -93,6 +93,7 @@ void call(Map config=[:]) {
 
                     stage('Download') {
                         parallel([
+                            // TODO: add to jenkins-agnet build
                             'dependencies': {
                                 sh label: 'download dasel to edit toml files',
                                     script: '''#!/bin/bash -e
@@ -105,7 +106,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp vega core from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vegavisor_home/current/vega vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
@@ -116,7 +117,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp genesis.json from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json genesis.json
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json
