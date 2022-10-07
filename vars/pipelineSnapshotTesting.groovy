@@ -138,18 +138,18 @@ void call(Map config=[:]) {
                     stage("Get Tendermint config") {
                         try {
                             // Check TM version
-                            def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
+                            def status_req = new URL("https://tm.${remoteServer}/status").openConnection();
                             def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                             TM_VERSION = status.result.node_info.version
 
                             // Get data from TM
                             if(TM_VERSION.startsWith("0.34")) {
-                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                                 def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                                 RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                                 PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                             } else {
-                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                                 def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                                 def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                                 RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
@@ -158,7 +158,7 @@ void call(Map config=[:]) {
 
 
                             // Get trust block info
-                            def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
+                            def block_req = new URL("https://tm.${remoteServer}/block").openConnection();
                             def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
                             TRUST_HASH = tm_block.result.block_id.hash
                             TRUST_HEIGHT = tm_block.result.block.header.height
@@ -325,7 +325,7 @@ void call(Map config=[:]) {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
                                 echo "http://${jenkinsAgentPublicIP}:3003/statistics"
                                 echo "https://${remoteServer}/statistics"
-                                echo "https://${remoteServer}/tm/net_info"
+                                echo "https://tm.${remoteServer}/net_info"
                             }
                         )
                     }
