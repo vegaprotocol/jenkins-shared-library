@@ -3,26 +3,6 @@ library (
     changelog: false,
 )
 
-customParams = [
-    ORIGIN_REPO: 'vegaprotocol/vega',
-    VEGA_BRANCH: 'develop',
-    SYSTEM_TESTS_BRANCH: 'lnl-pipeline',
-    VEGACAPSULE_BRANCH: 'lnl-pipeline',
-    VEGATOOLS_BRANCH: 'develop',
-    DEVOPS_INFRA_BRANCH: 'master',
-    DEVOPSSCRIPTS_BRANCH: 'lnl-pipeline',
-    SYSTEM_TESTS_DEBUG: false,
-    TIMEOUT: 600,
-    PRINT_NETWORK_LOGS: false,
-    SYSTEM_TESTS_TEST_FUNCTION: 'test_checkpoint_loaded',
-    SYSTEM_TESTS_TEST_MARK: '',
-    SYSTEM_TESTS_TEST_DIRECTORY: 'tests/LNL',
-    TEST_EXTRA_PYTEST_ARGS: '',
-    CAPSULE_CONFIG: '',
-
-    SKIP_MULTISIGN_SETUP: true,
-]
-
 capsuleSystemTests([
     vegacapsuleConfig: 'mainnet_config.hcl',
     systemTestsBranch: 'lnl-pipeline',
@@ -87,7 +67,7 @@ capsuleSystemTests([
                 '''
             }
         ],
-        postRunTests: [
+        postPipeline: [
             'Archive checkpoints and genesis': {
                 [
                     'system-tests/tests/LNL/checkpoint-resume.json',
@@ -99,6 +79,8 @@ capsuleSystemTests([
                             artifacts: it,
                             allowEmptyArchive: true
                         )
+                    } else {
+                        print('[WARN] Artifact ' + it + ' not found. Archive skipped')
                     }
                 }
             }

@@ -1,10 +1,10 @@
+/* groovylint-disable
+  BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
+  FactoryMethodName, VariableTypeRequired */
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'test-instance',
-    vegacapsuleConfig: params.CAPSULE_CONFIG,
-
-    systemTestsBranch: params.SYSTEM_TESTS_BRANCH,
+    agentLabel: 'system-tests-capsule',
   ]
 
   Map config = defaultConfig + additionalConfig
@@ -43,8 +43,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("Parameters") 
               print("==========")
               print("${params}")
-              print("PATH = " + env.PATH)
-              print("networkPath = " + networkPath)
 
             }
           }
@@ -56,7 +54,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           script {
             def repositories = [
               [ name: params.ORIGIN_REPO, branch: params.VEGA_BRANCH ],
-              [ name: 'vegaprotocol/system-tests', branch: config.systemTestsBranch ],
+              [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
               [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
@@ -119,7 +117,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
       stage('prepare system tests and network') {
         parallel {
-          stage('start the network') {
+          stage('generate network config') {
             environment {
               PATH = "${networkPath}:${env.PATH}"
             }
@@ -134,7 +132,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     }
                     timeout(time: 3, unit: 'MINUTES') {
                       sh '''./vegacapsule network generate \
-                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + config.vegacapsuleConfig + ''' \
+                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
                         --home-path ''' + testNetworkDir + '''/testnet
                       '''
                     }
@@ -371,7 +369,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           slack.slackSendCIStatus(
             name: 'System Tests Capsule',
             channel: '#qa-notify',
-            branch: 'st:' + config.systemTestsBranch + ' | vega:' + params.VEGA_BRANCH
+            branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
           )
         }
         cleanWs()
