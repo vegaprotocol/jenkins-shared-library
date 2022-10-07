@@ -175,8 +175,7 @@ def vegavisorRestartNodeParams(args=[:]) {
 
 def vegavisorProtocolUpgradeParams() {
     return vegavisorParamsBase() << {
-        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 200')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
     }

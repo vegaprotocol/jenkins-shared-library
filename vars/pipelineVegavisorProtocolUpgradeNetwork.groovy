@@ -194,12 +194,16 @@ void call() {
                         }
                     }
                     script {
-                        dir('devopstools') {
-                            protocolUpgradeBlock = sh(
-                                script: "go run main.go network stats --block --network ${env.NET_NAME}",
-                                returnStdout: true,
-                            ).trim() as int
-                            protocolUpgradeBlock += 200
+                        if (params.UPGRADE_BLOCK) {
+                            protocolUpgradeBlock = params.UPGRADE_BLOCK as int
+                        } else {
+                            dir('devopstools') {
+                                protocolUpgradeBlock = sh(
+                                    script: "go run main.go network stats --block --network ${env.NET_NAME}",
+                                    returnStdout: true,
+                                ).trim() as int
+                                protocolUpgradeBlock += 200
+                            }
                         }
                     }
                     dir('ansible') {
