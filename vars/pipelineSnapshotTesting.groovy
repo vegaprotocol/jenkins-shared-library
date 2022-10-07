@@ -10,10 +10,10 @@ void call(Map config=[:]) {
     String vegaNetwork = config.network ?: 'devnet1'
     // todo: checkout ansible repo and read inventory
     Map<String, List<String>> serversByNetwork = [
-        'devnet1': (0..4).collect { "n0${String.format("%02d\n", it)}.devnet1.vega.xyz" },
-        'stagnet1': (0..4).collect { "n0${String.format("%02d\n", it)}.stagnet1.vega.xyz" },
-        'stagnet3': (1..9).collect { "n0${String.format("%02d\n", it)}.stagnet3.vega.xyz" },
-        'fairground': (0..12).collect { "n0${String.format("%02d\n", it)}.testnet.vega.xyz" },
+        'devnet1': (0..4).collect { "n${String.format("%02d\n", it)}.devnet1.vega.xyz" },
+        'stagnet1': (0..4).collect { "n${String.format("%02d\n", it)}.stagnet1.vega.xyz" },
+        'stagnet3': (1..9).collect { "n${String.format("%02d\n", it)}.stagnet3.vega.xyz" },
+        'fairground': (0..12).collect { "n${String.format("%02d\n", it)}.testnet.vega.xyz" },
     ]
     List<String> vegaNetworkList = new ArrayList<String>()
     vegaNetworkList.addAll(serversByNetwork.keySet())
