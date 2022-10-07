@@ -74,6 +74,15 @@ void call(Map customConfig = [:]) {
     devopsscriptsBranch: 'main',
   ] + customConfig
   String releasedVersion = params.VEGA_VERSION ?: config.networkName + '-' + env.BUILD_NUMBER
+  def vegacapsuleSecrets = [
+    [path: 'service/' + config.networkName + '/network_components', engineVersion: 2, secretValues: [
+        [envVar: 'POSTGRES_VEGA_PASSWORD', vaultKey: 'POSTGRES_PASSWORD'],
+    ]],
+    [path: 'service/' + config.networkName + '/ethereum_node', engineVersion: 2, secretValues: [
+        [envVar: 'INFURA_URL', vaultKey: 'url'],
+    ]],
+  ]
+
 
   pipeline {
     agent any
@@ -204,7 +213,7 @@ void call(Map customConfig = [:]) {
                 sh 'mv vegacapsule ../bin'
               }
               sh 'chmod +x bin/vegacapsule'
-              sh 'vegacapsule --help'
+              sh 'vegacapsule version'
             }
           }
 
@@ -223,7 +232,7 @@ void call(Map customConfig = [:]) {
               sh 'unzip vegacapsule-linux-amd64.zip'
               sh 'mv vegacapsule bin/'
               sh 'chmod +x bin/vegacapsule'
-              sh 'vegacapsule --help'
+              sh 'vegacapsule version'
             }
           }
 
@@ -394,14 +403,16 @@ void call(Map customConfig = [:]) {
               dir('networks-internal/' + config.networkName + '/vegacapsule') {
                 sh "ls -als \"${env.WORKSPACE}/bin\""
                 sh "echo $PATH"
-                sh '''vegacapsule network generate \
-                                --force \
-                                --config-path ./config.hcl \
-                                --home-path ./home'''
+                withVault([vaultSecrets: vegacapsuleSecrets]) {
+                  sh '''vegacapsule network generate \
+                                  --force \
+                                  --config-path ./config.hcl \
+                                  --home-path ./home'''
 
-                sh '''vegacapsule network keys import \
-                                --keys-file-path  ./network.json \
-                                --home-path ./home'''
+                  sh '''vegacapsule network keys import \
+                                  --keys-file-path  ./network.json \
+                                  --home-path ./home'''
+                }
               }
             }
           }
@@ -413,12 +424,14 @@ void call(Map customConfig = [:]) {
             steps {
               script {
                 dir('networks-internal/' + config.networkName + '/vegacapsule') {
-                  templateConfigs(
-                    'live config (git / networks-internal)',
-                    './home',
-                    './config',
-                    '--out-dir "./../live-config"'
-                  )
+                  withVault([vaultSecrets: vegacapsuleSecrets]) {
+                    templateConfigs(
+                      'live config (git / networks-internal)',
+                      './home',
+                      './config',
+                      '--out-dir "./../live-config"'
+                    )
+                  }
                 }
               }
             }
@@ -508,7 +521,9 @@ void call(Map customConfig = [:]) {
         }
         steps {
           dir('networks-internal/' + config.networkName + '/vegacapsule') {
-            sh "vegacapsule network start --home-path './home' --do-not-stop-on-failure"
+            withVault([vaultSecrets: vegacapsuleSecrets]) {
+              sh "vegacapsule network start --home-path './home' --do-not-stop-on-failure"
+            }
           }
         }
       }
