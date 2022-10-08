@@ -332,19 +332,28 @@ void call() {
                     success {
                         script {
                             String duration = currentBuild.durationString - ' and counting'
+                            String action = 'restarted'
+                            if (params.RELEASE_VERSION) {
+                                action = "deployed `${params.RELEASE_VERSION}` on"
+                            }
                             slackSend(
                                 channel: '#env-deploy',
                                 color: 'good',
-                                message: ":astronaut: Successfully started ${params.RELEASE_VERSION} on ${env.NET_NAME} <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
+                                message: ":astronaut: Successfully ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
                             )
                         }
                     }
                     unsuccessful {
                         script {
+                            String duration = currentBuild.durationString - ' and counting'
+                            String action = 'restart'
+                            if (params.RELEASE_VERSION) {
+                                action = "deploy `${params.RELEASE_VERSION}` to"
+                            }
                             slackSend(
                                 channel: '#env-deploy',
                                 color: 'danger',
-                                message: ":scream: Failed to start ${params.RELEASE_VERSION} on ${env.NET_NAME} <${jobURL}|more> :boom: (${duration})",
+                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${jobURL}|more> :boom: (${duration})",
                             )
                         }
                     }
@@ -373,7 +382,7 @@ void call() {
                 }
                 steps {
                     withDevopstools(
-                        command: 'market propose'
+                        command: 'market propose --all'
                     )
                     sleep 30 * 7
                     withDevopstools(
