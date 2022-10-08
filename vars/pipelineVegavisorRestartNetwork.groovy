@@ -390,6 +390,20 @@ void call() {
                     )
                 }
             }
+            stage('Top up bots') {
+                when {
+                    expression {
+                        params.TOP_UP_BOTS
+                    }
+                }
+                steps {
+                    build(
+                        job: "private/Deployments/${env.BOT_JOB_NS ?: (env.NET_NAME as String).capitalize()}/Topup-Bots",
+                        propagate: false,  // don't fail
+                        wait: false, // don't wait
+                    )
+                }
+            }
             stage('Update faucet & wallet') {
                 when {
                     expression { params.DOCKER_VERSION }
@@ -408,20 +422,6 @@ void call() {
                             )
                         }
                     }
-                }
-            }
-            stage('Top up bots') {
-                when {
-                    expression {
-                        params.TOP_UP_BOTS
-                    }
-                }
-                steps {
-                    build(
-                        job: "private/Deployments/${env.BOT_JOB_NS ?: (env.NET_NAME as String).capitalize()}/Topup-Bots",
-                        propagate: false,  // don't fail
-                        wait: false, // don't wait
-                    )
                 }
             }
         }
