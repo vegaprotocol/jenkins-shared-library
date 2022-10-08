@@ -282,6 +282,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
             NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
+            BOT_JOB_NS: 'Devnet-1',
         ],
         parameters: vegavisorRestartNetworkParams(
             'CREATE_MARKETS': true,
@@ -322,6 +323,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
+            BOT_JOB_NS: 'Stagnet-1',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -357,6 +359,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
+            BOT_JOB_NS: 'Fairground',
         ],
         parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
         disableConcurrentBuilds: true,
@@ -404,7 +407,6 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'devnet1',
-            BOT_JOB_NS: 'Devnet-1',
         ],
         parameters: {
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
@@ -414,12 +416,11 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        name: 'private/Deployments/Stagnet-1/Topup-Bots',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'stagnet1',
-            BOT_JOB_NS: 'Stagnet-1',
         ],
         parameters: {
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
