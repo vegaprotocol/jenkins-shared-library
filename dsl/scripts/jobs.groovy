@@ -275,14 +275,13 @@ def jobs = [
     // Devnet 1
     //
     [
-        name: 'private/Deployments/Devnet-1/Restart-Network',
+        name: 'private/Deployments/devnet1/Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
             NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
-            BOT_JOB_NS: 'Devnet-1',
         ],
         parameters: vegavisorRestartNetworkParams(
             'CREATE_MARKETS': true,
@@ -291,7 +290,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Devnet-1/Restart-Node',
+        name: 'private/Deployments/devnet1/Restart-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
@@ -303,7 +302,7 @@ def jobs = [
         parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
-        name: 'private/Deployments/Devnet-1/Protocol-Upgrade',
+        name: 'private/Deployments/devnet1/Protocol-Upgrade',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -317,19 +316,18 @@ def jobs = [
     // Stagnet 1
     //
     [
-        name: 'private/Deployments/Stagnet-1/Restart-Network',
+        name: 'private/Deployments/stagnet1/Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
-            BOT_JOB_NS: 'Stagnet-1',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Stagnet-1/Restart-Node',
+        name: 'private/Deployments/stagnet1/Restart-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
@@ -341,7 +339,7 @@ def jobs = [
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
-        name: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
+        name: 'private/Deployments/stagnet1/Protocol-Upgrade',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -353,19 +351,18 @@ def jobs = [
     ],
     // fairground
     [
-        name: 'private/Deployments/Fairground/Restart-Network',
+        name: 'private/Deployments/fairground/Restart-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNetwork()'),
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
-            BOT_JOB_NS: 'Fairground',
         ],
         parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Fairground/Restart-Node',
+        name: 'private/Deployments/fairground/Restart-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorRestartNode()'),
         env: [
@@ -377,7 +374,7 @@ def jobs = [
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
-        name: 'private/Deployments/Fairground/Protocol-Upgrade',
+        name: 'private/Deployments/fairground/Protocol-Upgrade',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -388,7 +385,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Fairground/Topup-Bots',
+        name: 'private/Deployments/fairground/Topup-Bots',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -402,7 +399,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Devnet-1/Topup-Bots',
+        name: 'private/Deployments/devnet1/Topup-Bots',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -416,7 +413,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/Stagnet-1/Topup-Bots',
+        name: 'private/Deployments/stagnet1/Topup-Bots',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [

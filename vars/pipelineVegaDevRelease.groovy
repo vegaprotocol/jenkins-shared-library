@@ -214,7 +214,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Devnet-1/Restart-Network',
+                                    job: 'private/Deployments/devnet1/Restart-Network',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
@@ -233,7 +233,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
+                                    job: 'private/Deployments/stagnet1/Protocol-Upgrade',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
