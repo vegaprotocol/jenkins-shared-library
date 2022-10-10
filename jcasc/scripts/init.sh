@@ -36,13 +36,6 @@ cat > ~/.ssh/config <<EOF
         HostName bots.ops.vega.xyz
 EOF
 chmod 600 ~/.ssh/config
-# Update known_hosts for Devnet
-for i in {1..4}; do
-    # Remove
-    ssh-keygen -R "n0$i.d.vega.xyz" || true
-    # Readd
-    ssh-keyscan -t rsa,dsa "n0$i.d.vega.xyz" >> ~/.ssh/known_hosts || true
-done
 # Update Devnet 1
 for i in {00..50}; do
     # Remove
@@ -65,14 +58,12 @@ for i in {00..50}; do
     ssh-keyscan -t rsa,dsa "n$i.stagnet3.vega.xyz" >> ~/.ssh/known_hosts || true
 done
 # Update Fairground
-for i in {01..12}; do
+for i in {00..12}; do
     # Remove
     ssh-keygen -R "n$i.testnet.vega.xyz" || true
     # Readd
     ssh-keyscan -t rsa,dsa "n$i.testnet.vega.xyz" >> ~/.ssh/known_hosts || true
 done
-# Update known_hosts for vega-bot-1
-ssh-keyscan -t rsa,dsa "bots.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 # Update known_hosts for observers
 ssh-keyscan -t rsa,dsa "mainnet-observer.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 ssh-keyscan -t rsa,dsa "testnet-observer.ops.vega.xyz" >> ~/.ssh/known_hosts || true

@@ -522,7 +522,6 @@ def jobs = [
         name: 'private/Automations/Checkpoint-Backup',
         useScmDefinition: false,
         parameters: {
-            booleanParam('DEVNET', false, 'Backup the latest checkpoint from the Devnet')
             booleanParam('DEVNET_1', false, 'Backup the latest checkpoint from the Devnet 1')
             booleanParam('FAIRGROUND', true, 'Backup the latest checkpoint from the Fairground network')
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
@@ -548,7 +547,7 @@ def jobs = [
         ],
         cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
-        description: 'Top-Up bots on the Devnet network. Runs every 4 hours.',
+        description: 'Top-Up bots on the Stagnet3 network. Runs every 4 hours.',
         definition: libDefinition('pipelineTopUpBots()'),
     ],
 ]

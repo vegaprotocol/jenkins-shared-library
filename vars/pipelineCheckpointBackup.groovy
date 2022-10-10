@@ -19,7 +19,7 @@ void call() {
                 // [GIT_BRANCH:origin/master,
                 // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41, 
+                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
                 return checkout([
                     $class: 'GitSCM',
@@ -67,26 +67,6 @@ void call() {
                         sh '''#!/bin/bash -e
                             go mod download -x
                         '''
-                    }
-                }
-            }
-            stage('Devnet - download latest checkpoint') {
-                when {
-                    expression { params.DEVNET }
-                }
-                options { retry(3) }
-                steps {
-                    dir('checkpoint-store') {
-                        withCredentials([sshCredentials]) {
-                            sh label: 'Download latest checkpoint', script: """#!/bin/bash -e
-                                go run scripts/main.go \
-                                    download-latest \
-                                    --network devnet \
-                                    --ssh-user "\${PSSH_USER}" \
-                                    --ssh-private-keyfile "\${PSSH_KEYFILE}"
-                            """
-                            sh 'git add devnet/*'
-                        }
                     }
                 }
             }
