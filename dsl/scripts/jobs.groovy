@@ -153,8 +153,14 @@ def vegavisorParamsBase() {
 }
 
 def vegavisorRestartNetworkParams(args=[:]) {
+    def choices = [
+        'restart-network': 'regular restart',
+        'quick-restart-network': 'fast restart without config updates',
+        'create-network': 'reset network',
+        'stop-network': 'stop entire network',
+    ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', ['restart-network', 'quick-restart-network', 'create-network'], h('action to be performed with a network: 1. restart-network - regular restart, 2. quick-restart-network - fast restart without config updates, 3. create-network - reset network'))
+        choiceParam('ACTION', choices.keys(), h('action to be performed with a network') + ul(choices))
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
@@ -173,6 +179,7 @@ def vegavisorRestartNodeParams(args=[:]) {
         'restart-node': 'regular restart',
         'quick-restart-node': 'fast restart without config updates',
         'create-node': 'reset node',
+        'stop-node': 'stop node',
         'recreate-node': 'wipe node data and set it up again',
     ]
     return vegavisorParamsBase() << {
