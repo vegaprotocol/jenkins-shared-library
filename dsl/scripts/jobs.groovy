@@ -26,6 +26,11 @@ def h(def text, def num=4) {
     return "<h${num}>${text}</h${num}>"
 }
 
+def ul(ulMap) {
+    def entries = ulMap.collectEntries{k, v -> "<li>${k} - ${v}</li>"}
+    return "<ul>${entries}</ul>"
+}
+
 
 def standardDescription() {
     def url = "https://github.com/vegaprotocol/jenkins-shared-library/tree/main/dsl"
@@ -164,8 +169,14 @@ def vegavisorRestartNetworkParams(args=[:]) {
 }
 
 def vegavisorRestartNodeParams(args=[:]) {
+    def choices = [
+        'restart-node': 'regular restart',
+        'quick-restart-node': 'fast restart without config updates',
+        'create-node': 'reset node',
+        'recreate-node': 'wipe node data and set it up again',
+    ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
+        choiceParam('ACTION', choices.keys(), h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
