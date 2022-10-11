@@ -160,7 +160,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
         'stop-network': 'stop entire network',
     ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', choices.keys(), h('action to be performed with a network') + ul(choices))
+        choiceParam('ACTION', choices.keySet(), h('action to be performed with a network') + ul(choices))
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
@@ -183,7 +183,7 @@ def vegavisorRestartNodeParams(args=[:]) {
         'recreate-node': 'wipe node data and set it up again',
     ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', choices.keys(), h('action to be performed with a node') + ul(choices) )
+        choiceParam('ACTION', choices.keySet(), h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
