@@ -214,7 +214,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/devnet1/Restart-Network',
+                                    job: 'private/Deployments/devnet1/Manage-Network',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
