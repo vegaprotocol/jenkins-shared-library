@@ -26,8 +26,8 @@ def h(def text, def num=4) {
     return "<h${num}>${text}</h${num}>"
 }
 
-def ul(ulMap) {
-    def entries = ulMap.collect{ k, v -> "<li>${k} - ${v}</li>" }.collect("\n")
+def ul(def ulMap) {
+    def entries = ulMap.collect{ "<li>${it.key} - ${it.value}</li>" }.collect("\n")
     return "<ul>${entries}</ul>"
 }
 
