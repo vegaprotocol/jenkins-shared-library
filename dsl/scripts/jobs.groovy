@@ -277,7 +277,7 @@ def jobs = [
     // Devnet 1
     //
     [
-        name: 'private/Deployments/devnet1/Restart-Network',
+        name: 'private/Deployments/devnet1/Manage-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
@@ -292,7 +292,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/devnet1/Restart-Node',
+        name: 'private/Deployments/devnet1/Manage-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
@@ -318,7 +318,7 @@ def jobs = [
     // Stagnet 1
     //
     [
-        name: 'private/Deployments/stagnet1/Restart-Network',
+        name: 'private/Deployments/stagnet1/Manage-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
@@ -329,7 +329,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/stagnet1/Restart-Node',
+        name: 'private/Deployments/stagnet1/Manage-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
@@ -353,7 +353,7 @@ def jobs = [
     ],
     // fairground
     [
-        name: 'private/Deployments/fairground/Restart-Network',
+        name: 'private/Deployments/fairground/Manage-Network',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
@@ -364,7 +364,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/fairground/Restart-Node',
+        name: 'private/Deployments/fairground/Manage-Node',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
