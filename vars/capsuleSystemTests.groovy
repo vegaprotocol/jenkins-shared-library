@@ -190,25 +190,9 @@ void call(Map additionalConfig) {
         }
       }
 
-      stage('run tests') {
-        options {
-          timeout(time: params.TIMEOUT, unit: 'MINUTES')
-        }
-        environment {
-          TESTS_DIR = "${testNetworkDir}"
-          NETWORK_HOME_PATH = "${testNetworkDir}/testnet"
-          TEST_FUNCTION= "${params.SYSTEM_TESTS_TEST_FUNCTION}"
-          TEST_MARK= "${params.SYSTEM_TESTS_TEST_MARK}"
-          TEST_DIRECTORY= "${params.SYSTEM_TESTS_TEST_DIRECTORY}"
-          USE_VEGACAPSULE= 'true'
-          SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
-          VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
-          SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
-        }
+      stage('TEST STUFF in THIS STAGE') {
         steps {
-          dir('system-tests/scripts') {
-              sh 'make test'
-          }
+          print("fill this in")
         }
       }
 
