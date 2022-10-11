@@ -43,6 +43,8 @@ def createCommonPipeline(args){
 
     return pipelineJob(args.name) {
 
+        disabled(args.get('disabled', false))
+
         description(des)
 
         logRotator {
@@ -505,6 +507,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Fairground',
+        disabled: true,
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
