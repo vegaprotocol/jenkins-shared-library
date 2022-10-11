@@ -140,13 +140,7 @@ void call(Map additionalConfig) {
               retry(3)
             }
             steps {
-              dir('system-tests/scripts') {
-                sh 'make check'
-                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  sh 'make prepare-test-docker-image'
-                  sh 'make build-test-proto'
-                }
-              }
+              print("empty")
             }
           }
 
@@ -235,30 +229,6 @@ void call(Map additionalConfig) {
               }
             }
           }
-          dir('system-tests') {
-            archiveArtifacts(
-              artifacts: 'build/test-reports/**/*',
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: 'test_logs/**/*',
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: 'checkpoints/**/*',
-              allowEmptyArchive: true
-            )
-            junit(
-              checksName: 'System Tests',
-              testResults: 'build/test-reports/system-test-results.xml',
-              skipMarkingBuildUnstable: false,
-              skipPublishingChecks: false,
-            )
-          }
-          archiveArtifacts(
-            artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
-            allowEmptyArchive: true
-          )
         }
         script {
           slack.slackSendCIStatus(
