@@ -24,6 +24,13 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    script {
+                        if (params.ACTION == 'recreate-node') {
+                            // doesn't respect params.NODE
+                            // cleanup non-validator and start it as non-validator
+                            node = 'n00.stagnet1.vega.xyz'
+                        }
+                    }
                 }
             }
             stage('Checkout') {
@@ -131,15 +138,14 @@ void call() {
                                 }
                             }
                             dir('ansible') {
-                                // Note: environment variables PSSH_KEYFILE and PSSH_USER
-                                //        are set by withCredentials wrapper
+                                // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
                                 sh label: 'ansible playbook run', script: """#!/bin/bash -e
                                     ansible-playbook \
                                         --diff \
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
-                                        --limit "${params.RANDOM_NODE ? nodeName : params.NODE}" \
+                                        --limit "${nodeName ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
                                         --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml

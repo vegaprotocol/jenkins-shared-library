@@ -26,6 +26,11 @@ def h(def text, def num=4) {
     return "<h${num}>${text}</h${num}>"
 }
 
+def ul(ulMap) {
+    def entries = ulMap.collectEntries{k, v -> "<li>${k} - ${v}</li>"}
+    return "<ul>${entries}</ul>"
+}
+
 
 def standardDescription() {
     def url = "https://github.com/vegaprotocol/jenkins-shared-library/tree/main/dsl"
@@ -148,8 +153,14 @@ def vegavisorParamsBase() {
 }
 
 def vegavisorRestartNetworkParams(args=[:]) {
+    def choices = [
+        'restart-network': 'regular restart',
+        'quick-restart-network': 'fast restart without config updates',
+        'create-network': 'reset network',
+        'stop-network': 'stop entire network',
+    ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', ['restart-network', 'quick-restart-network', 'create-network'], h('action to be performed with a network: 1. restart-network - regular restart, 2. quick-restart-network - fast restart without config updates, 3. create-network - reset network'))
+        choiceParam('ACTION', choices.keys(), h('action to be performed with a network') + ul(choices))
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
@@ -164,8 +175,15 @@ def vegavisorRestartNetworkParams(args=[:]) {
 }
 
 def vegavisorRestartNodeParams(args=[:]) {
+    def choices = [
+        'restart-node': 'regular restart',
+        'quick-restart-node': 'fast restart without config updates',
+        'create-node': 'reset node',
+        'stop-node': 'stop node',
+        'recreate-node': 'wipe node data and set it up again',
+    ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', ['restart-node', 'quick-restart-node', 'create-node'], h('action to be performed with a node: 1. restart-node - regular restart, 2. quick-restart-node - fast restart without config updates, 3. create-node - reset node'))
+        choiceParam('ACTION', choices.keys(), h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
@@ -277,9 +295,9 @@ def jobs = [
     // Devnet 1
     //
     [
-        name: 'private/Deployments/devnet1/Restart-Network',
+        name: 'private/Deployments/devnet1/Manage-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
@@ -292,9 +310,9 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/devnet1/Restart-Node',
+        name: 'private/Deployments/devnet1/Manage-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'devnet1',
         ],
@@ -318,9 +336,9 @@ def jobs = [
     // Stagnet 1
     //
     [
-        name: 'private/Deployments/stagnet1/Restart-Network',
+        name: 'private/Deployments/stagnet1/Manage-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
@@ -329,9 +347,9 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/stagnet1/Restart-Node',
+        name: 'private/Deployments/stagnet1/Manage-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet1',
         ],
@@ -353,9 +371,9 @@ def jobs = [
     ],
     // fairground
     [
-        name: 'private/Deployments/fairground/Restart-Network',
+        name: 'private/Deployments/fairground/Manage-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
@@ -364,9 +382,9 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/fairground/Restart-Node',
+        name: 'private/Deployments/fairground/Manage-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'fairground',
         ],
