@@ -279,7 +279,7 @@ def jobs = [
     [
         name: 'private/Deployments/devnet1/Restart-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
@@ -294,7 +294,7 @@ def jobs = [
     [
         name: 'private/Deployments/devnet1/Restart-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'devnet1',
         ],
@@ -320,7 +320,7 @@ def jobs = [
     [
         name: 'private/Deployments/stagnet1/Restart-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
@@ -331,7 +331,7 @@ def jobs = [
     [
         name: 'private/Deployments/stagnet1/Restart-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet1',
         ],
@@ -355,7 +355,7 @@ def jobs = [
     [
         name: 'private/Deployments/fairground/Restart-Network',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNetwork()'),
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
@@ -366,7 +366,7 @@ def jobs = [
     [
         name: 'private/Deployments/fairground/Restart-Node',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorRestartNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'fairground',
         ],

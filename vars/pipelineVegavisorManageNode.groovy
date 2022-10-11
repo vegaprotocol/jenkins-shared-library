@@ -139,8 +139,8 @@ void call() {
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
-                                        --limit "${params.RANDOM_NODE ? nodeName : params.NODE}" \
-                                        --tag "${params.ACTION}" \
+                                        --limit "${nodeName ?: params.NODE}" \
+                                        --tag "${action ?: params.ACTION}" \
                                         --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
