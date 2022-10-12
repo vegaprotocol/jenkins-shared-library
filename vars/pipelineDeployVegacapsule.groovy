@@ -572,7 +572,7 @@ void call(Map customConfig = [:]) {
         }
 
         steps {
-          sleep 60
+          sleep 120 // hotfix for https://github.com/vegaprotocol/devops-infra/issues/1558
           veganetSh(
             network: config.networkName,
             command: 'create_markets',
