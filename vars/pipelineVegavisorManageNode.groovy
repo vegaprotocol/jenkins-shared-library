@@ -175,20 +175,19 @@ void call() {
                     }
                 }
             }
-        }
-        stage('Configure node') {
-            when {
-                expression {
-                    params.ACTION == 'recreate-node'
+            stage('Configure node') {
+                when {
+                    expression {
+                        params.ACTION == 'recreate-node'
+                    }
+                }
+                steps {
+                    dir('devopstools') {
+                        sh "go run main.go secrets node --help"
+                    }
                 }
             }
-            steps {
-                dir('devopstools') {
-                    sh "go run main.go secrets node --help"
-                }
-            }
         }
-
         post {
             always {
                 cleanWs()
