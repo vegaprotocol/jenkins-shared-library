@@ -1,48 +1,29 @@
 /* groovylint-disable
   BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
   FactoryMethodName, VariableTypeRequired */
-void buildGoBinary(String directory, String outputBinary, String packages) {
-  timeout(time: 5, unit: 'MINUTES') {
-    dir(directory) {
-      // sh 'go mod vendor'
-      sh "go build -o ${outputBinary} ${packages}"
-      sh "chmod +x ${outputBinary}"
-    }
-  }
-}
+void call(Map additionalConfig=[:], parametersOverride=[:]) {
+  Map defaultConfig = [
+    hooks: [:],
+    agentLabel: 'system-tests-capsule',
+    extraEnvVars: [:],
+  ]
 
-def boxPublicIP() {
-    def commands = [
-      'curl -4 icanhazip.com',
-      'curl ifconfig.co',
-      'curl ipinfo.io/ip',
-      'curl api.ipify.org',
-      'dig +short myip.opendns.com @resolver1.opendns.com',
-      'curl ident.me',
-      'curl ipecho.net/plain'
-    ]
+  Map config = defaultConfig + additionalConfig
+  params = params + parametersOverride
 
-    for (it in commands) {
-      try {
-        boxIp = sh(script: it, returnStdout:true).trim()
+  Map pipelineHooks = [
+      postNetworkGenerate: [:],
+      postNetworkStart: [:],
+      runTests: [:],
+      postRunTests: [:],
+      postPipeline: [:],
+  ] + config.hooks
 
-        if (boxIp != "") {
-          return boxIp;
-        }
-      } catch(err) {
-        // TODO: Add fallback to other services or linux commands
-        print("Cannot get the box IP with command " + it + " : " + err)
-      }
-    }
-
-    return ""
-}
-
-void call(Map additionalConfig) {
   pipeline {
     agent {
-      label 'system-tests-capsule'
+      label config.agentLabel
     }
+    
     options {
       ansiColor('xterm')
       timestamps()
@@ -53,12 +34,14 @@ void call(Map additionalConfig) {
           script {
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
-              publicIP = boxPublicIP()
+              networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
+
+              publicIP = agent.getPublicIP()
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
 
-              print("Parameters")
+              print("Parameters") 
               print("==========")
               print("${params}")
 
@@ -78,7 +61,7 @@ void call(Map additionalConfig) {
               [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
             ]
-            def steps = repositories.collectEntries{value -> [
+            def reposSteps = repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
@@ -89,14 +72,14 @@ void call(Map additionalConfig) {
                     timeout: 2,
                   ])
                 }
-              ]}
-            steps['pull system tests image'] = {
+            ]}
+            reposSteps['pull system tests image'] = {
                 withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
                   sh "docker pull ghcr.io/vegaprotocol/system-tests:latest"
                   sh "docker tag ghcr.io/vegaprotocol/system-tests:latest system-tests:local"
                 }
             }
-            parallel steps
+            parallel reposSteps
             }
           }
         }
@@ -109,11 +92,13 @@ void call(Map additionalConfig) {
               [ repository: 'vega', name: 'vega', packages: './cmd/vega' ],
               [ repository: 'vega', name: 'data-node', packages: './cmd/data-node' ],
               [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
+              [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
+              [ repository: 'vegatools', name: 'vegatools', packages: './'],
             ]
             parallel binaries.collectEntries{value -> [
               value.name,
               {
-                buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+                vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
               }
             ]}
           }
@@ -131,9 +116,32 @@ void call(Map additionalConfig) {
         }
       }
 
-
       stage('prepare system tests and network') {
         parallel {
+          stage('generate network config') {
+            environment {
+              PATH = "${networkPath}:${env.PATH}"
+            }
+
+            steps {
+              script {
+                dir(testNetworkDir) {
+                    withCredentials([
+                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                    ]) {
+                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+                    }
+                    timeout(time: 3, unit: 'MINUTES') {
+                      sh '''./vegacapsule network generate \
+                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
+                        --home-path ''' + testNetworkDir + '''/testnet
+                      '''
+                    }
+                }
+              }
+            }
+          }
+
           stage('build system-tests docker images') {
             options {
               timeout(time: 10, unit: 'MINUTES')
@@ -149,43 +157,88 @@ void call(Map additionalConfig) {
               }
             }
           }
+        }
+      }
 
-          stage('start the network') {
-            steps {
-              script {
-                dir(testNetworkDir) {
-                  try {
-                    withCredentials([
-                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                    ]) {
-                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                    }
-                    timeout(time: 5, unit: 'MINUTES') {
-                      sh '''./vegacapsule network bootstrap \
-                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
-                        --home-path ''' + testNetworkDir + '''/testnet
-                      '''
-                    }
-                  } finally {
-                    sh 'docker logout https://ghcr.io'
-                  }
-                  sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-                  sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-                  sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
+      stage('post network generate steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postNetworkGenerate') && pipelineHooks.postNetworkGenerate.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postNetworkGenerate
+          }
+        }
+      }
+
+      stage('start network') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            dir(testNetworkDir) {
+              try {
+                timeout(time: 3, unit: 'MINUTES') {
+                  sh '''./vegacapsule network start \
+                    --home-path ''' + testNetworkDir + '''/testnet
+                  '''
                 }
+              } finally {
+                sh 'docker logout https://ghcr.io'
               }
+              
+              // sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
+              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
+              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
             }
           }
         }
       }
 
       stage('setup multisig contract') {
+        when {
+          not {
+            expression {
+              params.SKIP_MULTISIGN_SETUP
+            }
+          }
+        }
+        
         options {
           timeout(time: 2, unit: 'MINUTES')
         }
         steps {
           dir(testNetworkDir) {
             sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
+          }
+        }
+      }
+
+      stage('post start network steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postNetworkStart') && pipelineHooks.postNetworkStart.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        options {
+          timeout(time: 10, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postNetworkStart
           }
         }
       }
@@ -204,15 +257,50 @@ void call(Map additionalConfig) {
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
+          PATH = "${networkPath}:${env.PATH}"
         }
+
         steps {
-          dir('system-tests/scripts') {
-              sh 'make test'
+          script {
+            Map runStages = [
+              'run system-tests': {
+                dir('system-tests/scripts') {
+                    sh 'make test'
+                }
+              }
+            ]
+            if (pipelineHooks.containsKey('runTests') && pipelineHooks.runTests.size() > 0) {
+              runStages = runStages + pipelineHooks.runTests
+            }
+
+            withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
+              sh 'printenv'
+              parallel runStages
+            }
           }
         }
       }
 
+
+
+      stage('post run tests steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postRunTests') && pipelineHooks.postRunTests.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postRunTests
+          }
+        }
+      }
     }
+
     post {
       always {
         catchError {
@@ -275,6 +363,11 @@ void call(Map additionalConfig) {
             artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
             allowEmptyArchive: true
           )
+          script {
+            if (pipelineHooks.containsKey('postPipeline') && pipelineHooks.postPipeline.size() > 0) {
+              parallel pipelineHooks.postPipeline
+            }
+          }
         }
         script {
           slack.slackSendCIStatus(
@@ -288,14 +381,3 @@ void call(Map additionalConfig) {
     }
   }
 }
-
-/**
- * Example usage
- */
-// call([
-//   systemTestsTestFunction: 'test_importWalletValidRecoverPhrase',
-//   preapareSteps: {
-//     // Move it to AMI, will be removed soon
-//       sh 'sudo apt-get install -y daemonize'
-//   }
-// ])
