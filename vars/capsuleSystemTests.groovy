@@ -5,6 +5,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
     agentLabel: 'system-tests-capsule',
+    extraEnvVars: [:],
   ]
 
   Map config = defaultConfig + additionalConfig
@@ -272,7 +273,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               runStages = runStages + pipelineHooks.runTests
             }
 
-            parallel runStages
+            withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
+              sh 'printenv'
+              parallel runStages
+            }
           }
         }
       }
