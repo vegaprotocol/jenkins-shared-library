@@ -136,7 +136,7 @@ void call(Map additionalConfig) {
         parallel {
           stage('build system-tests docker images') {
             options {
-              timeout(time: 5, unit: 'MINUTES')
+              timeout(time: 10, unit: 'MINUTES')
               retry(3)
             }
             steps {
