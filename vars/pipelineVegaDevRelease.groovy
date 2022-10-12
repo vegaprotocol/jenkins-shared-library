@@ -1,3 +1,6 @@
+
+def versionHash
+
 void call() {
     // NOTE: environment variables PSSH_USER and PSSH_KEYFILE are used by veganet.sh script
     /* groovylint-disable-next-line NoDef, VariableTypeRequired */
@@ -23,7 +26,7 @@ void call() {
                 // [GIT_BRANCH:origin/master,
                 // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41, 
+                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
                 // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
                 return checkout([
                     $class: 'GitSCM',
@@ -76,8 +79,8 @@ void call() {
                                         script: "git rev-list --no-merges --count HEAD",
                                         returnStdout: true,
                                     ).trim()
-                                    def versionHash = sh(
-                                        script: "git rev-parse --short HEAD",
+                                    versionHash = sh(
+                                        script: "git rev-parse HEAD | cut -b1-8",
                                         returnStdout: true,
                                     ).trim()
                                     def orgVersion = sh(
@@ -211,11 +214,12 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Devnet-1/Restart-Network',
+                                    job: 'private/Deployments/devnet1/Manage-Network',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
                                         string(name: 'RELEASE_VERSION', value: versionTag),
+                                        string(name: 'DOCKER_VERSION', value: versionHash),
                                         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
                                     ]
                                 )
@@ -229,7 +233,7 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/Stagnet-1/Protocol-Upgrade',
+                                    job: 'private/Deployments/stagnet1/Protocol-Upgrade',
                                     propagate: false,
                                     wait: false,
                                     parameters: [

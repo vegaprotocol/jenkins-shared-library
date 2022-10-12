@@ -44,7 +44,7 @@ void call() {
                     }
                     stage('k8s'){
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { params.DOCKER_VERSION }
                         }
                         steps {
                             script {
@@ -86,6 +86,29 @@ void call() {
                                     directory: 'networks-internal',
                                     vegaUrl: 'networks-internal',
                                     branch: params.NETWORKS_INTERNAL_BRANCH)
+                            }
+                        }
+                    }
+                    stage('devopstools') {
+                        when {
+                            anyOf {
+                                expression {
+                                    params.CREATE_MARKETS
+                                }
+                                not {
+                                    expression {
+                                        params.USE_CHECKPOINT
+                                    }
+                                }
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'devopstools',
+                                vegaUrl: 'devopstools',
+                                branch: params.DEVOPSTOOLS_BRANCH)
+                            dir ('devopstools') {
+                                sh 'go mod download'
                             }
                         }
                     }
@@ -243,29 +266,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Generate vegawallet config') {
-                        options { retry(3) }
-                        steps {
-                            dir('ansible') {
-                                script {
-                                    env.DATA_NODE_IDS = sh(script:"""
-                                        go run scripts/main.go \
-                                            get-data-node-ids \
-                                            --network "${env.NET_NAME}"
-                                    """, returnStdout:true).trim()
-                                }
-                            }
-                            dir('networks-internal') {
-                                sh label: 'Generate vegawallet config', script: """#!/bin/bash -e
-                                    go run scripts/main.go \
-                                        generate-vegawallet-config \
-                                        --network "${env.NET_NAME}" \
-                                        --data-node-ids "${env.DATA_NODE_IDS}"
-                                """
-                                sh "git add ${env.NET_NAME}/*"
-                            }
-                        }
-                    }
                     stage('Commit changes') {
                         environment {
                             NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
@@ -279,7 +279,7 @@ void call() {
                                         sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                         sh 'git config --global user.name "vega-ci-bot"'
                                         sh "git stash"
-                                        sh "git switch ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git switch --force ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
                                         sh "git checkout stash -- ${env.NET_NAME}/*"
                                         sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
                                         sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
@@ -328,10 +328,85 @@ void call() {
                         }
                     }
                 }
+                post {
+                    success {
+                        script {
+                            String duration = currentBuild.durationString - ' and counting'
+                            String action = 'restarted'
+                            if (params.RELEASE_VERSION) {
+                                action = "deployed `${params.RELEASE_VERSION}` on"
+                            }
+                            slackSend(
+                                channel: '#env-deploy',
+                                color: 'good',
+                                message: ":astronaut: Successfully ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
+                            )
+                        }
+                    }
+                    unsuccessful {
+                        script {
+                            String duration = currentBuild.durationString - ' and counting'
+                            String action = 'restart'
+                            if (params.RELEASE_VERSION) {
+                                action = "deploy `${params.RELEASE_VERSION}` to"
+                            }
+                            slackSend(
+                                channel: '#env-deploy',
+                                color: 'danger',
+                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${jobURL}|more> :boom: (${duration})",
+                            )
+                        }
+                    }
+                }
+            }
+            stage('Validators self-delegate') {
+                when {
+                    not {
+                        expression {
+                            params.USE_CHECKPOINT
+                        }
+                    }
+                }
+                steps {
+                    sleep 30
+                    withDevopstools(
+                        command: 'network self-delegate'
+                    )
+                }
+            }
+            stage('Create markets & provide lp'){
+                when {
+                    expression {
+                        params.CREATE_MARKETS
+                    }
+                }
+                steps {
+                    withDevopstools(
+                        command: 'market propose --all'
+                    )
+                    sleep 30 * 7
+                    withDevopstools(
+                        command: 'market provide-lp'
+                    )
+                }
+            }
+            stage('Top up bots') {
+                when {
+                    expression {
+                        params.TOP_UP_BOTS
+                    }
+                }
+                steps {
+                    build(
+                        job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
+                        propagate: false,  // don't fail
+                        wait: false, // don't wait
+                    )
+                }
             }
             stage('Update faucet & wallet') {
                 when {
-                    expression { params.VEGA_VERSION }
+                    expression { params.DOCKER_VERSION }
                 }
                 steps {
                     script {
@@ -341,7 +416,7 @@ void call() {
                                 application: app,
                                 directory: 'k8s',
                                 makeCheckout: false,
-                                version: params.VEGA_VERSION,
+                                version: params.DOCKER_VERSION,
                                 forceRestart: false,
                                 timeout: 60,
                             )

@@ -10,9 +10,10 @@ void call(Map config=[:]) {
     String vegaNetwork = config.network ?: 'devnet1'
     // todo: checkout ansible repo and read inventory
     Map<String, List<String>> serversByNetwork = [
-        'devnet1': (1..4).collect { "n0${it}.d.vega.xyz" },
-        'stagnet3': (1..9).collect { "n0${it}.stagnet3.vega.xyz" },
-        'fairground': (1..9).collect { "n0${it}.testnet.vega.xyz" },
+        'devnet1': (0..4).collect { "n${String.format("%02d", it)}.devnet1.vega.xyz" },
+        'stagnet1': (0..4).collect { "n${String.format("%02d", it)}.stagnet1.vega.xyz" },
+        'stagnet3': (1..9).collect { "n${String.format("%02d", it)}.stagnet3.vega.xyz" },
+        'fairground': (0..12).collect { "n${String.format("%02d", it)}.testnet.vega.xyz" },
     ]
     List<String> vegaNetworkList = new ArrayList<String>()
     vegaNetworkList.addAll(serversByNetwork.keySet())
@@ -93,6 +94,7 @@ void call(Map config=[:]) {
 
                     stage('Download') {
                         parallel([
+                            // TODO: add to jenkins-agnet build
                             'dependencies': {
                                 sh label: 'download dasel to edit toml files',
                                     script: '''#!/bin/bash -e
@@ -105,7 +107,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp vega core from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/current/vega vega
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vegavisor_home/current/vega vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
@@ -116,7 +118,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp genesis.json from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/.tendermint/config/genesis.json genesis.json
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json
@@ -137,18 +139,18 @@ void call(Map config=[:]) {
                     stage("Get Tendermint config") {
                         try {
                             // Check TM version
-                            def status_req = new URL("https://${remoteServer}/tm/status").openConnection();
+                            def status_req = new URL("https://tm.${remoteServer}/status").openConnection();
                             def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                             TM_VERSION = status.result.node_info.version
 
                             // Get data from TM
                             if(TM_VERSION.startsWith("0.34")) {
-                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                                 def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                                 RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                                 PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
                             } else {
-                                def net_info_req = new URL("https://${remoteServer}/tm/net_info").openConnection();
+                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                                 def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                                 def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
                                 RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
@@ -157,7 +159,7 @@ void call(Map config=[:]) {
 
 
                             // Get trust block info
-                            def block_req = new URL("https://${remoteServer}/tm/block").openConnection();
+                            def block_req = new URL("https://tm.${remoteServer}/block").openConnection();
                             def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
                             TRUST_HASH = tm_block.result.block_id.hash
                             TRUST_HEIGHT = tm_block.result.block.header.height
@@ -324,7 +326,7 @@ void call(Map config=[:]) {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
                                 echo "http://${jenkinsAgentPublicIP}:3003/statistics"
                                 echo "https://${remoteServer}/statistics"
-                                echo "https://${remoteServer}/tm/net_info"
+                                echo "https://tm.${remoteServer}/net_info"
                             }
                         )
                     }
