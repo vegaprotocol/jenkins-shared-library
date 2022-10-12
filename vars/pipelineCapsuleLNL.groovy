@@ -2,6 +2,9 @@ void call(Map paramsOverrides=[:]) {
     capsuleSystemTests([
         vegacapsuleConfig: 'mainnet_config.hcl',
         systemTestsBranch: 'lnl-pipeline',
+        extraEnvVars: [
+            "MAINNET_TEST_CASE": "true",
+        ],
         hooks: [
             postNetworkGenerate: [
                 'Load mainnet checkpoint': {
@@ -28,7 +31,7 @@ void call(Map paramsOverrides=[:]) {
                                 --vegacapsule-network-home "''' + networkDir + '''/testnet" \
                                 --out-dir "./lnl-workdir" \
                                 --vegacapsule-path "vegacapsule" \
-                                --vegatools-path "vegatools" \
+                                --vega-path "vega" \
                                 --no-secrets
                         '''
 
@@ -46,14 +49,18 @@ void call(Map paramsOverrides=[:]) {
                     }
 
                     rawPath = sh(returnStdout:true,
-                        script: '''vegacapsule nodes wait-for-checkpoint \
-                            --search-from-beginning \
+                        script: '''
+                        devopsscripts vegacapsule wait-for-checkpoint \
+                            --checkpoints 1 \
                             --timeout 10m \
                             --print-last-checkpoint-path-only \
-                            --checkpoints 1 \
-                            --home-path="''' + networkDir + '''/testnet"
+                            --search-from-beginning \
+                            --vegacapsule-path vegacapsule \
+                            --network-home-path "''' + networkDir + '''/testnet" \
+                            --no-secrets
                         '''
                     ).trim()
+                    
                     checkpointPath = vegautils.escapePath(rawPath)
                     sh label: 'Copy found checkpoint', 
                     script: '''vegatools checkpoint \
