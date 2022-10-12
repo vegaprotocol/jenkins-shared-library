@@ -6,7 +6,7 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
-
+    NODE_NAME = ''
     pipeline {
         agent any
         options {
@@ -80,7 +80,7 @@ void call() {
                     script {
                         switch(env.NET_NAME) {
                             case 'devnet1':
-                                nodeName = 'n05.devnet1.vega.xyz'
+                                NODE_NAME = 'n05.devnet1.vega.xyz'
                                 break
                             default:
                                 error("You can't run 'recreate-node' for ${env.NET_NAME}")
@@ -138,11 +138,11 @@ void call() {
                                 if (params.RANDOM_NODE) {
                                     if (params.ACTION == 'recreate-node') {
                                         echo "!!!!! you can't assign random node for 'recreate-node' !!!!!!"
-                                        echo "!!!! ${nodeName} is used instead"
+                                        echo "!!!! ${NODE_NAME} is used instead"
                                     }
                                     else {
                                         dir('devopstools') {
-                                            nodeName = sh (
+                                            NODE_NAME = sh (
                                                 script: "go run main.go live nodename --network ${env.NET_NAME} --random",
                                                 returnStdout: true,
                                             ).trim()
@@ -165,7 +165,7 @@ void call() {
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
-                                        --limit "${nodeName ?: params.NODE}" \
+                                        --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
                                         --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
@@ -200,7 +200,7 @@ void call() {
                             color: 'danger',
                             message: slack.composeMessage(
                                 branch: '',
-                                name: "Restart node (`${nodeName}`) from local snapshot has failed.",
+                                name: "Restart node (`${NODE_NAME}`) from local snapshot has failed.",
                             )
                         )
                     }
@@ -214,7 +214,7 @@ void call() {
                             color: 'good',
                             message: slack.composeMessage(
                                 branch: '',
-                                name: "Restart node (`${nodeName}`) from local snapshot has succeeded.",
+                                name: "Restart node (`${NODE_NAME}`) from local snapshot has succeeded.",
                             )
                         )
                     }
