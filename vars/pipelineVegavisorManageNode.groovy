@@ -24,13 +24,6 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
-                    script {
-                        if (params.ACTION == 'recreate-node') {
-                            // doesn't respect params.NODE
-                            // cleanup non-validator and start it as non-validator
-                            node = 'n00.stagnet1.vega.xyz'
-                        }
-                    }
                 }
             }
             stage('Checkout') {
@@ -77,6 +70,27 @@ void call() {
                     }
                 }
             }
+            stage('Prepare node') {
+                when {
+                    expression {
+                        params.ACTION == 'recreate-node'
+                    }
+                }
+                steps {
+                    script {
+                        switch(env.NET_NAME) {
+                            case 'devnet1':
+                                nodeName = 'n05.devnet1.vega.xyz'
+                                break
+                            default:
+                                error("You can't run 'recreate-node' for ${env.NET_NAME}")
+                        }
+                    }
+                    dir('devopstools') {
+                        sh "go run main.go secrets node --help"
+                    }
+                }
+            }
             stage('Build vaga, data-node, vegawallet and visor') {
                 when {
                     expression { params.VEGA_VERSION }
@@ -112,7 +126,7 @@ void call() {
                     }
                 }
             }
-            stage('Restart Node') {
+            stage('Run ansible playbook') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
@@ -122,11 +136,17 @@ void call() {
                         withCredentials([sshCredentials]) {
                             script {
                                 if (params.RANDOM_NODE) {
-                                    dir('devopstools') {
-                                        nodeName = sh (
-                                            script: "go run main.go live nodename --network ${env.NET_NAME} --random",
-                                            returnStdout: true,
-                                        ).trim()
+                                    if (params.ACTION == 'recreate-node') {
+                                        echo "!!!!! you can't assign random node for 'recreate-node' !!!!!!"
+                                        echo "!!!! ${nodeName} is used instead"
+                                    }
+                                    else {
+                                        dir('devopstools') {
+                                            nodeName = sh (
+                                                script: "go run main.go live nodename --network ${env.NET_NAME} --random",
+                                                returnStdout: true,
+                                            ).trim()
+                                        }
                                     }
                                 }
                                 if (params.VEGA_VERSION) {
@@ -139,7 +159,7 @@ void call() {
                             }
                             dir('ansible') {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
-                                sh label: 'ansible playbook run', script: """#!/bin/bash -e
+                                sh label: 'ansible playbooks/playbook-barenode.yaml', script: """#!/bin/bash -e
                                     ansible-playbook \
                                         --diff \
                                         -u "\${PSSH_USER}" \
@@ -156,6 +176,19 @@ void call() {
                 }
             }
         }
+        stage('Configure node') {
+            when {
+                expression {
+                    params.ACTION == 'recreate-node'
+                }
+            }
+            steps {
+                dir('devopstools') {
+                    sh "go run main.go secrets node --help"
+                }
+            }
+        }
+
         post {
             always {
                 cleanWs()
