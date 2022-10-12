@@ -239,7 +239,7 @@ def lnlSystemTestsparams() {
         stringParam('SYSTEM_TESTS_TEST_MARK', '', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
         stringParam('SYSTEM_TESTS_TEST_DIRECTORY', 'tests/LNL', 'Run tests from files in this directory and all sub-directories')
         stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
-        stringParam('CAPSULE_CONFIG', 'mainnet_config.hcl', 'Run tests using the given vegacapsule config file')
+        stringParam('CAPSULE_CONFIG', 'capsule_config_mainnet.hcl', 'Run tests using the given vegacapsule config file')
         booleanParam('SKIP_MULTISIGN_SETUP', true, h('When true validators are not added to multisig as signers'))
     }
 }
