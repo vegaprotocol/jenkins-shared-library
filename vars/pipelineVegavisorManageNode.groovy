@@ -78,16 +78,18 @@ void call() {
                 }
                 steps {
                     script {
+                        def shortNode = ''
                         switch(env.NET_NAME) {
                             case 'devnet1':
                                 NODE_NAME = 'n05.devnet1.vega.xyz'
+                                shortNode = 'n05'
                                 break
                             default:
                                 error("You can't run 'recreate-node' for ${env.NET_NAME}")
                         }
                     }
                     dir('devopstools') {
-                        sh "go run main.go secrets node --help"
+                        sh "go run main.go secrets create-node --network ${env.NET_NAME} --node ${shortNode} --force"
                     }
                 }
             }
@@ -183,7 +185,7 @@ void call() {
                 }
                 steps {
                     dir('devopstools') {
-                        sh "go run main.go secrets node --help"
+                        sh "echo 'not implemented'"
                     }
                 }
             }
