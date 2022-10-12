@@ -16,6 +16,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       postNetworkStart: [:],
       runTests: [:],
       postRunTests: [:],
+      preNetworkStop: [:],
       postPipeline: [:],
   ] + config.hooks
 
@@ -304,6 +305,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     post {
       always {
         catchError {
+          script {
+            if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
+              parallel pipelineHooks.preNetworkStop
+            }
+          }
+
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
           }
