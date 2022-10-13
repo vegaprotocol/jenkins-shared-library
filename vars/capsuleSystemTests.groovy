@@ -91,10 +91,32 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             def binaries = [
               [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
               [ repository: 'vega', name: 'vega', packages: './cmd/vega' ],
+              [ repository: 'vega', name: 'visor', packages: './cmd/visor' ],
               [ repository: 'vega', name: 'data-node', packages: './cmd/data-node' ],
               [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
               [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
               [ repository: 'vegatools', name: 'vegatools', packages: './'],
+            ]
+            parallel binaries.collectEntries{value -> [
+              value.name,
+              {
+                vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+              }
+            ]}
+          }
+        }
+      }
+
+      stage('build upgrade binaries') {
+        steps {
+          script {
+            dir('vega') {
+                sh label: 'Build upgrade version of vega binary for tests', script: """#!/bin/bash -e
+                sed -i 's/"v0.*"/"v99.99.0+dev"/g' version/version.go
+                """
+            }
+            def binaries = [
+              [ repository: 'vega', name: 'vega-v99.99.0+dev', packages: './cmd/vega' ],
             ]
             parallel binaries.collectEntries{value -> [
               value.name,
@@ -259,6 +281,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
+          VEGACAPSULE_CONFIG_FILENAME = "${params.CAPSULE_CONFIG}"
         }
 
         steps {
