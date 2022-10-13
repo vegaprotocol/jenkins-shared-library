@@ -78,7 +78,6 @@ void call() {
                 }
                 steps {
                     script {
-                        def shortNode = ''
                         switch(env.NET_NAME) {
                             case 'devnet1':
                                 NODE_NAME = 'n05.devnet1.vega.xyz'
