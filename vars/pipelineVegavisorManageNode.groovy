@@ -54,7 +54,7 @@ void call() {
                     stage('devopstools') {
                         when {
                             expression {
-                                params.RANDOM_NODE
+                                params.RANDOM_NODE || params.ACTION == 'recreate-node'
                             }
                         }
                         steps {
