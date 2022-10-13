@@ -23,7 +23,7 @@ String escapePath(String path) {
   BuilderMethodWithSideEffects, CompileStatic, DuplicateStringLiteral,
   FactoryMethodName, VariableTypeRequired */
 void buildGoBinary(String directory, String outputBinary, String packages) {
-  timeout(time: 5, unit: 'MINUTES') {
+  timeout(time: 10, unit: 'MINUTES') {
     dir(directory) {
       // sh 'go mod vendor'
       sh "go build -o ${outputBinary} ${packages}"
