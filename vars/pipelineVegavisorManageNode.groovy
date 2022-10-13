@@ -78,17 +78,19 @@ void call() {
                 }
                 steps {
                     script {
+                        def shortNode = ''
                         switch(env.NET_NAME) {
                             case 'devnet1':
                                 NODE_NAME = 'n05.devnet1.vega.xyz'
+                                shortNode = 'n05'
                                 break
                             default:
                                 error("You can't run 'recreate-node' for ${env.NET_NAME}")
                         }
                     }
-                    dir('devopstools') {
-                        sh "go run main.go secrets node --help"
-                    }
+                    withDevopstools(
+                        command: "secrets create-node --node ${shortNode} --force"
+                    )
                 }
             }
             stage('Build vaga, data-node, vegawallet and visor') {
@@ -183,7 +185,7 @@ void call() {
                 }
                 steps {
                     dir('devopstools') {
-                        sh "go run main.go secrets node --help"
+                        sh "echo 'not implemented'"
                     }
                 }
             }
