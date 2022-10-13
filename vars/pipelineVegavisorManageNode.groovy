@@ -86,6 +86,9 @@ void call() {
                             default:
                                 error("You can't run 'recreate-node' for ${env.NET_NAME}")
                         }
+                        if (!params.VEGA_VERSION  && !params.RELEASE_VERSION) {
+                            error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
+                        }
                     }
                     withDevopstools(
                         command: "secrets create-node --node ${shortNode} --force"
