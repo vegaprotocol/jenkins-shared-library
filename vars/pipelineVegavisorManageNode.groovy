@@ -88,9 +88,9 @@ void call() {
                                 error("You can't run 'recreate-node' for ${env.NET_NAME}")
                         }
                     }
-                    dir('devopstools') {
-                        sh "go run main.go secrets create-node --network ${env.NET_NAME} --node ${shortNode} --force"
-                    }
+                    withDevopstools(
+                        command: "secrets create-node --node ${shortNode} --force"
+                    )
                 }
             }
             stage('Build vaga, data-node, vegawallet and visor') {
