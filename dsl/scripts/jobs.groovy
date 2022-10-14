@@ -346,6 +346,44 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     //
+    // Sandbox
+    //
+    [
+        name: 'private/Deployments/sandbox/Manage-Network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'sandbox',
+            ANSIBLE_LIMIT: 'sandbox',
+            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-sandbox',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/sandbox/Manage-Node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'sandbox',
+        ],
+        parameters: vegavisorRestartNodeParams(name: 'sandbox'),
+        disableConcurrentBuilds: true,
+        // restart a random node every 30min
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/sandbox/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'sandbox',
+            ANSIBLE_LIMIT: 'sandbox',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    //
     // Stagnet 1
     //
     [
