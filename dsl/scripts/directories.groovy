@@ -34,7 +34,7 @@ def dirs = [
     [
         id: 'private/Deployments/sandbox',
         display: 'Sandbox',
-    ]
+    ],
     [
         id: 'private/playgrounds',
         display: 'Playgrounds',
