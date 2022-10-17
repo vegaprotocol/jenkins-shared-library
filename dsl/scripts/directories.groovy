@@ -1,4 +1,4 @@
-directories = [
+def dirs = [
     [
         id: 'private',
         display: '[Private]',
@@ -45,7 +45,7 @@ directories = [
     ]
 ]
 
-directories.each { directory ->
+dirs.each { directory ->
     folder(directory.id){
         displayName(directory.display)
         if (directory.description) {
