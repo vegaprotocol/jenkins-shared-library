@@ -95,7 +95,7 @@ void call() {
                     )
                 }
             }
-            stage('Build vaga, data-node, vegawallet and visor') {
+            stage('Build vega, data-node, vegawallet and visor') {
                 when {
                     expression { params.VEGA_VERSION }
                 }
