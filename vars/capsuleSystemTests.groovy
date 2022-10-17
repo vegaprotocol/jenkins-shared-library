@@ -24,7 +24,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     agent {
       label config.agentLabel
     }
-    
+
     options {
       ansiColor('xterm')
       timestamps()
@@ -42,7 +42,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
 
-              print("Parameters") 
+              print("Parameters")
               print("==========")
               print("${params}")
 
@@ -217,7 +217,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               } finally {
                 sh 'docker logout https://ghcr.io'
               }
-              
+
               // sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
               sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
               sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
@@ -234,7 +234,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
           }
         }
-        
+
         options {
           timeout(time: 2, unit: 'MINUTES')
         }
@@ -333,15 +333,19 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               parallel pipelineHooks.preNetworkStop
             }
           }
-
+        }
+        catchError {
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
           }
+        }
+
+        catchError {
           dir('docker-inspect') {
-            sh label: 'create folder to dump container informations', 
+            sh label: 'create folder to dump container informations',
               script: 'mkdir docker-containers'
-            sh label: 'dump docker containers info', 
-              script: '''for docker_id in $(docker ps --all --format "{{- .ID -}}"); do 
+            sh label: 'dump docker containers info',
+              script: '''for docker_id in $(docker ps --all --format "{{- .ID -}}"); do
                 docker inspect "$docker_id" > "$docker_id.log" || echo "Container $docker_id not found";
               done;'''
 
@@ -350,38 +354,41 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               allowEmptyArchive: true
             )
           }
+        }
 
-          dir(testNetworkDir) {
-            archiveArtifacts(
-              artifacts: 'testnet/**/*',
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: 'nomad.log',
-              allowEmptyArchive: true
-            )
-            script {
-              if (fileExists('log-output')) {
-                archiveArtifacts(
-                  artifacts: 'log-output/**/*',
-                  allowEmptyArchive: true
-                )
-              }
+        dir(testNetworkDir) {
+          archiveArtifacts(
+            artifacts: 'testnet/**/*',
+            allowEmptyArchive: true
+          )
+          archiveArtifacts(
+            artifacts: 'nomad.log',
+            allowEmptyArchive: true
+          )
+          script {
+            if (fileExists('log-output')) {
+              archiveArtifacts(
+                artifacts: 'log-output/**/*',
+                allowEmptyArchive: true
+              )
             }
           }
-          dir('system-tests') {
-            archiveArtifacts(
-              artifacts: 'build/test-reports/**/*',
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: 'test_logs/**/*',
-              allowEmptyArchive: true
-            )
-            archiveArtifacts(
-              artifacts: 'checkpoints/**/*',
-              allowEmptyArchive: true
-            )
+        }
+
+        dir('system-tests') {
+          archiveArtifacts(
+            artifacts: 'build/test-reports/**/*',
+            allowEmptyArchive: true
+          )
+          archiveArtifacts(
+            artifacts: 'test_logs/**/*',
+            allowEmptyArchive: true
+          )
+          archiveArtifacts(
+            artifacts: 'checkpoints/**/*',
+            allowEmptyArchive: true
+          )
+          catchError {
             junit(
               checksName: 'System Tests',
               testResults: 'build/test-reports/system-test-results.xml',
@@ -389,10 +396,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               skipPublishingChecks: false,
             )
           }
-          archiveArtifacts(
-            artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
-            allowEmptyArchive: true
-          )
+        }
+
+        archiveArtifacts(
+          artifacts: pipelineDefaults.art.systemTestCapsuleJunit,
+          allowEmptyArchive: true
+        )
+
+        catchError {
           script {
             if (pipelineHooks.containsKey('postPipeline') && pipelineHooks.postPipeline.size() > 0) {
               parallel pipelineHooks.postPipeline
