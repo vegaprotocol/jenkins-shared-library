@@ -41,7 +41,7 @@ def dirs = [
     ],
     [
         id: 'private/Snapshots',
-        dispaly: 'Snapshots',
+        display: 'Snapshots',
     ],
     [
         id: 'common',
@@ -51,7 +51,9 @@ def dirs = [
 
 dirs.each { directory ->
     folder(directory.id){
-        displayName(directory.display)
+        if (directory.display) {
+            displayName(directory.display)
+        }
         if (directory.description) {
             description(directory.description)
         }
