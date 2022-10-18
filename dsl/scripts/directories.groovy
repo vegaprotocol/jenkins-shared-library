@@ -65,7 +65,7 @@ dirs.each { directory ->
         }
         if (directory.permissions) {
             directory.permissions.each { user, userPermissions ->
-                permission(user, userPermissions)
+                permissions(user, userPermissions)
             }
         }
     }
