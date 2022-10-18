@@ -32,6 +32,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     stages {
       stage('prepare') {
         steps {
+          cleanWs()
           script {
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
