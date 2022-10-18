@@ -244,17 +244,36 @@ def lnlSystemTestsparams() {
     }
 }
 
-def approbationParams() {
+def approbationParams(def config=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
         stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
         stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
         stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
         stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-        stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
-        stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
-        stringParam('IGNORE_ARG','{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
-        stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
+
+        if (config.type == 'core') {
+            stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
+        } else if (config.type == 'frontend') {
+            stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
+        }
+
+        if (config.type == 'core') {
+            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
+        } else if (config.type == 'frontend') {
+            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.js,vegawallet-desktop/frontend/automation/cypress/**/*.cy.js}', '--tests argument value')
+        }
+
+        if (config.type == 'core' ) {
+            stringParam('IGNORE_ARG','{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
+        }
+
+        if (config.type == 'core') {
+            stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
+        } else if (config.type == 'frontend') {
+            stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
+        }
+        
         stringParam('APPROBATION_VERSION', '2.7.1', 'Released version of Approbation. latest can be used')
     }
 }
@@ -647,7 +666,14 @@ def jobs = [
         name: 'common/approbation',
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation()'),
-        paramaters: approbationParams(),
+        paramaters: approbationParams(type: 'core'),
+        copyArtifacts: true,
+    ],
+    [
+        name: 'common/approbation-frontend',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation()'),
+        paramaters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
 ]
