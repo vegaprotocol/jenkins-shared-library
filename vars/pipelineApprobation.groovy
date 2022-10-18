@@ -23,22 +23,6 @@ void call(def config=[:]) {
             timestamps()
             timeout(time: 20, unit: 'MINUTES')
         }
-        post {
-            always {
-                catchError {
-                    archiveArtifacts artifacts: 'results/*',
-                        allowEmptyArchive: true
-                }
-                script {
-                    scriptSlackMsg = sh(
-                        script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
-                        returnStdout: true,
-                    ).trim()
-                    sendSlackMessage(scriptSlackMsg)
-                }
-                cleanWs()
-            }
-        }
         stages {
             stage('CI Config') {
                 steps {
@@ -130,6 +114,22 @@ void call(def config=[:]) {
                             ${params.IGNORE_ARG ? "--ignore=${params.IGNORE_ARG}" : '' } ${params.OTHER_ARG}
                     """
                 }
+            }
+        }
+        post {
+            always {
+                catchError {
+                    archiveArtifacts artifacts: 'results/*',
+                        allowEmptyArchive: true
+                }
+                script {
+                    scriptSlackMsg = sh(
+                        script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
+                        returnStdout: true,
+                    ).trim()
+                    sendSlackMessage(scriptSlackMsg)
+                }
+                cleanWs()
             }
         }
     }

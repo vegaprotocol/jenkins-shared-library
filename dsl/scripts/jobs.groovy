@@ -246,26 +246,30 @@ def lnlSystemTestsparams() {
 
 def approbationParams(def config=[:]) {
     return {
-        stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
         if (config.type == 'core') {
+            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
             stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
             stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-        } else if (config.type == 'frontend') {
+        }
+        else if (config.type == 'frontend') {
             stringParam('FRONTEND_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
             stringParam('VEGAWALLET_DESKTOP_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
         }
+
         stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
 
         if (config.type == 'core') {
             stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
-        } else if (config.type == 'frontend') {
+        }
+        else if (config.type == 'frontend') {
             stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
         }
 
         if (config.type == 'core') {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
-        } else if (config.type == 'frontend') {
+        }
+        else if (config.type == 'frontend') {
             stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.js,vegawallet-desktop/frontend/automation/cypress/**/*.cy.js}', '--tests argument value')
         }
 
@@ -275,7 +279,8 @@ def approbationParams(def config=[:]) {
 
         if (config.type == 'core') {
             stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
-        } else if (config.type == 'frontend') {
+        }
+        else if (config.type == 'frontend') {
             stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
         }
 
