@@ -247,10 +247,15 @@ def lnlSystemTestsparams() {
 def approbationParams(def config=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
-        stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
+        if (config.type == 'core') {
+            stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
+            stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
+            stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+        } else if (config.type == 'frontend') {
+            stringParam('FRONTEND_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
+            stringParam('VEGAWALLET_DESKTOP_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
+        }
         stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
-        stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
-        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
 
         if (config.type == 'core') {
             stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
@@ -273,7 +278,7 @@ def approbationParams(def config=[:]) {
         } else if (config.type == 'frontend') {
             stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
         }
-        
+
         stringParam('APPROBATION_VERSION', '2.7.1', 'Released version of Approbation. latest can be used')
     }
 }
@@ -665,14 +670,14 @@ def jobs = [
     [
         name: 'common/approbation',
         useScmDefinition: false,
-        definition: libDefinition('pipelineApprobation()'),
+        definition: libDefinition('pipelineApprobation(type: "core")'),
         paramaters: approbationParams(type: 'core'),
         copyArtifacts: true,
     ],
     [
         name: 'common/approbation-frontend',
         useScmDefinition: false,
-        definition: libDefinition('pipelineApprobation()'),
+        definition: libDefinition('pipelineApprobation(type: "frontend")'),
         paramaters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],

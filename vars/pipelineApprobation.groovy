@@ -51,6 +51,9 @@ void call(def config=[:]) {
             stage('Git Clone') {
                 parallel {
                     stage('vega core') {
+                        when {
+                            config.type == 'core'
+                        }
                         steps {
                             gitClone(
                                 directory: 'vega',
@@ -69,6 +72,9 @@ void call(def config=[:]) {
                         }
                     }
                     stage('MultisigControl') {
+                        when {
+                            config.type == 'core'
+                        }
                         steps {
                             gitClone(
                                 directory: 'MultisigControl',
@@ -78,11 +84,38 @@ void call(def config=[:]) {
                         }
                     }
                     stage('system-tests') {
+                        when {
+                            config.type == 'core'
+                        }
                         steps {
                             gitClone(
                                 directory: 'system-tests',
                                 vegaUrl: 'system-tests',
                                 branch: params.SYSTEM_TESTS_BRANCH,
+                            )
+                        }
+                    }
+                    stage('frontend-monorepo') {
+                        when {
+                            config.type == 'frontend'
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'frontend-monorepo',
+                                vegaUrl: 'frontend-monorepo',
+                                branch: params.FRONTEND_BRANCH,
+                            )
+                        }
+                    }
+                    stage('vegawallet-desktop') {
+                        when {
+                            config.type == 'frontend'
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'vegawallet-desktop',
+                                vegaUrl: 'vegawallet-desktop',
+                                branch: params.VEGAWALLET_DESKTOP_BRANCH,
                             )
                         }
                     }
