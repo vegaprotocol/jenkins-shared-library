@@ -91,7 +91,7 @@ void call() {
                         }
                     }
                     withDevopstools(
-                        command: "secrets create-node --node ${shortNode} --force"
+                        command: "secrets create-node --node ${shortNode} --force --stake"
                     )
                 }
             }
