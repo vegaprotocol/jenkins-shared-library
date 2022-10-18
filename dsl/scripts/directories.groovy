@@ -63,7 +63,7 @@ dirs.each { directory ->
         }
         if (directory.permissions) {
             directory.permissions.each { user, permission ->
-                permission(user, "hudson.model.${permission}")
+                permission(user, "hudson.model.${permission}" as String)
             }
         }
     }
