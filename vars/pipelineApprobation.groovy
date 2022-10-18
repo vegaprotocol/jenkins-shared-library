@@ -6,115 +6,103 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-void call() {
+void call(def config=[:]) {
 
     String scriptSlackMsg = ''
-
     echo "buildCauses=${currentBuild.buildCauses}"
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
-
     echo "params=${params}"
 
-    node {
-        skipDefaultCheckout()
-        cleanWs()
-
-        timestamps {
-            try {
-                timeout(time: 20, unit: 'MINUTES') {
-                    stage('CI config') {
-                        // Printout all configuration variables
+    pipeline {
+        agent any
+        options {
+            skipDefaultCheckout()
+            timestamps()
+            timeout(time: 20, unit: 'MINUTES')
+        }
+        post {
+            always {
+                catchError {
+                    archiveArtifacts artifacts: 'results/*',
+                        allowEmptyArchive: true
+                }
+                script {
+                    scriptSlackMsg = sh(
+                        script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
+                        returnStdout: true,
+                    ).trim()
+                    sendSlackMessage(scriptSlackMsg)
+                }
+                cleanWs()
+            }
+        }
+        stages {
+            stage('CI Config') {
+                steps {
+                    script {
                         sh 'printenv'
-                        echo "params=${params.inspect()}"
                     }
-                    //
-                    // GIT clone
-                    //
-                    stage('Git Clone') {
-                        parallel([
-                            'vega core': {
-                                dir('vega') {
-                                    gitClone(params.ORIGIN_REPO, params.VEGA_CORE_BRANCH)
-                                }
-                            },
-                            'specs': {
-                                dir('specs') {
-                                    gitClone('vegaprotocol/specs', params.SPECS_BRANCH)
-                                }
-                            },
-                            'MultisigControl': {
-                                dir('MultisigControl') {
-                                    gitClone('vegaprotocol/MultisigControl', params.MULTISIG_CONTROL_BRANCH)
-                                }
-                            },
-                            'system-tests': {
-                                dir('system-tests') {
-                                    gitClone('vegaprotocol/system-tests', params.SYSTEM_TESTS_BRANCH)
-                                }
-                            }
-                        ])
+                    echo "params=${params.inspect()}"
+                }
+            }
+            stage('Git Clone') {
+                parallel {
+                    stage('vega core') {
+                        steps {
+                            gitClone(
+                                directory: 'vega',
+                                githubUrl: params.ORIGIN_REPO,
+                                branch: params.VEGA_CORE_BRANCH,
+                            )
+                        }
                     }
-                    //
-                    // RUN
-                    //
-                    stage('Run Approbation') {
-                        sh label: 'approbation', script: """#!/bin/bash -e
-                            npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
-                                --specs="${params.SPECS_ARG}" \
-                                --tests="${params.TESTS_ARG}" \
-                                --ignore="${params.IGNORE_ARG}" \
-                                ${params.OTHER_ARG}
-                        """
+                    stage('specs') {
+                        steps {
+                            gitClone(
+                                directory: 'specs',
+                                vegaUrl: 'specs',
+                                branch: params.SPECS_BRANCH,
+                            )
+                        }
                     }
-                    //
-                    // Results
-                    //
-                    stage('Store results') {
-                        archiveArtifacts artifacts: 'results/*',
-                                allowEmptyArchive: true
-                        scriptSlackMsg = sh(
-                            script: "cat results/jenkins.txt",
-                            returnStdout: true,
-                        ).trim()
+                    stage('MultisigControl') {
+                        steps {
+                            gitClone(
+                                directory: 'MultisigControl',
+                                vegaUrl: 'MultisigControl',
+                                branch: params.MULTISIG_CONTROL_BRANCH,
+                            )
+                        }
+                    }
+                    stage('system-tests') {
+                        steps {
+                            gitClone(
+                                directory: 'system-tests',
+                                vegaUrl: 'system-tests',
+                                branch: params.SYSTEM_TESTS_BRANCH,
+                            )
+                        }
                     }
                 }
-                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                // i.e. `currentResult` is not set properly in the finally block
-                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                currentBuild.result = currentBuild.result ?: 'SUCCESS'
-                // result can be SUCCESS or UNSTABLE
-            } catch (FlowInterruptedException e) {
-                currentBuild.result = 'ABORTED'
-                throw e
-            } catch (e) {
-                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                // i.e. `currentResult` is not set properly in the finally block
-                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                currentBuild.result = 'FAILURE'
-                throw e
-            } finally {
-                stage('Cleanup') {
-                    sendSlackMessage(scriptSlackMsg)
+            }
+            stage('Run Approbation') {
+                steps {
+                    sh label: 'approbation', script: """#!/bin/bash -e
+                        npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
+                            --specs="${params.SPECS_ARG}" \
+                            --tests="${params.TESTS_ARG}" \
+                            --ignore="${params.IGNORE_ARG}" \
+                            ${params.OTHER_ARG}
+                    """
                 }
             }
         }
     }
 }
 
-void gitClone(String repo, String branch) {
-    retry(3) {
-        checkout([
-            $class: 'GitSCM',
-            branches: [[name: branch]],
-            userRemoteConfigs: [[
-                url: "git@github.com:${repo}.git",
-                credentialsId: 'vega-ci-bot'
-            ]]])
-    }
-}
 
 void sendSlackMessage(String scriptMsg) {
     String slackChannel = '#coverage-notify'
