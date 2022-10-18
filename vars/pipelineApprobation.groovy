@@ -16,44 +16,6 @@ void call() {
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
 
-    properties([
-        copyArtifactPermission('*'),
-        parameters([
-            string(
-                name: 'ORIGIN_REPO', defaultValue: 'vegaprotocol/vega',
-                description: 'repo which acts as source of vegaprotocol (used for forks builds)'),
-            string(
-                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
-                description: 'Git branch, tag or hash of the origin repo repository'),
-            string(
-                name: 'SPECS_BRANCH', defaultValue: pipelineDefaults.appr.specsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/specs repository'),
-            string(
-                name: 'MULTISIG_CONTROL_BRANCH', defaultValue: pipelineDefaults.appr.multisigControlBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository'),
-            string(
-                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.appr.systemTestsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
-
-            string(
-                name: 'SPECS_ARG', defaultValue: pipelineDefaults.appr.specsArg,
-                description: '--specs argument value'),
-            string(
-                name: 'TESTS_ARG', defaultValue: pipelineDefaults.appr.testsArg,
-                description: '--tests argument value'),
-            string(
-                name: 'IGNORE_ARG', defaultValue: pipelineDefaults.appr.ignoreArg,
-                description: '--ignore argument value'),
-            string(
-                name: 'OTHER_ARG', defaultValue: pipelineDefaults.appr.otherArg,
-                description: 'Other arguments'),
-
-            string(
-                name: 'APPROBATION_VERSION', defaultValue: pipelineDefaults.appr.approbationVersion,
-                description: 'Released version of Approbation. latest can be used'),
-        ])
-    ])
-
     echo "params=${params}"
 
     node {
