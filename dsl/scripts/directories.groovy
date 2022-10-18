@@ -46,6 +46,10 @@ def dirs = [
     [
         id: 'common',
         display: 'Common',
+        permissions: [
+            'anonymous': 'View.Read',
+            'anonymous': 'Item.Read',
+        ]
     ],
 ]
 
@@ -56,6 +60,11 @@ dirs.each { directory ->
         }
         if (directory.description) {
             description(directory.description)
+        }
+        if (directory.permissions) {
+            directory.permissions.each { user, permission ->
+                permission(user, "hudson.model.${permission}")
+            }
         }
     }
 }
