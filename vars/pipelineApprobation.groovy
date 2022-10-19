@@ -47,6 +47,7 @@ void call(def config=[:]) {
                                 branch: "*/${params.VEGA_CORE_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf vega@tmp"
                         }
                     }
                     stage('specs') {
@@ -57,6 +58,7 @@ void call(def config=[:]) {
                                 branch: "*/${params.SPECS_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf specs@tmp"
                         }
                     }
                     stage('MultisigControl') {
@@ -72,6 +74,7 @@ void call(def config=[:]) {
                                 branch: "*/${params.MULTISIG_CONTROL_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf MultisigControl@tmp"
                         }
                     }
                     stage('system-tests') {
@@ -87,6 +90,7 @@ void call(def config=[:]) {
                                 branch: "*/${params.SYSTEM_TESTS_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf system-tests@tmp"
                         }
                     }
                     stage('frontend-monorepo') {
@@ -102,6 +106,7 @@ void call(def config=[:]) {
                                 branch: "*/${params.FRONTEND_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf frontend-monorepo@tmp"
                         }
                     }
                     stage('vegawallet-desktop') {
@@ -117,19 +122,9 @@ void call(def config=[:]) {
                                 branch: "*/${params.VEGAWALLET_DESKTOP_BRANCH}",
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
+                            sh "rm -rf vegawallet-desktop@tmp"
                         }
                     }
-                }
-            }
-            stage('Cleaup dirs') {
-                steps {
-                    sh '''
-                        ls -al
-                        while read -r dir; do
-                            rm -rf $dir
-                        done< <(find . -type d -iname "*@tmp")
-                        ls -al
-                    '''
                 }
             }
             stage('Run Approbation') {
