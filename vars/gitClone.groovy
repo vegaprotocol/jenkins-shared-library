@@ -7,6 +7,7 @@ void doClone(Map config) {
       return checkout([
         $class: 'GitSCM',
         branches: [[name: config?.branch]],
+        extensions: config?.extensions,
         userRemoteConfigs: [[
           url: config?.url,
           credentialsId: config?.credentialsId

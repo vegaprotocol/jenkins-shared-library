@@ -44,7 +44,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'vega',
                                 githubUrl: params.ORIGIN_REPO,
-                                branch: params.VEGA_CORE_BRANCH,
+                                branch: "*/${params.VEGA_CORE_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.VEGA_CORE_BRANCH ]]
                             )
                         }
                     }
@@ -53,7 +54,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'specs',
                                 vegaUrl: 'specs',
-                                branch: params.SPECS_BRANCH,
+                                branch: "*/${params.SPECS_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.SPECS_BRANCH ]]
                             )
                         }
                     }
@@ -67,7 +69,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'MultisigControl',
                                 vegaUrl: 'MultisigControl',
-                                branch: params.MULTISIG_CONTROL_BRANCH,
+                                branch: "*/${params.MULTISIG_CONTROL_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.MULTISIG_CONTROL_BRANCH ]]
                             )
                         }
                     }
@@ -81,7 +84,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'system-tests',
                                 vegaUrl: 'system-tests',
-                                branch: params.SYSTEM_TESTS_BRANCH,
+                                branch: "*/${params.SYSTEM_TESTS_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.SYSTEM_TESTS_BRANCH ]]
                             )
                         }
                     }
@@ -95,7 +99,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'frontend-monorepo',
                                 vegaUrl: 'frontend-monorepo',
-                                branch: params.FRONTEND_BRANCH,
+                                branch: "*/${params.FRONTEND_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.FRONTEND_BRANCH ]]
                             )
                         }
                     }
@@ -109,7 +114,8 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'vegawallet-desktop',
                                 vegaUrl: 'vegawallet-desktop',
-                                branch: params.VEGAWALLET_DESKTOP_BRANCH,
+                                branch: "*/${params.VEGAWALLET_DESKTOP_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: params.VEGAWALLET_DESKTOP_BRANCH ]]
                             )
                         }
                     }
