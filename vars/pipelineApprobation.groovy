@@ -121,6 +121,15 @@ void call(def config=[:]) {
                     }
                 }
             }
+            stage('Cleaup dirs') {
+                steps {
+                    sh """
+                        ls -al
+                        find . -type d -iname "*@tmp" -exec 'rm -rf {} \\;'
+                        ls -al
+                    """
+                }
+            }
             stage('Run Approbation') {
                 steps {
                     sh label: 'approbation', script: """#!/bin/bash -e
