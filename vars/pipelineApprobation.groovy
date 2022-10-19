@@ -36,7 +36,9 @@ void call(def config=[:]) {
                 parallel {
                     stage('vega core') {
                         when {
-                            config.type == 'core'
+                            expression {
+                                config.type == 'core'
+                            }
                         }
                         steps {
                             gitClone(
@@ -57,7 +59,9 @@ void call(def config=[:]) {
                     }
                     stage('MultisigControl') {
                         when {
-                            config.type == 'core'
+                            expression {
+                                config.type == 'core'
+                            }
                         }
                         steps {
                             gitClone(
@@ -69,7 +73,9 @@ void call(def config=[:]) {
                     }
                     stage('system-tests') {
                         when {
-                            config.type == 'core'
+                            expression {
+                                config.type == 'core'
+                            }
                         }
                         steps {
                             gitClone(
@@ -81,7 +87,9 @@ void call(def config=[:]) {
                     }
                     stage('frontend-monorepo') {
                         when {
-                            config.type == 'frontend'
+                            expression {
+                                config.type == 'frontend'
+                            }
                         }
                         steps {
                             gitClone(
@@ -93,7 +101,9 @@ void call(def config=[:]) {
                     }
                     stage('vegawallet-desktop') {
                         when {
-                            config.type == 'frontend'
+                            expression {
+                                config.type == 'frontend'
+                            }
                         }
                         steps {
                             gitClone(
