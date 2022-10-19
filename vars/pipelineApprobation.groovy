@@ -45,7 +45,7 @@ void call(def config=[:]) {
                                 directory: 'vega',
                                 githubUrl: params.ORIGIN_REPO,
                                 branch: "*/${params.VEGA_CORE_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.VEGA_CORE_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
@@ -55,7 +55,7 @@ void call(def config=[:]) {
                                 directory: 'specs',
                                 vegaUrl: 'specs',
                                 branch: "*/${params.SPECS_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.SPECS_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
@@ -70,7 +70,7 @@ void call(def config=[:]) {
                                 directory: 'MultisigControl',
                                 vegaUrl: 'MultisigControl',
                                 branch: "*/${params.MULTISIG_CONTROL_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.MULTISIG_CONTROL_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
@@ -85,7 +85,7 @@ void call(def config=[:]) {
                                 directory: 'system-tests',
                                 vegaUrl: 'system-tests',
                                 branch: "*/${params.SYSTEM_TESTS_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.SYSTEM_TESTS_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
@@ -100,7 +100,7 @@ void call(def config=[:]) {
                                 directory: 'frontend-monorepo',
                                 vegaUrl: 'frontend-monorepo',
                                 branch: "*/${params.FRONTEND_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.FRONTEND_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
@@ -115,7 +115,7 @@ void call(def config=[:]) {
                                 directory: 'vegawallet-desktop',
                                 vegaUrl: 'vegawallet-desktop',
                                 branch: "*/${params.VEGAWALLET_DESKTOP_BRANCH}",
-                                extensions: [[$class: 'LocalBranch', localBranch: params.VEGAWALLET_DESKTOP_BRANCH ]]
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                         }
                     }
