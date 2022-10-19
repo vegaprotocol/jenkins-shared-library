@@ -185,7 +185,7 @@ def vegavisorRestartNodeParams(args=[:]) {
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
+        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
@@ -676,14 +676,14 @@ def jobs = [
         name: 'common/approbation',
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation(type: "core")'),
-        paramaters: approbationParams(type: 'core'),
+        parameters: approbationParams(type: 'core'),
         copyArtifacts: true,
     ],
     [
         name: 'common/approbation-frontend',
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation(type: "frontend")'),
-        paramaters: approbationParams(type: 'frontend'),
+        parameters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
 ]
