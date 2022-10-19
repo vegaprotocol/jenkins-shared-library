@@ -20,6 +20,12 @@ void call(Map config = [:]) {
     if (config.specsInternal) {
         buildParameters.add(string(name: 'SPECS_INTERNAL_BRANCH', value: config.specsInternal))
     }
+    if (config.frontendBranch) {
+        buildParameters.add(string(name: 'FRONTEND_BRANCH', value: config.frontendBranch))
+    }
+    if (config.vegawalletDesktopBranch) {
+        buildParameters.add(string(name: 'VEGAWALLET_DESKTOP_BRANCH', value: config.vegawalletDesktopBranch))
+    }
 
 
     echo "Starting Approbation with parameters: ${buildParameters}"

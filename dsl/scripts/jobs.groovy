@@ -688,6 +688,20 @@ def jobs = [
         parameters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
+    [
+        name: 'common/frontend-monorepo',
+        repo: 'frontend-monorepo',
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'common/vegawallet-desktop',
+        repo: 'vegawallet-desktop',
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+    ],
 ]
 
 // MAIN
