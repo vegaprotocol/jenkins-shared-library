@@ -15,6 +15,18 @@ def scmDefinition(args){
                 refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
             }
           }
+          if (config.check) {
+            extensions {
+                gitSCMChecksExtension {
+                    // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
+                    verboseConsoleLog(true)
+                }
+                gitSCMStatusChecksExtension {
+                    name(config.check)
+                    unstableBuildNeutral(true)
+                }
+            }
+          }
         }
       }
       scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
@@ -326,10 +338,12 @@ def jobs = [
         branch: 'main',
         disableConcurrentBuilds: true,
         numToKeep: 100,
+        check: 'DSL Job',
     ],
     // Jenkins Configuration As Code
     [
         name: 'private/Jenkins Configuration as Code Pipeline',
+        check: 'Jenkins Configuration as Code pipeline',
         repo: 'jenkins-shared-library',
         description: h('This job is used to auto apply changes to jenkins instance configuration'),
         jenkinsfile: 'jcasc/Jenkinsfile',
@@ -692,6 +706,7 @@ def jobs = [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
         jenkinsfile: 'Jenkinsfile',
+        check: 'Approbation Pipeline',
         branch: 'develop',
         disableConcurrentBuilds: true,
         env: [
@@ -706,6 +721,7 @@ def jobs = [
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
+        check: 'Approbation Pipeline',
         env: [
             // hax getCommitHash()
             BRANCH_NAME: 'develop',
