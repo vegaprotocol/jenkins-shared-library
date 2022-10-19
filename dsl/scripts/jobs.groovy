@@ -15,14 +15,14 @@ def scmDefinition(args){
                 refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
             }
           }
-          if (config.check) {
+          if (args.check) {
             extensions {
                 gitSCMChecksExtension {
                     // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
                     verboseConsoleLog(true)
                 }
                 gitSCMStatusChecksExtension {
-                    name(config.check)
+                    name(args.check)
                     unstableBuildNeutral(true)
                 }
             }
