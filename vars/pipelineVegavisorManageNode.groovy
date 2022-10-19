@@ -90,8 +90,13 @@ void call() {
                             error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
                         }
                     }
+                    print("""Run command that:
+                    - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
+                    - Unstake Vega Tokens on ERC20 Bridge for Old VegaPubKey - this will cause the old validator to be removed at the end of epoch
+                    - Stake Vega Tokens on ERC20 Bridge to Newly generated VegaPubKey
+                    """)
                     withDevopstools(
-                        command: "secrets create-node --node ${shortNode} --force"
+                        command: "validator join --node ${shortNode} --generate-new-secrets --unstake-from-old-secrets --stake"
                     )
                 }
             }
