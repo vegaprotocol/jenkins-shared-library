@@ -253,7 +253,7 @@ def approbationParams(def config=[:]) {
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
         }
         else if (config.type == 'frontend') {
-            stringParam('FRONTEND_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
+            stringParam('FRONTEND_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
             stringParam('VEGAWALLET_DESKTOP_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
         }
 
