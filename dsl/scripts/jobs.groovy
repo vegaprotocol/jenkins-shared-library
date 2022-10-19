@@ -285,6 +285,8 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('APPROBATION_VERSION', '2.7.1', 'Released version of Approbation. latest can be used')
+
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     }
 }
 
