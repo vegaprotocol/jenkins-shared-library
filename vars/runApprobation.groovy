@@ -2,6 +2,9 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
     String approbationJob = '/common/approbation'
+    if (config.type == 'frontend') {
+        approbationJob += '-frontend'
+    }
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = []
     // overrides for default values from upstream pipelines
