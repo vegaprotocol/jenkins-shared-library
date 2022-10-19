@@ -573,6 +573,7 @@ def jobs = [
         parameters: lnlSystemTestsparams(),
         copyArtifacts: true,
         daysToKeep: 14,
+        cron: 'H 3 * * *',
     ],
     [
         name: 'common/system-tests',
