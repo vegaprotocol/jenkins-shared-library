@@ -130,20 +130,6 @@ Map fair = [
     devopsInfraBranch: 'master'
 ]
 
-// Approbation pipeline
-@Field
-Map appr = [
-    vegaCoreBranch: 'develop',
-    specsBranch: 'master',
-    multisigControlBranch: 'develop',
-    systemTestsBranch: 'develop',
-    specsArg: '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}',
-    testsArg: '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}',
-    ignoreArg: '{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}',
-    otherArg: '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',
-    approbationVersion: '2.7.1'
-]
-
 @Field
 Map art = [
     systemTestCapsuleJunit: '*/build/test-reports/**/*',
