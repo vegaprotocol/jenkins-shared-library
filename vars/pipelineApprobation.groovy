@@ -19,6 +19,7 @@ void call(def config=[:]) {
     pipeline {
         agent any
         options {
+            ansiColor('xterm')
             skipDefaultCheckout()
             timestamps()
             timeout(time: 20, unit: 'MINUTES')
