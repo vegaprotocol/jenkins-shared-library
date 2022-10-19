@@ -694,6 +694,11 @@ def jobs = [
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
+        env: [
+            // hax getCommitHash()
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
     ],
     [
         name: 'common/vegawallet-desktop',
@@ -701,6 +706,11 @@ def jobs = [
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
+        env: [
+            // hax getCommitHash()
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
     ],
 ]
 
