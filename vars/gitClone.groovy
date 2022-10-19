@@ -31,7 +31,7 @@ void call(Map additionalConfig) {
   if (config.vegaUrl && !config.url) {
     config.url = "git@github.com:vegaprotocol/${config.vegaUrl}.git"
   }
-  if (config.githubUrl && config.url) {
+  if (config.githubUrl && !config.url) {
     config.url = "git@github.com:${config.githubUrl}.git"
   }
 
