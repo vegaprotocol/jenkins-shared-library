@@ -32,13 +32,11 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
   }
 }
 
-// Run stages defined in map but run them sequentially. This function is similar to parallel()
-void runSteps(Map steps) {
-  steps.each{ stageName, stepFunction -> 
-    print('Running the ' + stageName + ' step')
-
-    stepFunction()
-
-    print('The ' + stageName + ' step finished')
+String shellOutput(String command, boolean silent = false) {
+  if (silent) {
+    command = '#!/bin/bash +x\n' + command
   }
+
+  return sh(returnStdout: true,
+    script: command).trim()
 }

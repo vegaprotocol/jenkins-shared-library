@@ -179,8 +179,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               dir('system-tests/scripts') {
                 sh 'make check'
                 withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  sh 'make prepare-test-docker-image'
-                  sh 'make build-test-proto'
+                  // sh 'make prepare-test-docker-image'
+                  // sh 'make build-test-proto'
                 }
               }
             }
@@ -315,8 +315,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
-
-
       stage('post run tests steps') {
         when {
           expression {
@@ -330,6 +328,79 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             parallel pipelineHooks.postRunTests
+          }
+        }
+      }
+
+      stage('protocol upgrade proposal step') {
+        when {
+          expression {
+            params.RUN_PROTOCOL_UPGRADE_PROPOSAL
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+        options {
+          timeout(time: 10, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            int upgradeProposalOffset = 100
+            def getLastBlock = { boolean silent ->
+              return vegautils.shellOutput('''devopsscripts vegacapsule last-block \
+                  --output value-only \
+                  --network-home-path ''' + testNetworkDir + '''/testnet \
+                  --local
+                ''', silent).toInteger()
+            }
+            int initNetworkHeight = getLastBlock(false)
+            int proposalBlock = initNetworkHeight + upgradeProposalOffset
+            print('Current network heigh is ' + initNetworkHeight)
+            print('Proposing protocol upgrade on block ' + proposalBlock)
+            sh '''vegacapsule nodes protocol-upgrade \
+                --propose \
+                --home-path ''' + testNetworkDir + '''/testnet \
+                --template-path system-tests/vegacapsule/net_configs/visor_run.tmpl \
+                --height ''' + proposalBlock + ''' \
+                --release-tag v0.58.0
+            '''
+
+            print('Waiting on block ' + proposalBlock)
+            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
+                int currentNetworkHeight = getLastBlock(true)
+                print('... still waiting, network heigh is ' + currentNetworkHeight)
+                return (currentNetworkHeight >= proposalBlock)
+            }
+            initNetworkHeight = getLastBlock(false)
+            print('Current network heigh is ' + initNetworkHeight)
+
+            String dataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule info \
+              --type data-node-grpc-url \
+              --output value-only \
+              --print-only-one \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --local
+            ''')
+
+            String validatorHomePath = vegautils.shellOutput('''devopsscripts vegacapsule info \
+              --type validator-vega-home-dir \
+              --output value-only \
+              --print-only-one \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --local
+            ''')
+
+            print('Run snapshot checks')
+            sh '''
+              mkdir -p ./snapshot-tmp;
+              rsync -av ''' + validatorHomePath + '''/state/node/snapshots/ ./snapshot-tmp;
+              ls -als ./snapshot-tmp;
+            '''
+            sh '''vegatools difftool \
+              -s "./snapshot-tmp" \
+              -d "''' + dataNodeURL + '''"'''
           }
         }
       }
