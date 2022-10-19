@@ -123,11 +123,13 @@ void call(def config=[:]) {
             }
             stage('Cleaup dirs') {
                 steps {
-                    sh """
+                    sh '''
                         ls -al
-                        find . -type d -iname "*@tmp" -exec 'rm -rf {} \\;'
+                        while read -r dir; do
+                            rm -rf $dir
+                        done< <(find . -type d -iname "*@tmp")
                         ls -al
-                    """
+                    '''
                 }
             }
             stage('Run Approbation') {
