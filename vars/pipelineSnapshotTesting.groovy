@@ -146,7 +146,7 @@ void call(Map config=[:]) {
                             // Get data from TM
                             def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
+                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.take(2).collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
 
                             // Get trust block info
