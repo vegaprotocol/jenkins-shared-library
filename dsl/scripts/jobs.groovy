@@ -387,7 +387,6 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
-            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
         ],
         parameters: vegavisorRestartNetworkParams(
             'CREATE_MARKETS': true,
