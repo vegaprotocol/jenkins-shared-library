@@ -4,29 +4,34 @@ def scmDefinition(args){
   return {
     cpsScm {
       scm {
-        git {
-          if (args.branch) {
-              branch("*/${args.branch}")
-          }
-          remote {
-            url(args.repo)
-            credentials(args.get('credentials', "vega-ci-bot"))
-            if (args.branch) {
-                refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
-            }
-          }
-          if (args.check) {
-            extensions {
-                gitSCMChecksExtension {
-                    // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
-                    verboseConsoleLog(true)
+        if (args.useGithub) {
+            github("vegaprotocol/${args.repoName}", args.branch)
+        }
+        else {
+            git {
+                if (args.branch) {
+                    branch("*/${args.branch}")
                 }
-                gitSCMStatusChecksExtension {
-                    name(args.check)
-                    unstableBuildNeutral(true)
+                remote {
+                    url(args.repo)
+                    credentials(args.get('credentials', "vega-ci-bot"))
+                    if (args.branch) {
+                        refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+                    }
+                }
+                if (args.check) {
+                    extensions {
+                        gitSCMChecksExtension {
+                            // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
+                            verboseConsoleLog(true)
+                        }
+                        gitSCMStatusChecksExtension {
+                            name(args.check)
+                            unstableBuildNeutral(true)
+                        }
+                    }
                 }
             }
-          }
         }
       }
       scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
@@ -53,6 +58,7 @@ def standardDescription() {
 
 
 def createCommonPipeline(args){
+    args.repoName = args.repo
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
 
     def des = args.get('description', '')
@@ -713,6 +719,7 @@ def jobs = [
     [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
+        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         check: 'Approbation Pipeline',
         branch: 'develop',
@@ -726,6 +733,7 @@ def jobs = [
     [
         name: 'common/vegawallet-desktop',
         repo: 'vegawallet-desktop',
+        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
