@@ -626,7 +626,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'devnet1',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -641,7 +640,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet1',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -657,7 +655,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')

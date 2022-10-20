@@ -144,19 +144,10 @@ void call(Map config=[:]) {
                             TM_VERSION = status.result.node_info.version
 
                             // Get data from TM
-                            if(TM_VERSION.startsWith("0.34")) {
-                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
-                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                                RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                                PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
-                            } else {
-                                def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
-                                def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                                def servers_with_id = net_info.result.peers*.url.collect{url -> url.replaceAll(/mconn.*\/(.*):.*/, "\$1")}
-                                RPC_SERVERS = servers_with_id.collect{server -> server.split('@')[1] + ":26657"}.join(",")
-                                PERSISTENT_PEERS = servers_with_id.collect{peer -> peer + ":26656"}.join(",")
-                            }
-
+                            def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
+                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
+                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
 
                             // Get trust block info
                             def block_req = new URL("https://tm.${remoteServer}/block").openConnection();
@@ -181,43 +172,22 @@ void call(Map config=[:]) {
                             }
                         }
                     }
-
-                    if(TM_VERSION.startsWith("0.34")) {
-                        stage("Set Tendermint config") {
-                            sh label: 'set Tendermint config v.34.x',
-                                script: """#!/bin/bash -e
-                                    ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                    ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
-                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
-                                    ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
-                                    ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 20480
-                                    ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
-                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
-                                    cat tm_config/config/config.toml
-                                """
-                        }
-                    } else {
-                        stage("Set Tendermint config") {
-                            sh label: 'set Tendermint config v.35.x',
-                                script: """#!/bin/bash -e
-                                    ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                    ./dasel put string -f tm_config/config/config.toml statesync.trust-hash ${TRUST_HASH}
-                                    ./dasel put int -f tm_config/config/config.toml statesync.trust-height ${TRUST_HEIGHT}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.rpc-servers ${RPC_SERVERS}
-                                    ./dasel put string -f tm_config/config/config.toml statesync.discovery-time "30s"
-                                    ./dasel put string -f tm_config/config/config.toml statesync.chunk-request-timeout "30s"
-                                    ./dasel put string -f tm_config/config/config.toml p2p.persistent-peers ${PERSISTENT_PEERS}
-                                    ./dasel put string -f tm_config/config/config.toml p2p.bootstrap-peers ${PERSISTENT_PEERS}
-                                    ./dasel put int -f tm_config/config/config.toml p2p.max-packet-msg-payload-size 20480
-                                    ./dasel put string -f tm_config/config/config.toml p2p.external-address "${jenkinsAgentPublicIP}:26656"
-                                    ./dasel put bool -f tm_config/config/config.toml p2p.allow-duplicate-ip true
-                                    cat tm_config/config/config.toml
-                                """
-                        }
+                    stage("Set Tendermint config") {
+                        sh label: 'set Tendermint config',
+                            script: """#!/bin/bash -e
+                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
+                                ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
+                                ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
+                                ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
+                                ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
+                                ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
+                                ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 20480
+                                ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
+                                cat tm_config/config/config.toml
+                            """
                     }
 
                     stage('Run') {
@@ -225,40 +195,16 @@ void call(Map config=[:]) {
                             failFast: true,
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    if (env.DISABLE_TENDERMINT) {
-                                        sh label: 'Start vega node',
-                                            script: """#!/bin/bash -e
-                                                ./vega start --home=vega_config \
-                                                    --tendermint-home=tm_config \
-                                                    --snapshot.log-level=debug
-                                            """
-                                    } else {
-                                        sh label: 'Start vega node',
-                                            script: """#!/bin/bash -e
-                                                ./vega node --home=vega_config \
-                                                    --snapshot.log-level=debug
-                                            """
-                                    }
+                                    sh label: 'Start vega node',
+                                        script: """#!/bin/bash -e
+                                            ./vega start --home=vega_config \
+                                                --tendermint-home=tm_config \
+                                                --snapshot.log-level=debug
+                                        """
                                 }
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
-                                }
-                            },
-                            'Tendermint': {
-                                if (!env.DISABLE_TENDERMINT) {
-                                    boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                        sh label: 'Start tendermint',
-                                            script: """#!/bin/bash -e
-                                                ./vega tm start --home=tm_config
-                                            """
-                                    }
-                                    if ( !nice && isRemoteServerAlive(remoteServer) ) {
-                                        extraMsg = extraMsg ?: "Tendermint stopped too early."
-                                        error("Tendermint stopped too early, Remote Server is still alive.")
-                                    }
-                                } else {
-                                    echo "tendermint is embedded into vega right now"
                                 }
                             },
                             'Checks': {
