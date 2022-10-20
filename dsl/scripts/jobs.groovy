@@ -300,7 +300,7 @@ def approbationParams(def config=[:]) {
             stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
         }
         else if (config.type == 'frontend') {
-            stringParam('OTHER_ARG', '--categories="./specs/user-interface/categories.json" --category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
+            stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
         }
 
         stringParam('APPROBATION_VERSION', '4.0.0', 'Released version of Approbation. latest can be used')
