@@ -428,7 +428,6 @@ def jobs = [
         env: [
             NET_NAME: 'sandbox',
             ANSIBLE_LIMIT: 'sandbox',
-            NETWORKS_INTERNAL_GENESIS_BRANCH: 'sandbox-config',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
