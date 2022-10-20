@@ -284,7 +284,7 @@ def approbationParams(def config=[:]) {
         else if (config.type == 'frontend') {
             stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value')
         }
-      
+
         if (config.type == 'core') {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
         }
@@ -649,7 +649,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Fairground',
-        disabled: true,
+        // disabled: true,
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
