@@ -267,22 +267,14 @@ void call() {
                         }
                     }
                     stage('Commit changes') {
-                        environment {
-                            NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
-                        }
                         steps {
                             dir('networks-internal') {
                                 script {
                                     sshagent(credentials: ['vega-ci-bot']) {
-                                        // NOTE: the script to generate genesis.json is run from latest version from NETWORKS_INTERNAL_BRANCH
-                                        // but the result might be commited to a different branch: NETWORKS_INTERNAL_GENESIS_BRANCH
                                         sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                         sh 'git config --global user.name "vega-ci-bot"'
-                                        sh "git stash"
-                                        sh "git switch --force ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
-                                        sh "git checkout stash -- ${env.NET_NAME}/*"
                                         sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
-                                        sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git push -u origin main"
                                     }
                                 }
                             }
