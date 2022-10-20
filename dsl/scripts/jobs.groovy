@@ -1,53 +1,42 @@
 /* groovylint-disable CompileStatic, DuplicateNumberLiteral, DuplicateStringLiteral, LineLength */
 // https://github.com/janinko/ghprb/issues/77
 def scmDefinition(args){
-  return {
-    cpsScm {
-      scm {
-        if (args.useGithub) {
-            github("vegaprotocol/${args.repoName}", args.branch) {
-                extensions {
-                    gitSCMChecksExtension {
-                        // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
-                        verboseConsoleLog(true)
-                    }
-                    gitSCMStatusChecksExtension {
-                        name(args.check)
-                        unstableBuildNeutral(true)
-                    }
-                }
-            }
-        }
-        else {
-            git {
-                if (args.branch) {
-                    branch("*/${args.branch}")
-                }
-                remote {
-                    url(args.repo)
-                    credentials(args.get('credentials', "vega-ci-bot"))
+    return {
+        cpsScm {
+            scm {
+                git {
                     if (args.branch) {
-                        refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+                        branch("*/${args.branch}")
                     }
-                }
-                if (args.check) {
-                    extensions {
-                        gitSCMChecksExtension {
-                            // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
-                            verboseConsoleLog(true)
+                    remote {
+                        if (args.useGithub) {
+                            github(args.repoName)
                         }
-                        gitSCMStatusChecksExtension {
-                            name(args.check)
-                            unstableBuildNeutral(true)
+                        else {
+                            url(args.repo)
+                            credentials(args.get('credentials', "vega-ci-bot"))
+                            if (args.branch) {
+                                refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+                            }
+                        }
+                    }
+                    if (args.check) {
+                        extensions {
+                            gitSCMChecksExtension {
+                                // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
+                                verboseConsoleLog(true)
+                            }
+                            gitSCMStatusChecksExtension {
+                                name(args.check)
+                                unstableBuildNeutral(true)
+                            }
                         }
                     }
                 }
             }
+            scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
         }
-      }
-      scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
     }
-  }
 }
 
 def h(def text, def num=4) {
@@ -69,7 +58,7 @@ def standardDescription() {
 
 
 def createCommonPipeline(args){
-    args.repoName = args.repo
+    args.repoName = "vegaprotocol/${args.repo}"
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
 
     def des = args.get('description', '')
