@@ -279,6 +279,13 @@ def approbationParams(def config=[:]) {
         }
 
         if (config.type == 'core') {
+            stringParam('CATEGORIES_ARG', './specs/protocol/categories.json', '--categories argument value')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value')
+        }
+      
+        if (config.type == 'core') {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
@@ -296,7 +303,7 @@ def approbationParams(def config=[:]) {
             stringParam('OTHER_ARG', '--categories="./specs/user-interface/categories.json" --category-stats --show-branches --verbose --show-files --output-jenkins', 'Other arguments')
         }
 
-        stringParam('APPROBATION_VERSION', '2.7.1', 'Released version of Approbation. latest can be used')
+        stringParam('APPROBATION_VERSION', '4.0.0', 'Released version of Approbation. latest can be used')
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     }

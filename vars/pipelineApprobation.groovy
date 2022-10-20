@@ -134,6 +134,7 @@ void call(def config=[:]) {
                         npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
                             --specs="${params.SPECS_ARG}" \
                             --tests="${params.TESTS_ARG}" \
+                            --categories="${params.CATEGORIES_ARG}" \
                             ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
                     """
                 }
