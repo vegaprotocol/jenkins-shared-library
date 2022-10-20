@@ -150,7 +150,7 @@ void call(Map config=[:]) {
                             PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
 
                             // Get trust block info
-                            def block_req = new URL("https://tm.${remoteServer}/block").openConnection();
+                            def block_req = new URL("https://tm.${remoteServer}/block?height=2").openConnection();
                             def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
                             TRUST_HASH = tm_block.result.block_id.hash
                             TRUST_HEIGHT = tm_block.result.block.header.height
