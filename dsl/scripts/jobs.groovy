@@ -5,7 +5,18 @@ def scmDefinition(args){
     cpsScm {
       scm {
         if (args.useGithub) {
-            github("vegaprotocol/${args.repoName}", args.branch)
+            github("vegaprotocol/${args.repoName}", args.branch) {
+                extensions {
+                    gitSCMChecksExtension {
+                        // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
+                        verboseConsoleLog(true)
+                    }
+                    gitSCMStatusChecksExtension {
+                        name(args.check)
+                        unstableBuildNeutral(true)
+                    }
+                }
+            }
         }
         else {
             git {
