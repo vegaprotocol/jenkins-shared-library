@@ -179,8 +179,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               dir('system-tests/scripts') {
                 sh 'make check'
                 withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  // sh 'make prepare-test-docker-image'
-                  // sh 'make build-test-proto'
+                  sh 'make prepare-test-docker-image'
+                  sh 'make build-test-proto'
                 }
               }
             }
