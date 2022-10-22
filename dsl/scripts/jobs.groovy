@@ -207,7 +207,13 @@ def vegavisorRestartNodeParams(args=[:]) {
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-        choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" }, 'Choose which node to restart')
+        choiceParam(
+            'NODE',
+            (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
+            [
+                "explorer.${args.name}.vega.xyz"
+            ],
+            'Choose which node to restart')
     }
 }
 
