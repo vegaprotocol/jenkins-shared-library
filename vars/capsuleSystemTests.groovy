@@ -393,6 +393,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             ''')
 
             print('Run snapshot checks')
+            sleep '30'
             sh '''
               mkdir -p ./snapshot-tmp;
               rsync -av ''' + validatorHomePath + '''/state/node/snapshots/ ./snapshot-tmp;
