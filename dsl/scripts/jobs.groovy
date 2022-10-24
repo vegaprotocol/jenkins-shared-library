@@ -238,6 +238,7 @@ def systemTestsParamsGeneric(args=[:]) {
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+        ooleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', true, 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
