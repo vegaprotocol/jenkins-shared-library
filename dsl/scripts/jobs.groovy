@@ -211,7 +211,7 @@ def vegavisorRestartNodeParams(args=[:]) {
             'NODE',
             (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
             [
-                "explorer.${args.name}.vega.xyz"
+                "be.${args.name}.vega.xyz"
             ],
             'Choose which node to restart')
     }
