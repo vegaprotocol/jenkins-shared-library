@@ -194,11 +194,12 @@ def vegavisorRestartNetworkParams(args=[:]) {
 
 def vegavisorRestartNodeParams(args=[:]) {
     def choices = [
-        'restart-node': 'regular restart',
+        'restart-node': 'regular restart from local snapshot',
         'quick-restart-node': 'fast restart without config updates',
         'create-node': 'reset node',
         'stop-node': 'stop node',
         'recreate-node': 'wipe node data and set it up again',
+        'restart-node-snapshot': 'restart node from remote snapshot'
     ]
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
