@@ -212,7 +212,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               try {
                 timeout(time: 3, unit: 'MINUTES') {
                   sh '''./vegacapsule network start \
-                    --home-path ''' + testNetworkDir + '''/testnet
+                    --home-path ''' + testNetworkDir + '''/testnet --do-not-stop-on-failure
                   '''
                 }
               } finally {
