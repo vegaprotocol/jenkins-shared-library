@@ -411,7 +411,7 @@ def jobs = [
         parameters: vegavisorRestartNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
-        parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
         name: 'private/Deployments/devnet1/Protocol-Upgrade',
