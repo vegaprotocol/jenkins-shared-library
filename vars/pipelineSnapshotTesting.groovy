@@ -176,6 +176,7 @@ void call(Map config=[:]) {
                         sh label: 'set Tendermint config',
                             script: """#!/bin/bash -e
                                 ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                ./dasel put string -f tm_config/config/config.toml statesync.trust_period "744h0m0s"
                                 ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
                                 ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
                                 ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
@@ -183,7 +184,7 @@ void call(Map config=[:]) {
                                 ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
                                 ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
                                 ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
-                                ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 20480
+                                ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
                                 ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                 ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                 cat tm_config/config/config.toml
