@@ -367,12 +367,18 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             int proposalBlock = initNetworkHeight + upgradeProposalOffset
             print('Current network heigh is ' + initNetworkHeight)
             print('Proposing protocol upgrade on block ' + proposalBlock)
+            
+            // The release tag needs to be valid vega tag.
+            // Given version must be higher than current network version.
+            // It does not need to be existing release because we are not
+            // doing real upgrade. We just need vega network to stop 
+            // producing blocks.
             sh '''vegacapsule nodes protocol-upgrade \
                 --propose \
                 --home-path ''' + testNetworkDir + '''/testnet \
                 --template-path system-tests/vegacapsule/net_configs/visor_run.tmpl \
                 --height ''' + proposalBlock + ''' \
-                --release-tag v0.58.0
+                --release-tag v0.990.0
             '''
 
             print('Waiting on block ' + proposalBlock)
