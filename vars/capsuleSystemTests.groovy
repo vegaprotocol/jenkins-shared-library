@@ -432,8 +432,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         catchError {
           dir(testNetworkDir) {
-            sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet';
-            sleep 15 // make sure all sockets are closed and removed before archiveArtifacts is called
+            sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
           }
         }
 
