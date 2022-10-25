@@ -272,6 +272,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       }
 
       stage('run tests') {
+        when {
+          not {
+            expression {
+              params.SKIP_RUN_TESTS
+            }
+          }
+        }
+        
         options {
           timeout(time: params.TIMEOUT, unit: 'MINUTES')
         }
