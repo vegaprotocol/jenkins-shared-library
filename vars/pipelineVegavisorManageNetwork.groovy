@@ -345,7 +345,7 @@ void call() {
                             slackSend(
                                 channel: '#env-deploy',
                                 color: 'danger',
-                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${jobURL}|more> :boom: (${duration})",
+                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :boom: (${duration})",
                             )
                         }
                     }
