@@ -54,7 +54,7 @@ void call() {
                     stage('devopstools') {
                         when {
                             expression {
-                                params.RANDOM_NODE || params.ACTION == 'recreate-node'
+                                params.RANDOM_NODE || params.JOIN_AS_VALIDATOR
                             }
                         }
                         steps {
