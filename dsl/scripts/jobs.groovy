@@ -338,7 +338,7 @@ def jobs = [
             ])'''),
         disableConcurrentBuilds: true,
         // weekdays 5AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 5 * * 1-5 %' + [
+        parameterizedCron: 'H 1 * * 1-5 %' + [
             'VEGA_VERSION=develop',
             'BUILD_VEGA_BINARIES=true',
             'UNSAFE_RESET_ALL=true',
