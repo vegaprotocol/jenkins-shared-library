@@ -135,7 +135,13 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testNetworkDir + '/nomad_config.hcl'
           }
           dir(testNetworkDir) {
-              sh 'daemonize -o ' + testNetworkDir + '/nomad.log -c ' + testNetworkDir + ' -p ' + testNetworkDir + '/vegacapsule_nomad.pid ' + testNetworkDir + '/vegacapsule nomad --nomad-config-path=' + testNetworkDir + '/nomad_config.hcl'
+              sh '''sudo -E daemonize \
+                -o ''' + testNetworkDir + '''/nomad.log \
+                -e ''' + testNetworkDir + '''/nomad.log \
+                -c ''' + testNetworkDir + ''' \
+                -p ''' + testNetworkDir + '''/vegacapsule_nomad.pid \
+                  ''' + testNetworkDir + '''/vegacapsule nomad \
+                      --nomad-config-path=''' + testNetworkDir + '''/nomad_config.hcl'''
           }
         }
       }
@@ -212,7 +218,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               try {
                 timeout(time: 3, unit: 'MINUTES') {
                   sh '''./vegacapsule network start \
-                    --home-path ''' + testNetworkDir + '''/testnet
+                    --home-path ''' + testNetworkDir + '''/testnet --do-not-stop-on-failure
                   '''
                 }
               } finally {
