@@ -73,7 +73,7 @@ void call() {
             stage('Prepare node') {
                 when {
                     expression {
-                        params.ACTION == 'recreate-node'
+                        params.JOIN_AS_VALIDATOR
                     }
                 }
                 steps {
@@ -84,10 +84,16 @@ void call() {
                                 shortNode = 'n05'
                                 break
                             default:
-                                error("You can't run 'recreate-node' for ${env.NET_NAME}")
+                                error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
                         }
                         if (!params.VEGA_VERSION  && !params.RELEASE_VERSION) {
                             error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
+                        }
+                        if (!params.USE_REMOTE_SNAPSHOT) {
+                            error("If joining as validator you need to set USE_REMOTE_SNAPSHOT or implemenet a sleep procedure in this pipeline.")
+                        }
+                        if (!params.UNSAFE_RESET_ALL) {
+                            error('You need to set UNSAFE_RESET_ALL when JOIN_AS_VALIDATOR to wipe out old data from the machine.')
                         }
                     }
                     print("""Run command that:
@@ -145,8 +151,8 @@ void call() {
                         withCredentials([sshCredentials]) {
                             script {
                                 if (params.RANDOM_NODE) {
-                                    if (params.ACTION == 'recreate-node') {
-                                        echo "!!!!! you can't assign random node for 'recreate-node' !!!!!!"
+                                    if (params.JOIN_AS_VALIDATOR) {
+                                        echo "!!!!! you can't assign random node for 'JOIN_AS_VALIDATOR' !!!!!!"
                                         echo "!!!! ${NODE_NAME} is used instead"
                                     }
                                     else {
@@ -176,23 +182,11 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
                         }
-                    }
-                }
-            }
-            stage('Configure node') {
-                when {
-                    expression {
-                        params.ACTION == 'recreate-node'
-                    }
-                }
-                steps {
-                    dir('devopstools') {
-                        sh "echo 'not implemented'"
                     }
                 }
             }

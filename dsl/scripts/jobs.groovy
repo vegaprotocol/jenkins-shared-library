@@ -44,7 +44,10 @@ def h(def text, def num=4) {
 }
 
 def ul(def ulMap) {
-    def entries = ulMap.collect { "<li>${it.key} - ${it.value}</li>" }.join("\n")
+    if (ulMap instanceof Map) {
+        ulMap = ulMap.collect { "${it.key} - ${it.value}" }
+    }
+    def entries = ulMap.collect { "<li>${it}</li>" }.join("\n")
     return "<ul>${entries}</ul>"
 }
 
@@ -192,17 +195,26 @@ def vegavisorRestartNetworkParams(args=[:]) {
     }
 }
 
-def vegavisorRestartNodeParams(args=[:]) {
+def vegavisorManageNodeDescription() {
+    return "Some popular scenarios to run with this job<br/" + ulMap([
+        'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
+        'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
+        'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
+    ])
+}
+
+def vegavisorManageNodeParams(args=[:]) {
     def choices = [
         'restart-node': 'regular restart',
         'quick-restart-node': 'fast restart without config updates',
         'create-node': 'reset node',
         'stop-node': 'stop node',
-        'recreate-node': 'wipe node data and set it up again',
     ]
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
+        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
+        booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
@@ -403,12 +415,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/devnet1/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'devnet1',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'devnet1'),
+        parameters: vegavisorManageNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -440,12 +453,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/sandbox/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'sandbox',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'sandbox'),
+        parameters: vegavisorManageNodeParams(name: 'sandbox'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -477,12 +491,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet1/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'stagnet1'),
+        parameters: vegavisorManageNodeParams(name: 'stagnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -512,12 +527,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/fairground/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'testnet'),
+        parameters: vegavisorManageNodeParams(name: 'testnet'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
