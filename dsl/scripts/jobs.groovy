@@ -213,7 +213,7 @@ def vegavisorManageNodeParams(args=[:]) {
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator')
+        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
         booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
