@@ -196,7 +196,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
 }
 
 def vegavisorManageNodeDescription() {
-    return "Some popular scenarios to run with this job<br/" + ulMap([
+    return "Some popular scenarios to run with this job<br/" + ul([
         'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
         'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
         'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
