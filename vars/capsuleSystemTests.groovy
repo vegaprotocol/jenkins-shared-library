@@ -280,6 +280,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           USE_VEGACAPSULE= 'true'
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
+          VEGA_BIN_LINUX="${testNetworkDir}/vega"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "${params.CAPSULE_CONFIG}"
