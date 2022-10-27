@@ -291,6 +291,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             Map runStages = [
               'run system-tests': {
                 dir('system-tests/scripts') {
+                    sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
                     sh 'make test'
                 }
               }
