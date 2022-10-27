@@ -292,6 +292,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               'run system-tests': {
                 dir('system-tests/scripts') {
                     sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
+                    sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
                     sh 'make test'
                 }
               }
