@@ -9,7 +9,7 @@ void call() {
 
     NODE_NAME = ''
     SHORT_NODE = ''
-    ETH_ADDRESS = 'none'
+    ETH_ADDRESS = ''
 
     pipeline {
         agent any
