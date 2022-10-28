@@ -10,6 +10,7 @@ void call() {
     NODE_NAME = ''
     SHORT_NODE = ''
     ETH_ADDRESS = ''
+    ANSIBLE_VARS = ''
 
     pipeline {
         agent any
@@ -181,6 +182,16 @@ void call() {
                                         cp ./bin/visor ./ansible/roles/barenode/files/bin/
                                     """
                                 }
+                                // create json with function instead of manual
+                                ANSIBLE_VARS = writeJSON(
+                                    returnText: true,
+                                    json: [
+                                        release_version: params.RELEASE_VERSION,
+                                        unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                                        use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
+                                        eth_address_to_submit_multisig_changes: ETH_ADDRESS,
+                                    ]
+                                )
                             }
                             dir('ansible') {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
@@ -192,7 +203,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}, "eth_address_to_submit_multisig_changes": "${ETH_ADDRESS}"' \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
