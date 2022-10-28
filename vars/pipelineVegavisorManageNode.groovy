@@ -190,7 +190,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}, "eth_address": "${ETH_ADDRESS}"' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}, "eth_address_to_submit_multisig_changes": "${ETH_ADDRESS}"' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
