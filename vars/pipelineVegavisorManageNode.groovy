@@ -6,7 +6,11 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
+
     NODE_NAME = ''
+    SHORT_NODE = ''
+    ETH_ADDRESS = ''
+
     pipeline {
         agent any
         options {
@@ -52,7 +56,7 @@ void call() {
                         }
                     }
                     stage('devopstools') {
-                        when {
+                        when {eth_address_to_submit_multisig_changes
                             expression {
                                 params.RANDOM_NODE || params.JOIN_AS_VALIDATOR
                             }
@@ -81,7 +85,7 @@ void call() {
                         switch(env.NET_NAME) {
                             case 'devnet1':
                                 NODE_NAME = 'n05.devnet1.vega.xyz'
-                                shortNode = 'n05'
+                                SHORT_NODE = 'n05'
                                 break
                             default:
                                 error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
@@ -102,7 +106,11 @@ void call() {
                     - Stake Vega Tokens on ERC20 Bridge to Newly generated VegaPubKey
                     """)
                     withDevopstools(
-                        command: "validator join --node ${shortNode} --generate-new-secrets --unstake-from-old-secrets --stake"
+                        command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
+                    )
+                    ETH_ADDRESS = withDevopstools(
+                        command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
+                        returnStdout: true,
                     )
                 }
             }
@@ -182,12 +190,24 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}, "eth_address_to_submit_multisig_changes": "${ETH_ADDRESS}"' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
                         }
                     }
+                }
+            }
+            stage('Post configuration') {
+                when {
+                    expression {
+                        params.JOIN_AS_VALIDATOR
+                    }
+                }
+                steps {
+                    withDevopstools(
+                        command: "--node ${SHORT_NODE} --self-delegate"
+                    )
                 }
             }
         }
