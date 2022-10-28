@@ -3,7 +3,7 @@ def call(args=[:]) {
         usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
     ]) {
         dir('devopstools') {
-            sh (
+            return sh (
                 script: "go run main.go ${args.command} --network ${env.NET_NAME} --github-token \${TOKEN}",
                 returnStdout: args.returnStdout ?: false,
             )

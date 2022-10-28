@@ -109,7 +109,7 @@ void call() {
                         command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
                     )
                     ETH_ADDRESS = withDevopstools(
-                        command: "validator join --node ${SHOT_NODE} --get-eth-to-submit-bundle",
+                        command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
                         returnStdout: true,
                     )
                 }
