@@ -56,7 +56,7 @@ void call() {
                         }
                     }
                     stage('devopstools') {
-                        when {eth_address_to_submit_multisig_changes
+                        when {
                             expression {
                                 params.RANDOM_NODE || params.JOIN_AS_VALIDATOR
                             }
