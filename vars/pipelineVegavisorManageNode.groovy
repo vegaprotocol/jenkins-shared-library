@@ -108,10 +108,12 @@ void call() {
                     withDevopstools(
                         command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
                     )
-                    ETH_ADDRESS = withDevopstools(
-                        command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
-                        returnStdout: true,
-                    )
+                    script {
+                        ETH_ADDRESS = withDevopstools(
+                            command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
+                            returnStdout: true,
+                        ).trim()
+                    }
                 }
             }
             stage('Build vega, data-node, vegawallet and visor') {
