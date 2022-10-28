@@ -144,7 +144,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         parallel {
           stage('generate network config') {
             environment {
-              PATH = "${networkPath}:${env.PATH}"
+              PATH = "${env.PATH}:${networkPath}"
             }
 
             steps {
@@ -156,6 +156,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                       sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                     }
                     timeout(time: 3, unit: 'MINUTES') {
+
+                      sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
+                      sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
+
                       sh '''./vegacapsule network generate \
                         --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
                         --home-path ''' + testNetworkDir + '''/testnet
@@ -203,7 +207,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
       stage('start network') {
         environment {
-          PATH = "${networkPath}:${env.PATH}"
+          PATH = "${env.PATH}:${networkPath}"
         }
 
         steps {
@@ -253,7 +257,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
         environment {
-          PATH = "${networkPath}:${env.PATH}"
+          PATH = "${env.PATH}:${networkPath}"
         }
 
         options {
@@ -280,8 +284,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           USE_VEGACAPSULE= 'true'
           SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
           VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
+          VEGA_BIN_LINUX="${testNetworkDir}/vega"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
-          PATH = "${networkPath}:${env.PATH}"
+          PATH = "${env.PATH}:${networkPath}"
           VEGACAPSULE_CONFIG_FILENAME = "${params.CAPSULE_CONFIG}"
         }
 
