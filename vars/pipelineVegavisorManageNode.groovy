@@ -9,6 +9,7 @@ void call() {
 
     NODE_NAME = ''
     SHORT_NODE = ''
+    ETH_ADDRESS = ''
 
     pipeline {
         agent any
@@ -107,6 +108,10 @@ void call() {
                     withDevopstools(
                         command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
                     )
+                    ETH_ADDRESS = withDevopstools(
+                        command: "validator join --node ${SHOT_NODE} --get-eth-to-submit-bundle",
+                        returnStdout: true,
+                    )
                 }
             }
             stage('Build vega, data-node, vegawallet and visor') {
@@ -185,7 +190,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}, "use_remote_snapshot": ${params.USE_REMOTE_SNAPSHOT}}, "eth_address": "${ETH_ADDRESS}"' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
