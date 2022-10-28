@@ -198,7 +198,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
 def devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
 
 def vegavisorManageNodeDescription() {
-    return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/" + ul([
+    return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/>" + ul([
         'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
         'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
         'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
