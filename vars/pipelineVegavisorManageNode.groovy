@@ -9,7 +9,7 @@ void call() {
 
     NODE_NAME = ''
     SHORT_NODE = ''
-    ETH_ADDRESS = ''
+    ETH_ADDRESS = 'none'
 
     pipeline {
         agent any
@@ -56,7 +56,7 @@ void call() {
                         }
                     }
                     stage('devopstools') {
-                        when {
+                        when {eth_address_to_submit_multisig_changes
                             expression {
                                 params.RANDOM_NODE || params.JOIN_AS_VALIDATOR
                             }
