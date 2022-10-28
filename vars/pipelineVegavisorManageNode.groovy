@@ -11,6 +11,7 @@ void call() {
     SHORT_NODE = ''
     ETH_ADDRESS = ''
     ANSIBLE_VARS = ''
+    ANSIBLE_VARS_DICT = [:]
 
     pipeline {
         agent any
@@ -114,6 +115,10 @@ void call() {
                             command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
                             returnStdout: true,
                         ).trim()
+                        ANSIBLE_VARS_DICT = [
+                            'healthcheck_type': 'time_check',
+                            'healthcheck_timeout': 3600 // 1h to follow the network
+                        ]
                     }
                 }
             }
@@ -185,7 +190,7 @@ void call() {
                                 // create json with function instead of manual
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
-                                    json: [
+                                    json: ANSIBLE_VARS_DICT + [
                                         release_version: params.RELEASE_VERSION,
                                         unsafe_reset_all: params.UNSAFE_RESET_ALL,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
