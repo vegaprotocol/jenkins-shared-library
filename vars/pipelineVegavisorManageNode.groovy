@@ -117,7 +117,6 @@ void call() {
                         ).trim()
                         ANSIBLE_VARS_DICT = [
                             'healthcheck_type': 'time_check',
-                            'healthcheck_timeout': 3600 // 1h to follow the network
                         ]
                     }
                 }
