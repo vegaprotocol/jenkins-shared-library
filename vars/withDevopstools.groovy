@@ -4,7 +4,7 @@ def call(args=[:]) {
     ]) {
         dir('devopstools') {
             return sh (
-                script: "go run main.go --network '${env.NET_NAME}' --github-token '\${TOKEN}' ${args.command}",
+                script: "go run main.go ${args.command} --network '${env.NET_NAME}' --github-token '\${TOKEN}'",
                 returnStdout: args.returnStdout ?: false,
             )
         }
