@@ -195,7 +195,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
     }
 }
 
-def devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
+devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
 
 def vegavisorManageNodeDescription() {
     return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/>" + ul([
