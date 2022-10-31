@@ -295,7 +295,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             Map runStages = [
               'run system-tests': {
                 dir('system-tests/scripts') {
-                    sh 'make test'
+                  sh 'make test'
                 }
               }
             ]
@@ -365,6 +365,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         dir(testNetworkDir) {
           archiveArtifacts(
             artifacts: 'testnet/**/*',
+            excludes: [
+              'testnet/**/*.sock',
+              'testnet/data/**/state/data-node/**/*'
+            ].join(','),
             allowEmptyArchive: true
           )
           archiveArtifacts(
