@@ -365,6 +365,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         dir(testNetworkDir) {
           archiveArtifacts(
             artifacts: 'testnet/**/*',
+            excludes: [
+              'testnet/**/*.sock',
+              'testnet/data/**/state/data-node/dehistory'
+            ].join(','),
             allowEmptyArchive: true
           )
           archiveArtifacts(
