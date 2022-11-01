@@ -373,6 +373,7 @@ void call() {
                     }
                 }
                 steps {
+                    sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
                     withDevopstools(
                         command: 'market propose --all'
                     )
