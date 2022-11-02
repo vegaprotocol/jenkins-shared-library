@@ -115,9 +115,9 @@ void call() {
                             command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
                             returnStdout: true,
                         ).trim()
-                        ANSIBLE_VARS_DICT = [
-                            'healthcheck_type': 'time_check',
-                        ]
+                        // ANSIBLE_VARS_DICT = [
+                        //     'healthcheck_type': 'time_check',
+                        // ]
                     }
                 }
             }
