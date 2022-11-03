@@ -29,6 +29,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       ansiColor('xterm')
       timestamps()
     }
+    environment {
+      GITHUB_API_TOKEN = credentials('vega-ci-bot')
+    }
     stages {
       stage('prepare') {
         steps {
