@@ -365,7 +365,7 @@ void call() {
                     }
                 }
                 steps {
-                    sleep 30
+                    sleep 60
                     withDevopstools(
                         command: 'network self-delegate'
                     )
