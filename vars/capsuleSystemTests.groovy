@@ -29,9 +29,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       ansiColor('xterm')
       timestamps()
     }
-    environment {
-      GITHUB_API_TOKEN = credentials('vega-ci-bot')
-    }
     stages {
       stage('prepare') {
         steps {
@@ -294,21 +291,25 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
 
         steps {
-          script {
-            Map runStages = [
-              'run system-tests': {
-                dir('system-tests/scripts') {
-                  sh 'make test'
+          withCredentials([
+            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable:'GITHUB_API_USER')
+          ]) {
+            script {
+              Map runStages = [
+                'run system-tests': {
+                  dir('system-tests/scripts') {
+                    sh 'make test'
+                  }
                 }
+              ]
+              if (pipelineHooks.containsKey('runTests') && pipelineHooks.runTests.size() > 0) {
+                runStages = runStages + pipelineHooks.runTests
               }
-            ]
-            if (pipelineHooks.containsKey('runTests') && pipelineHooks.runTests.size() > 0) {
-              runStages = runStages + pipelineHooks.runTests
-            }
 
-            withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
-              sh 'printenv'
-              parallel runStages
+              withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
+                sh 'printenv'
+                parallel runStages
+              }
             }
           }
         }
