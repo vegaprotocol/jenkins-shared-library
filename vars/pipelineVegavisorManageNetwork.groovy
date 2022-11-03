@@ -254,15 +254,20 @@ void call() {
                                     """, returnStdout:true).trim()
                                 }
                             }
-                            dir('networks-internal') {
-                                sh label: 'Generate genesis', script: """#!/bin/bash -e
-                                    go run scripts/main.go \
-                                        generate-genesis \
-                                        --network "${env.NET_NAME}" \
-                                        --validator-ids "${env.VALIDATOR_IDS}" \
-                                        ${env.CHECKPOINT_ARG}
-                                """
-                                sh "git add ${env.NET_NAME}/*"
+                            withCredentials([
+                                usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                            ]) {
+                                dir('networks-internal') {
+                                    sh label: 'Generate genesis', script: """#!/bin/bash -e
+                                        go run scripts/main.go \
+                                            generate-genesis \
+                                            --network "${env.NET_NAME}" \
+                                            --validator-ids "${env.VALIDATOR_IDS}" \
+                                            --github-token "${env.TOKEN}" \
+                                            ${env.CHECKPOINT_ARG}
+                                    """
+                                    sh "git add ${env.NET_NAME}/*"
+                                }
                             }
                         }
                     }
