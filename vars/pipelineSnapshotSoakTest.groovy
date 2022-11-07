@@ -9,7 +9,7 @@ def call() {
         stages {
             stage('Prepare') {
                 writeFile (
-                    text: libraryResource 'pv-snapshot-all',
+                    text: libraryResource 'bin/pv-snapshot-all',
                     file: 'pv-snapshot-all',
                 )
                 sh "chmod +x pv-snapshot-all"
