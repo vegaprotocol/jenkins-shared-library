@@ -287,7 +287,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           VEGA_BIN_LINUX="${testNetworkDir}/vega"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${env.PATH}:${networkPath}"
-          VEGACAPSULE_CONFIG_FILENAME = "${params.CAPSULE_CONFIG}"
+          VEGACAPSULE_CONFIG_FILENAME = "/workspace/vegacapsule/${params.CAPSULE_CONFIG}"
         }
 
         steps {
