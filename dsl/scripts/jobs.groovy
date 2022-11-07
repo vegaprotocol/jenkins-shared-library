@@ -518,6 +518,45 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
+    //
+    // Stagnet 2
+    //
+    [
+        name: 'private/Deployments/stagnet2/Manage-Network',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'stagnet2',
+            ANSIBLE_LIMIT: 'stagnet2',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet2/Manage-Node',
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'stagnet2',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'stagnet2'),
+        disableConcurrentBuilds: true,
+        // restart a random node every 30min
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/stagnet2/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'stagnet2',
+            ANSIBLE_LIMIT: 'stagnet2',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
     // fairground
     [
         name: 'private/Deployments/fairground/Manage-Network',
@@ -589,6 +628,20 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'stagnet1',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet2/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet2',
         ],
         parameters: {
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
