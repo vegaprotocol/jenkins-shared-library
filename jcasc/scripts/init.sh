@@ -50,6 +50,13 @@ for i in {00..50}; do
     # Readd
     ssh-keyscan -t rsa,dsa "n$i.stagnet1.vega.xyz" >> ~/.ssh/known_hosts || true
 done
+# Update Stagnet 2
+for i in {00..50}; do
+    # Remove
+    ssh-keygen -R "n$i.stagnet2.vega.xyz" || true
+    # Readd
+    ssh-keyscan -t rsa,dsa "n$i.stagnet2.vega.xyz" >> ~/.ssh/known_hosts || true
+done
 # Update Stagnet 3
 for i in {00..50}; do
     # Remove
