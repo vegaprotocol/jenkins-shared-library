@@ -37,19 +37,20 @@ def call() {
                             returnStodut: true,
                         ).trim().split("\n").findAll{ it }
                     }
-                    parallel STEPS.collectEntries{ basePath -> [
-                        basePath,
-                        {
-                            sh "echo ${basePath}"
-                        }
-                        // // use name of suit as name of the stage
-                        // basePath.split('/').find { it.startsWith('system-tests-') }, {
-                        //     // generate all of the snapshots by replaying the whole chain
-                        //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
-                        //     // now load from all of the snapshots
-                        //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME}"
-                        // }
-                    ]}
+                    parallel STEPS.collectEntries{ basePath ->
+                        [
+                            (basePath) : {
+                                sh "echo ${basePath}"
+                            }
+                            // // use name of suit as name of the stage
+                            // basePath.split('/').find { it.startsWith('system-tests-') }, {
+                            //     // generate all of the snapshots by replaying the whole chain
+                            //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
+                            //     // now load from all of the snapshots
+                            //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME}"
+                            // }
+                        ]
+                    }
                 }
             }
         }
