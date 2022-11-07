@@ -1,5 +1,5 @@
 def call() {
-    STEPS = [:]
+    DIRS = []
     pipeline {
         agent {
             label 'system-tests-capsule'
@@ -18,6 +18,7 @@ def call() {
                         file: 'pv-snapshot-all',
                     )
                     sh "chmod +x pv-snapshot-all"
+                    // todo: copy only required artifacts to speed up?
                     dir('artifacts') {
                         copyArtifacts(
                             projectName: params.SYSTEM_TEST_JOB_NAME,
@@ -31,26 +32,21 @@ def call() {
             stage('Soak'){
                 steps {
                     script {
-                        STEPS = sh (
-                            script: "find . -type d -wholename '*testnet'",
-                            returnStodut: true,
+                        DIRS = sh (
+                            script: "find artifacts -type d -wholename '*testnet'",
+                            returnStdout: true,
                         ).trim().split("\n").findAll{ it }
-                        echo "${STEPS}"
-                        def stepsLocal = STEPS.collectEntries{ basePath ->
-                            [
-                                (basePath) : {
-                                    sh "echo ${basePath}"
-                                }
-                                // // use name of suit as name of the stage
-                                // basePath.split('/').find { it.startsWith('system-tests-') }, {
-                                //     // generate all of the snapshots by replaying the whole chain
-                                //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
-                                //     // now load from all of the snapshots
-                                //     sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME}"
-                                // }
-                            ]
-                        }
-                        echo "${stepsLocal}"
+                    }
+                    parallel DIRS.collectEntries{ basePath ->
+                        [
+                            // use name of suit as name of the stage
+                            (basePath.split('/').find { it.startsWith('system-tests-') }) : {
+                                // generate all of the snapshots by replaying the whole chain
+                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
+                                // now load from all of the snapshots
+                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME}"
+                            }
+                        ]
                     }
                 }
             }
