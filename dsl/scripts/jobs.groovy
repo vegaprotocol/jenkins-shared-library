@@ -157,7 +157,7 @@ def capsuleParams() {
         booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
         booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
+        stringParam('DEVOPSTOOLS_VERSION', 'main', h('version of the devopstools repository (tag, branch, any revision)'))
         booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
         booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
     }
