@@ -32,7 +32,8 @@ def call() {
                             script: "find . -type d -wholename '*testnet'",
                             returnStodut: true,
                         ).trim().split("\n").findAll{ it }
-                        STEPS = stepsKeys.collectEntries{ tmPath ->
+                        STEPS = stepsKeys.collectEntries{ tmPath -> [
+
                             // use name of suit as name of the stage
                             (
                                 basePath.split('/').find {
@@ -46,7 +47,7 @@ def call() {
                                 // now load from all of the snapshots
                                 sh "./pv-snapshot-all --tm-home='${tmPath}/${params.NODE_NAME}' --vega-home=${vegaPath}/${params.NODE_NAME}"
                             }
-                        }
+                        ]}
                     }
                     parallel STEPS
                 }
