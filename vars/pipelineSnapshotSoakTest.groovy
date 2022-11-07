@@ -32,7 +32,7 @@ def call() {
                             script: "find . -type d -wholename '*testnet'",
                             returnStodut: true,
                         ).trim().split("\n").findAll{ it }
-                        STEPS = stepsKeys.collectEntries{ tmPath -> [
+                        STEPS = stepsKeys.collectEntries{ basePath -> [
 
                             // use name of suit as name of the stage
                             (
