@@ -18,7 +18,6 @@ def call() {
                         file: 'pv-snapshot-all',
                     )
                     sh "chmod +x pv-snapshot-all"
-                    sh "pip3 install toml"
                     dir('artifacts') {
                         copyArtifacts(
                             projectName: params.SYSTEM_TEST_JOB_NAME,
@@ -36,6 +35,7 @@ def call() {
                             script: "find . -type d -wholename '*testnet'",
                             returnStodut: true,
                         ).trim().split("\n").findAll{ it }
+                        echo "${STEPS}"
                         def stepsLocal = STEPS.collectEntries{ basePath ->
                             [
                                 (basePath) : {
