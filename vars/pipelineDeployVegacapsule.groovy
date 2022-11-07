@@ -71,7 +71,6 @@ void call(Map customConfig = [:]) {
     // vegacapsuleS3BucketName: '',
     networksInternalBranch: 'main',
     // nomadNodesNumer: 0,
-    devopsscriptsBranch: 'main',
   ] + customConfig
   String releasedVersion = params.VEGA_VERSION ?: config.networkName + '-' + env.BUILD_NUMBER
   def vegacapsuleSecrets = [
@@ -137,17 +136,6 @@ void call(Map customConfig = [:]) {
                   url: 'git@github.com:vegaprotocol/networks-internal.git',
                   branch: config.networksInternalBranch,
                   directory: 'networks-internal'
-              ])
-            }
-          }
-
-          stage('Check out vegaprotocol/devopsinfra') {
-            steps {
-              gitClone([
-                  credentialsId: env.GITHUB_SSH_CREDS,
-                  url: 'git@github.com:vegaprotocol/devopsscripts.git',
-                  branch: config.devopsscriptsBranch,
-                  directory: 'devopsscripts'
               ])
             }
           }
@@ -284,7 +272,7 @@ void call(Map customConfig = [:]) {
             }
           }
 
-          stage('Pull devops-infra') {
+          stage('Pull devops-tools') {
             when {
               expression {
                 params.CREATE_MARKETS || params.BOUNCE_BOTS
@@ -294,9 +282,9 @@ void call(Map customConfig = [:]) {
             steps {
               gitClone([
                   credentialsId: env.GITHUB_SSH_CREDS,
-                  url: 'git@github.com:vegaprotocol/devops-infra.git',
-                  branch: params.DEVOPS_INFRA_VERSION,
-                  directory: 'devops-infra'
+                  url: 'git@github.com:vegaprotocol/devopstools.git',
+                  branch: params.DEVOPSTOOLS_VERSION,
+                  directory: 'devopstools'
               ])
             }
           }
@@ -354,18 +342,6 @@ void call(Map customConfig = [:]) {
             }
             steps {
               dir('networks-internal/' + config.networkName + '/vegacapsule') {
-                // Hotfix for https://github.com/vegaprotocol/vegacapsule/issues/228
-                sh 'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -'
-                sh 'sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"'
-                sh 'sudo apt-get update -y && sudo apt-get install -y nomad'
-                sh '''nomad job status --short \
-                  | grep -v Type \
-                  | grep running \
-                  | awk '{ print $1 }' \
-                  | xargs -L 1 nomad job stop -purge \
-                  || echo 'OK' '''
-                // HOTFIX: END
-
                 sh "vegacapsule network destroy --home-path './home'"
               }
             }
@@ -573,41 +549,15 @@ void call(Map customConfig = [:]) {
 
         steps {
           sleep 120 // hotfix for https://github.com/vegaprotocol/devops-infra/issues/1558
-          veganetSh(
-            network: config.networkName,
-            command: 'create_markets',
+          withDevopstools(
+              command: 'market propose --all',
+              netName: config.networkName
           )
-        }
-      }
-
-      stage('Provide liquidity commitment') {
-        options {
-          timeout(15)
-        }
-
-        steps {
-          script {
-            def secrets = [
-              [path: 'wallet/markets-creator/' + config.networkName, engineVersion: 2, secretValues: [
-                  [envVar: 'wallet_name', vaultKey: 'wallet-name'],
-                  [envVar: 'wallet_pass', vaultKey: 'wallet-password'],
-                  [envVar: 'wallet_uri', vaultKey: 'wallet-uri'],
-                  [envVar: 'data_node_host', vaultKey: 'data-node-host'],
-              ]]
-            ]
-
-            withVault([vaultSecrets: secrets]) {
-              dir('devopsscripts') {
-                sh 'go mod vendor'
-                sh '''go run main.go markets liquidity-provision-commitment \
-                    --data-node-host "$data_node_host" \
-                    --wallet-uri "$wallet_uri" \
-                    --wallet-name $wallet_name \
-                    --wallet-password $wallet_pass \
-                    --no-secrets'''
-              }
-            }
-          }
+          sleep 60
+          withDevopstools(
+              command: 'market provide-lp',
+              netName: config.networkName
+          )
         }
       }
 
@@ -624,10 +574,21 @@ void call(Map customConfig = [:]) {
         }
 
         steps {
-          veganetSh(
-            network: config.networkName,
-            command: 'bounce_bots',
-          )
+            withDevopstools(
+                command: 'topup liqbot',
+                netName: config.networkName
+            )
+            withGoogleSA('gcp-k8s') {
+                sh "kubectl rollout restart statefulset liqbot-app -n " + config.networkName
+            }
+      
+            withDevopstools(
+                command: 'topup traderbot',
+                netName: config.networkName
+            )
+            withGoogleSA('gcp-k8s') {
+                sh "kubectl rollout restart statefulset traderbot-app -n " + config.networkName
+            }
         }
       }
     }
