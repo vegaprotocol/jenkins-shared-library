@@ -1,7 +1,9 @@
 def call() {
     STEPS = [:]
     pipeline {
-        agent 'system-tests-capsule'
+        agent {
+            label 'system-tests-capsule'
+        }
         options {
             ansiColor('xterm')
             timestamps()
