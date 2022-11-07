@@ -8,21 +8,23 @@ def call() {
         }
         stages {
             stage('Prepare') {
-                writeFile (
-                    text: libraryResource (
-                        resource: 'bin/pv-snapshot-all'
-                    ),
-                    file: 'pv-snapshot-all',
-                )
-                sh "chmod +x pv-snapshot-all"
-                sh "pip3 install toml"
-                dir('artifacts') {
-                    copyArtifacts(
-                        projectName: params.SYSTEM_TEST_JOB_NAME,
-                        selector: specific("${params.SYSTEM_TEST_BUILD_NUMBER}"),
-                        fingerprintArtifacts: true,
-                        target: ".",
+                steps {
+                    writeFile (
+                        text: libraryResource (
+                            resource: 'bin/pv-snapshot-all'
+                        ),
+                        file: 'pv-snapshot-all',
                     )
+                    sh "chmod +x pv-snapshot-all"
+                    sh "pip3 install toml"
+                    dir('artifacts') {
+                        copyArtifacts(
+                            projectName: params.SYSTEM_TEST_JOB_NAME,
+                            selector: specific("${params.SYSTEM_TEST_BUILD_NUMBER}"),
+                            fingerprintArtifacts: true,
+                            target: ".",
+                        )
+                    }
                 }
             }
             stage('Soak'){
