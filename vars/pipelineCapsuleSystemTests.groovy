@@ -145,6 +145,22 @@ void call() {
           }
         }
       }
+      stage('Call soak tests') {
+        when {
+          expression {
+            params.SCENARIO == 'NIGHTLY'
+          }
+        }
+        steps {
+          build (
+            job: 'common/snapshot-soak-tests',
+            parameters: [
+              string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
+              string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
+            ]
+          )
+        }
+      }
     }
   }
 }
