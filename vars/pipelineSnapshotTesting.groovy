@@ -43,7 +43,7 @@ void call(Map config=[:]) {
         def TRUST_HASH
         def TRUST_HEIGHT
         def RPC_SERVERS
-        def PERSISTENT_PEERS
+        def SEEDS
 
         // Checks
         String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
@@ -147,7 +147,7 @@ void call(Map config=[:]) {
                             def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
                             def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.take(2).collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            PERSISTENT_PEERS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
+                            SEEDS = net_info.result.peers*.node_info.collect{node -> node.id + "@" + node.listen_addr}.join(",")
 
                             // Get trust block info
                             def block_req = new URL("https://tm.${remoteServer}/block?height=2").openConnection();
@@ -155,7 +155,7 @@ void call(Map config=[:]) {
                             TRUST_HASH = tm_block.result.block_id.hash
                             TRUST_HEIGHT = tm_block.result.block.header.height
                             println("RPC_SERVERS=${RPC_SERVERS}")
-                            println("PERSISTENT_PEERS=${PERSISTENT_PEERS}")
+                            println("SEEDS=${SEEDS}")
                             println("TRUST_HASH=${TRUST_HASH}")
                             println("TRUST_HEIGHT=${TRUST_HEIGHT}")
                         } catch (e) {
@@ -182,8 +182,7 @@ void call(Map config=[:]) {
                                 ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                 ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
                                 ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
-                                ./dasel put string -f tm_config/config/config.toml p2p.persistent_peers ${PERSISTENT_PEERS}
-                                ./dasel put string -f tm_config/config/config.toml p2p.seeds ${PERSISTENT_PEERS}
+                                ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
                                 ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
                                 ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                 ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
