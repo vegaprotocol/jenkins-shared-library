@@ -24,6 +24,10 @@ def dirs = [
         display: 'Stagnet 1',
     ],
     [
+        id: 'private/Deployments/stagnet2',
+        display: 'Stagnet 2',
+    ],
+    [
         id: 'private/Deployments/Vegacapsule',
         display: 'Vegacapsule',
     ],
