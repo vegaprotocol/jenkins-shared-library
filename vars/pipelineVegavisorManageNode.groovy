@@ -6,7 +6,13 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
+
     NODE_NAME = ''
+    SHORT_NODE = ''
+    ETH_ADDRESS = ''
+    ANSIBLE_VARS = ''
+    ANSIBLE_VARS_DICT = [:]
+
     pipeline {
         agent any
         options {
@@ -54,7 +60,7 @@ void call() {
                     stage('devopstools') {
                         when {
                             expression {
-                                params.RANDOM_NODE || params.ACTION == 'recreate-node'
+                                params.RANDOM_NODE || params.JOIN_AS_VALIDATOR
                             }
                         }
                         steps {
@@ -73,7 +79,7 @@ void call() {
             stage('Prepare node') {
                 when {
                     expression {
-                        params.ACTION == 'recreate-node'
+                        params.JOIN_AS_VALIDATOR
                     }
                 }
                 steps {
@@ -81,21 +87,41 @@ void call() {
                         switch(env.NET_NAME) {
                             case 'devnet1':
                                 NODE_NAME = 'n05.devnet1.vega.xyz'
-                                shortNode = 'n05'
+                                SHORT_NODE = 'n05'
                                 break
                             default:
-                                error("You can't run 'recreate-node' for ${env.NET_NAME}")
+                                error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
                         }
                         if (!params.VEGA_VERSION  && !params.RELEASE_VERSION) {
                             error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
                         }
+                        if (!params.USE_REMOTE_SNAPSHOT) {
+                            error("If joining as validator you need to set USE_REMOTE_SNAPSHOT or implemenet a sleep procedure in this pipeline.")
+                        }
+                        if (!params.UNSAFE_RESET_ALL) {
+                            error('You need to set UNSAFE_RESET_ALL when JOIN_AS_VALIDATOR to wipe out old data from the machine.')
+                        }
                     }
+                    print("""Run command that:
+                    - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
+                    - Unstake Vega Tokens on ERC20 Bridge for Old VegaPubKey - this will cause the old validator to be removed at the end of epoch
+                    - Stake Vega Tokens on ERC20 Bridge to Newly generated VegaPubKey
+                    """)
                     withDevopstools(
-                        command: "secrets create-node --node ${shortNode} --force"
+                        command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
                     )
+                    script {
+                        ETH_ADDRESS = withDevopstools(
+                            command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
+                            returnStdout: true,
+                        ).trim()
+                        ANSIBLE_VARS_DICT = [
+                            'healthcheck_type': 'time_check',
+                        ]
+                    }
                 }
             }
-            stage('Build vaga, data-node, vegawallet and visor') {
+            stage('Build vega, data-node, vegawallet and visor') {
                 when {
                     expression { params.VEGA_VERSION }
                 }
@@ -140,8 +166,8 @@ void call() {
                         withCredentials([sshCredentials]) {
                             script {
                                 if (params.RANDOM_NODE) {
-                                    if (params.ACTION == 'recreate-node') {
-                                        echo "!!!!! you can't assign random node for 'recreate-node' !!!!!!"
+                                    if (params.JOIN_AS_VALIDATOR) {
+                                        echo "!!!!! you can't assign random node for 'JOIN_AS_VALIDATOR' !!!!!!"
                                         echo "!!!! ${NODE_NAME} is used instead"
                                     }
                                     else {
@@ -160,6 +186,16 @@ void call() {
                                         cp ./bin/visor ./ansible/roles/barenode/files/bin/
                                     """
                                 }
+                                // create json with function instead of manual
+                                ANSIBLE_VARS = writeJSON(
+                                    returnText: true,
+                                    json: ANSIBLE_VARS_DICT + [
+                                        release_version: params.RELEASE_VERSION,
+                                        unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                                        use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
+                                        eth_address_to_submit_multisig_changes: ETH_ADDRESS,
+                                    ]
+                                )
                             }
                             dir('ansible') {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
@@ -171,7 +207,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
@@ -179,16 +215,16 @@ void call() {
                     }
                 }
             }
-            stage('Configure node') {
+            stage('Post configuration') {
                 when {
                     expression {
-                        params.ACTION == 'recreate-node'
+                        params.JOIN_AS_VALIDATOR
                     }
                 }
                 steps {
-                    dir('devopstools') {
-                        sh "echo 'not implemented'"
-                    }
+                    withDevopstools(
+                        command: "validator join --node ${SHORT_NODE} --self-delegate"
+                    )
                 }
             }
         }

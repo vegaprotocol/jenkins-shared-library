@@ -1,25 +1,42 @@
 /* groovylint-disable CompileStatic, DuplicateNumberLiteral, DuplicateStringLiteral, LineLength */
 // https://github.com/janinko/ghprb/issues/77
 def scmDefinition(args){
-  return {
-    cpsScm {
-      scm {
-        git {
-          if (args.branch) {
-              branch("*/${args.branch}")
-          }
-          remote {
-            url(args.repo)
-            credentials(args.get('credentials', "vega-ci-bot"))
-            if (args.branch) {
-                refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+    return {
+        cpsScm {
+            scm {
+                git {
+                    if (args.branch) {
+                        branch("*/${args.branch}")
+                    }
+                    remote {
+                        if (args.useGithub) {
+                            github(args.repoName)
+                        }
+                        else {
+                            url(args.repo)
+                            credentials(args.get('credentials', "vega-ci-bot"))
+                            if (args.branch) {
+                                refspec("+refs/heads/${args.branch}:refs/remotes/origin/${args.branch}")
+                            }
+                        }
+                    }
+                    if (args.check) {
+                        extensions {
+                            gitSCMChecksExtension {
+                                // If this option is checked, verbose log will be output to build console; the verbose log is useful for debugging the publisher creation.
+                                verboseConsoleLog(true)
+                            }
+                            gitSCMStatusChecksExtension {
+                                name(args.check)
+                                unstableBuildNeutral(true)
+                            }
+                        }
+                    }
+                }
             }
-          }
+            scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
         }
-      }
-      scriptPath(args.get('jenkinsfile', 'Jenkinsfile'))
     }
-  }
 }
 
 def h(def text, def num=4) {
@@ -27,7 +44,10 @@ def h(def text, def num=4) {
 }
 
 def ul(def ulMap) {
-    def entries = ulMap.collect { "<li>${it.key} - ${it.value}</li>" }.join("\n")
+    if (ulMap instanceof Map) {
+        ulMap = ulMap.collect { "${it.key} - ${it.value}" }
+    }
+    def entries = ulMap.collect { "<li>${it}</li>" }.join("\n")
     return "<ul>${entries}</ul>"
 }
 
@@ -41,6 +61,7 @@ def standardDescription() {
 
 
 def createCommonPipeline(args){
+    args.repoName = "vegaprotocol/${args.repo}"
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
 
     def des = args.get('description', '')
@@ -136,7 +157,7 @@ def capsuleParams() {
         booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
         booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('DEVOPS_INFRA_VERSION', 'master', h('version of the devops-infra repository (tag, branch, any revision)'))
+        stringParam('DEVOPSTOOLS_VERSION', 'main', h('version of the devopstools repository (tag, branch, any revision)'))
         booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
         booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
     }
@@ -174,22 +195,39 @@ def vegavisorRestartNetworkParams(args=[:]) {
     }
 }
 
-def vegavisorRestartNodeParams(args=[:]) {
+devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
+
+def vegavisorManageNodeDescription() {
+    return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/>" + ul([
+        'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
+        'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
+        'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
+    ])
+}
+
+def vegavisorManageNodeParams(args=[:]) {
     def choices = [
         'restart-node': 'regular restart',
         'quick-restart-node': 'fast restart without config updates',
         'create-node': 'reset node',
         'stop-node': 'stop node',
-        'recreate-node': 'wipe node data and set it up again',
     ]
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the paramaters.')
+        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
+        booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
+        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
         stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-        choiceParam('NODE', (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" }, 'Choose which node to restart')
+        choiceParam(
+            'NODE',
+            (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
+            [
+                "be.${args.name}.vega.xyz"
+            ],
+            'Choose which node to restart')
     }
 }
 
@@ -214,6 +252,7 @@ def systemTestsParamsGeneric(args=[:]) {
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+        booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', true, 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
@@ -244,6 +283,59 @@ def lnlSystemTestsparams() {
     }
 }
 
+def approbationParams(def config=[:]) {
+    return {
+        if (config.type == 'core') {
+            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
+            stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
+            stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
+            stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('FRONTEND_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
+            stringParam('VEGAWALLET_DESKTOP_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
+        }
+
+        stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
+
+        if (config.type == 'core') {
+            stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
+        }
+
+        if (config.type == 'core') {
+            stringParam('CATEGORIES_ARG', './specs/protocol/categories.json', '--categories argument value')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value')
+        }
+
+        if (config.type == 'core') {
+            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
+        }
+        else if (config.type == 'frontend') {
+          stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/cypress/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
+        }
+
+        if (config.type == 'core' ) {
+            stringParam('IGNORE_ARG','{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
+        }
+
+        if (config.type == 'core') {
+            stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv', 'Other arguments')
+        }
+
+        stringParam('APPROBATION_VERSION', '4.0.0', 'Released version of Approbation. latest can be used')
+
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    }
+}
+
 def jobs = [
     // Capsule playground
     [
@@ -260,7 +352,7 @@ def jobs = [
             ])'''),
         disableConcurrentBuilds: true,
         // weekdays 5AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 5 * * 1-5 %' + [
+        parameterizedCron: 'H 1 * * 1-5 %' + [
             'VEGA_VERSION=develop',
             'BUILD_VEGA_BINARIES=true',
             'UNSAFE_RESET_ALL=true',
@@ -280,10 +372,12 @@ def jobs = [
         branch: 'main',
         disableConcurrentBuilds: true,
         numToKeep: 100,
+        check: 'DSL Job',
     ],
     // Jenkins Configuration As Code
     [
         name: 'private/Jenkins Configuration as Code Pipeline',
+        check: 'Jenkins Configuration as Code pipeline',
         repo: 'jenkins-shared-library',
         description: h('This job is used to auto apply changes to jenkins instance configuration'),
         jenkinsfile: 'jcasc/Jenkinsfile',
@@ -309,12 +403,12 @@ def jobs = [
     //
     [
         name: 'private/Deployments/devnet1/Manage-Network',
+        description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
-            NETWORKS_INTERNAL_GENESIS_BRANCH: 'config-devnet1',
         ],
         parameters: vegavisorRestartNetworkParams(
             'CREATE_MARKETS': true,
@@ -324,15 +418,16 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/devnet1/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'devnet1',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'devnet1'),
+        parameters: vegavisorManageNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
-        parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
     [
         name: 'private/Deployments/devnet1/Protocol-Upgrade',
@@ -350,24 +445,25 @@ def jobs = [
     //
     [
         name: 'private/Deployments/sandbox/Manage-Network',
+        description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
             NET_NAME: 'sandbox',
             ANSIBLE_LIMIT: 'sandbox',
-            NETWORKS_INTERNAL_GENESIS_BRANCH: 'sandbox-config',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/sandbox/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'sandbox',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'sandbox'),
+        parameters: vegavisorManageNodeParams(name: 'sandbox'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -388,6 +484,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/stagnet1/Manage-Network',
+        description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
@@ -399,12 +496,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet1/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'stagnet1'),
+        parameters: vegavisorManageNodeParams(name: 'stagnet1'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -420,9 +518,49 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
+    //
+    // Stagnet 2
+    //
+    [
+        name: 'private/Deployments/stagnet2/Manage-Network',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'stagnet2',
+            ANSIBLE_LIMIT: 'stagnet2',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet2/Manage-Node',
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'stagnet2',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'stagnet2'),
+        disableConcurrentBuilds: true,
+        // restart a random node every 30min
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/stagnet2/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'stagnet2',
+            ANSIBLE_LIMIT: 'stagnet2',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
     // fairground
     [
         name: 'private/Deployments/fairground/Manage-Network',
+        description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
@@ -434,12 +572,13 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/fairground/Manage-Node',
+        description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: vegavisorRestartNodeParams(name: 'testnet'),
+        parameters: vegavisorManageNodeParams(name: 'testnet'),
         disableConcurrentBuilds: true,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -497,6 +636,20 @@ def jobs = [
         // cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/stagnet2/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet2',
+        ],
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        },
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
     // system-tests
     [
         name: 'common/system-tests-wrapper',
@@ -513,6 +666,7 @@ def jobs = [
         parameters: lnlSystemTestsparams(),
         copyArtifacts: true,
         daysToKeep: 14,
+        cron: 'H 3 * * *',
     ],
     [
         name: 'common/system-tests',
@@ -554,7 +708,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'devnet1',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -569,7 +722,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet1',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -581,11 +733,10 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Fairground',
-        disabled: true,
+        // disabled: true,
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
-            DISABLE_TENDERMINT: 'true'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -627,6 +778,60 @@ def jobs = [
         description: 'Top-Up bots on the Stagnet3 network. Runs every 4 hours.',
         definition: libDefinition('pipelineTopUpBots()'),
     ],
+    // approbations
+    [
+        name: 'common/approbation',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "core")'),
+        parameters: approbationParams(type: 'core'),
+        copyArtifacts: true,
+    ],
+    [
+        name: 'common/approbation-frontend',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "frontend")'),
+        parameters: approbationParams(type: 'frontend'),
+        copyArtifacts: true,
+    ],
+    [
+        name: 'common/frontend-monorepo',
+        repo: 'frontend-monorepo',
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        check: 'Approbation Pipeline',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+        env: [
+            // hax getCommitHash()
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
+    ],
+    [
+        name: 'common/vegawallet-desktop',
+        repo: 'vegawallet-desktop',
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+        check: 'Approbation Pipeline',
+        env: [
+            // hax getCommitHash()
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
+    ],
+    [
+        name: 'common/snapshot-soak-tests',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineSnapshotSoakTest()'),
+        parameters: {
+            stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
+            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
+            stringParam('NODE_NAME', 'node2', 'name of node to parse blocks')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        }
+    ]
 ]
 
 // MAIN

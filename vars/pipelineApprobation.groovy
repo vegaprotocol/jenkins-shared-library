@@ -6,153 +6,159 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-void call() {
+void call(def config=[:]) {
 
     String scriptSlackMsg = ''
-
     echo "buildCauses=${currentBuild.buildCauses}"
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
-
-    properties([
-        copyArtifactPermission('*'),
-        parameters([
-            string(
-                name: 'ORIGIN_REPO', defaultValue: 'vegaprotocol/vega',
-                description: 'repo which acts as source of vegaprotocol (used for forks builds)'),
-            string(
-                name: 'VEGA_CORE_BRANCH', defaultValue: pipelineDefaults.appr.vegaCoreBranch,
-                description: 'Git branch, tag or hash of the origin repo repository'),
-            string(
-                name: 'SPECS_BRANCH', defaultValue: pipelineDefaults.appr.specsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/specs repository'),
-            string(
-                name: 'MULTISIG_CONTROL_BRANCH', defaultValue: pipelineDefaults.appr.multisigControlBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository'),
-            string(
-                name: 'SYSTEM_TESTS_BRANCH', defaultValue: pipelineDefaults.appr.systemTestsBranch,
-                description: 'Git branch, tag or hash of the vegaprotocol/system-tests repository'),
-
-            string(
-                name: 'SPECS_ARG', defaultValue: pipelineDefaults.appr.specsArg,
-                description: '--specs argument value'),
-            string(
-                name: 'TESTS_ARG', defaultValue: pipelineDefaults.appr.testsArg,
-                description: '--tests argument value'),
-            string(
-                name: 'IGNORE_ARG', defaultValue: pipelineDefaults.appr.ignoreArg,
-                description: '--ignore argument value'),
-            string(
-                name: 'OTHER_ARG', defaultValue: pipelineDefaults.appr.otherArg,
-                description: 'Other arguments'),
-
-            string(
-                name: 'APPROBATION_VERSION', defaultValue: pipelineDefaults.appr.approbationVersion,
-                description: 'Released version of Approbation. latest can be used'),
-        ])
-    ])
-
     echo "params=${params}"
 
-    node {
-        skipDefaultCheckout()
-        cleanWs()
-
-        timestamps {
-            try {
-                timeout(time: 20, unit: 'MINUTES') {
-                    stage('CI config') {
-                        // Printout all configuration variables
+    pipeline {
+        agent any
+        options {
+            ansiColor('xterm')
+            skipDefaultCheckout()
+            timestamps()
+            timeout(time: 20, unit: 'MINUTES')
+        }
+        stages {
+            stage('CI Config') {
+                steps {
+                    script {
                         sh 'printenv'
-                        echo "params=${params.inspect()}"
                     }
-                    //
-                    // GIT clone
-                    //
-                    stage('Git Clone') {
-                        parallel([
-                            'vega core': {
-                                dir('vega') {
-                                    gitClone(params.ORIGIN_REPO, params.VEGA_CORE_BRANCH)
-                                }
-                            },
-                            'specs': {
-                                dir('specs') {
-                                    gitClone('vegaprotocol/specs', params.SPECS_BRANCH)
-                                }
-                            },
-                            'MultisigControl': {
-                                dir('MultisigControl') {
-                                    gitClone('vegaprotocol/MultisigControl', params.MULTISIG_CONTROL_BRANCH)
-                                }
-                            },
-                            'system-tests': {
-                                dir('system-tests') {
-                                    gitClone('vegaprotocol/system-tests', params.SYSTEM_TESTS_BRANCH)
-                                }
+                    echo "params=${params.inspect()}"
+                }
+            }
+            stage('Git Clone') {
+                parallel {
+                    stage('vega core') {
+                        when {
+                            expression {
+                                config.type == 'core'
                             }
-                        ])
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'vega',
+                                githubUrl: params.ORIGIN_REPO,
+                                branch: "*/${params.VEGA_CORE_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf vega@tmp"
+                        }
                     }
-                    //
-                    // RUN
-                    //
-                    stage('Run Approbation') {
-                        sh label: 'approbation', script: """#!/bin/bash -e
-                            npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
-                                --specs="${params.SPECS_ARG}" \
-                                --tests="${params.TESTS_ARG}" \
-                                --ignore="${params.IGNORE_ARG}" \
-                                ${params.OTHER_ARG}
-                        """
+                    stage('specs') {
+                        steps {
+                            gitClone(
+                                directory: 'specs',
+                                vegaUrl: 'specs',
+                                branch: "*/${params.SPECS_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf specs@tmp"
+                        }
                     }
-                    //
-                    // Results
-                    //
-                    stage('Store results') {
-                        archiveArtifacts artifacts: 'results/*',
-                                allowEmptyArchive: true
-                        scriptSlackMsg = sh(
-                            script: "cat results/jenkins.txt",
-                            returnStdout: true,
-                        ).trim()
+                    stage('MultisigControl') {
+                        when {
+                            expression {
+                                config.type == 'core'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'MultisigControl',
+                                vegaUrl: 'MultisigControl',
+                                branch: "*/${params.MULTISIG_CONTROL_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf MultisigControl@tmp"
+                        }
+                    }
+                    stage('system-tests') {
+                        when {
+                            expression {
+                                config.type == 'core'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'system-tests',
+                                vegaUrl: 'system-tests',
+                                branch: "*/${params.SYSTEM_TESTS_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf system-tests@tmp"
+                        }
+                    }
+                    stage('frontend-monorepo') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'frontend-monorepo',
+                                vegaUrl: 'frontend-monorepo',
+                                branch: "*/${params.FRONTEND_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf frontend-monorepo@tmp"
+                        }
+                    }
+                    stage('vegawallet-desktop') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'vegawallet-desktop',
+                                vegaUrl: 'vegawallet-desktop',
+                                branch: "*/${params.VEGAWALLET_DESKTOP_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf vegawallet-desktop@tmp"
+                        }
                     }
                 }
-                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                // i.e. `currentResult` is not set properly in the finally block
-                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                currentBuild.result = currentBuild.result ?: 'SUCCESS'
-                // result can be SUCCESS or UNSTABLE
-            } catch (FlowInterruptedException e) {
-                currentBuild.result = 'ABORTED'
-                throw e
-            } catch (e) {
-                // Workaround Jenkins problem: https://issues.jenkins.io/browse/JENKINS-47403
-                // i.e. `currentResult` is not set properly in the finally block
-                // CloudBees workaround: https://support.cloudbees.com/hc/en-us/articles/218554077-how-to-set-current-build-result-in-pipeline
-                currentBuild.result = 'FAILURE'
-                throw e
-            } finally {
-                stage('Cleanup') {
+            }
+            stage('Run Approbation') {
+                steps {
+                    sh label: 'approbation', script: """#!/bin/bash -e
+                        npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
+                            --specs="${params.SPECS_ARG}" \
+                            --tests="${params.TESTS_ARG}" \
+                            --categories="${params.CATEGORIES_ARG}" \
+                            ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
+                    """
+                }
+            }
+        }
+        post {
+            always {
+                catchError {
+                    archiveArtifacts artifacts: 'results/*',
+                        allowEmptyArchive: true
+                }
+                script {
+                    scriptSlackMsg = sh(
+                        script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
+                        returnStdout: true,
+                    ).trim()
                     sendSlackMessage(scriptSlackMsg)
                 }
+                cleanWs()
             }
         }
     }
 }
 
-void gitClone(String repo, String branch) {
-    retry(3) {
-        checkout([
-            $class: 'GitSCM',
-            branches: [[name: branch]],
-            userRemoteConfigs: [[
-                url: "git@github.com:${repo}.git",
-                credentialsId: 'vega-ci-bot'
-            ]]])
-    }
-}
 
 void sendSlackMessage(String scriptMsg) {
     String slackChannel = '#coverage-notify'

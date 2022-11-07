@@ -24,6 +24,10 @@ def dirs = [
         display: 'Stagnet 1',
     ],
     [
+        id: 'private/Deployments/stagnet2',
+        display: 'Stagnet 2',
+    ],
+    [
         id: 'private/Deployments/Vegacapsule',
         display: 'Vegacapsule',
     ],
@@ -46,6 +50,12 @@ def dirs = [
     [
         id: 'common',
         display: 'Common',
+        permissions: [
+            'anonymous': [
+                'hudson.model.View.Read',
+                'hudson.model.Item.Read',
+            ],
+        ],
     ],
 ]
 
@@ -56,6 +66,13 @@ dirs.each { directory ->
         }
         if (directory.description) {
             description(directory.description)
+        }
+        if (directory.permissions) {
+            authorization {
+                directory.permissions.each { user, userPermissions ->
+                    permissions(user, userPermissions)
+                }
+            }
         }
     }
 }

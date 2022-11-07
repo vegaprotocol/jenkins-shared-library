@@ -7,6 +7,7 @@ void doClone(Map config) {
       return checkout([
         $class: 'GitSCM',
         branches: [[name: config?.branch]],
+        extensions: config?.extensions,
         userRemoteConfigs: [[
           url: config?.url,
           credentialsId: config?.credentialsId
@@ -20,6 +21,7 @@ void call(Map additionalConfig) {
       directory: '',
       branch: 'main',
       vegaUrl: '',
+      githubUrl: '',
       url: '',
       credentialsId: 'vega-ci-bot',
       timeout: 3,
@@ -29,6 +31,9 @@ void call(Map additionalConfig) {
 
   if (config.vegaUrl && !config.url) {
     config.url = "git@github.com:vegaprotocol/${config.vegaUrl}.git"
+  }
+  if (config.githubUrl && !config.url) {
+    config.url = "git@github.com:${config.githubUrl}.git"
   }
 
   ['branch', 'url', 'credentialsId'].each { item ->

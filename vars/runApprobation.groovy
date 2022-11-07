@@ -2,24 +2,31 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call(Map config = [:]) {
     String approbationJob = '/common/approbation'
+    if (config.type == 'frontend') {
+        approbationJob += '-frontend'
+    }
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
-    List buildParameters = [
-            // Different repos branches
-            string(name: 'ORIGIN_REPO', value: config.originRepo ?: 'vegaprotocol/vega'),
-            string(name: 'VEGA_BRANCH', value: config.vegaVersion ?: pipelineDefaults.appr.vegaCoreBranch),
-            string(name: 'SPECS_INTERNAL_BRANCH', value: config.specsInternal ?: pipelineDefaults.appr.specsInternalBranch),
-            string(name: 'MULTISIG_CONTROL_BRANCH', value: config.multisigControl ?: pipelineDefaults.appr.multisigControlBranch),
-            string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests ?: pipelineDefaults.appr.systemTestsBranch),
+    List buildParameters = []
+    // overrides for default values from upstream pipelines
+    if (config.originRepo) {
+        buildParameters.add(string(name: 'ORIGIN_REPO', value: config.originRepo))
+    }
+    if (config.vegaVersion) {
+        buildParameters.add(string(name: 'VEGA_BRANCH', value: config.vegaVersion))
+    }
+    if (config.systemTests) {
+        buildParameters.add(string(name: 'SYSTEM_TESTS_BRANCH', value: config.systemTests))
+    }
+    if (config.specsInternal) {
+        buildParameters.add(string(name: 'SPECS_INTERNAL_BRANCH', value: config.specsInternal))
+    }
+    if (config.frontendBranch) {
+        buildParameters.add(string(name: 'FRONTEND_BRANCH', value: config.frontendBranch))
+    }
+    if (config.vegawalletDesktopBranch) {
+        buildParameters.add(string(name: 'VEGAWALLET_DESKTOP_BRANCH', value: config.vegawalletDesktopBranch))
+    }
 
-            // Approgation arguments
-            string(name: 'SPECS_ARG', value: config.specsArg ?: pipelineDefaults.appr.specsArg),
-            string(name: 'TESTS_ARG', value: config.testsArg ?: pipelineDefaults.appr.testsArg),
-            string(name: 'IGNORE_ARG', value: config.ignoreArg ?: pipelineDefaults.appr.ignoreArg),
-            string(name: 'OTHER_ARG', value: config.otherArg ?: pipelineDefaults.appr.otherArg),
-
-            // Approbation version
-            string(name: 'APPROBATION_VERSION', value: config.approbation ?: pipelineDefaults.appr.approbationVersion),
-        ]
 
     echo "Starting Approbation with parameters: ${buildParameters}"
 

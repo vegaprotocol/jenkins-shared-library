@@ -116,7 +116,7 @@ void call() {
             }
             stage('Prepare') {
                 parallel {
-                    stage('Build vaga, data-node, vegawallet and visor') {
+                    stage('Build vega, data-node, vegawallet and visor') {
                         when {
                             expression { params.VEGA_VERSION }
                         }
@@ -254,35 +254,32 @@ void call() {
                                     """, returnStdout:true).trim()
                                 }
                             }
-                            dir('networks-internal') {
-                                sh label: 'Generate genesis', script: """#!/bin/bash -e
-                                    go run scripts/main.go \
-                                        generate-genesis \
-                                        --network "${env.NET_NAME}" \
-                                        --validator-ids "${env.VALIDATOR_IDS}" \
-                                        ${env.CHECKPOINT_ARG}
-                                """
-                                sh "git add ${env.NET_NAME}/*"
+                            withCredentials([
+                                usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                            ]) {
+                                dir('networks-internal') {
+                                    sh label: 'Generate genesis', script: """#!/bin/bash -e
+                                        go run scripts/main.go \
+                                            generate-genesis \
+                                            --network "${env.NET_NAME}" \
+                                            --validator-ids "${env.VALIDATOR_IDS}" \
+                                            --github-token "${env.TOKEN}" \
+                                            ${env.CHECKPOINT_ARG}
+                                    """
+                                    sh "git add ${env.NET_NAME}/*"
+                                }
                             }
                         }
                     }
                     stage('Commit changes') {
-                        environment {
-                            NETWORKS_INTERNAL_GENESIS_BRANCH = "${env.NETWORKS_INTERNAL_GENESIS_BRANCH ?: 'main'}"
-                        }
                         steps {
                             dir('networks-internal') {
                                 script {
                                     sshagent(credentials: ['vega-ci-bot']) {
-                                        // NOTE: the script to generate genesis.json is run from latest version from NETWORKS_INTERNAL_BRANCH
-                                        // but the result might be commited to a different branch: NETWORKS_INTERNAL_GENESIS_BRANCH
                                         sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                         sh 'git config --global user.name "vega-ci-bot"'
-                                        sh "git stash"
-                                        sh "git switch --force ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
-                                        sh "git checkout stash -- ${env.NET_NAME}/*"
                                         sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
-                                        sh "git push -u origin ${env.NETWORKS_INTERNAL_GENESIS_BRANCH}"
+                                        sh "git push origin HEAD:main"
                                     }
                                 }
                             }
@@ -353,7 +350,7 @@ void call() {
                             slackSend(
                                 channel: '#env-deploy',
                                 color: 'danger',
-                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${jobURL}|more> :boom: (${duration})",
+                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :boom: (${duration})",
                             )
                         }
                     }
@@ -368,7 +365,7 @@ void call() {
                     }
                 }
                 steps {
-                    sleep 30
+                    sleep 60
                     withDevopstools(
                         command: 'network self-delegate'
                     )
@@ -381,6 +378,7 @@ void call() {
                     }
                 }
                 steps {
+                    sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
                     withDevopstools(
                         command: 'market propose --all'
                     )
