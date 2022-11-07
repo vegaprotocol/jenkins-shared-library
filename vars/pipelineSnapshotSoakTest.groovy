@@ -29,14 +29,18 @@ def call() {
                 steps {
                     script {
                         def stepsKeys = sh (
-                            script: "find . -type d -wholename '*testnet/tendermint'",
+                            script: "find . -type d -wholename '*testnet'",
                             returnStodut: true,
                         ).trim().split("\n").findAll{ it }
                         STEPS = stepsKeys.collectEntries{ tmPath ->
                             // use name of suit as name of the stage
-                            (tmPath.split('/').find{it.startsWith('system-tests-')}): {
-                                // generate relative vega path
-                                def vegaPath = tmPath.replaceAll('tendermint', 'vega')
+                            (
+                                basePath.split('/').find {
+                                    it.startsWith('system-tests-')
+                                }
+                            ) : {
+                                def tmPath = "${basePath}/tendermint"
+                                def vegaPath = "${basePath}/vega"
                                 // generate all of the snapshots by replaying the whole chain
                                 sh "./pv-snapshot-all --tm-home='${tmPath}/${params.NODE_NAME}' --vega-home=${vegaPath}/${params.NODE_NAME} --replay"
                                 // now load from all of the snapshots
