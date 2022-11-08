@@ -11,7 +11,7 @@ void call() {
         agent any
         options {
             skipDefaultCheckout()
-            timeout(time: 40, unit: 'MINUTES')
+            timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
             lock(resource: env.NET_NAME)
             ansiColor('x-term')
