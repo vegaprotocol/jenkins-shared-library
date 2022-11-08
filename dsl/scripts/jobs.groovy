@@ -182,16 +182,17 @@ def vegavisorRestartNetworkParams(args=[:]) {
     ]
     return vegavisorParamsBase() << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a network') + ul(choices))
-        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
         booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
         booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', false), 'This will download latest checkpoint and use it to restart the network with')
-        booleanParam('CREATE_MARKETS', args.get('CREATE_MARKETS', false), h('create markets using veganet.sh'))
+        booleanParam('CREATE_MARKETS', args.get('CREATE_MARKETS', false), h('create markets'))
         booleanParam('TOP_UP_BOTS', args.get('TOP_UP_BOTS', false), h('trigger top up job'))
         stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
         stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+        stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
+        stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
+        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     }
 }
 
@@ -218,8 +219,6 @@ def vegavisorManageNodeParams(args=[:]) {
         booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
         booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
-        stringParam('VEGA_VERSION', '', '''Specify which version of vega to deploy. Leave empty to restart network only.
-        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         choiceParam(
             'NODE',
@@ -228,6 +227,9 @@ def vegavisorManageNodeParams(args=[:]) {
                 "be.${args.name}.vega.xyz"
             ],
             'Choose which node to restart')
+        stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
+        stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
+        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
     }
 }
 
@@ -236,6 +238,15 @@ def vegavisorProtocolUpgradeParams() {
         stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 200')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
+        stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
+    }
+}
+
+def vegavisorTopupBotsParams() {
+    return {
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
     }
 }
 
@@ -440,6 +451,17 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/devnet1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'devnet1',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H/15 * * * *',
+        disableConcurrentBuilds: true,
+    ],
     //
     // Sandbox
     //
@@ -518,6 +540,17 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/stagnet1/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
     //
     // Stagnet 2
     //
@@ -557,7 +590,20 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
-    // fairground
+    [
+        name: 'private/Deployments/stagnet2/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet2',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    //
+    // Fairground
+    //
     [
         name: 'private/Deployments/fairground/Manage-Network',
         description: devopsInfraDocs,
@@ -601,56 +647,13 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: {
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        },
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
-    [
-        name: 'private/Deployments/devnet1/Topup-Bots',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorTopupBots()'),
-        env: [
-            NET_NAME: 'devnet1',
-        ],
-        parameters: {
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        },
-        cron: 'H/15 * * * *',
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet1/Topup-Bots',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorTopupBots()'),
-        env: [
-            NET_NAME: 'stagnet1',
-        ],
-        parameters: {
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        },
-        // cron: 'H/30 * * * *',
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet2/Topup-Bots',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorTopupBots()'),
-        env: [
-            NET_NAME: 'stagnet2',
-        ],
-        parameters: {
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        },
-        // cron: 'H/30 * * * *',
-        disableConcurrentBuilds: true,
-    ],
-    // system-tests
+    //
+    // System-Tests
+    //
     [
         name: 'common/system-tests-wrapper',
         useScmDefinition: false,
@@ -687,6 +690,9 @@ def jobs = [
         daysToKeep: 14,
         cron: 'H 0 * * *',
     ],
+    //
+    // Vega Market Simulator
+    //
     [
         name: 'common/vega-market-sim',
         description: 'Simulate Markets on fully controllable Simulator of Vega Network',
@@ -703,6 +709,9 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 14,
     ],
+    //
+    // Snapshots
+    //
     [
         name: 'private/Snapshots/Devnet1',
         useScmDefinition: false,
@@ -778,7 +787,9 @@ def jobs = [
         description: 'Top-Up bots on the Stagnet3 network. Runs every 4 hours.',
         definition: libDefinition('pipelineTopUpBots()'),
     ],
-    // approbations
+    //
+    // Approbations
+    //
     [
         name: 'common/approbation',
         useScmDefinition: false,

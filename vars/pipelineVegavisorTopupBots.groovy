@@ -2,7 +2,7 @@ def call() {
     pipeline {
         agent any
         options {
-            timeout(time: 15, unit: 'MINUTES')
+            timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
             ansiColor('x-term')
         }
