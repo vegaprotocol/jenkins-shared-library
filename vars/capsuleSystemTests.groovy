@@ -413,9 +413,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               rsync -av ''' + validatorHomePath + '''/state/node/snapshots/ ./snapshot-tmp;
               ls -als ./snapshot-tmp;
             '''
-            sh '''vegatools difftool \
-              -s "./snapshot-tmp" \
-              -d "''' + dataNodeURL + '''"'''
+
+            try {
+              sh '''vegatools difftool \
+                -s "./snapshot-tmp" \
+                -d "''' + dataNodeURL + '''"'''
+            } catch (err) {
+                echo err.getMessage()
+            }
           }
         }
       }
