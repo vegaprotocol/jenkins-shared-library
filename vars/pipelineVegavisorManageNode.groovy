@@ -1,11 +1,19 @@
+boolean isValidatorJoiningAndLeaving(Map<?, ?> params) {
+    return params.ACTION == "create-node" && params.JOIN_AS_VALIDATOR
+}
+
 void updateBuildName(Map<?, ?> params) {
     if (currentBuild == null || currentBuild.number == null) {
         return
     }
     buildNumber = currentBuild.number
 
-    if (params.ACTION == "create-node" && params.JOIN_AS_VALIDATOR) {
+    if (isValidatorJoiningAndLeaving(params)) {
         currentBuild.displayName = sprintf("#%d Validator joining & leaving", buildNumber)
+        return
+    }
+    if (params.RANDOM_NODE) {
+        currentBuild.displayName = sprintf("#%d Random node restart", buildNumber)
         return
     }
 }
@@ -207,7 +215,7 @@ void call() {
                                         cp ./bin/visor ./ansible/roles/barenode/files/bin/
                                     """
                                 }
-                                
+
                                 // create json with function instead of manual
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,

@@ -439,9 +439,7 @@ def jobs = [
         disableConcurrentBuilds: true,
         parameterizedCron: [
             // restart a random node every 30min
-            'H/30 * * * * %' + [
-                'RANDOM_NODE=true'
-            ].join(';'),
+            // 'H/30 * * * * %' + ['RANDOM_NODE=true'].join(';'),
             // validator joining & leaving every 30 min
             '20,50 * * * * %' + [
                 'ACTION=create-node',
