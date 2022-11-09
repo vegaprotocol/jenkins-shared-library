@@ -40,3 +40,34 @@ String shellOutput(String command, boolean silent = false) {
   return sh(returnStdout: true,
     script: command).trim()
 }
+
+Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
+  if (netName.length() < 1) {
+    error('[vegautils.networkStatistics] URL needs to be passed')
+  }
+
+  String statisticsJSON = ""
+  
+  for (int nn=0; nn<nodesRetry; nn++) {
+    try {
+      networkURL = sprintf('https://n%02d.%s.vega.xyz/statistics', nn, netName)
+      statisticsJSON = shellOutput('curl --max-time 3 ' + networkURL)
+      break
+    } catch(err) {
+      println('[vegautils.networkStatistics] Failed to get statistics for node ' + networkURL + ': ' + err.getMessage())
+    }
+  }
+
+  if (statisticsJSON.length() < 1) {
+    error('[vegautils.networkStatistics] Empty response from network statistics for network: ' + netName)
+  }
+  
+  
+  try {
+    return (readJSON(text: statisticsJSON, returnPojo: true))
+  } catch(err) {
+    error('[vegautils.networkStatistics] Network statistics JSON is invalid: ' + err.getMessage())
+  }
+
+  return [:]
+}

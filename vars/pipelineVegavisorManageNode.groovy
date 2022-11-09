@@ -1,3 +1,15 @@
+void updateBuildName(Map<?, ?> params) {
+    if (currentBuild == null || currentBuild.number == null) {
+        return
+    }
+    buildNumber = currentBuild.number
+
+    if (params.ACTION == "create-node" && params.JOIN_AS_VALIDATOR) {
+        currentBuild.displayName = sprintf("#%d Validator joining & leaving", buildNumber)
+        return
+    }
+}
+
 void call() {
     // NOTE: environment variables PSSH_USER and PSSH_KEYFILE are used by veganet.sh script
     /* groovylint-disable-next-line NoDef, VariableTypeRequired */
@@ -12,6 +24,7 @@ void call() {
     ETH_ADDRESS = ''
     ANSIBLE_VARS = ''
     ANSIBLE_VARS_DICT = [:]
+    String VEGA_VERSION_FROM_STATISTICS = ''
 
     pipeline {
         agent any
@@ -28,6 +41,7 @@ void call() {
         stages {
             stage('CI Config') {
                 steps {
+                    updateBuildName(params)
                     sh "printenv"
                     echo "params=${params.inspect()}"
                 }
@@ -93,7 +107,14 @@ void call() {
                                 error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
                         }
                         if (!params.VEGA_VERSION  && !params.RELEASE_VERSION) {
-                            error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
+                            statisticsEndpointOut = vegautils.networkStatistics(env.NET_NAME)
+                            if (statisticsEndpointOut['statistics'] == null || statisticsEndpointOut['statistics']['appVersion'] == null) {
+                                println('Failed to get vega network statistics to find the network version')
+                                error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
+                            }
+
+                            VEGA_VERSION_FROM_STATISTICS = statisticsEndpointOut['statistics']['appVersion']
+                            println('RELEASE_VERSION and VEGA_VERASION NOT SPECIFIED BUT VERSION HAS BEEN COLLECTED FROM THE NETWORK STATISTICS. THE VERSION IS: ' + VEGA_VERSION_FROM_STATISTICS)
                         }
                         if (!params.USE_REMOTE_SNAPSHOT) {
                             error("If joining as validator you need to set USE_REMOTE_SNAPSHOT or implemenet a sleep procedure in this pipeline.")
@@ -101,6 +122,10 @@ void call() {
                         if (!params.UNSAFE_RESET_ALL) {
                             error('You need to set UNSAFE_RESET_ALL when JOIN_AS_VALIDATOR to wipe out old data from the machine.')
                         }
+
+                        if (VEGA_VERSION_FROM_STATISTICS.length() < 1 && !!params.RELEASE_VERSION) {
+                            VEGA_VERSION_FROM_STATISTICS = params.RELEASE_VERSION
+                        } 
                     }
                     print("""Run command that:
                     - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
@@ -190,7 +215,7 @@ void call() {
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
                                     json: ANSIBLE_VARS_DICT + [
-                                        release_version: params.RELEASE_VERSION,
+                                        release_version: (params.RELEASE_VERSION.length() > 0 ? params.RELEASE_VERSION : VEGA_VERSION_FROM_STATISTICS),
                                         unsafe_reset_all: params.UNSAFE_RESET_ALL,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
