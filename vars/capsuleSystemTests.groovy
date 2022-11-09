@@ -272,6 +272,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       }
 
       stage('run tests') {
+        when {
+          not {
+            expression {
+              params.SKIP_RUN_TESTS
+            }
+          }
+        }
+        
         options {
           timeout(time: params.TIMEOUT, unit: 'MINUTES')
         }
@@ -315,8 +323,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
-
-
       stage('post run tests steps') {
         when {
           expression {
@@ -330,6 +336,86 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             parallel pipelineHooks.postRunTests
+          }
+        }
+      }
+
+      stage('protocol upgrade proposal step') {
+        when {
+          expression {
+            params.RUN_PROTOCOL_UPGRADE_PROPOSAL
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+        options {
+          timeout(time: 10, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            int upgradeProposalOffset = 100
+            def getLastBlock = { boolean silent ->
+              return vegautils.shellOutput('''devopsscripts vegacapsule last-block \
+                  --output value-only \
+                  --network-home-path ''' + testNetworkDir + '''/testnet \
+                  --local
+                ''', silent).toInteger()
+            }
+            int initNetworkHeight = getLastBlock(false)
+            int proposalBlock = initNetworkHeight + upgradeProposalOffset
+            print('Current network heigh is ' + initNetworkHeight)
+            print('Proposing protocol upgrade on block ' + proposalBlock)
+            
+            // The release tag needs to be valid vega tag.
+            // Given version must be higher than current network version.
+            // It does not need to be existing release because we are not
+            // doing real upgrade. We just need vega network to stop 
+            // producing blocks.
+            sh '''vegacapsule nodes protocol-upgrade \
+                --propose \
+                --home-path ''' + testNetworkDir + '''/testnet \
+                --template-path system-tests/vegacapsule/net_configs/visor_run.tmpl \
+                --height ''' + proposalBlock + ''' \
+                --release-tag v0.990.0
+            '''
+
+            print('Waiting on block ' + proposalBlock)
+            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
+                int currentNetworkHeight = getLastBlock(true)
+                print('... still waiting, network heigh is ' + currentNetworkHeight)
+                return (currentNetworkHeight >= proposalBlock)
+            }
+            initNetworkHeight = getLastBlock(false)
+            print('Current network heigh is ' + initNetworkHeight)
+
+            String dataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule info \
+              --type data-node-grpc-url \
+              --output value-only \
+              --print-only-one \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --local
+            ''')
+
+            String validatorHomePath = vegautils.shellOutput('''devopsscripts vegacapsule info \
+              --type validator-vega-home-dir \
+              --output value-only \
+              --print-only-one \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --local
+            ''')
+
+            print('Run snapshot checks')
+            sleep '30'
+            sh '''
+              mkdir -p ./snapshot-tmp;
+              rsync -av ''' + validatorHomePath + '''/state/node/snapshots/ ./snapshot-tmp;
+              ls -als ./snapshot-tmp;
+            '''
+            sh '''vegatools difftool \
+              -s "./snapshot-tmp" \
+              -d "''' + dataNodeURL + '''"'''
           }
         }
       }
