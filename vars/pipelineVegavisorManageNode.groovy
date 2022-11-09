@@ -1,5 +1,5 @@
 boolean isValidatorJoiningAndLeaving(Map<?, ?> params) {
-    return params.ACTION == "create-node" && params.JOIN_AS_VALIDATOR
+    return params != null && params.ACTION == "create-node" && params.JOIN_AS_VALIDATOR
 }
 
 void updateBuildName(Map<?, ?> params) {
@@ -265,12 +265,20 @@ void call() {
             unsuccessful {
                 script {
                     if (params.RANDOM_NODE) {
-                        slackSend(
-                            channel: "#snapshot-notify",
+                        slackSend(channel: "#snapshot-notify",
                             color: 'danger',
                             message: slack.composeMessage(
                                 branch: '',
                                 name: "Restart node (`${NODE_NAME}`) from local snapshot has failed.",
+                            )
+                        )
+                    }
+                    if (isValidatorJoiningAndLeaving(params)) {
+                        slackSend(channel: "#validator-joining-and-leaving-notify",
+                            color: 'danger',
+                            message: slack.composeMessage(
+                                branch: '',
+                                name: "Validator joining & leaving failed for the `${NODE_NAME}` node.",
                             )
                         )
                     }
@@ -279,12 +287,20 @@ void call() {
             success {
                 script {
                     if (params.RANDOM_NODE) {
-                        slackSend(
-                            channel: "#snapshot-notify",
+                        slackSend(channel: "#snapshot-notify",
                             color: 'good',
                             message: slack.composeMessage(
                                 branch: '',
                                 name: "Restart node (`${NODE_NAME}`) from local snapshot has succeeded.",
+                            )
+                        )
+                    }
+                    if (isValidatorJoiningAndLeaving(params)) {
+                        slackSend(channel: "#validator-joining-and-leaving-notify",
+                            color: 'good',
+                            message: slack.composeMessage(
+                                branch: '',
+                                name: "Validator joining & leaving succeed for the `${NODE_NAME}` node.",
                             )
                         )
                     }
