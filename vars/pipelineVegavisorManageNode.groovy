@@ -122,10 +122,6 @@ void call() {
                         if (!params.UNSAFE_RESET_ALL) {
                             error('You need to set UNSAFE_RESET_ALL when JOIN_AS_VALIDATOR to wipe out old data from the machine.')
                         }
-
-                        if (VEGA_VERSION_FROM_STATISTICS.length() < 1 && !!params.RELEASE_VERSION) {
-                            VEGA_VERSION_FROM_STATISTICS = params.RELEASE_VERSION
-                        } 
                     }
                     print("""Run command that:
                     - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
@@ -211,6 +207,7 @@ void call() {
                                         cp ./bin/visor ./ansible/roles/barenode/files/bin/
                                     """
                                 }
+                                
                                 // create json with function instead of manual
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
