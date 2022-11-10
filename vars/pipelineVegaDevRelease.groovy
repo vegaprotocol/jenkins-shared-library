@@ -214,15 +214,24 @@ void call() {
                         steps {
                             script {
                                 build(
-                                    job: 'private/Deployments/devnet1/Manage-Network',
+                                    job: 'private/Deployments/devnet1/Protocol-Upgrade',
                                     propagate: false,
                                     wait: false,
                                     parameters: [
                                         string(name: 'RELEASE_VERSION', value: versionTag),
-                                        string(name: 'DOCKER_VERSION', value: versionHash),
                                         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
                                     ]
                                 )
+                                // build(
+                                //     job: 'private/Deployments/devnet1/Manage-Network',
+                                //     propagate: false,
+                                //     wait: false,
+                                //     parameters: [
+                                //         string(name: 'RELEASE_VERSION', value: versionTag),
+                                //         string(name: 'DOCKER_VERSION', value: versionHash),
+                                //         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
+                                //     ]
+                                // )
                             }
                         }
                     }
