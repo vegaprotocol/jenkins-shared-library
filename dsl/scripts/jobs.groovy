@@ -437,8 +437,18 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
-        // restart a random node every 30min
-        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+        parameterizedCron: [
+            // restart a random node every 30min
+            // 'H/30 * * * * %' + ['RANDOM_NODE=true'].join(';'),
+            // validator joining & leaving every 30 min
+            '20,50 * * * * %' + [
+                'ACTION=create-node',
+                'UNSAFE_RESET_ALL=true',
+                'JOIN_AS_VALIDATOR=true',
+                'USE_REMOTE_SNAPSHOT=true',
+                'NODE=n05.devnet1.vega.xyz'
+            ].join(';'),
+        ].join('\n'),
     ],
     [
         name: 'private/Deployments/devnet1/Protocol-Upgrade',
