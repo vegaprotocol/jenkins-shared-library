@@ -4,7 +4,7 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'system-tests-capsule',
+    agentLabel: 'test-instance',
     extraEnvVars: [:],
   ]
 
@@ -19,6 +19,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       preNetworkStop: [:],
       postPipeline: [:],
   ] + config.hooks
+
+  String testNetworkDir = ""
 
   pipeline {
     agent {
@@ -47,7 +49,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("Parameters")
               print("==========")
               print("${params}")
-
             }
           }
         }
@@ -63,6 +64,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
+              [ name: 'vegaprotocol/devopstools', branch: 'main' ],
             ]
             def reposSteps = repositories.collectEntries{value -> [
                 value.name,
@@ -76,116 +78,119 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   ])
                 }
             ]}
-            reposSteps['pull system tests image'] = {
-                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  sh "docker pull ghcr.io/vegaprotocol/system-tests:latest"
-                  sh "docker tag ghcr.io/vegaprotocol/system-tests:latest system-tests:local"
-                }
-            }
             parallel reposSteps
-            }
-          }
-        }
-
-      stage('build binaries') {
-        steps {
-          script {
-            def binaries = [
-              [ repository: 'vegacapsule', name: 'vegacapsule', packages: './main.go' ],
-              [ repository: 'vega', name: 'vega', packages: './cmd/vega' ],
-              [ repository: 'vega', name: 'visor', packages: './cmd/visor' ],
-              [ repository: 'vega', name: 'data-node', packages: './cmd/data-node' ],
-              [ repository: 'vega', name: 'vegawallet', packages: './cmd/vegawallet' ],
-              [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
-              [ repository: 'vegatools', name: 'vegatools', packages: './'],
-            ]
-            parallel binaries.collectEntries{value -> [
-              value.name,
-              {
-                vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-                if (value.name == "vega" ) {
-                  archiveArtifacts(
-                    artifacts: 'tests/vega',
-                  )
-                }
-              }
-            ]}
           }
         }
       }
 
-      stage('build upgrade binaries') {
-        steps {
-          script {
-            dir('vega') {
-                sh label: 'Build upgrade version of vega binary for tests', script: """#!/bin/bash -e
-                sed -i 's/"v0.*"/"v99.99.0+dev"/g' version/version.go
-                """
-            }
-            def binaries = [
-              [ repository: 'vega', name: 'vega-v99.99.0+dev', packages: './cmd/vega' ],
-            ]
-            parallel binaries.collectEntries{value -> [
-              value.name,
-              {
-                vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-              }
-            ]}
-          }
-        }
-      }
-
-      stage('start nomad') {
-        steps {
-          dir('system-tests') {
-              sh 'cp ./vegacapsule/nomad_config.hcl' + ' ' + testNetworkDir + '/nomad_config.hcl'
-          }
-          dir(testNetworkDir) {
-              sh 'daemonize -o ' + testNetworkDir + '/nomad.log -c ' + testNetworkDir + ' -p ' + testNetworkDir + '/vegacapsule_nomad.pid ' + testNetworkDir + '/vegacapsule nomad --nomad-config-path=' + testNetworkDir + '/nomad_config.hcl'
-          }
-        }
-      }
-
-      stage('prepare system tests and network') {
+      stage('prepare environemnt') {
         parallel {
-          stage('generate network config') {
+          stage('build binaries') {
             environment {
-              PATH = "${env.PATH}:${networkPath}"
+              TESTS_DIR = "${testNetworkDir}"
             }
             steps {
-              script {
-                dir(testNetworkDir) {
-                  withCredentials([
-                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                  ]) {
-                    sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                  }
-                  timeout(time: 3, unit: 'MINUTES') {
-                    sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
-                    sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
+              script {                
+                def binaries = [
+                  [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
+                  [ repository: 'devopstools', name: 'devopstools', packages: './' ],
+                ]
 
-                    sh '''./vegacapsule network generate \
-                      --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
-                      --home-path ''' + testNetworkDir + '''/testnet
-                    '''
+                Map buildBinariesJobs = binaries.collectEntries{value -> [
+                  value.name,
+                  {
+                    vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+                  }
+                ]}
+                buildBinariesJobs['make binaries'] = {
+                  dir('system-tests/scripts') {
+                    sh 'make build-binaries'
+                    sh 'make vegacapsule-cleanup'
                   }
                 }
+
+                parallel buildBinariesJobs
               }
             }
           }
 
-          stage('build system-tests docker images') {
+          stage('prepare system tests dependencies') {
             options {
               timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             steps {
+              sh label: 'Install python', script: '''
+                pyenv install 3.8 --skip-existing
+                pyenv global 3.8
+              '''
+
+              sh label: 'Print versions', script: '''
+                python --version
+                poetry --version
+              '''
+
               dir('system-tests/scripts') {
-                sh 'make check'
-                withDockerRegistry([credentialsId: 'github-vega-ci-bot-artifacts', url: 'https://ghcr.io']) {
-                  sh 'make prepare-test-docker-image'
-                  sh 'make build-test-proto'
-                }
+                sh label: 'Install poetry dependencies', script: '''
+                  make poetry-install
+                '''
+              }
+            }
+          }
+        }
+      }
+
+      // stage('build upgrade binaries') {
+      //   steps {
+      //     script {
+      //       dir('vega') {
+      //           sh label: 'Build upgrade version of vega binary for tests', script: """#!/bin/bash -e
+      //           sed -i 's/"v0.*"/"v99.99.0+dev"/g' version/version.go
+      //           """
+      //       }
+      //       def binaries = [
+      //         [ repository: 'vega', name: 'vega-v99.99.0+dev', packages: './cmd/vega' ],
+      //       ]
+      //       parallel binaries.collectEntries{value -> [
+      //         value.name,
+      //         {
+      //           vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+      //         }
+      //       ]}
+      //     }
+      //   }
+      // }
+
+      stage('start nomad') {
+        steps {
+          script {
+            dir ('system-tests/scripts') {
+              String makeAbsBinaryPath = vegautils.shellOutput('which make')
+              String cwd = vegautils.shellOutput('pwd')
+
+              sh '''daemonize \
+                -o ''' + testNetworkDir + '''/nomad.log \
+                -e ''' + testNetworkDir + '''/nomad.log \
+                -c ''' + cwd + ''' \
+                -p ''' + testNetworkDir + '''/vegacapsule_nomad.pid \
+                  ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only '''
+            }
+          }
+        }
+      }
+
+      stage('generate network config') {
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+          TESTS_DIR = "${testNetworkDir}"
+          VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
+        }
+
+        steps {
+          script {
+            timeout(time: 3, unit: 'MINUTES') {
+              dir ('system-tests/scripts') {
+                sh 'make vegacapsule-generate-network'
               }
             }
           }
@@ -211,25 +216,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
       stage('start network') {
         environment {
-          PATH = "${env.PATH}:${networkPath}"
+          PATH = "${networkPath}:${env.PATH}"
+          TESTS_DIR = "${testNetworkDir}"
+          VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
         }
 
         steps {
           script {
-            dir(testNetworkDir) {
-              try {
-                timeout(time: 3, unit: 'MINUTES') {
-                  sh '''./vegacapsule network start \
-                    --home-path ''' + testNetworkDir + '''/testnet
-                  '''
-                }
-              } finally {
-                sh 'docker logout https://ghcr.io'
-              }
-
-              // sh './vegacapsule nodes ls-validators --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/validators.json'
-              sh 'mkdir -p ' + testNetworkDir + '/testnet/smartcontracts'
-              sh './vegacapsule state get-smartcontracts-addresses --home-path ' + testNetworkDir + '/testnet > ' + testNetworkDir + '/testnet/smartcontracts/addresses.json'
+            dir('system-tests/scripts') {
+              sh 'make vegacapsule-start-network-only'
             }
           }
         }
@@ -248,8 +243,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           timeout(time: 2, unit: 'MINUTES')
         }
         steps {
-          dir(testNetworkDir) {
-            sh './vegacapsule ethereum wait && ./vegacapsule ethereum multisig init --home-path "' + testNetworkDir + '/testnet"'
+          dir('system-tests/scripts') {
+            sh 'make vegacapsule-setup-multisig'
           }
         }
       }
@@ -290,11 +285,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           TEST_MARK= "${params.SYSTEM_TESTS_TEST_MARK}"
           TEST_DIRECTORY= "${params.SYSTEM_TESTS_TEST_DIRECTORY}"
           USE_VEGACAPSULE= 'true'
-          SYSTEM_TESTS_DEBUG= "${params.SYSTEM_TESTS_DEBUG}"
-          VEGACAPSULE_BIN_LINUX="${testNetworkDir}/vegacapsule"
-          VEGA_BIN_LINUX="${testNetworkDir}/vega"
+          SYSTEM_TESTS_DEBUG = "${params.SYSTEM_TESTS_DEBUG}"
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
-          PATH = "${env.PATH}:${networkPath}"
+          PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "/workspace/vegacapsule/${params.CAPSULE_CONFIG}"
         }
 
@@ -437,7 +430,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         catchError {
           dir(testNetworkDir) {
-            sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet'
+            sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
           }
         }
 

@@ -63,7 +63,7 @@ Map capsuleSystemTests = [
     capsuleConfig: 'capsule_config.hcl',
     systemTestsDebug: false,
     systemTestsRunTimeout: '300',
-    systemTestsNetworkDir: 'tests',
+    systemTestsNetworkDir: 'networkdata',
     printNetworkLogsInJenkinsPipeline: false,
 ]
 
