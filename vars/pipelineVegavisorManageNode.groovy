@@ -220,7 +220,7 @@ void call() {
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
                                     json: ANSIBLE_VARS_DICT + [
-                                        release_version: (params.RELEASE_VERSION.length() > 0 ? params.RELEASE_VERSION : VEGA_VERSION_FROM_STATISTICS),
+                                        release_version: (params.RELEASE_VERSION ?: VEGA_VERSION_FROM_STATISTICS),
                                         unsafe_reset_all: params.UNSAFE_RESET_ALL,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
