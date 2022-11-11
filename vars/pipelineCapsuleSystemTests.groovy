@@ -23,7 +23,8 @@ void call() {
         mark: 'smoke'
       ],
       'network_infra_smoke a-z': [
-        mark: 'network_infra_smoke'
+        mark: 'network_infra_smoke',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
     ],
     'NIGHTLY': [
