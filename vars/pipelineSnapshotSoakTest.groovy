@@ -38,11 +38,11 @@ def call() {
                         ).trim().split("\n").findAll{ it }
                         DIRS = DIRS.collectEntries{[basePath: basePath.split('/').find { it.startsWith('system-tests-') }]}
                         echo "${DIRS}"
-                        parallel DIRS.collectEntries{ basePath, suit ->
+                        parallel DIRS.collectEntries{ basePath, suit -> [
                             (suit): {
                                 echo "${basePath}"
                             }
-                        }
+                        ]}
                     }
                     // parallel DIRS.collectEntries{ basePath, suit ->
                     //     [
