@@ -6,6 +6,7 @@ def call() {
         options {
             ansiColor('xterm')
             timestamps()
+            timeout(time: 3, unit: 'HOURS')
         }
         stages {
             stage('Prepare') {
