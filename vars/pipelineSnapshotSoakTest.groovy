@@ -36,11 +36,13 @@ def call() {
                             script: "find artifacts -type d -wholename '*testnet'",
                             returnStdout: true,
                         ).trim().split("\n").findAll{ it }
+                        DIRS = DIRS.collectEntries{[basePath: basePath.split('/').find { it.startsWith('system-tests-') }]}
+                        echo "${DIRS}"
                     }
-                    parallel DIRS.collectEntries{ basePath ->
+                    parallel DIRS.collectEntries{ basePath, suit ->
                         [
                             // use name of suit as name of the stage
-                            (basePath.split('/').find { it.startsWith('system-tests-') }) : {
+                            (suit) : {
                                 // generate all of the snapshots by replaying the whole chain
                                 sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
                                 // now load from all of the snapshots
