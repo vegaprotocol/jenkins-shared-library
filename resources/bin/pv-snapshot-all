@@ -38,9 +38,9 @@ class Vega:
         self.write_vega_config(cfg)
 
 
-    def start(self, restore_from):
+    def start(self, restore_from, vega_binary):
 
-        cmd = ['vega', 'node', "--home="+self.vghome, "--tendermint-home="+self.tmhome]
+        cmd = [vega_binary, 'node', "--home="+self.vghome, "--tendermint-home="+self.tmhome]
         cmd.append("--snapshot.load-from-block-height="+str(restore_from))
 
         print("starting Vega", cmd)
@@ -128,13 +128,13 @@ def is_running(vp):
 
 
 
-def restore_from_snapshot(vghome, tmhome, restore_from):
+def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
 
     print("Restoring from block-height", restore_from)
 
     # start vega
     vp = Vega(vghome, tmhome)
-    vp.start(restore_from)
+    vp.start(restore_from, vega_binary)
 
     # wait until its started by trying to ping statistics
     if not vp.wait_until_ready():
@@ -182,7 +182,7 @@ def main():
     parser.add_argument('--block', '-b', dest='block', type=str, help="reload from a specific snapshot at a particular height")
     parser.add_argument('--vega-home', dest='vghome', type=str, required=True, help="the home path of the vega node we will use to replay")
     parser.add_argument('--tm-home', dest='tmhome', type=str, required=True, help="the home path of the tm node we will use to replay")
-
+    parser.add_argument('--vega-binary', type=str, default='vega', help='path to vega binary that is being used to replay the blocks')
     args = parser.parse_args()
     #vghome = "/Users/wwestgarth/Downloads/testnet/vega/node2"
     #tmhome = "/Users/wwestgarth/Downloads/testnet/tendermint/node2"
@@ -191,12 +191,12 @@ def main():
 
     if args.replay:
         print("replaying chain for snapshot generation")
-        restore_from_snapshot(vghome, tmhome, 0)
+        restore_from_snapshot(vghome, tmhome, 0, args.vega_binary)
         return
 
     if args.block:
         print("restoring from block", args.block)
-        restore_from_snapshot(vghome, tmhome, int(args.block))
+        restore_from_snapshot(vghome, tmhome, int(args.block), args.vega_binary)
         return
 
     # replay the whole chain
@@ -222,7 +222,7 @@ def main():
 
     try:
         for h in heights[::-1]:
-            if restore_from_snapshot(vghome, tmhome, h):
+            if restore_from_snapshot(vghome, tmhome, h, args.vega_binary):
                 worked += 1
                 visual.append(".")
             else:
