@@ -42,9 +42,9 @@ def call() {
                         parallel DIRS.collectEntries{ basePath, suit -> [
                             (suit): {
                                 // generate all of the snapshots by replaying the whole chain
-                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --replay"
+                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --vega-binary='${basePath}/usr/local/bin/vega' --replay"
                                 // now load from all of the snapshots
-                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME}"
+                                sh "./pv-snapshot-all --tm-home='${basePath}/tendermint/${params.NODE_NAME}' --vega-home=${basePath}/vega/${params.NODE_NAME} --vega-binary='${basePath}/usr/local/bin/vega'"
                             }
                         ]}
                     }

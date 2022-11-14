@@ -167,6 +167,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     }
                 }
               }
+              // needed for soak test pipelines
+              archiveArtifacts(
+                artifacts: '/usr/local/bin/vega',
+                allowEmptyArchive: true,
+              )
             }
           }
 
@@ -279,7 +284,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
           }
         }
-        
+
         options {
           timeout(time: params.TIMEOUT, unit: 'MINUTES')
         }
@@ -367,11 +372,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             int proposalBlock = initNetworkHeight + upgradeProposalOffset
             print('Current network heigh is ' + initNetworkHeight)
             print('Proposing protocol upgrade on block ' + proposalBlock)
-            
+
             // The release tag needs to be valid vega tag.
             // Given version must be higher than current network version.
             // It does not need to be existing release because we are not
-            // doing real upgrade. We just need vega network to stop 
+            // doing real upgrade. We just need vega network to stop
             // producing blocks.
             sh '''vegacapsule nodes protocol-upgrade \
                 --propose \
