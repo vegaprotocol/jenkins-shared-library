@@ -72,6 +72,11 @@ void call() {
 
   pipeline {
     agent none
+    options {
+      timestamps()
+      ansiColor('x-term')
+      timeout(time: 3, unit: 'HOURS')
+    }
     stages {
       stage('config') {
         agent any
