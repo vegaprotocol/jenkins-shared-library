@@ -162,10 +162,5 @@ void call() {
         }
       }
     }
-    post {
-      always {
-        cleanWs()
-      }
-    }
   }
 }
