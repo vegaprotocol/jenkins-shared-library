@@ -147,32 +147,31 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             environment {
               PATH = "${env.PATH}:${networkPath}"
             }
-
             steps {
               script {
                 dir(testNetworkDir) {
-                    withCredentials([
-                      usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
-                    ]) {
-                      sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
-                    }
-                    timeout(time: 3, unit: 'MINUTES') {
+                  withCredentials([
+                    usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                  ]) {
+                    sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
+                  }
+                  timeout(time: 3, unit: 'MINUTES') {
 
-                      sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
-                      sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
+                    sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
+                    sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
 
-                      sh '''./vegacapsule network generate \
-                        --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
-                        --home-path ''' + testNetworkDir + '''/testnet
-                      '''
-                    }
+                    sh '''./vegacapsule network generate \
+                      --config-path ''' + testNetworkDir + '''/../system-tests/vegacapsule/''' + params.CAPSULE_CONFIG + ''' \
+                      --home-path ''' + testNetworkDir + '''/testnet
+                    '''
+                  }
+                  // needed for soak test pipelines
+                  echo "archive vega from: ${testNetworkDir}"
+                  archiveArtifacts(
+                    artifacts: "./vega",
+                  )
                 }
               }
-              // needed for soak test pipelines
-              archiveArtifacts(
-                artifacts: '/usr/local/bin/vega',
-                allowEmptyArchive: true,
-              )
             }
           }
 
