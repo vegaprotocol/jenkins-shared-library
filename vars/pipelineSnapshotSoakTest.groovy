@@ -8,25 +8,50 @@ def call() {
             timestamps()
             timeout(time: 3, unit: 'HOURS')
         }
+        environment {
+            PATH = "${env.PATH}:${env.WORKSPACE}/bin"
+        }
         stages {
             stage('Prepare') {
-                steps {
-                    writeFile (
-                        text: libraryResource (
-                            resource: 'bin/pv-snapshot-all'
-                        ),
-                        file: 'pv-snapshot-all',
-                    )
-                    sh "chmod +x pv-snapshot-all"
-                    // todo: copy only required artifacts to speed up?
-                    dir('artifacts') {
-                        copyArtifacts(
-                            projectName: params.SYSTEM_TEST_JOB_NAME,
-                            selector: specific("${params.SYSTEM_TEST_BUILD_NUMBER}"),
-                            fingerprintArtifacts: true,
-                            target: ".",
-                        )
-                        sh "tree . || exit 0"
+                parallel {
+                    stage('Copy artifacts') {
+                        steps {
+                            // todo: copy only required artifacts to speed up?
+                            dir('artifacts') {
+                                copyArtifacts(
+                                    projectName: params.SYSTEM_TEST_JOB_NAME,
+                                    selector: specific("${params.SYSTEM_TEST_BUILD_NUMBER}"),
+                                    fingerprintArtifacts: true,
+                                    target: ".",
+                                )
+                            }
+                        }
+                    }
+                    stage('Install vegatools') {
+                        steps {
+                            dir('bin') {
+                                sh 'echo "xx" > xx'
+                            }
+                            gitClone([
+                                url: 'git@github.com:' + 'vegaprotocol/vegatools' + '.git',
+                                branch: params.VEGATOOLS_BRANCH,
+                                directory: 'vegatools',
+                                credentialsId: 'vega-ci-bot',
+                                timeout: 2,
+                            ])
+                            vegautils.buildGoBinary('vegatools', "${env.WORKSPACE}/bin/vegatools", './')
+                        }
+                    }
+                    stage('Prepare script') {
+                        steps {
+                            writeFile (
+                                text: libraryResource (
+                                    resource: 'bin/pv-snapshot-all'
+                                ),
+                                file: 'pv-snapshot-all',
+                            )
+                            sh "chmod +x pv-snapshot-all"
+                        }
                     }
                 }
             }

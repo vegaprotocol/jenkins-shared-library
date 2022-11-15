@@ -851,6 +851,7 @@ def jobs = [
             stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
             stringParam('NODE_NAME', 'node2', 'name of node to parse blocks')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
         }
     ]
 ]
