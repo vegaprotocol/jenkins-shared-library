@@ -7,6 +7,7 @@ import subprocess
 import requests
 import time
 import json
+import sys
 
 CHAIN_RUNNING = "chain_running"
 CHAIN_DIED = "chain_died"
@@ -235,6 +236,9 @@ def main():
     print(f"percentage of working snapshots: {worked/len(visual) * 100}% ({worked}/{len(visual)})")
     print(failing_blocks)
     print("".join(visual))
+
+    if len(failing_blocks) != 0:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
