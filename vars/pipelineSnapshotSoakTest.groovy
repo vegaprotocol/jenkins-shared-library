@@ -46,7 +46,7 @@ def call() {
                                 script {
                                     def tmHome = "${basePath}/tendermint/${params.NODE_NAME}"
                                     def vegaHome = "${basePath}/vega/${params.NODE_NAME}"
-                                    def vegaBinary = "${basePath}../tests/vega"
+                                    def vegaBinary = "${basePath}/../tests/vega"
                                     // generate all of the snapshots by replaying the whole chain
                                     sh "./pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                     // now load from all of the snapshots
