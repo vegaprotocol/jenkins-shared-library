@@ -168,7 +168,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   // needed for soak test pipelines
                   echo "archive vega from: ${testNetworkDir}"
                   archiveArtifacts(
-                    artifacts: "./vega",
+                    artifacts: "${testNetworkDir}/vega",
+                    fingerprint: true,
                   )
                 }
               }
