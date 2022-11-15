@@ -69,7 +69,7 @@ def call() {
                             // generate suit names out of collected paths
                             (basePath): basePath.split('/').find { it.startsWith('system-tests-') }
                         ]}
-                        parallel DIRS.collectEntries{ basePath, suit -> [
+                        DIRS.collectEntries{ basePath, suit -> [
                             (suit): {
                                 script {
                                     def tmHome = "tendermint/${params.NODE_NAME}"
@@ -83,7 +83,9 @@ def call() {
                                     }
                                 }
                             }
-                        ]}
+                        ]}.each { stageName, codeToExecute -> stage(stageName) {
+                            codeToExecute()
+                        }}
                     }
                 }
                 post {
