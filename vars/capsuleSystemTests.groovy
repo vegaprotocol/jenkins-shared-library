@@ -105,7 +105,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
                 if (value.name == "vega" ) {
                   archiveArtifacts(
-                    artifacts: testNetworkDir + '/' + value.name + '**',
+                    artifacts: 'tests/vega**',
                   )
                 }
               }
