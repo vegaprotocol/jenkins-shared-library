@@ -103,6 +103,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               value.name,
               {
                 vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
+                if (name == "vega" ) {
+                  archiveArtifacts(
+                    artifacts: testNetworkDir + '/' + value.name,
+                  )
+                }
               }
             ]}
           }
@@ -156,7 +161,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     sh 'echo -n "' + TOKEN + '" | docker login https://ghcr.io -u "' + USER + '" --password-stdin'
                   }
                   timeout(time: 3, unit: 'MINUTES') {
-
                     sh 'sudo cp ' + testNetworkDir + '/vega /usr/local/bin/vega'
                     sh 'sudo cp ' + testNetworkDir + '/vegacapsule /usr/local/bin/vegacapsule'
 
@@ -165,14 +169,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                       --home-path ''' + testNetworkDir + '''/testnet
                     '''
                   }
-                  // needed for soak test pipelines
-                  echo "archive vega from: ${testNetworkDir}"
-                  sh "ls -al ${testNetworkDir}"
-                  archiveArtifacts(
-                    artifacts: "${testNetworkDir}/vega",
-                    fingerprint: true,
-                    allowEmptyArchive: true,
-                  )
                 }
               }
             }
