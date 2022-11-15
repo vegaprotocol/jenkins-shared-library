@@ -28,6 +28,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     options {
       ansiColor('xterm')
       timestamps()
+      timeout(time: 3, unit: 'HOURS')
     }
     stages {
       stage('prepare') {
