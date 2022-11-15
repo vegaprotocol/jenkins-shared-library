@@ -153,15 +153,17 @@ void call() {
     }
     post {
       always {
-        script {
-          if (params.SCENARIO == 'NIGHTLY') {
-            build (
-              job: 'common/snapshot-soak-tests',
-              parameters: [
-                string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
-                string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
-              ]
-            )
+        node {
+          script {
+            if (params.SCENARIO == 'NIGHTLY') {
+              build (
+                job: 'common/snapshot-soak-tests',
+                parameters: [
+                  string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
+                  string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
+                ]
+              )
+            }
           }
         }
         cleanWs()
