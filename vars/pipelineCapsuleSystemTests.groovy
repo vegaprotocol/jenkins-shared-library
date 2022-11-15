@@ -123,6 +123,7 @@ void call() {
                           string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
                         ],
                         propagate: false,
+                        wait: false,
                       )
                     }
                     def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
