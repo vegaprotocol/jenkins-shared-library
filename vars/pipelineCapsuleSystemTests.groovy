@@ -115,6 +115,16 @@ void call() {
                   )
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node {
+                    if (params.SCENARIO == 'NIGHTLY') {
+                      build (
+                        job: 'common/snapshot-soak-tests',
+                        parameters: [
+                          string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
+                          string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
+                        ],
+                        propagate: false,
+                      )
+                    }
                     def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
                     // Copy all artifacts
                     copyArtifacts(
@@ -153,19 +163,6 @@ void call() {
     }
     post {
       always {
-        node {
-          script {
-            if (params.SCENARIO == 'NIGHTLY') {
-              build (
-                job: 'common/snapshot-soak-tests',
-                parameters: [
-                  string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
-                  string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
-                ]
-              )
-            }
-          }
-        }
         cleanWs()
       }
     }
