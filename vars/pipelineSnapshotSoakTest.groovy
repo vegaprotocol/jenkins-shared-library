@@ -39,7 +39,9 @@ def call() {
                                 credentialsId: 'vega-ci-bot',
                                 timeout: 2,
                             ])
-                            vegautils.buildGoBinary('vegatools', "${env.WORKSPACE}/bin/vegatools", './')
+                            script {
+                                vegautils.buildGoBinary('vegatools', "${env.WORKSPACE}/bin/vegatools", './')
+                            }
                         }
                     }
                     stage('Prepare script') {
