@@ -13,6 +13,7 @@ def call() {
         }
         stages {
             stage('Prepare') {
+                failFast true
                 parallel {
                     stage('Copy artifacts') {
                         steps {
