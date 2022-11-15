@@ -72,13 +72,21 @@ def call() {
                         parallel DIRS.collectEntries{ basePath, suit -> [
                             (suit): {
                                 script {
-                                    def tmHome = "${basePath}/tendermint/${params.NODE_NAME}"
-                                    def vegaHome = "${basePath}/vega/${params.NODE_NAME}"
-                                    def vegaBinary = "${basePath}/../tests/vega"
-                                    // generate all of the snapshots by replaying the whole chain
-                                    sh "./pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
-                                    // now load from all of the snapshots
-                                    sh "./pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                    def tmHome = "tendermint/${params.NODE_NAME}"
+                                    def vegaHome = "vega/${params.NODE_NAME}"
+                                    def vegaBinary = "./../tests/vega"
+                                    dir (basePath) {
+                                        // generate all of the snapshots by replaying the whole chain
+                                        sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
+                                        // now load from all of the snapshots
+                                        sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                        archiveArtifacts(
+                                            artifacts: "node-**.log"
+                                        )
+                                        archiveArtifacts(
+                                            artifacts: "err-node-**.log"
+                                        )
+                                    }
                                 }
                             }
                         ]}
