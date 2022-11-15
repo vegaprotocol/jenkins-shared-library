@@ -103,7 +103,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               value.name,
               {
                 vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-                if (name == "vega" ) {
+                if (value.name == "vega" ) {
                   archiveArtifacts(
                     artifacts: testNetworkDir + '/' + value.name,
                   )
