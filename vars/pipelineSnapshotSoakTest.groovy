@@ -89,10 +89,10 @@ def call() {
                 post {
                     always {
                         archiveArtifacts(
-                                            artifacts: "./**/**/node-**.log"
+                            artifacts: "**/**/node-**.log"
                         )
                         archiveArtifacts(
-                            artifacts: "./**/**/err-node-**.log"
+                            artifacts: "**/**/err-node-**.log"
                         )
                     }
                 }
