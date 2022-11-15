@@ -193,12 +193,16 @@ def main():
 
     if args.replay:
         print("replaying chain for snapshot generation")
-        restore_from_snapshot(vghome, tmhome, 0, args.vega_binary)
+        if not restore_from_snapshot(vghome, tmhome, 0, args.vega_binary):
+            print(f"Could not restore from snapshot on block height 0")
+            sys.exit(1)
         return
 
     if args.block:
         print("restoring from block", args.block)
-        restore_from_snapshot(vghome, tmhome, int(args.block), args.vega_binary)
+        if not restore_from_snapshot(vghome, tmhome, int(args.block), args.vega_binary):
+            print(f"Could not restore from snapshot on block height {args.block}")
+            sys.exit(1)
         return
 
     # replay the whole chain
