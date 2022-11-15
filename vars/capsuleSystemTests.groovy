@@ -167,9 +167,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   }
                   // needed for soak test pipelines
                   echo "archive vega from: ${testNetworkDir}"
+                  sh "ls -al ${testNetworkDir}"
                   archiveArtifacts(
                     artifacts: "${testNetworkDir}/vega",
                     fingerprint: true,
+                    allowEmptyArchive: true,
                   )
                 }
               }
