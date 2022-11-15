@@ -28,7 +28,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     options {
       ansiColor('xterm')
       timestamps()
-      timeout(time: 3, unit: 'HOURS')
+      timeout(time: params.TIMEOUT, unit: 'MINUTES')
     }
     stages {
       stage('prepare') {
@@ -284,10 +284,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               params.SKIP_RUN_TESTS
             }
           }
-        }
-
-        options {
-          timeout(time: params.TIMEOUT, unit: 'MINUTES')
         }
         environment {
           TESTS_DIR = "${testNetworkDir}"
