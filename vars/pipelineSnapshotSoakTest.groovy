@@ -80,20 +80,16 @@ def call() {
                                         sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                         // now load from all of the snapshots
                                         sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                        archiveArtifacts(
+                                            artifacts: "node-**.log"
+                                        )
+                                        archiveArtifacts(
+                                            artifacts: "err-node-**.log"
+                                        )
                                     }
                                 }
                             }
                         ]}
-                    }
-                }
-                post {
-                    always {
-                        archiveArtifacts(
-                                            artifacts: "./**/**/node-**.log"
-                        )
-                        archiveArtifacts(
-                            artifacts: "./**/**/err-node-**.log"
-                        )
                     }
                 }
             }
