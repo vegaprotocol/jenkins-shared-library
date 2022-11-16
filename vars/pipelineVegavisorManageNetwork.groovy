@@ -20,7 +20,7 @@ void call() {
         bots: 'bots topped up',
     ]
 
-    def stagesStatuses = [
+    def stagesStatus = [
         (stagesHeaders.version) : statuses.unknown,
         (stagesHeaders.delegate) : statuses.unknown,
         (stagesHeaders.markets) : statuses.unknown,
@@ -35,7 +35,7 @@ void call() {
                 stagesExtraMessages[header] = status == statuses.unknown ? '(not started)' : ''
             }
         }
-        def finalStatus = stagesStatuses.collect { header, status ->
+        def finalStatus = stagesStatus.collect { header, status ->
             "${status} - ${header} - ${stagesExtraMessages[header] ?: ''}"
         }.join('\n')
         def duration = currentBuild.durationString - ' and counting'
@@ -369,7 +369,7 @@ void call() {
                 post {
                     success {
                         script {
-                            stagesStatuses[stagesHeaders.version] = statuses.ok
+                            stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = 'restarted'
                             if (params.RELEASE_VERSION) {
                                 action = "deployed `${params.RELEASE_VERSION}` on"
@@ -379,7 +379,7 @@ void call() {
                     }
                     unsuccessful {
                         script {
-                            stagesStatuses[stagesHeaders.version] = statuses.failed
+                            stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = 'restart'
                             if (params.RELEASE_VERSION) {
                                 action = "deploy `${params.RELEASE_VERSION}` to"
@@ -408,12 +408,12 @@ void call() {
                         post {
                             success {
                                 script {
-                                    stagesStatuses[stagesHeaders.delegate] = statuses.ok
+                                    stagesStatus[stagesHeaders.delegate] = statuses.ok
                                 }
                             }
                             unsuccessful {
                                 script {
-                                    stagesStatuses[stagesHeaders.delegate] = statuses.failed
+                                    stagesStatus[stagesHeaders.delegate] = statuses.failed
                                 }
                             }
                         }
@@ -439,12 +439,12 @@ void call() {
                                 post {
                                     success {
                                         script {
-                                            stagesStatuses[stagesHeaders.markets] = statuses.ok
+                                            stagesStatus[stagesHeaders.markets] = statuses.ok
                                         }
                                     }
                                     unsuccessful {
                                         script {
-                                            stagesStatuses[stagesHeaders.markets] = statuses.failed
+                                            stagesStatus[stagesHeaders.markets] = statuses.failed
                                         }
                                     }
                                 }
@@ -465,12 +465,12 @@ void call() {
                                 post {
                                     success {
                                         script {
-                                            stagesStatuses[stagesHeaders.bots] = statuses.ok
+                                            stagesStatus[stagesHeaders.bots] = statuses.ok
                                         }
                                     }
                                     unsuccessful {
                                         script {
-                                            stagesStatuses[stagesHeaders.bots] = statuses.failed
+                                            stagesStatus[stagesHeaders.bots] = statuses.failed
                                         }
                                     }
                                 }
