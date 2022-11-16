@@ -163,7 +163,7 @@ void call() {
                         }
                         steps {
                             dir('vega') {
-                                sh label: 'Compile', script: """#!/bin/bash -eapi-doc-container-67c7d976cd-sgxvq
+                                sh label: 'Compile', script: """#!/bin/bash -e
                                     go build -v \
                                         -o ../bin/ \
                                         ./cmd/vega \
@@ -423,7 +423,7 @@ void call() {
                             stage('Create markets & provide lp'){
                                 when {
                                     expression {
-                                        params.CREATE_MARKETSapi-doc-container-67c7d976cd-sgxvq
+                                        params.CREATE_MARKETS
                                     }
                                 }
                                 steps {
