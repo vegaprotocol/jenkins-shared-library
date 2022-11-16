@@ -7,6 +7,47 @@ void call() {
         usernameVariable: 'PSSH_USER'
     )
 
+    def statuses = [
+        ok: ':white_check_mark:',
+        failed: ':red_circle:',
+        unknown: ':white_circle:',
+    ]
+
+    def stagesHeaders = [
+        version: 'version deployed / network restarted',
+        delegate: 'self-delegate',
+        markets: 'market created',
+        bots: 'bots topped up',
+    ]
+
+    def stagesStatuses = [
+        stagesHeaders.version : statuses.unknown,
+        stagesHeaders.delegate : statuses.unknown,
+        stagesHeaders.markets : statuses.unknown,
+        stagesHeaders.bots : statuses.unknown,
+    ]
+
+    def stagesExtraMessages = [:]
+
+    def parseMessages = { isOk ->
+        stagesStatus.each { header, status ->
+            if (!stagesExtraMessages[header]) {
+                stagesExtraMessages[header] = status == statuses.unknown ? '(not started)' : ''
+            }
+        }
+        def finalStatus = stagesStatuses.collect { header, status ->
+            "${status} - ${header} - ${stagesExtraMessages[header] ?: ''}"
+        }.join('\n')
+        def duration = currentBuild.durationString - ' and counting'
+        def details = '`${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more>'
+        if (isOk) {
+            return ":astronaut: ${details} \n ${finalStatus} \n :rocket: (${duration})"
+        }
+        else {
+            return ":scream: ${details} \n ${finalStatus} \n :boom: (${duration})"
+        }
+    }
+
     pipeline {
         agent any
         options {
@@ -328,30 +369,22 @@ void call() {
                 post {
                     success {
                         script {
-                            String duration = currentBuild.durationString - ' and counting'
+                            stagesStatuses[stagesHeaders.version] = statuses.ok
                             String action = 'restarted'
                             if (params.RELEASE_VERSION) {
                                 action = "deployed `${params.RELEASE_VERSION}` on"
                             }
-                            slackSend(
-                                channel: '#env-deploy',
-                                color: 'good',
-                                message: ":astronaut: Successfully ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
-                            )
+                            stagesExtraMessages[stagesHeaders.version] = action
                         }
                     }
                     unsuccessful {
                         script {
-                            String duration = currentBuild.durationString - ' and counting'
+                            stagesStatuses[stagesHeaders.version] = statuses.failed
                             String action = 'restart'
                             if (params.RELEASE_VERSION) {
                                 action = "deploy `${params.RELEASE_VERSION}` to"
                             }
-                            slackSend(
-                                channel: '#env-deploy',
-                                color: 'danger',
-                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :boom: (${duration})",
-                            )
+                            stagesExtraMessages[stagesHeaders.version] = action
                         }
                     }
                 }
@@ -372,6 +405,18 @@ void call() {
                                 command: 'network self-delegate'
                             )
                         }
+                        post {
+                            success {
+                                script {
+                                    stagesStatuses[stagesHeaders.delegate] = statuses.ok
+                                }
+                            }
+                            unsuccessful {
+                                script {
+                                    stagesStatuses[stagesHeaders.delegate] = statuses.failed
+                                }
+                            }
+                        }
                     }
                     stage('Market actions') {
                         stages {
@@ -391,6 +436,18 @@ void call() {
                                         command: 'market provide-lp'
                                     )
                                 }
+                                post {
+                                    success {
+                                        script {
+                                            stagesStatuses[stagesHeaders.markets] = statuses.ok
+                                        }
+                                    }
+                                    unsuccessful {
+                                        script {
+                                            stagesStatuses[stagesHeaders.markets] = statuses.failed
+                                        }
+                                    }
+                                }
                             }
                             stage('Top up bots') {
                                 when {
@@ -404,6 +461,18 @@ void call() {
                                         propagate: false,  // don't fail
                                         wait: false, // don't wait
                                     )
+                                }
+                                post {
+                                    success {
+                                        script {
+                                            stagesStatuses[stagesHeaders.bots] = statuses.ok
+                                        }
+                                    }
+                                    unsuccessful {
+                                        script {
+                                            stagesStatuses[stagesHeaders.bots] = statuses.failed
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -433,6 +502,20 @@ void call() {
             }
         }
         post {
+            success {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'good',
+                    message: parseMessages(true),
+                )
+            }
+            unsuccessful {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'danger',
+                    message: parseMessages(false),
+                )
+            }
             always {
                 cleanWs()
             }
