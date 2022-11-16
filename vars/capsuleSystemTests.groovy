@@ -4,7 +4,7 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'test-instance',
+    agentLabel: 'test-instance', // TODO: FIX it before merge
     extraEnvVars: [:],
   ]
 
@@ -64,7 +64,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
-              [ name: 'vegaprotocol/devopstools', branch: 'main' ],
+              [ name: 'vegaprotocol/devopstools', branch: params.DEVOPSTOOLS_BRANCH ],
             ]
             def reposSteps = repositories.collectEntries{value -> [
                 value.name,
