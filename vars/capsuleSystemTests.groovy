@@ -176,7 +176,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
           stage('build system-tests docker images') {
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             steps {
