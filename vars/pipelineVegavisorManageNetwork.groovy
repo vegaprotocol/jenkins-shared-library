@@ -7,6 +7,47 @@ void call() {
         usernameVariable: 'PSSH_USER'
     )
 
+    def statuses = [
+        ok: ':white_check_mark:',
+        failed: ':red_circle:',
+        unknown: ':white_circle:',
+    ]
+
+    def stagesHeaders = [
+        version: 'version deployed / network restarted',
+        delegate: 'self-delegate',
+        markets: 'market created',
+        bots: 'bots topped up',
+    ]
+
+    def stagesStatus = [
+        (stagesHeaders.version) : statuses.unknown,
+        (stagesHeaders.delegate) : statuses.unknown,
+        (stagesHeaders.markets) : statuses.unknown,
+        (stagesHeaders.bots) : statuses.unknown,
+    ]
+
+    def stagesExtraMessages = [:]
+
+    def parseMessages = { isOk ->
+        stagesStatus.each { header, status ->
+            if (!stagesExtraMessages[header]) {
+                stagesExtraMessages[header] = status == statuses.unknown ? '(not started)' : ''
+            }
+        }
+        def finalStatus = stagesStatus.collect { header, status ->
+            "${status} - ${header} ${stagesExtraMessages[header] ?: ''}"
+        }.join('\n')
+        def duration = currentBuild.durationString - ' and counting'
+        def details = "`${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more>"
+        if (isOk) {
+            return ":astronaut: ${details} :rocket: (${duration}) \n ${finalStatus}"
+        }
+        else {
+            return ":scream: ${details} :boom: (${duration}) \n ${finalStatus}"
+        }
+    }
+
     pipeline {
         agent any
         options {
@@ -328,102 +369,153 @@ void call() {
                 post {
                     success {
                         script {
-                            String duration = currentBuild.durationString - ' and counting'
-                            String action = 'restarted'
+                            stagesStatus[stagesHeaders.version] = statuses.ok
+                            String action = ': restart'
                             if (params.RELEASE_VERSION) {
-                                action = "deployed `${params.RELEASE_VERSION}` on"
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
-                            slackSend(
-                                channel: '#env-deploy',
-                                color: 'good',
-                                message: ":astronaut: Successfully ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :rocket: (${duration})",
-                            )
+                            stagesExtraMessages[stagesHeaders.version] = action
                         }
                     }
                     unsuccessful {
                         script {
-                            String duration = currentBuild.durationString - ' and counting'
-                            String action = 'restart'
+                            stagesStatus[stagesHeaders.version] = statuses.failed
+                            String action = ': restart'
                             if (params.RELEASE_VERSION) {
-                                action = "deploy `${params.RELEASE_VERSION}` to"
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
-                            slackSend(
-                                channel: '#env-deploy',
-                                color: 'danger',
-                                message: ":scream: Failed to ${action} `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> :boom: (${duration})",
+                            stagesExtraMessages[stagesHeaders.version] = action
+                        }
+                    }
+                }
+            }
+            stage('Post deployment actions') {
+                parallel {
+                    stage('Validators self-delegate') {
+                        when {
+                            not {
+                                expression {
+                                    params.USE_CHECKPOINT
+                                }
+                            }
+                        }
+                        steps {
+                            sleep 60
+                            withDevopstools(
+                                command: 'network self-delegate'
                             )
                         }
-                    }
-                }
-            }
-            stage('Validators self-delegate') {
-                when {
-                    not {
-                        expression {
-                            params.USE_CHECKPOINT
+                        post {
+                            success {
+                                script {
+                                    stagesStatus[stagesHeaders.delegate] = statuses.ok
+                                }
+                            }
+                            unsuccessful {
+                                script {
+                                    stagesStatus[stagesHeaders.delegate] = statuses.failed
+                                }
+                            }
                         }
                     }
-                }
-                steps {
-                    sleep 60
-                    withDevopstools(
-                        command: 'network self-delegate'
-                    )
-                }
-            }
-            stage('Create markets & provide lp'){
-                when {
-                    expression {
-                        params.CREATE_MARKETS
-                    }
-                }
-                steps {
-                    sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
-                    withDevopstools(
-                        command: 'market propose --all'
-                    )
-                    sleep 30 * 7
-                    withDevopstools(
-                        command: 'market provide-lp'
-                    )
-                }
-            }
-            stage('Top up bots') {
-                when {
-                    expression {
-                        params.TOP_UP_BOTS
-                    }
-                }
-                steps {
-                    build(
-                        job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
-                        propagate: false,  // don't fail
-                        wait: false, // don't wait
-                    )
-                }
-            }
-            stage('Update faucet & wallet') {
-                when {
-                    expression { params.DOCKER_VERSION }
-                }
-                steps {
-                    script {
-                        ['vegawallet', 'faucet'].each { app ->
-                            releaseKubernetesApp(
-                                networkName: env.NET_NAME,
-                                application: app,
-                                directory: 'k8s',
-                                makeCheckout: false,
-                                version: params.DOCKER_VERSION,
-                                forceRestart: false,
-                                timeout: 60,
-                            )
+                    stage('Market actions') {
+                        stages {
+                            stage('Create markets & provide lp'){
+                                when {
+                                    expression {
+                                        params.CREATE_MARKETS
+                                    }
+                                }
+                                steps {
+                                    sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
+                                    withDevopstools(
+                                        command: 'market propose --all'
+                                    )
+                                    sleep 30 * 7
+                                    withDevopstools(
+                                        command: 'market provide-lp'
+                                    )
+                                }
+                                post {
+                                    success {
+                                        script {
+                                            stagesStatus[stagesHeaders.markets] = statuses.ok
+                                        }
+                                    }
+                                    unsuccessful {
+                                        script {
+                                            stagesStatus[stagesHeaders.markets] = statuses.failed
+                                        }
+                                    }
+                                }
+                            }
+                            stage('Top up bots') {
+                                when {
+                                    expression {
+                                        params.TOP_UP_BOTS
+                                    }
+                                }
+                                steps {
+                                    build(
+                                        job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
+                                        propagate: false,  // don't fail
+                                        wait: false, // don't wait
+                                    )
+                                }
+                                post {
+                                    success {
+                                        script {
+                                            stagesStatus[stagesHeaders.bots] = statuses.ok
+                                        }
+                                    }
+                                    unsuccessful {
+                                        script {
+                                            stagesStatus[stagesHeaders.bots] = statuses.failed
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                    stage('Update faucet & wallet') {
+                        when {
+                            expression { params.DOCKER_VERSION }
+                        }
+                        steps {
+                            script {
+                                ['vegawallet', 'faucet'].each { app ->
+                                    releaseKubernetesApp(
+                                        networkName: env.NET_NAME,
+                                        application: app,
+                                        directory: 'k8s',
+                                        makeCheckout: false,
+                                        version: params.DOCKER_VERSION,
+                                        forceRestart: false,
+                                        timeout: 60,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
         post {
+            success {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'good',
+                    message: parseMessages(true),
+                )
+            }
+            unsuccessful {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'danger',
+                    message: parseMessages(false),
+                )
+            }
             always {
                 cleanWs()
             }
