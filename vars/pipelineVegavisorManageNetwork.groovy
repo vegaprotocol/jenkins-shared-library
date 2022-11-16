@@ -39,12 +39,12 @@ void call() {
             "${status} - ${header} - ${stagesExtraMessages[header] ?: ''}"
         }.join('\n')
         def duration = currentBuild.durationString - ' and counting'
-        def details = '`${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more>'
+        def details = "`${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more>"
         if (isOk) {
-            return ":astronaut: ${details} \n ${finalStatus} \n :rocket: (${duration})"
+            return ":astronaut: ${details} :rocket: (${duration}) \n ${finalStatus}"
         }
         else {
-            return ":scream: ${details} \n ${finalStatus} \n :boom: (${duration})"
+            return ":scream: ${details} :boom: (${duration}) \n ${finalStatus}"
         }
     }
 
@@ -163,7 +163,7 @@ void call() {
                         }
                         steps {
                             dir('vega') {
-                                sh label: 'Compile', script: """#!/bin/bash -e
+                                sh label: 'Compile', script: """#!/bin/bash -eapi-doc-container-67c7d976cd-sgxvq
                                     go build -v \
                                         -o ../bin/ \
                                         ./cmd/vega \
@@ -423,7 +423,7 @@ void call() {
                             stage('Create markets & provide lp'){
                                 when {
                                     expression {
-                                        params.CREATE_MARKETS
+                                        params.CREATE_MARKETSapi-doc-container-67c7d976cd-sgxvq
                                     }
                                 }
                                 steps {
