@@ -36,7 +36,7 @@ void call() {
             }
         }
         def finalStatus = stagesStatus.collect { header, status ->
-            "${status} - ${header} - ${stagesExtraMessages[header] ?: ''}"
+            "${status} - ${header} ${stagesExtraMessages[header] ?: ''}"
         }.join('\n')
         def duration = currentBuild.durationString - ' and counting'
         def details = "`${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more>"
@@ -370,9 +370,9 @@ void call() {
                     success {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
-                            String action = 'restarted'
+                            String action = ': restart'
                             if (params.RELEASE_VERSION) {
-                                action = "deployed `${params.RELEASE_VERSION}` on"
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }
@@ -380,9 +380,9 @@ void call() {
                     unsuccessful {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
-                            String action = 'restart'
+                            String action = ': restart'
                             if (params.RELEASE_VERSION) {
-                                action = "deploy `${params.RELEASE_VERSION}` to"
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }
