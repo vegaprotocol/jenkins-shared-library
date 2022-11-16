@@ -21,10 +21,10 @@ void call() {
     ]
 
     def stagesStatuses = [
-        stagesHeaders.version : statuses.unknown,
-        stagesHeaders.delegate : statuses.unknown,
-        stagesHeaders.markets : statuses.unknown,
-        stagesHeaders.bots : statuses.unknown,
+        (stagesHeaders.version) : statuses.unknown,
+        (stagesHeaders.delegate) : statuses.unknown,
+        (stagesHeaders.markets) : statuses.unknown,
+        (stagesHeaders.bots) : statuses.unknown,
     ]
 
     def stagesExtraMessages = [:]
