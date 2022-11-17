@@ -4,7 +4,7 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'test-instance', // TODO: FIX it before merge
+    agentLabel: 'system-tests-capsule',
     extraEnvVars: [:],
   ]
 
