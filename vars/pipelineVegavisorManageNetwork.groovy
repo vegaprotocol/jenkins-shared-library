@@ -477,13 +477,14 @@ void call() {
                             }
                         }
                     }
-                    stage('Update faucet & wallet') {
+                    stage('Update vegawallet service') {
                         when {
                             expression { params.DOCKER_VERSION }
                         }
                         steps {
                             script {
-                                ['vegawallet', 'faucet'].each { app ->
+                                // ['vegawallet', 'faucet'].each { app ->
+                                ['vegawallet'].each { app ->
                                     releaseKubernetesApp(
                                         networkName: env.NET_NAME,
                                         application: app,
