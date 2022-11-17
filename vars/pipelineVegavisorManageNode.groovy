@@ -253,7 +253,7 @@ void call() {
                 }
                 steps {
                     withDevopstools(
-                        command: "validator join --node ${SHORT_NODE} --self-delegate"
+                        command: "validator join --node ${SHORT_NODE} --self-delegate --send-ethereum-events"
                     )
                 }
             }
