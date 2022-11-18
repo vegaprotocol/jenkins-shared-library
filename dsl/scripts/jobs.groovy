@@ -349,32 +349,6 @@ def approbationParams(def config=[:]) {
 }
 
 def jobs = [
-    // Capsule playground
-    [
-        name: 'private/Deployments/Vegacapsule/Stagnet 3',
-        useScmDefinition: false,
-        parameters: capsuleParams(),
-        definition: libDefinition('''pipelineDeployVegacapsule([
-                networkName: 'stagnet3',
-                nomadAddress: 'https://n00.stagnet3.vega.xyz:4646',
-                awsRegion: 'eu-west-2',
-                vegacapsuleS3BucketName: 'vegacapsule-20220722172637220400000001',
-                networksInternalBranch: 'main',
-                nomadNodesNumer: 8,
-            ])'''),
-        disableConcurrentBuilds: true,
-        // weekdays 5AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 1 * * 1-5 %' + [
-            'VEGA_VERSION=develop',
-            'BUILD_VEGA_BINARIES=true',
-            'UNSAFE_RESET_ALL=true',
-            'REGENERATE_CONFIGS=true',
-            'PUBLISH_BINARIES=true',
-            'ACTION=RESTART',
-            'CREATE_MARKETS=true',
-            'BOUNCE_BOTS=true',
-        ].join(';'),
-    ],
     // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',
@@ -613,6 +587,65 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     //
+    // Stagnet 3
+    //
+    [
+        name: 'private/Deployments/stagnet3/Manage-Network',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'stagnet3',
+            ANSIBLE_LIMIT: 'stagnet3',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+        // weekdays 5AM UTC, jenkins prefred minute
+        // parameterizedCron: 'H 1 * * 1-5 %' + [
+        //     'ACTION=restart-network',
+        //     'RELEASE_VERSION=',
+        //     'DOCKER_VERSION=',
+        //     'UNSAFE_RESET_ALL=true',
+        //     'CREATE_MARKETS=true',
+        //     'TOP_UP_BOTS=true',
+        // ].join(';'),
+    ],
+    [
+        name: 'private/Deployments/stagnet3/Manage-Node',
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'stagnet3',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'stagnet3'),
+        disableConcurrentBuilds: true,
+        // restart a random node every 30min
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/stagnet3/Protocol-Upgrade',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'stagnet3',
+            ANSIBLE_LIMIT: 'stagnet3',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet3/Topup-Bots',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet3',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        // cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    //
     // Fairground
     //
     [
@@ -752,6 +785,20 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
+        name: 'private/Snapshots/Stagnet3',
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'stagnet3',
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
         name: 'private/Snapshots/Fairground',
         // disabled: true,
         useScmDefinition: false,
@@ -780,23 +827,6 @@ def jobs = [
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
         definition: libDefinition('pipelineCheckpointBackup()'),
-    ],
-    [
-        name: 'private/Automations/BotsTopupStagnet3',
-        useScmDefinition: false,
-        parameters: {
-            booleanParam('REMOVE_BOT_WALLETS', false, 'Define if bot wallets should be removed on the run.')
-            stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-        env: [
-            NETWORK: 'stagnet3',
-            CHECK_NETWORK_STATUS: false,
-        ],
-        cron: 'H */2 * * *',
-        disableConcurrentBuilds: true,
-        description: 'Top-Up bots on the Stagnet3 network. Runs every 4 hours.',
-        definition: libDefinition('pipelineTopUpBots()'),
     ],
     //
     // Approbations
