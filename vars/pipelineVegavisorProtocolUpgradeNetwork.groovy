@@ -55,54 +55,10 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
-                    script {
-                        if ( params.VEGA_VERSION == '' && params.RELEASE_VERSION == '') {
-                            error "You need to set VEGA_VERSION or RELEASE_VERSION parameter."
-                        }
-                        if ( params.VEGA_VERSION != '' && params.RELEASE_VERSION != '') {
-                            error "You cannot set both VEGA_VERSION or RELEASE_VERSION parameter."
-                        }
-                    }
                 }
             }
             stage('Checkout') {
                 parallel {
-                    stage('vega'){
-                        when {
-                            expression { params.VEGA_VERSION }
-                        }
-                        steps {
-                            script {
-                                doGitClone('vega', params.VEGA_VERSION)
-                            }
-                            // add commit hash to version
-                            dir('vega') {
-                                script {
-                                    def versionHash = sh(
-                                        script: "git rev-parse --short HEAD",
-                                        returnStdout: true,
-                                    ).trim()
-                                    def orgVersion = sh(
-                                        script: "grep -o '\"v0.*\"' version/version.go",
-                                        returnStdout: true,
-                                    ).trim()
-                                    orgVersion = orgVersion.replace('"', '')
-                                    versionTag = orgVersion + '-' + versionHash
-                                }
-                                sh label: 'Add hash to version', script: """#!/bin/bash -e
-                                    sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                                """
-                                print('Binary version ' + versionTag)
-                            }
-                        }
-                    }
-                    // stage('vegacapsule'){
-                    //     steps {
-                    //         script {
-                    //             doGitClone('vegacapsule', params.VEGACAPSULE_BRANCH)
-                    //         }
-                    //     }
-                    // }
                     stage('devopstools'){
                         steps {
                             script {
@@ -128,41 +84,6 @@ void call() {
             }
             stage('Prepare'){
                 parallel {
-                    stage('Build vega, data-node, vegawallet and visor') {
-                        when {
-                            expression { params.VEGA_VERSION }
-                        }
-                        steps {
-                            dir('vega') {
-                                sh label: 'Compile', script: """#!/bin/bash -e
-                                    go build -v \
-                                        -o ../bin/ \
-                                        ./cmd/vega \
-                                        ./cmd/data-node \
-                                        ./cmd/vegawallet \
-                                        ./cmd/visor
-                                """
-                            }
-                            dir('bin') {
-                                sh label: 'Sanity check: vega', script: '''#!/bin/bash -e
-                                    file ./vega
-                                    ./vega version
-                                '''
-                                sh label: 'Sanity check: data-node', script: '''#!/bin/bash -e
-                                    file ./data-node
-                                    ./data-node version
-                                '''
-                                sh label: 'Sanity check: vegawallet', script: '''#!/bin/bash -e
-                                    file ./vegawallet
-                                    ./vegawallet version
-                                '''
-                                sh label: 'Sanity check: visor', script: '''#!/bin/bash -e
-                                    file ./visor
-                                    ./visor --help
-                                '''
-                            }
-                        }
-                    }
                     stage('Setup devopstools') {
                         steps {
                             dir('devopstools') {
@@ -181,18 +102,8 @@ void call() {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
-                    UPGRADE_VERSION = "${ params.VEGA_VERSION ? versionTag : params.RELEASE_VERSION }"
                 }
                 steps {
-                    script {
-                        if (params.VEGA_VERSION) {
-                            sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
-                                cp ./bin/vega ./ansible/roles/barenode/files/bin/
-                                cp ./bin/data-node ./ansible/roles/barenode/files/bin/
-                                cp ./bin/visor ./ansible/roles/barenode/files/bin/
-                            """
-                        }
-                    }
                     script {
                         if (params.UPGRADE_BLOCK) {
                             protocolUpgradeBlock = params.UPGRADE_BLOCK as int
@@ -219,7 +130,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag protocol-upgrade \
-                                        -e '{"protocol_upgrade_version": "${env.UPGRADE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
+                                        -e '{"protocol_upgrade_version": "${params.RELEASE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
