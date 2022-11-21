@@ -49,6 +49,7 @@ void call() {
     }
 
     VEGA_VERSION = null
+    DOCKER_VERSION = null
 
     pipeline {
         agent any
@@ -68,6 +69,8 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        currentBuild.description: "action: ${params.ACTION}"
+                        DOCKER_VERSION = params.DOCKER_VERSION
                         if (params.VEGA_VERSION) {
                             VEGA_VERSION = params.VEGA_VERSION
                         }
@@ -79,7 +82,13 @@ void call() {
                                 script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
                                 returnStdout: true
                             ).trim()
-                            currentBuild.description = "release version: ${VEGA_VERSION}"
+                            // use commit hash from release to set correct DOCKER_VERSION
+                            if (!params.DOCKER_VERSION) {
+                                DOCKER_VERSION = VEGA_VERSION.split('-').last()
+                            }
+                        }
+                        if (VEGA_VERSION) {
+                            currentBuild.description += ", release version: ${VEGA_VERSION}"
                         }
                     }
                 }
@@ -102,7 +111,7 @@ void call() {
                     }
                     stage('k8s'){
                         when {
-                            expression { params.DOCKER_VERSION }
+                            expression { DOCKER_VERSION }
                         }
                         steps {
                             script {
@@ -496,7 +505,7 @@ void call() {
                     }
                     stage('Update vegawallet service') {
                         when {
-                            expression { params.DOCKER_VERSION }
+                            expression { DOCKER_VERSION }
                         }
                         steps {
                             script {
@@ -507,7 +516,7 @@ void call() {
                                         application: app,
                                         directory: 'k8s',
                                         makeCheckout: false,
-                                        version: params.DOCKER_VERSION,
+                                        version: DOCKER_VERSION,
                                         forceRestart: false,
                                         timeout: 60,
                                     )

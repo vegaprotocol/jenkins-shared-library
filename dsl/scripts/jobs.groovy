@@ -601,14 +601,14 @@ def jobs = [
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
         // weekdays 5AM UTC, jenkins prefred minute
-        // parameterizedCron: 'H 1 * * 1-5 %' + [
-        //     'ACTION=restart-network',
-        //     'RELEASE_VERSION=',
-        //     'DOCKER_VERSION=',
-        //     'UNSAFE_RESET_ALL=true',
-        //     'CREATE_MARKETS=true',
-        //     'TOP_UP_BOTS=true',
-        // ].join(';'),
+        parameterizedCron: 'H 1 * * 1-5 %' + [
+            'ACTION=restart-network',
+            'RELEASE_VERSION=latest',
+            'DOCKER_VERSION=',
+            'UNSAFE_RESET_ALL=true',
+            'CREATE_MARKETS=true',
+            'TOP_UP_BOTS=true',
+        ].join(';'),
     ],
     [
         name: 'private/Deployments/stagnet3/Manage-Node',
