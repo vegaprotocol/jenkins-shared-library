@@ -600,15 +600,6 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
-        // weekdays 5AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 1 * * 1-5 %' + [
-            'ACTION=restart-network',
-            'RELEASE_VERSION=latest',
-            'DOCKER_VERSION=',
-            'UNSAFE_RESET_ALL=true',
-            'CREATE_MARKETS=true',
-            'TOP_UP_BOTS=true',
-        ].join(';'),
     ],
     [
         name: 'private/Deployments/stagnet3/Manage-Node',
@@ -632,6 +623,10 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet3',
         ],
         parameters: vegavisorProtocolUpgradeParams(),
+        // weekdays 5AM UTC, jenkins prefred minute
+        parameterizedCron: 'H 1 * * 1-5 %' + [
+            'RELEASE_VERSION=latest',
+        ].join(';'),
         disableConcurrentBuilds: true,
     ],
     [
