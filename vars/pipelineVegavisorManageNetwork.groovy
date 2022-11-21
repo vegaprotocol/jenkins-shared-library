@@ -48,7 +48,7 @@ void call() {
         }
     }
 
-    VEGA_VERSION = null
+    RELEASE_VERSION = null
     DOCKER_VERSION = null
 
     pipeline {
@@ -69,26 +69,26 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
-                        currentBuild.description: "action: ${params.ACTION}"
+                        currentBuild.description = "action: ${params.ACTION}"
                         DOCKER_VERSION = params.DOCKER_VERSION
-                        if (params.VEGA_VERSION) {
-                            VEGA_VERSION = params.VEGA_VERSION
+                        if (params.RELEASE_VERSION) {
+                            RELEASE_VERSION = params.RELEASE_VERSION
                         }
-                        if (VEGA_VERSION == 'latest') {
-                            echo 'Using latest version for VEGA_VERSION'
+                        if (RELEASE_VERSION == 'latest') {
+                            echo 'Using latest version for RELEASE_VERSION'
                             // change to param if needed for other envs
                             def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            VEGA_VERSION = sh(
+                            RELEASE_VERSION = sh(
                                 script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
                                 returnStdout: true
                             ).trim()
                             // use commit hash from release to set correct DOCKER_VERSION
                             if (!params.DOCKER_VERSION) {
-                                DOCKER_VERSION = VEGA_VERSION.split('-').last()
+                                DOCKER_VERSION = RELEASE_VERSION.split('-').last()
                             }
                         }
-                        if (VEGA_VERSION) {
-                            currentBuild.description += ", release version: ${VEGA_VERSION}"
+                        if (RELEASE_VERSION) {
+                            currentBuild.description += ", release version: ${RELEASE_VERSION}"
                         }
                     }
                 }
@@ -97,13 +97,13 @@ void call() {
                 parallel {
                     stage('vega'){
                         when {
-                            expression { VEGA_VERSION }
+                            expression { params.VEGA_VERSION }
                         }
                         steps {
                             script {
                                 gitClone(
                                     directory: 'vega',
-                                    branch: VEGA_VERSION,
+                                    branch: params.VEGA_VERSION,
                                     vegaUrl: 'vega',
                                 )
                             }
@@ -185,7 +185,7 @@ void call() {
                 parallel {
                     stage('Build vega, data-node, vegawallet and visor') {
                         when {
-                            expression { VEGA_VERSION }
+                            expression { params.VEGA_VERSION }
                         }
                         steps {
                             dir('vega') {
@@ -364,7 +364,7 @@ void call() {
                 }
                 steps {
                     script {
-                        if (VEGA_VERSION) {
+                        if (params.VEGA_VERSION) {
                             sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
                                 cp ./bin/vega ./ansible/roles/barenode/files/bin/
                                 cp ./bin/data-node ./ansible/roles/barenode/files/bin/
@@ -385,7 +385,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '{"release_version": "${RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
@@ -397,8 +397,8 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
-                            if (params.RELEASE_VERSION) {
-                                action = ": deploy `${params.RELEASE_VERSION}`"
+                            if (RELEASE_VERSION) {
+                                action = ": deploy `${RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }
@@ -407,8 +407,8 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
-                            if (params.RELEASE_VERSION) {
-                                action = ": deploy `${params.RELEASE_VERSION}`"
+                            if (RELEASE_VERSION) {
+                                action = ": deploy `${RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }

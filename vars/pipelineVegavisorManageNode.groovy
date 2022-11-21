@@ -34,6 +34,8 @@ void call() {
     ANSIBLE_VARS_DICT = [:]
     String VEGA_VERSION_FROM_STATISTICS = ''
 
+    RELEASE_VERSION = null
+
     pipeline {
         agent any
         options {
@@ -52,6 +54,24 @@ void call() {
                     updateBuildName(params)
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    script {
+                        currentBuild.description = "action: ${params.ACTION}"
+                        if (params.RELEASE_VERSION) {
+                            RELEASE_VERSION = params.RELEASE_VERSION
+                        }
+                        if (RELEASE_VERSION == 'latest') {
+                            echo 'Using latest version for RELEASE_VERSION'
+                            // change to param if needed for other envs
+                            def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
+                            RELEASE_VERSION = sh(
+                                script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
+                                returnStdout: true
+                            ).trim()
+                        }
+                        if (RELEASE_VERSION) {
+                            currentBuild.description += ", release version: ${RELEASE_VERSION}"
+                        }
+                    }
                 }
             }
             stage('Checkout') {
