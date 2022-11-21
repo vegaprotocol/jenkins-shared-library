@@ -48,6 +48,8 @@ void call() {
         }
     }
 
+    VEGA_VERSION = null
+
     pipeline {
         agent any
         options {
@@ -65,19 +67,34 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
+                    script {
+                        if (params.VEGA_VERSION) {
+                            VEGA_VERSION = params.VEGA_VERSION
+                        }
+                        if (VEGA_VERSION == 'latest') {
+                            echo 'Using latest version for VEGA_VERSION'
+                            // change to param if needed for other envs
+                            def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
+                            VEGA_VERSION = sh(
+                                script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
+                                returnStdout: true
+                            ).trim()
+                            currentBuild.description = "release version: ${VEGA_VERSION}"
+                        }
+                    }
                 }
             }
             stage('Checkout') {
                 parallel {
                     stage('vega'){
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { VEGA_VERSION }
                         }
                         steps {
                             script {
                                 gitClone(
                                     directory: 'vega',
-                                    branch: params.VEGA_VERSION,
+                                    branch: VEGA_VERSION,
                                     vegaUrl: 'vega',
                                 )
                             }
@@ -159,7 +176,7 @@ void call() {
                 parallel {
                     stage('Build vega, data-node, vegawallet and visor') {
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { VEGA_VERSION }
                         }
                         steps {
                             dir('vega') {
@@ -338,7 +355,7 @@ void call() {
                 }
                 steps {
                     script {
-                        if (params.VEGA_VERSION) {
+                        if (VEGA_VERSION) {
                             sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
                                 cp ./bin/vega ./ansible/roles/barenode/files/bin/
                                 cp ./bin/data-node ./ansible/roles/barenode/files/bin/
