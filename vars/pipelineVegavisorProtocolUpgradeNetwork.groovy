@@ -38,6 +38,7 @@ void call() {
 
     def versionTag = 'UNKNOWN'
     def protocolUpgradeBlock = -1
+    RELEASE_VERSION = null
 
     pipeline {
         agent any
@@ -150,7 +151,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag protocol-upgrade \
-                                        -e '{"protocol_upgrade_version": "${params.RELEASE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
+                                        -e '{"protocol_upgrade_version": "${RELEASE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
