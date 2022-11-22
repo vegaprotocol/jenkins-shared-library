@@ -42,6 +42,7 @@ void call() {
 
     RELEASE_VERSION = null
     DOCKER_VERSION = null
+    ANSIBLE_VARS = ''
 
     pipeline {
         agent any
@@ -59,7 +60,10 @@ void call() {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
-                    vegavisorConfigureReleaseVersion()
+                    script {
+                        (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
+                    }
+                    echo "Release version: ${RELEASE_VERSION}"
                 }
             }
             stage('Checkout') {
@@ -135,6 +139,15 @@ void call() {
                                 protocolUpgradeBlock += 200
                             }
                         }
+                        // create json with function instead of manual
+                        ANSIBLE_VARS = writeJSON(
+                            returnText: true,
+                            json: [
+                                protocol_upgrade_version: RELEASE_VERSION,
+                                protocol_upgrade_block: protocolUpgradeBlock,
+                                protocol_upgrade_manual_install: params.MANUAL_INSTALL,
+                            ].findAll{ key, value -> value != null }
+                        )
                     }
                     dir('ansible') {
                         withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
@@ -149,7 +162,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag protocol-upgrade \
-                                        -e '{"protocol_upgrade_version": "${RELEASE_VERSION}", "protocol_upgrade_block": ${protocolUpgradeBlock}, "protocol_upgrade_manual_install": ${params.MANUAL_INSTALL}}' \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
@@ -183,6 +196,20 @@ void call() {
             always {
                 cleanWs()
             }
+            // success {
+            //     slackSend(
+            //         channel: '#env-deploy',
+            //         color: 'good',
+            //         message: ':page_with_curl: protocol successfully upgraded to ${RELEASE_VERSION} :rocket:',
+            //     )
+            // }
+            // unsuccessful {
+            //     slackSend(
+            //         channel: '#env-deploy',
+            //         color: 'danger',
+            //         message: ':rolled_up_newspaper: protocol upgrade failed ',
+            //     )
+            // }
         }
     }
 }

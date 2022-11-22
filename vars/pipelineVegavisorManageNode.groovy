@@ -35,6 +35,7 @@ void call() {
     String VEGA_VERSION_FROM_STATISTICS = ''
 
     RELEASE_VERSION = null
+    DOCKER_VERSION = null
 
     pipeline {
         agent any
@@ -56,8 +57,8 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}"
+                        (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
-                    vegavisorConfigureReleaseVersion()
                 }
             }
             stage('Checkout') {
@@ -230,7 +231,7 @@ void call() {
                                         unsafe_reset_all: params.UNSAFE_RESET_ALL,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
-                                    ]
+                                    ].findAll{ key, value -> value != null }
                                 )
                             }
                             dir('ansible') {

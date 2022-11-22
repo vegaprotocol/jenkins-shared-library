@@ -51,6 +51,8 @@ void call() {
     RELEASE_VERSION = null
     DOCKER_VERSION = null
 
+    ANSIBLE_VARS = ''
+
     pipeline {
         agent any
         options {
@@ -70,8 +72,8 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}"
+                        (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
-                    vegavisorConfigureReleaseVersion()
                 }
             }
             stage('Checkout') {
@@ -352,6 +354,14 @@ void call() {
                                 cp ./bin/visor ./ansible/roles/barenode/files/bin/
                             """
                         }
+                        // create json with function instead of manual
+                        ANSIBLE_VARS = writeJSON(
+                            returnText: true,
+                            json: [
+                                release_version: RELEASE_VERSION,
+                                unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                            ].findAll{ key, value -> value != null }
+                        )
                     }
                     dir('ansible') {
                         withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
@@ -366,7 +376,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
