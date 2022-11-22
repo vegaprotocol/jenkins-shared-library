@@ -48,9 +48,6 @@ void call() {
         }
     }
 
-    def RELEASE_VERSION = ''
-    def DOCKER_VERSION = ''
-
     pipeline {
         agent any
         options {
@@ -70,31 +67,27 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}"
-                        DOCKER_VERSION = params.DOCKER_VERSION
-                        if (params.RELEASE_VERSION) {
-                            RELEASE_VERSION = params.RELEASE_VERSION
-                        }
-                        if (RELEASE_VERSION == 'latest') {
+                        if (params.RELEASE_VERSION == 'latest') {
                             if (env.NET_NAME == 'testnet') {
                                 error "Do not deploy latest on testnet, instead of that provide manually RELEASE_VERSION from https://github.com/vegaprotocol/vega/releases"
                             }
                             echo 'Using latest version for RELEASE_VERSION'
                             // change to param if needed for other envs
                             def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            RELEASE_VERSION = sh(
+                            params.RELEASE_VERSION = sh(
                                 script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
                                 returnStdout: true
                             ).trim()
-                            echo "Found RELEASE_VERSION='${RELEASE_VERSION}'"
+                            echo "Found params.RELEASE_VERSION='${params.RELEASE_VERSION}'"
                             // use commit hash from release to set correct DOCKER_VERSION
                             if (!params.DOCKER_VERSION) {
-                                DOCKER_VERSION = RELEASE_VERSION.split('-').last()
+                                params.DOCKER_VERSION = params.RELEASE_VERSION.split('-').last()
                             }
-                            echo "Found DOCKER_VERSION='${DOCKER_VERSION}'"
+                            echo "Found params.DOCKER_VERSION='${params.DOCKER_VERSION}'"
                         }
-                        echo "Using RELEASE_VERSION='${RELEASE_VERSION}' DOCKER_VERSION='${DOCKER_VERSION}'"
-                        if (RELEASE_VERSION) {
-                            currentBuild.description += ", release version: ${RELEASE_VERSION}"
+                        echo "Using params.RELEASE_VERSION='${params.RELEASE_VERSION}' params.DOCKER_VERSION='${params.DOCKER_VERSION}'"
+                        if (params.RELEASE_VERSION) {
+                            currentBuild.description += ", release version: ${params.RELEASE_VERSION}"
                         }
                     }
                 }
@@ -117,7 +110,7 @@ void call() {
                     }
                     stage('k8s'){
                         when {
-                            expression { DOCKER_VERSION }
+                            expression { params.DOCKER_VERSION }
                         }
                         steps {
                             script {
@@ -391,7 +384,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '{"release_version": "${params.RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
@@ -403,8 +396,8 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
-                            if (RELEASE_VERSION) {
-                                action = ": deploy `${RELEASE_VERSION}`"
+                            if (params.RELEASE_VERSION) {
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }
@@ -413,8 +406,8 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
-                            if (RELEASE_VERSION) {
-                                action = ": deploy `${RELEASE_VERSION}`"
+                            if (params.RELEASE_VERSION) {
+                                action = ": deploy `${params.RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
                         }
@@ -511,7 +504,7 @@ void call() {
                     }
                     stage('Update vegawallet service') {
                         when {
-                            expression { DOCKER_VERSION }
+                            expression { params.DOCKER_VERSION }
                         }
                         steps {
                             script {
@@ -522,7 +515,7 @@ void call() {
                                         application: app,
                                         directory: 'k8s',
                                         makeCheckout: false,
-                                        version: DOCKER_VERSION,
+                                        version: params.DOCKER_VERSION,
                                         forceRestart: false,
                                         timeout: 60,
                                     )
