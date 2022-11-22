@@ -85,11 +85,14 @@ void call() {
                                 script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
                                 returnStdout: true
                             ).trim()
+                            echo "Found RELEASE_VERSION='${RELEASE_VERSION}'"
                             // use commit hash from release to set correct DOCKER_VERSION
                             if (!params.DOCKER_VERSION) {
                                 DOCKER_VERSION = RELEASE_VERSION.split('-').last()
                             }
+                            echo "Found DOCKER_VERSION='${DOCKER_VERSION}'"
                         }
+                        echo "Using RELEASE_VERSION='${RELEASE_VERSION}' DOCKER_VERSION='${DOCKER_VERSION}'"
                         if (RELEASE_VERSION) {
                             currentBuild.description += ", release version: ${RELEASE_VERSION}"
                         }
