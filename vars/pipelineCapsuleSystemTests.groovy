@@ -75,7 +75,7 @@ void call() {
     agent none
     options {
       timestamps()
-      ansiColor('x-term')
+      ansiColor('xterm')
       timeout(time: 3, unit: 'HOURS')
     }
     stages {
