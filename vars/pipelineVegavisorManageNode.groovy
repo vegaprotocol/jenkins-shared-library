@@ -137,7 +137,7 @@ void call() {
                             default:
                                 error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
                         }
-                        if (!params.VEGA_VERSION  && !params.RELEASE_VERSION) {
+                        if (!params.VEGA_VERSION  && !RELEASE_VERSION) {
                             statisticsEndpointOut = vegautils.networkStatistics(env.NET_NAME)
                             if (statisticsEndpointOut['statistics'] == null || statisticsEndpointOut['statistics']['appVersion'] == null) {
                                 println('Failed to get vega network statistics to find the network version')
@@ -243,7 +243,7 @@ void call() {
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
                                     json: ANSIBLE_VARS_DICT + [
-                                        release_version: (params.RELEASE_VERSION ?: VEGA_VERSION_FROM_STATISTICS),
+                                        release_version: (RELEASE_VERSION ?: VEGA_VERSION_FROM_STATISTICS),
                                         unsafe_reset_all: params.UNSAFE_RESET_ALL,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
