@@ -4,7 +4,7 @@ def call() {
         options {
             timeout(time: 15, unit: 'MINUTES')
             timestamps()
-            ansiColor('x-term')
+            ansiColor('xterm')
         }
         environment {
             CREDENTIALS_ID = 'ssh-vega-network'

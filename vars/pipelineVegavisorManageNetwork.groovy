@@ -51,6 +51,8 @@ void call() {
     RELEASE_VERSION = null
     DOCKER_VERSION = null
 
+    ANSIBLE_VARS = ''
+
     pipeline {
         agent any
         options {
@@ -58,7 +60,7 @@ void call() {
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
             lock(resource: env.NET_NAME)
-            ansiColor('x-term')
+            ansiColor('xterm')
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
@@ -70,29 +72,7 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}"
-                        DOCKER_VERSION = params.DOCKER_VERSION
-                        if (params.RELEASE_VERSION) {
-                            RELEASE_VERSION = params.RELEASE_VERSION
-                        }
-                        if (RELEASE_VERSION == 'latest') {
-                            if (env.NET_NAME == 'testnet') {
-                                error "Do not deploy latest on testnet, instead of that provide manually RELEASE_VERSION from https://github.com/vegaprotocol/vega/releases"
-                            }
-                            echo 'Using latest version for RELEASE_VERSION'
-                            // change to param if needed for other envs
-                            def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            RELEASE_VERSION = sh(
-                                script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
-                                returnStdout: true
-                            ).trim()
-                            // use commit hash from release to set correct DOCKER_VERSION
-                            if (!params.DOCKER_VERSION) {
-                                DOCKER_VERSION = RELEASE_VERSION.split('-').last()
-                            }
-                        }
-                        if (RELEASE_VERSION) {
-                            currentBuild.description += ", release version: ${RELEASE_VERSION}"
-                        }
+                        (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
                 }
             }
@@ -374,6 +354,14 @@ void call() {
                                 cp ./bin/visor ./ansible/roles/barenode/files/bin/
                             """
                         }
+                        // create json with function instead of manual
+                        ANSIBLE_VARS = writeJSON(
+                            returnText: true,
+                            json: [
+                                release_version: RELEASE_VERSION,
+                                unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                            ].findAll{ key, value -> value != null }
+                        )
                     }
                     dir('ansible') {
                         withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
@@ -388,7 +376,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '{"release_version": "${RELEASE_VERSION}", "unsafe_reset_all": ${params.UNSAFE_RESET_ALL}}' \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-barenode.yaml
                                 """
                             }

@@ -239,6 +239,7 @@ def vegavisorProtocolUpgradeParams() {
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
+        stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
     }
 }
 

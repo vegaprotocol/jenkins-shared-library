@@ -1,6 +1,6 @@
 
 void call(Map config = [:], Closure body=null) {
-    String credentialsId = config.get('credentialsId', null)
+    String credentialsId = config.get('credentialsId', 'github-vega-ci-bot-artifacts')
     if (credentialsId && body) {
         try {
             withCredentials([usernamePassword(credentialsId: credentialsId, passwordVariable: 'TOKEN', usernameVariable:'USER')]) {
