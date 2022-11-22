@@ -48,8 +48,8 @@ void call() {
         }
     }
 
-    RELEASE_VERSION = null
-    DOCKER_VERSION = null
+    def RELEASE_VERSION = null
+    def DOCKER_VERSION = null
 
     pipeline {
         agent any
