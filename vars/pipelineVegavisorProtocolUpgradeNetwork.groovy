@@ -40,6 +40,9 @@ void call() {
     def protocolUpgradeBlock = -1
     RELEASE_VERSION = null
 
+    RELEASE_VERSION = null
+    DOCKER_VERSION = null
+
     pipeline {
         agent any
         options {
@@ -57,6 +60,7 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        DOCKER_VERSION = params.DOCKER_VERSION
                         if (params.RELEASE_VERSION) {
                             RELEASE_VERSION = params.RELEASE_VERSION
                         }
@@ -67,10 +71,19 @@ void call() {
                             echo 'Using latest version for RELEASE_VERSION'
                             // change to param if needed for other envs
                             def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            RELEASE_VERSION = sh(
-                                script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
-                                returnStdout: true
-                            ).trim()
+                            withGHCLI {
+                                RELEASE_VERSION = sh(
+                                    script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
+                                    returnStdout: true
+                                ).trim()
+                            }
+                            if (!RELEASE_VERSION) {
+                                error "Couldn't fetch release version, stopping pipeline!"
+                            }
+                            // use commit hash from release to set correct DOCKER_VERSION
+                            if (!params.DOCKER_VERSION) {
+                                DOCKER_VERSION = RELEASE_VERSION.split('-').last()
+                            }
                         }
                         if (RELEASE_VERSION) {
                             currentBuild.description = "release version: ${RELEASE_VERSION}"
@@ -91,6 +104,20 @@ void call() {
                         steps {
                             script {
                                 doGitClone('ansible', params.ANSIBLE_BRANCH)
+                            }
+                        }
+                    }
+                    stage('k8s'){
+                        when {
+                            expression { DOCKER_VERSION }
+                        }
+                        steps {
+                            script {
+                                gitClone(
+                                    directory: 'k8s',
+                                    branch: 'main',
+                                    vegaUrl: 'k8s',
+                                )
                             }
                         }
                     }
@@ -155,6 +182,27 @@ void call() {
                                         playbooks/playbook-barenode.yaml
                                 """
                             }
+                        }
+                    }
+                }
+            }
+            stage('Update vegawallet service') {
+                when {
+                    expression { DOCKER_VERSION }
+                }
+                steps {
+                    script {
+                        // ['vegawallet', 'faucet'].each { app ->
+                        ['vegawallet'].each { app ->
+                            releaseKubernetesApp(
+                                networkName: env.NET_NAME,
+                                application: app,
+                                directory: 'k8s',
+                                makeCheckout: false,
+                                version: DOCKER_VERSION,
+                                forceRestart: false,
+                                timeout: 60,
+                            )
                         }
                     }
                 }

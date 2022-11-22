@@ -81,10 +81,15 @@ void call() {
                             echo 'Using latest version for RELEASE_VERSION'
                             // change to param if needed for other envs
                             def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            RELEASE_VERSION = sh(
-                                script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
-                                returnStdout: true
-                            ).trim()
+                            withGHCLI {
+                                RELEASE_VERSION = sh(
+                                    script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
+                                    returnStdout: true
+                                ).trim()
+                            }
+                            if (!RELEASE_VERSION) {
+                                error "Couldn't fetch release version, stopping pipeline!"
+                            }
                             // use commit hash from release to set correct DOCKER_VERSION
                             if (!params.DOCKER_VERSION) {
                                 DOCKER_VERSION = RELEASE_VERSION.split('-').last()
