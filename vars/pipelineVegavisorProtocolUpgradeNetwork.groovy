@@ -6,34 +6,9 @@ void call() {
         keyFileVariable: 'PSSH_KEYFILE',
         usernameVariable: 'PSSH_USER'
     )
-    Map dockerCredentials = [
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        url: 'https://ghcr.io'
-    ]
-    def githubAPICredentials = usernamePassword(
-        credentialsId: 'github-vega-ci-bot-artifacts',
-        passwordVariable: 'GITHUB_API_TOKEN',
-        usernameVariable: 'GITHUB_API_USER'
-    )
 
-    def doGitClone = { repo, branch ->
-        dir(repo) {
-            retry(3) {
-                // returns object:
-                // [GIT_BRANCH:origin/master,
-                // GIT_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_PREVIOUS_SUCCESSFUL_COMMIT:5897d0e927e920fc217f967e91ea086f8cf2bb41,
-                // GIT_URL:git@github.com:vegaprotocol/devops-infra.git]
-                return checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: branch]],
-                    userRemoteConfigs: [[
-                        url: "git@github.com:vegaprotocol/${repo}.git",
-                        credentialsId: 'vega-ci-bot'
-                    ]]])
-            }
-        }
+    def duration = {
+        return currentBuild.durationString - ' and counting'
     }
 
     def versionTag = 'UNKNOWN'
@@ -70,16 +45,20 @@ void call() {
                 parallel {
                     stage('devopstools'){
                         steps {
-                            script {
-                                doGitClone('devopstools', params.DEVOPSTOOLS_BRANCH)
-                            }
+                            gitClone(
+                                directory: 'devopstools',
+                                branch: params.DEVOPSTOOLS_BRANCH,
+                                vegaUrl: 'devopstools',
+                            )
                         }
                     }
                     stage('ansible'){
                         steps {
-                            script {
-                                doGitClone('ansible', params.ANSIBLE_BRANCH)
-                            }
+                            gitClone(
+                                directory: 'ansible',
+                                branch: params.ANSIBLE_BRANCH,
+                                vegaUrl: 'ansible',
+                            )
                         }
                     }
                     stage('k8s'){
@@ -87,22 +66,13 @@ void call() {
                             expression { DOCKER_VERSION }
                         }
                         steps {
-                            script {
-                                gitClone(
-                                    directory: 'k8s',
-                                    branch: 'main',
-                                    vegaUrl: 'k8s',
-                                )
-                            }
+                            gitClone(
+                                directory: 'k8s',
+                                branch: 'main',
+                                vegaUrl: 'k8s',
+                            )
                         }
                     }
-                    // stage('networks-internal') {
-                    //     steps {
-                    //         script {
-                    //             doGitClone('networks-internal', params.NETWORKS_INTERNAL_BRANCH)
-                    //         }
-                    //     }
-                    // }
                 }
             }
             stage('Prepare'){
@@ -196,20 +166,20 @@ void call() {
             always {
                 cleanWs()
             }
-            // success {
-            //     slackSend(
-            //         channel: '#env-deploy',
-            //         color: 'good',
-            //         message: ':page_with_curl: protocol successfully upgraded to ${RELEASE_VERSION} :rocket:',
-            //     )
-            // }
-            // unsuccessful {
-            //     slackSend(
-            //         channel: '#env-deploy',
-            //         color: 'danger',
-            //         message: ':rolled_up_newspaper: protocol upgrade failed ',
-            //     )
-            // }
+            success {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'good',
+                    message: ":page_with_curl: protocol successfully upgraded to ${RELEASE_VERSION} on `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> (${duration()}) :rocket:",
+                )
+            }
+            unsuccessful {
+                slackSend(
+                    channel: '#env-deploy',
+                    color: 'danger',
+                    message: ":rolled_up_newspaper: protocol upgrade failed on `${env.NET_NAME}` <${env.RUN_DISPLAY_URL}|more> (${duration()}) :boom:",
+                )
+            }
         }
     }
 }
