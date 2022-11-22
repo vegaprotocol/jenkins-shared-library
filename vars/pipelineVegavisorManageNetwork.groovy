@@ -74,7 +74,7 @@ void call() {
                             echo 'Using latest version for RELEASE_VERSION'
                             // change to param if needed for other envs
                             def RELEASE_REPO = 'vegaprotocol/vega-dev-releases'
-                            withGHCLI {
+                            withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
                                 params.RELEASE_VERSION = sh(
                                     script: "gh release list --repo ${RELEASE_REPO} --limit 1 | awk '{print \$1}'",
                                     returnStdout: true
