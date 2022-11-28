@@ -46,10 +46,29 @@ void call() {
             }
             stage('Build Docker Image') {
                 options { retry(3) }
-                steps {
-                    sh label: 'Build docker image', script: '''
-                        scripts/build-docker-test.sh
-                    '''
+                stage('Build Test Image') {
+                    when {
+                        expression {
+                            !params.RUN_LEARNING
+                        }
+                    }
+                    steps {
+                        sh label: 'Build docker image', script: '''
+                            scripts/build-docker-test.sh
+                        '''
+                    }
+                }
+                stage('Build Learning Image') {
+                    when {
+                        expression {
+                            params.RUN_LEARNING
+                        }
+                    }
+                    steps {
+                        sh label: 'Build docker image', script: '''
+                            scripts/build-docker-learning.sh
+                        '''
+                    }
                 }
             }
             stage('Tests') {
@@ -85,10 +104,22 @@ void call() {
                             }
                         }
                     }
+                    stage('RL Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING
+                            }
+                        }
+                        steps {
+                            sh label: 'Example Notebook Tests', script: '''
+                                scripts/run-docker-learning.sh
+                            '''
+                        }
+                    }
                 }
                 post {
                     always {
-                        archiveArtifacts artifacts: 'test_logs/**/*.out'
+                        archiveArtifacts artifacts: 'test_logs/**/*.out test_logs/**/*.err test_logs/**/replay'
                     }
                 }
             }
