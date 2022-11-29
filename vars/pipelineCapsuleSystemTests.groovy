@@ -77,6 +77,7 @@ void call() {
       timestamps()
       ansiColor('xterm')
       timeout(time: 3, unit: 'HOURS')
+      copyArtifactPermission(downstreamBuildName)
     }
     stages {
       stage('config') {
@@ -138,10 +139,8 @@ void call() {
                     copyArtifacts(
                         projectName: downstreamBuildName,
                         selector: specific("${downstreamBuild.number}"),
+                        filter: "build/**",
                         fingerprintArtifacts: true,
-                        excludes: [
-                          'testnet/**/*', // do not copy the network data. It is available in the downstream project and it is usually huge/slow
-                        ].join(','),
                         target: targetDir
                     )
                     archiveArtifacts(
