@@ -217,7 +217,7 @@ void call() {
                                     }
                                 }
 
-                                currentBuild.description += ", node: ${NODE_NAME}"
+                                currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
 
                                 if (params.VEGA_VERSION) {
                                     sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
