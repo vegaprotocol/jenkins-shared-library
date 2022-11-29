@@ -140,7 +140,7 @@ void call() {
                         selector: specific("${downstreamBuild.number}"),
                         fingerprintArtifacts: true,
                         excludes: [
-                          'testnet', // do not copy the network data. It is available in the downstream project and it is usually huge/slow
+                          'testnet/**/*', // do not copy the network data. It is available in the downstream project and it is usually huge/slow
                         ].join(','),
                         target: targetDir
                     )
