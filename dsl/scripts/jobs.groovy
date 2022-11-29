@@ -762,6 +762,7 @@ def jobs = [
             stringParam('TIMEOUT', '450', 'Number of minutes after which the job will stop')
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
+            stringParam('NUM_RL_ITERATIONS', '100', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,
