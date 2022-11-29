@@ -139,6 +139,9 @@ void call() {
                         projectName: downstreamBuildName,
                         selector: specific("${downstreamBuild.number}"),
                         fingerprintArtifacts: true,
+                        excludes: [
+                          'testnet', // do not copy the network data. It is available in the downstream project and it is usually huge/slow
+                        ].join(','),
                         target: targetDir
                     )
                     archiveArtifacts(
