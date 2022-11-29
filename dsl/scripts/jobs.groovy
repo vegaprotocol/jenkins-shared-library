@@ -230,6 +230,7 @@ def vegavisorManageNodeParams(args=[:]) {
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
         stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        booleanParam('DISABLE_LOCK', false, 'Use only if you know what you are doing!!! Useful when provisioning many same nodes at the time')
     }
 }
 

@@ -43,7 +43,8 @@ void call() {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
-            lock(resource: env.NET_NAME)
+            // allow disabling lock when provisoining new nodes
+            lock(resource: params.DISABLE_LOCK ? "${Math.abs(new Random().nextInt(9999))}" : env.NET_NAME)
             ansiColor('xterm')
         }
         environment {
