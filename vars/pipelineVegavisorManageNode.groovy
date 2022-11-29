@@ -216,6 +216,9 @@ void call() {
                                         }
                                     }
                                 }
+
+                                currentBuild.description += ", node: ${NODE_NAME}"
+
                                 if (params.VEGA_VERSION) {
                                     sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
                                         cp ./bin/vega ./ansible/roles/barenode/files/bin/
