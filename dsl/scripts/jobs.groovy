@@ -759,10 +759,10 @@ def jobs = [
             stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-            stringParam('TIMEOUT', '450', 'Number of minutes after which the job will stop')
+            stringParam('TIMEOUT', '1440', 'Number of minutes after which the job will stop')
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
-            stringParam('NUM_RL_ITERATIONS', '100', 'Number of iterations to run RL tests for')
+            stringParam('NUM_RL_ITERATIONS', '1000', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,
