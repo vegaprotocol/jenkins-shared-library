@@ -745,10 +745,30 @@ def jobs = [
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
+            booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,
         daysToKeep: 14,
+    ],
+    [
+        name: 'common/vega-market-sim-reinforcement',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaMarketSim()'),
+        parameters: {
+            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
+            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+            stringParam('TIMEOUT', '1440', 'Number of minutes after which the job will stop')
+            booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
+            booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
+            stringParam('NUM_RL_ITERATIONS', '1000', 'Number of iterations to run RL tests for')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        copyArtifacts: true,
+        daysToKeep: 14,
+        cron: 'H 0 * * *',
     ],
     //
     // Snapshots

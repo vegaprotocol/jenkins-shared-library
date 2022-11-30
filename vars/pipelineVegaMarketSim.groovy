@@ -46,15 +46,38 @@ void call() {
             }
             stage('Build Docker Image') {
                 options { retry(3) }
+                when {
+                    expression {
+                        params.RUN_LEARNING == false
+                    }
+                }
                 steps {
                     sh label: 'Build docker image', script: '''
                         scripts/build-docker-test.sh
                     '''
                 }
             }
+            stage('Build Learning Image') {
+                options { retry(3) }
+                when {
+                    expression {
+                        params.RUN_LEARNING == true
+                    }
+                }
+                steps {
+                    sh label: 'Build docker image', script: '''
+                        scripts/build-docker-learning.sh
+                    '''
+                }
+            }
             stage('Tests') {
                 parallel {
                     stage('Integration Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == false
+                            }
+                        }
                         steps {
                             sh label: 'Run Integration Tests', script: '''
                                 scripts/run-docker-integration-test.sh ${BUILD_NUMBER}
@@ -85,10 +108,22 @@ void call() {
                             }
                         }
                     }
+                    stage('RL Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            sh label: 'Reinforcement Learning Test', script: '''
+                                scripts/run-docker-learning.sh ${NUM_RL_ITERATIONS}
+                            '''
+                        }
+                    }
                 }
                 post {
-                    always {
-                        archiveArtifacts artifacts: 'test_logs/**/*.out'
+                    failure {
+                        archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
                     }
                 }
             }
