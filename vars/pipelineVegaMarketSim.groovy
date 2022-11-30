@@ -123,7 +123,7 @@ void call() {
                 }
                 post {
                     always {
-                        archiveArtifacts artifacts: 'test_logs/**/*.out test_logs/**/*.err test_logs/**/replay'
+                        archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
                     }
                 }
             }
