@@ -122,7 +122,7 @@ void call() {
                     }
                 }
                 post {
-                    always {
+                    failure {
                         archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
                     }
                 }
