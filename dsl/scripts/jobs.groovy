@@ -535,7 +535,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
         ],
         parameters: vegavisorTopupBotsParams(),
-        // cron: 'H/30 * * * *',
+        cron: '0 * * * *',
         disableConcurrentBuilds: true,
     ],
     //
@@ -585,7 +585,7 @@ def jobs = [
             NET_NAME: 'stagnet2',
         ],
         parameters: vegavisorTopupBotsParams(),
-        // cron: 'H/30 * * * *',
+        cron: '0 * * * *',
         disableConcurrentBuilds: true,
     ],
     //
@@ -639,7 +639,7 @@ def jobs = [
             NET_NAME: 'stagnet3',
         ],
         parameters: vegavisorTopupBotsParams(),
-        // cron: 'H/30 * * * *',
+        cron: '0 * * * *',
         disableConcurrentBuilds: true,
     ],
     //
@@ -689,7 +689,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H/30 * * * *',
+        cron: '0 * * * *',
         disableConcurrentBuilds: true,
     ],
     //
