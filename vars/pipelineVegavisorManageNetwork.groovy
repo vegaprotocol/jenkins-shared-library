@@ -412,9 +412,14 @@ void call() {
                 parallel {
                     stage('Validators self-delegate') {
                         when {
-                            not {
+                            allOf {
+                                not {
+                                    expression {
+                                        params.USE_CHECKPOINT
+                                    }
+                                }
                                 expression {
-                                    params.USE_CHECKPOINT
+                                    params.ACTION != 'stop-network'
                                 }
                             }
                         }
@@ -440,9 +445,14 @@ void call() {
                     stage('Market actions') {
                         stages {
                             stage('Create markets & provide lp'){
-                                when {
+                                allOf {
+                                    when {
+                                        expression {
+                                            params.CREATE_MARKETS
+                                        }
+                                    }
                                     expression {
-                                        params.CREATE_MARKETS
+                                        params.ACTION != 'stop-network'
                                     }
                                 }
                                 steps {
@@ -470,8 +480,13 @@ void call() {
                             }
                             stage('Top up bots') {
                                 when {
-                                    expression {
-                                        params.TOP_UP_BOTS
+                                    allOf {
+                                        expression {
+                                            params.TOP_UP_BOTS
+                                        }
+                                        expression {
+                                            params.ACTION != 'stop-network'
+                                        }
                                     }
                                 }
                                 steps {
@@ -498,7 +513,14 @@ void call() {
                     }
                     stage('Update vegawallet service') {
                         when {
-                            expression { DOCKER_VERSION }
+                            allOf {
+                                expression {
+                                    DOCKER_VERSION
+                                }
+                                expression {
+                                    params.ACTION != 'stop-network'
+                                }
+                            }
                         }
                         steps {
                             script {
