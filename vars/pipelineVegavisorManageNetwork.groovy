@@ -246,7 +246,7 @@ void call() {
                                                     sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                                     sh 'git config --global user.name "vega-ci-bot"'
                                                     sh "git commit -m 'Automated update of checkpoints'"
-                                                    sh "git pull --rebase"
+                                                    sh 'git pull origin main --rebase'
                                                     sh "git push origin HEAD:main"
                                                 }
                                             }
@@ -330,7 +330,7 @@ void call() {
                                         sh 'git config --global user.email "vega-ci-bot@vega.xyz"'
                                         sh 'git config --global user.name "vega-ci-bot"'
                                         sh "git commit -m 'Automated update of genesis for ${env.NET_NAME}'"
-                                        sh "git pull --rebase"
+                                        sh 'git pull origin main --rebase'
                                         sh "git push origin HEAD:main"
                                     }
                                 }
