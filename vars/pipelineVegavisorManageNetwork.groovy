@@ -445,14 +445,14 @@ void call() {
                     stage('Market actions') {
                         stages {
                             stage('Create markets & provide lp'){
-                                allOf {
-                                    when {
+                                when {
+                                    allOf {
+                                        expression {
+                                            params.ACTION != 'stop-network'
+                                        }
                                         expression {
                                             params.CREATE_MARKETS
                                         }
-                                    }
-                                    expression {
-                                        params.ACTION != 'stop-network'
                                     }
                                 }
                                 steps {
