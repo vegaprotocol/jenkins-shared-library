@@ -216,7 +216,7 @@ void call() {
                                     }
                                 }
                             }
-                            stage('download') {
+                            stage('Download latest checkpoint') {
                                 options { retry(3) }
                                 steps {
                                     dir('checkpoint-store') {
