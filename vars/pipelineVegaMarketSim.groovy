@@ -150,14 +150,19 @@ void sendSlackMessage() {
     String msg = ''
     String color = ''
 
+    String msgTitle = 'Vega Market Sim'
+    if params.RUN_LEARNING == true {
+        msgTitle = 'Vega Market Sim - RL Nightly'
+    }
+
     if (currentResult == 'SUCCESS') {
-        msg = ":large_green_circle: Vega Market Sim <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: ${msgTitle} <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: Vega Market Sim aborted <${jobURL}|${jobName}>"
+        msg = ":black_circle: ${msgTitle} aborted <${jobURL}|${jobName}>"
         color = '#000000'
     } else {
-        msg = ":red_circle: Vega Market Sim <${jobURL}|${jobName}>"
+        msg = ":red_circle: ${msgTitle} <${jobURL}|${jobName}>"
         color = 'danger'
     }
 
