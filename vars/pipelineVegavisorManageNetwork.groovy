@@ -273,9 +273,16 @@ void call() {
                 }
             }  // End: Prepare
             stage('Generate genesis') {
+                when {
+                    expression {
+                        params.ACTION != 'stop-network'
+                    }
+                }
                 stages {
                     stage('Prepare scripts') {
-                        options { retry(3) }
+                        options {
+                            retry(3)
+                        }
                         steps {
                             dir('networks-internal/scripts') {
                                 sh '''#!/bin/bash -e
