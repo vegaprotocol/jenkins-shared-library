@@ -151,7 +151,7 @@ void sendSlackMessage() {
     String color = ''
 
     String msgTitle = 'Vega Market Sim'
-    if params.RUN_LEARNING == true {
+    if (params.RUN_LEARNING == true) {
         msgTitle = 'Vega Market Sim - RL Nightly'
     }
 
