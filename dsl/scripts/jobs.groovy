@@ -397,6 +397,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             'CREATE_MARKETS': true,
@@ -411,6 +412,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: true,
@@ -460,6 +462,7 @@ def jobs = [
         env: [
             NET_NAME: 'sandbox',
             ANSIBLE_LIMIT: 'sandbox',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -471,6 +474,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'sandbox',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'sandbox'),
         disableConcurrentBuilds: true,
@@ -499,6 +503,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -510,6 +515,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet1'),
         disableConcurrentBuilds: true,
@@ -549,6 +555,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet2',
             ANSIBLE_LIMIT: 'stagnet2',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -560,6 +567,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet2',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet2'),
         disableConcurrentBuilds: true,
@@ -599,6 +607,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet3',
             ANSIBLE_LIMIT: 'stagnet3',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -610,6 +619,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'stagnet3',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet3'),
         disableConcurrentBuilds: true,
@@ -653,6 +663,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
         disableConcurrentBuilds: true,
@@ -664,6 +675,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'testnet'),
         disableConcurrentBuilds: true,
@@ -690,6 +702,34 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(),
         cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    //
+    // mainnet-mirror
+    //
+    [
+        name: 'private/Deployments/mainnet-mirror/Manage-Network',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_LIMIT: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Manage-Node',
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
         disableConcurrentBuilds: true,
     ],
     //
