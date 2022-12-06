@@ -202,6 +202,14 @@ void call(Map config=[:]) {
                                                 --snapshot.log-level=debug
                                         """
                                 }
+                                archiveArtifacts(
+                                    artifacts: './tm_config/**/*',
+                                    allowEmptyArchive: true
+                                )
+                                archiveArtifacts(
+                                    artifacts: './vega_config/**/*',
+                                    allowEmptyArchive: true
+                                )
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
