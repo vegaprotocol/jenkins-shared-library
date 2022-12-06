@@ -804,6 +804,8 @@ def jobs = [
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
+        daysToKeep: 4,
+        numToKeep: 500,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
@@ -818,6 +820,8 @@ def jobs = [
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
+        daysToKeep: 4,
+        numToKeep: 500,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
@@ -832,6 +836,8 @@ def jobs = [
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
+        daysToKeep: 4,
+        numToKeep: 500,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
@@ -847,6 +853,8 @@ def jobs = [
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
+        daysToKeep: 4,
+        numToKeep: 500,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
