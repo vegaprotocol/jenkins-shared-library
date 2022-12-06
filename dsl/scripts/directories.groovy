@@ -32,6 +32,10 @@ def dirs = [
         display: 'Stagnet 3',
     ],
     [
+        id: 'private/Deployments/mainnet-mirror',
+        display: 'Mainnet Mirror',
+    ],
+    [
         id: 'private/Deployments/Vegacapsule',
         display: 'Vegacapsule',
     ],

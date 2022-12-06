@@ -377,7 +377,7 @@ void call() {
                             withCredentials([sshCredentials]) {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                 //        are set by withCredentials wrapper
-                                sh label: 'ansible playbook run', script: """#!/bin/bash -e
+                                sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
                                     ansible-playbook \
                                         --diff \
                                         -u "\${PSSH_USER}" \
@@ -386,7 +386,7 @@ void call() {
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag "${params.ACTION}" \
                                         --extra-vars '${ANSIBLE_VARS}' \
-                                        playbooks/playbook-barenode.yaml
+                                        playbooks/${env.ANSIBLE_PLAYBOOK}
                                 """
                             }
                         }
