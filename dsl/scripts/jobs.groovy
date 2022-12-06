@@ -145,24 +145,6 @@ def libDefinition(methodName) {
     }
 }
 
-def capsuleParams() {
-    return {
-        booleanParam('BUILD_CAPSULE', true, h('decide if build vegacapsule from source if false VEGACAPSULE_VERSION will be looked up in releases page', 5))
-        stringParam('VEGACAPSULE_VERSION', 'main', h('version of vegacapsule (tag, branch, any revision)'))
-        stringParam('VEGA_VERSION', '', h('version of vega core (tag, branch, commit or S3 path)'))
-        booleanParam('BUILD_VEGA_BINARIES', false, h('determine whether vega binaries are built or downloaded'))
-        booleanParam('PUBLISH_BINARIES', false, h('determine whether binaries are published to S3'))
-        stringParam('DATA_NODE_VERSION', '', h('version of data node (binary tag, or S3 path)'))
-        choiceParam('ACTION', ['RESTART', 'START', 'STOP'], h('action to be performed with network'))
-        booleanParam('REGENERATE_CONFIGS', false, h('check this to regenerate network configs with capsule', 5))
-        booleanParam('UNSAFE_RESET_ALL', false, h('decide if vegacapsule should perform unsafe-reset-all on RESTART action', 5))
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('DEVOPSTOOLS_VERSION', 'main', h('version of the devopstools repository (tag, branch, any revision)'))
-        booleanParam('CREATE_MARKETS', true, h('create markets using veganet.sh'))
-        booleanParam('BOUNCE_BOTS', true, h('bounce bots using veganet.sh - Start & Top up liqbot and traderbot with fake/ERC20 tokens'))
-    }
-}
-
 def vegavisorParamsBase() {
     return {
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
@@ -185,7 +167,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
         booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
-        booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', false), 'This will download latest checkpoint and use it to restart the network with')
+        booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', true), 'This will download latest checkpoint and use it to restart the network with')
         booleanParam('CREATE_MARKETS', args.get('CREATE_MARKETS', false), h('create markets'))
         booleanParam('TOP_UP_BOTS', args.get('TOP_UP_BOTS', false), h('trigger top up job'))
         stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
@@ -400,7 +382,6 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
-            'CREATE_MARKETS': true,
             'TOP_UP_BOTS': true,
         ),
         disableConcurrentBuilds: true,
