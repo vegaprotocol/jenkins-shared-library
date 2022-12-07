@@ -203,11 +203,11 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 archiveArtifacts(
-                                    artifacts: './tm_config/**/*',
+                                    artifacts: 'tm_config/**/*',
                                     allowEmptyArchive: true
                                 )
                                 archiveArtifacts(
-                                    artifacts: './vega_config/**/*',
+                                    artifacts: 'vega_config/**/*',
                                     allowEmptyArchive: true
                                 )
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
