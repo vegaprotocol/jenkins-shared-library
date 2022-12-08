@@ -383,6 +383,7 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             'TOP_UP_BOTS': true,
+            'USE_CHECKPOINT': false,
         ),
         disableConcurrentBuilds: true,
     ],
