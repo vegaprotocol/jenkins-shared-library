@@ -65,6 +65,7 @@ def call() {
                             script: "find artifacts -type d -wholename '*testnet'",
                             returnStdout: true,
                         ).trim().split("\n").findAll{ it }
+                        echo "dirs with testnet name: ${DIRS}"
                         DIRS = DIRS.collectEntries{ basePath -> [
                             // generate suit names out of collected paths
                             (basePath): basePath.split('/').find { it.startsWith('system-tests-') }
