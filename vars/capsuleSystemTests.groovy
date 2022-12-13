@@ -86,11 +86,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       stage('prepare environemnt') {
         parallel {
           stage('build binaries') {
+            options {
+              timeout(time: 5, unit: 'MINUTES')
+              retry(3)
+            }
             environment {
               TESTS_DIR = "${testNetworkDir}"
             }
             steps {
-              script {                
+              script {
                 def binaries = [
                   [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
                   [ repository: 'devopstools', name: 'devopstools', packages: './' ],
