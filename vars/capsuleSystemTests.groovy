@@ -85,35 +85,40 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
       stage('prepare environemnt') {
         parallel {
-          stage('build binaries') {
+          stage('build devopsscripts') {
             options {
               timeout(time: 5, unit: 'MINUTES')
+              retry(3)
+            }
+            steps {
+              script {
+                vegautils.buildGoBinary('devopsscripts',  testNetworkDir + '/devopsscripts', './')
+              }
+            }
+          }
+          stage('build devopstools') {
+            options {
+              timeout(time: 5, unit: 'MINUTES')
+              retry(3)
+            }
+            steps {
+              script {
+                vegautils.buildGoBinary('devopstools',  testNetworkDir + '/devopstools', './')
+              }
+            }
+          }
+          stage('make binaries') {
+            options {
+              timeout(time: 10, unit: 'MINUTES')
               retry(3)
             }
             environment {
               TESTS_DIR = "${testNetworkDir}"
             }
             steps {
-              script {
-                def binaries = [
-                  [ repository: 'devopsscripts', name: 'devopsscripts', packages: './' ],
-                  [ repository: 'devopstools', name: 'devopstools', packages: './' ],
-                ]
-
-                Map buildBinariesJobs = binaries.collectEntries{value -> [
-                  value.name,
-                  {
-                    vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-                  }
-                ]}
-                buildBinariesJobs['make binaries'] = {
-                  dir('system-tests/scripts') {
-                    sh 'make build-binaries'
-                    sh 'make vegacapsule-cleanup'
-                  }
-                }
-
-                parallel buildBinariesJobs
+              dir('system-tests/scripts') {
+                sh 'make build-binaries'
+                sh 'make vegacapsule-cleanup'
               }
             }
           }
