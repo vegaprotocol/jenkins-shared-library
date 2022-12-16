@@ -285,6 +285,8 @@ def approbationParams(def config=[:]) {
             stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
             stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
             stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
+            stringParam('VEGA_TOKEN_V2_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/Vega_Token_V2 repository')
+            stringParam('STAKING_BRIDGE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/Staking_Bridge repository')
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
         }
         else if (config.type == 'frontend') {
