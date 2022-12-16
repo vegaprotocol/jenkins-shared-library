@@ -20,11 +20,20 @@ void call(Map paramsOverrides=[:]) {
                         dir (pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
                             networkDir = vegautils.escapePath(pwd())
                         }
-                        
+
+                        List availableCheckpointServers = [
+                            "api0.mainnet.vega.xyz",
+                            "api1.mainnet.vega.xyz",
+                            "api2.mainnet.vega.xyz",
+                            "api3.mainnet.vega.xyz",
+                        ]
+                        Random rnd = new Random()
+                        String selectedCheckpointSourceServer = availableCheckpointServers[rnd.nextInt(availableCheckpointServers.size)]
+                        print('Random server for checkpoint source: ' + selectedCheckpointSourceServer)
                         sh label: 'Prepare mainnet genesis', script: '''mkdir -p ./lnl-workdir;
                             devopsscripts lnl prepare-network \
-                                --checkpoint-server-checkpoint-dir "/home/vega/vega_volume/vega/state/node/checkpoints" \
-                                --checkpoint-server-host "mainnet-observer.ops.vega.xyz" \
+                                --checkpoint-server-checkpoint-dir "/home/vega/vega_home/state/node/checkpoints" \
+                                --checkpoint-server-host "''' + selectedCheckpointSourceServer + '''" \
                                 --checkpoint-server-key-file "''' + PSSH_KEYFILE + '''" \
                                 --checkpoint-server-user "''' + PSSH_USER + '''" \
                                 --genesis-uri "file://system-tests/vegacapsule/net_configs/mainnet/genesis.json" \
