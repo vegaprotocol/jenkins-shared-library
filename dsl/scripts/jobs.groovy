@@ -312,7 +312,7 @@ def approbationParams(def config=[:]) {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-          stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/cypress/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/cypress/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
@@ -750,6 +750,7 @@ def jobs = [
         parameters: systemTestsParamsWrapper(),
         copyArtifacts: true,
         daysToKeep: 14,
+        numToKeep: 4000,
     ],
     [
         name: 'common/system-tests-lnl-mainnet',
