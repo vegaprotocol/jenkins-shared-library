@@ -78,7 +78,6 @@ void call(def config=[:]) {
                             sh "rm -rf MultisigControl@tmp"
                         }
                     }
-                    }
                     stage('Vega_Token_V2') {
                         when {
                             expression {
@@ -94,7 +93,6 @@ void call(def config=[:]) {
                             )
                             sh "rm -rf Vega_Token_V2@tmp"
                         }
-                    }
                     }
                     stage('Staking_Bridge') {
                         when {
