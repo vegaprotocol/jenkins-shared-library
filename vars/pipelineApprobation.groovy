@@ -78,6 +78,38 @@ void call(def config=[:]) {
                             sh "rm -rf MultisigControl@tmp"
                         }
                     }
+                    stage('Vega_Token_V2') {
+                        when {
+                            expression {
+                                config.type == 'core'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'Vega_Token_V2',
+                                vegaUrl: 'Vega_Token_V2',
+                                branch: "*/${params.VEGA_TOKEN_V2_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf Vega_Token_V2@tmp"
+                        }
+                    }
+                    stage('Staking_Bridge') {
+                        when {
+                            expression {
+                                config.type == 'core'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'Staking_Bridge',
+                                vegaUrl: 'Staking_Bridge',
+                                branch: "*/${params.STAKING_BRIDGE_BRANCH}",
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf Staking_Bridge@tmp"
+                        }
+                    }
                     stage('system-tests') {
                         when {
                             expression {
