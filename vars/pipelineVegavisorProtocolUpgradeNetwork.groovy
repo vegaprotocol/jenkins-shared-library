@@ -106,7 +106,7 @@ void call() {
                                     script: "go run main.go network stats --block --network ${env.NET_NAME}",
                                     returnStdout: true,
                                 ).trim() as int
-                                protocolUpgradeBlock += 200
+                                protocolUpgradeBlock += 300
                             }
                         }
                         // create json with function instead of manual
