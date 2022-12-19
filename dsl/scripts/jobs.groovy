@@ -311,7 +311,7 @@ def approbationParams(def config=[:]) {
         }
 
         if (config.type == 'core') {
-            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js}', '--tests argument value')
+            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js,./Vega_Token_V2/test/*.js,./Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
             stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/cypress/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
