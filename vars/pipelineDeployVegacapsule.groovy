@@ -175,7 +175,7 @@ void call(Map customConfig = [:]) {
 
                 sh label: 'Vega version', script: './bin/vega version'
                 sh label: 'Data node version', script: './bin/data-node version'
-                sh label: 'Vegawallet version', script: './bin/vegawallet version'
+                sh label: 'Vegawallet version', script: './bin/vegawallet software version'
                 sh label: 'Visor version', script: './bin/visor --help'
               }
             }
@@ -581,7 +581,7 @@ void call(Map customConfig = [:]) {
             withGoogleSA('gcp-k8s') {
                 sh "kubectl rollout restart statefulset liqbot-app -n " + config.networkName
             }
-      
+
             withDevopstools(
                 command: 'topup traderbot',
                 netName: config.networkName
