@@ -6,51 +6,39 @@ import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 void call(Map config=[:]) {
-
-    String vegaNetwork = config.network ?: 'devnet1'
-    // todo: checkout ansible repo and read inventory
-    Map<String, List<String>> serversByNetwork = [
-        'devnet1': (0..4).collect { "n${String.format("%02d", it)}.devnet1.vega.xyz" },
-        'stagnet1': (0..4).collect { "n${String.format("%02d", it)}.stagnet1.vega.xyz" },
-        'stagnet3': (1..5).collect { "n${String.format("%02d", it)}.stagnet3.vega.xyz" },
-        'fairground': (0..12).collect { "n${String.format("%02d", it)}.testnet.vega.xyz" },
-    ]
-    List<String> vegaNetworkList = new ArrayList<String>()
-    vegaNetworkList.addAll(serversByNetwork.keySet())
-
-    if (vegaNetwork in vegaNetworkList) {
-        // move `vegaNetwork` to the beggining of the list
-        vegaNetworkList = [vegaNetwork] + (vegaNetworkList - vegaNetwork)
-    } else {
-        error("Unknown network ${vegaNetwork}. Allowed values: ${vegaNetworkList}")
-    }
-
-    String defaultTimeout = config.timeout ?: '10'
-    // usually setup+download etc takes 20-100sec
-    String cronConfig = "H/${defaultTimeout.toInteger() + 2} * * * *"
-
     echo "params=${params}"
+
+    /* groovylint-disable-next-line NoDef, VariableTypeRequired */
+    def sshDevnetCredentials = sshUserPrivateKey(
+        credentialsId: 'ssh-vega-network',
+        keyFileVariable: 'PSSH_KEYFILE',
+        usernameVariable: 'PSSH_USER'
+    )
+
+    String remoteServer
+    String jenkinsAgentPublicIP
+
+    // api output placeholders
+    def TM_VERSION
+    def TRUST_HASH
+    def TRUST_HEIGHT
+    def RPC_SERVERS
+    def SEEDS
+    def SNAPSHOT_HEIGHT
+    def SNAPSHOT_HASH
+    def PEERS
+
+    // Checks
+    String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
+    String catchupTime = null
+    boolean chainStatusConnected = false
+    boolean caughtUp = false
+    boolean blockHeightIncreased = false
+
+
     node('non-validator') {
-        /* groovylint-disable-next-line NoDef, VariableTypeRequired */
-        def sshDevnetCredentials = sshUserPrivateKey(  credentialsId: 'ssh-vega-network',
-                                                     keyFileVariable: 'PSSH_KEYFILE',
-                                                    usernameVariable: 'PSSH_USER')
         skipDefaultCheckout()
         cleanWs()
-        String remoteServer
-        String jenkinsAgentPublicIP
-        def TM_VERSION
-        def TRUST_HASH
-        def TRUST_HEIGHT
-        def RPC_SERVERS
-        def SEEDS
-
-        // Checks
-        String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
-        String catchupTime = null
-        boolean chainStatusConnected = false
-        boolean caughtUp = false
-        boolean blockHeightIncreased = false
 
         timestamps {
             try {
@@ -68,20 +56,22 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        List<String> networkServers = serversByNetwork[env.NET_NAME].clone()
-                        // Randomize order
-                        // workaround to .shuffled() not implemented
-                        Random random = new Random();
-                        for(int index = 0; index < networkServers.size(); index += 1) {
-                            Collections.swap(networkServers, index, index + random.nextInt(networkServers.size() - index));
-                        }
+                        gitClone(
+                            url: 'git@github.com:vegaprotocol/ansible.git',
+                            branch: 'master',
+                            directory: 'ansible',
+                            credentialsId: 'vega-ci-bot',
+                            timeout: 2,
+                        )
+                        def networkServers = readYaml(
+                            file: "ansible/inventories/${env.NET_NAME}.yaml"
+                        )[env.NET_NAME]['hosts']
+                            .findAll{serverName, serverSettings -> serverSettings.get('data_node', false)}
+                            .collect{serverName, serverSettings -> serverName}
+                            .shuffle()
+
                         echo "Going to check servers: ${networkServers}"
-                        for(String server in networkServers) {
-                            if (isRemoteServerAlive(server)) {
-                                remoteServer = server
-                                break
-                            }
-                        }
+                        remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
@@ -125,37 +115,60 @@ void call(Map config=[:]) {
                                     """
                                 }
                             }
+                            'data node config': {
+                                withCredentials([sshDevnetCredentials]) {
+                                    sh label: "scp data node config from ${remoteServer}",
+                                        script: """#!/bin/bash -e
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
+                                        """
+                                    sh label: "print genesis.json", script: """#!/bin/bash -e
+                                        cat data-node-config.toml
+                                    """
+                                }
+                            }
                         ])
                     }
 
                     stage("Initialize configs") {
                         sh label: 'vega init + copy genesis.json',
                             script: '''#!/bin/bash -e
-                                ./vega init full --home=./vega_config --output=json && ./vega tm init full --home=./tm_config
+                                ./vega init full --home=./vega_config --output=json
+                                ./vega tm init full --home=./tm_config
+                                ./vega datanode init --hom=./vega_config $(./dasel -f genesis.json -r json chain_id)
                                 cp genesis.json ./tm_config/config/genesis.json
                             '''
                     }
 
                     stage("Get Tendermint config") {
                         try {
+                            // Check last snapshoted block
+                            def snapshot_req = new URL("https://api.${remoteServer}/api/v2/snapshots").openConnection()
+                            def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
+                            def snapshotInfo = snapshot.result['coreSnapshots']['edges'][0]['node']
+                            SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
+                            SNAPSHOT_HASH = snapshotInfo['blockHash']
+                            println("SNAPSHOT_HEIGHT=${SNAPSHOT_HEIGHT}")
+                            println("SNAPSHOT_HASH=${SNAPSHOT_HASH}")
+
                             // Check TM version
-                            def status_req = new URL("https://tm.${remoteServer}/status").openConnection();
+                            def status_req = new URL("https://tm.${remoteServer}/status").openConnection()
                             def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                             TM_VERSION = status.result.node_info.version
+                            println("TM_VERSION=${TM_VERSION}")
 
                             // Get data from TM
-                            def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection();
+                            def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection()
                             def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
                             RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.take(2).collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
                             SEEDS = net_info.result.peers*.node_info.findAll{node -> !node.listen_addr.contains("/")}.collect{node -> node.id + "@" + node.listen_addr}.join(",")
+                            println("RPC_SERVERS=${RPC_SERVERS}")
+                            println("SEEDS=${SEEDS}")
 
                             // Get trust block info
-                            def block_req = new URL("https://tm.${remoteServer}/block?height=2").openConnection();
+                            def block_req = new URL("https://tm.${remoteServer}/block?height=2").openConnection()
                             def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
                             TRUST_HASH = tm_block.result.block_id.hash
                             TRUST_HEIGHT = tm_block.result.block.header.height
-                            println("RPC_SERVERS=${RPC_SERVERS}")
-                            println("SEEDS=${SEEDS}")
                             println("TRUST_HASH=${TRUST_HASH}")
                             println("TRUST_HEIGHT=${TRUST_HEIGHT}")
                         } catch (e) {
@@ -172,7 +185,7 @@ void call(Map config=[:]) {
                             }
                         }
                     }
-                    stage("Set Tendermint config") {
+                    stage("Set configs") {
                         sh label: 'set Tendermint config',
                             script: """#!/bin/bash -e
                                 ./dasel put bool -f tm_config/config/config.toml statesync.enable true
@@ -188,18 +201,53 @@ void call(Map config=[:]) {
                                 ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                 cat tm_config/config/config.toml
                             """
+                        sh label: 'set vega config',
+                            script: """#!/bin/bash -e
+                                ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
+                            """
+
+                        PEERS = sh(
+                            label: 'read persistent peers',
+                            script: './dasel -f data-node-config.toml -r toml DeHistory.BootstrapPeers',
+                            returnStdout: true
+                        ).trim()
+
+                        sh label: 'set data-node config',
+                            script: """#!/bin/bash -e
+                                ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
+                                ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
+                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
+                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
+                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
+                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
+                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
+                                ./dasel put array -f vega_config/config/data-node/config.toml DeHistory.Store.BootstrapPeers ${PEERS}
+                            """
                     }
 
                     stage('Run') {
                         parallel(
                             failFast: true,
+                            'Postgres': {
+                                nicelyStopAfter(params.TIMEOUT) {
+                                    sh label: 'run postgres',
+                                        script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14-bullseye'
+                                }
+                            },
+                            'Data node': {
+                                nicelyStopAfter(params.TIMEOUT) {
+                                    sh label: 'run postgres',
+                                        script: './vega datanode start --home=vega_config'
+                                }
+                            }
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
                                                 --tendermint-home=tm_config \
-                                                --snapshot.log-level=debug
+                                                --snapshot.log-level=debug \
+                                                --snapshot.load-from-block-height=${SNAPSHOT_HEIGHT}
                                         """
                                 }
                                 archiveArtifacts(
