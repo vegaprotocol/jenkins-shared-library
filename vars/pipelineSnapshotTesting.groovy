@@ -68,7 +68,8 @@ void call(Map config=[:]) {
                         )[env.NET_NAME]['hosts']
                             .findAll{serverName, serverSettings -> serverSettings.get('data_node', false)}
                             .collect{serverName, serverSettings -> serverName}
-                            .shuffle()
+
+                        Collections.shuffle(networkServers as List)
 
                         echo "Going to check servers: ${networkServers}"
                         remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
