@@ -136,7 +136,7 @@ void call(Map config=[:]) {
                             script: '''#!/bin/bash -e
                                 ./vega init full --home=./vega_config --output=json
                                 ./vega tm init full --home=./tm_config
-                                ./vega datanode init --hom=./vega_config $(./dasel -f genesis.json -r json chain_id)
+                                ./vega datanode init --home=./vega_config $(./dasel -f genesis.json -r json chain_id)
                                 cp genesis.json ./tm_config/config/genesis.json
                             '''
                     }
