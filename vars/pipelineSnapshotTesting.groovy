@@ -101,7 +101,7 @@ void call(Map config=[:]) {
                                 }
                                 PEERS = sh(
                                     label: 'read persistent peers',
-                                    script: './dasel -f config.toml -w json -c DeHistory.Store.BootstrapPeers',
+                                    script: './dasel -f data-node-config.toml -w json -c DeHistory.Store.BootstrapPeers',
                                     returnStdout: true
                                 ).trim()
                                 echo "PEERS=${PEERS}"
