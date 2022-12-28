@@ -85,13 +85,25 @@ void call(Map config=[:]) {
                     stage('Download') {
                         parallel([
                             // TODO: add to jenkins-agnet build
-                            'dependencies': {
+                            'dasel & data node config': {
                                 sh label: 'download dasel to edit toml files',
                                     script: '''#!/bin/bash -e
                                         wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
                                             mv dasel_linux_amd64 dasel && \
                                             chmod +x dasel
                                     '''
+                                withCredentials([sshDevnetCredentials]) {
+                                    sh label: "scp data node config from ${remoteServer}",
+                                        script: """#!/bin/bash -e
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
+                                        """
+                                }
+                                PEERS = sh(
+                                    label: 'read persistent peers',
+                                    script: './dasel -f data-node-config.toml -r toml DeHistory.BootstrapPeers',
+                                    returnStdout: true
+                                ).trim()
+                                echo "PEERS=${PEERS}"
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
@@ -112,17 +124,6 @@ void call(Map config=[:]) {
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json
-                                    """
-                                }
-                            }
-                            'data node config': {
-                                withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp data node config from ${remoteServer}",
-                                        script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
-                                        """
-                                    sh label: "print genesis.json", script: """#!/bin/bash -e
-                                        cat data-node-config.toml
                                     """
                                 }
                             }
@@ -206,12 +207,6 @@ void call(Map config=[:]) {
                                 ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
                             """
 
-                        PEERS = sh(
-                            label: 'read persistent peers',
-                            script: './dasel -f data-node-config.toml -r toml DeHistory.BootstrapPeers',
-                            returnStdout: true
-                        ).trim()
-
                         sh label: 'set data-node config',
                             script: """#!/bin/bash -e
                                 ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
@@ -231,12 +226,12 @@ void call(Map config=[:]) {
                             'Postgres': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
-                                        script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14-bullseye'
+                                        script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 timescale/timescaledb:latest-pg14'
                                 }
                             },
                             'Data node': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    sh label: 'run postgres',
+                                    sh label: 'run data node',
                                         script: './vega datanode start --home=vega_config'
                                 }
                             }
