@@ -101,7 +101,7 @@ void call(Map config=[:]) {
                                 }
                                 PEERS = sh(
                                     label: 'read persistent peers',
-                                    script: './dasel -f data-node-config.toml -r toml DeHistory.BootstrapPeers',
+                                    script: './dasel -f config.toml -w json -c DeHistory.Store.BootstrapPeers',
                                     returnStdout: true
                                 ).trim()
                                 echo "PEERS=${PEERS}"
@@ -217,8 +217,9 @@ void call(Map config=[:]) {
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
-                                ./dasel put array -f vega_config/config/data-node/config.toml DeHistory.Store.BootstrapPeers ${PEERS}
+                                sed -i "s|.*BootstrapPeers.*|    BootstrapPeers = ${PEERS}|g" vega_config/config/data-node/config.toml
                             """
+                            // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
                     }
 
                     stage('Run') {
