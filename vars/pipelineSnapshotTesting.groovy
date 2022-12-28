@@ -141,12 +141,12 @@ void call(Map config=[:]) {
                             '''
                     }
 
-                    stage("Get Tendermint config") {
+                    stage("Get API data related to configs") {
                         try {
                             // Check last snapshoted block
                             def snapshot_req = new URL("https://api.${remoteServer}/api/v2/snapshots").openConnection()
                             def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
-                            def snapshotInfo = snapshot.result['coreSnapshots']['edges'][0]['node']
+                            def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
                             SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
                             SNAPSHOT_HASH = snapshotInfo['blockHash']
                             println("SNAPSHOT_HEIGHT=${SNAPSHOT_HEIGHT}")
