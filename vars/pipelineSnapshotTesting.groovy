@@ -230,11 +230,13 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Data node': {
+                                // wait for db
+                                sleep(time: '20', unit:'SECONDS')
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run data node',
                                         script: './vega datanode start --home=vega_config'
                                 }
-                            }
+                            },
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
