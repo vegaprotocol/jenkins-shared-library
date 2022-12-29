@@ -227,22 +227,22 @@ void call(Map config=[:]) {
                         parallel(
                             failFast: true,
                             'Postgres': {
-                                nicelyStopAfter(((params.TIMEOUT as Intger) + 1) as String) {
+                                nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
                                         script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 timescale/timescaledb:latest-pg14'
                                 }
                             },
                             'Data node': {
-                                // wait for db
-                                sleep(time: '20', unit:'SECONDS')
                                 nicelyStopAfter(params.TIMEOUT) {
+                                    // wait for db
+                                    sleep(time: '20', unit:'SECONDS')
                                     sh label: 'run data node',
                                         script: './vega datanode start --home=vega_config'
                                 }
                             },
                             'Vega': {
-                                sleep(time: '20', unit:'SECONDS')
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
+                                    sleep(time: '25', unit:'SECONDS')
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
@@ -265,8 +265,8 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Checks': {
-                                sleep(time: '20', unit:'SECONDS')
                                 nicelyStopAfter(params.TIMEOUT) {
+                                    sleep(time: '30', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
                                     int runEveryMs = runEverySec * 1000
