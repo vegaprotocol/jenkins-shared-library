@@ -227,7 +227,7 @@ void call(Map config=[:]) {
                         parallel(
                             failFast: true,
                             'Postgres': {
-                                nicelyStopAfter(params.TIMEOUT) {
+                                nicelyStopAfter(((params.TIMEOUT as Int) + 1) as String) {
                                     sh label: 'run postgres',
                                         script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 timescale/timescaledb:latest-pg14'
                                 }
@@ -241,6 +241,7 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Vega': {
+                                sleep(time: '20', unit:'SECONDS')
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
@@ -264,6 +265,7 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Checks': {
+                                sleep(time: '20', unit:'SECONDS')
                                 nicelyStopAfter(params.TIMEOUT) {
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
