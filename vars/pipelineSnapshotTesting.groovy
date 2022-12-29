@@ -227,7 +227,7 @@ void call(Map config=[:]) {
                         parallel(
                             failFast: true,
                             'Postgres': {
-                                nicelyStopAfter(((params.TIMEOUT as Int) + 1) as String) {
+                                nicelyStopAfter(((params.TIMEOUT as Intger) + 1) as String) {
                                     sh label: 'run postgres',
                                         script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 timescale/timescaledb:latest-pg14'
                                 }
