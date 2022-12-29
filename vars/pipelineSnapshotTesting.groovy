@@ -247,8 +247,9 @@ void call(Map config=[:]) {
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
                                                 --tendermint-home=tm_config \
-                                                --snapshot.log-level=debug # --snapshot.load-from-block-height=${SNAPSHOT_HEIGHT}
+                                                --snapshot.log-level=debug
                                         """
+                                        // --snapshot.load-from-block-height=${SNAPSHOT_HEIGHT}
                                 }
                                 archiveArtifacts(
                                     artifacts: 'tm_config/**/*',
