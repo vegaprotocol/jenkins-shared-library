@@ -213,7 +213,7 @@ void call(Map config=[:]) {
                                 ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
                                 ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
-                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
+                                ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
                                 ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
