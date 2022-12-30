@@ -39,6 +39,7 @@ void call(Map config=[:]) {
     node('non-validator') {
         skipDefaultCheckout()
         cleanWs()
+        sh 'docker kill $(docker ps -q)'
 
         timestamps {
             try {
