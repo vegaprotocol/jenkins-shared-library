@@ -37,11 +37,14 @@ void call(Map config=[:]) {
 
 
     node('non-validator') {
-        skipDefaultCheckout()
-        cleanWs()
-        sh 'docker kill $(docker ps -q)'
-
         timestamps {
+
+            stage('init') {
+                skipDefaultCheckout()
+                cleanWs()
+                sh 'docker kill $(docker ps -q)'
+            }
+
             try {
                 // give extra 5 minutes for setup
                 timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
