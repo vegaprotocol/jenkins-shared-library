@@ -240,6 +240,13 @@ void call(Map config=[:]) {
                         parallel(
                             failFast: true,
                             'Postgres': {
+                                writFile(
+                                    file: 'init-db.sh',
+                                    text: """#!/bin/sh -e
+                                        whoami
+                                    """
+                                )
+                                sh 'chmod +x init-db.sh'
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
                                         script: '''#!/bin/bash -e
@@ -248,6 +255,8 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_DB=vega \
                                                 -e POSTGRES_USER=vega \
                                                 -v /jenkins/workspace:/jenkins/workspace \
+                                                -v ./init-db.sh/:/docker-entrypoint-initdb.d/init-db.sh \
+                                                -u root \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
