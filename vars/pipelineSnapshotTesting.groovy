@@ -234,6 +234,9 @@ void call(Map config=[:]) {
                                     // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
                             },
                             'postgres': {
+                                // jenkins needs to be added to postgres image and be added to postgres group so it's files loaded from actual workspace by volume binding are able to be loaded into database
+                                // to do we overwrite entrypoint, provision user and then restore original entrypoint
+                                // it can be found here in the layers history (combination of ENTRYPOINT and CMD) -> https://hub.docker.com/layers/timescale/timescaledb/latest-pg14/images/sha256-73ec414f1dd66eec68682da9c0c689574cecf5fbe1683f649c77233bb83c30f2?context=explore
                                 UID = sh(
                                     script: 'id -u $(whoami)',
                                     returnStdout: true
@@ -243,7 +246,7 @@ void call(Map config=[:]) {
                                     text: """#!/bin/bash -ex
                                         whoami
                                         adduser jenkins -D -u ${UID} -G postgres
-                                        chmod -R a+rwx /jenkins/
+                                        chmod -R a+rwx /jenkins/workspace/
                                         bash docker-entrypoint.sh postgres
                                     """
                                 )
