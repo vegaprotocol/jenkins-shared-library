@@ -238,16 +238,11 @@ void call(Map config=[:]) {
                                     script: 'id -u $(whoami)',
                                     returnStdout: true
                                 ).trim()
-                                GID = sh(
-                                    script: 'id -g $(whoami)',
-                                    returnStdout: true
-                                ).trim()
                                 writeFile(
                                     file: 'init-db.sh',
                                     text: """#!/bin/sh -ex
                                         whoami
-                                        useradd jenkins --gid ${UID} --uid ${GID}
-                                        usermod -a -G postgres jenkins
+                                        adduser jenkins -D -u ${UID} -G postgres
                                         chmod -R a+rwx /jenkins/workspace
                                     """
                                 )
