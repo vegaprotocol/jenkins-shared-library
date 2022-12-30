@@ -263,6 +263,7 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_USER=vega \
                                                 -v /jenkins/workspace:/jenkins/workspace \
                                                 -v $PWD/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh \
+                                                -u root \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
