@@ -246,7 +246,9 @@ void call(Map config=[:]) {
                                     // wait for db
                                     sleep(time: '20', unit:'SECONDS')
                                     sh label: 'run data node',
-                                        script: './vega datanode start --home=vega_config'
+                                        script: """#!/bin/bash -e
+                                            ./vega datanode start --home=vega_config
+                                        """
                                 }
                             },
                             'Vega': {
