@@ -239,14 +239,15 @@ void call(Map config=[:]) {
                                     returnStdout: true
                                 ).trim()
                                 writeFile(
-                                    file: 'init-db.sh',
-                                    text: """#!/bin/sh -ex
+                                    file: 'start-postgres.sh',
+                                    text: """#!/bin/bash -ex
                                         whoami
                                         adduser jenkins -D -u ${UID} -G postgres
-                                        chmod -R a+rwx /jenkins/workspace
+                                        chmod -R a+rwx /jenkins/
+                                        bash docker-entrypoint.sh postgres
                                     """
                                 )
-                                sh 'cat init-db.sh; chmod +x init-db.sh'
+                                sh 'cat start-postgres.sh; chmod +x start-postgres.sh'
                             }
                         )
                     }
@@ -262,8 +263,9 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_DB=vega \
                                                 -e POSTGRES_USER=vega \
                                                 -v /jenkins/workspace:/jenkins/workspace \
-                                                -v $PWD/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh \
+                                                -v $PWD/start-postgres.sh:/start-postgres.sh \
                                                 -u root \
+                                                --entrypoint '/start-postgres.sh' \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
