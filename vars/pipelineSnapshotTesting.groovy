@@ -248,7 +248,7 @@ void call(Map config=[:]) {
                                         usermod -a -G postgres jenkins
                                     """
                                 )
-                                sh 'chmod +x init-db.sh'
+                                sh 'cat init-db.sh; chmod +x init-db.sh'
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
                                         script: '''#!/bin/bash -e
