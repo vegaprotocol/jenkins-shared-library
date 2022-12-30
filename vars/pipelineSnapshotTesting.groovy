@@ -42,7 +42,7 @@ void call(Map config=[:]) {
             stage('init') {
                 skipDefaultCheckout()
                 cleanWs()
-                sh 'docker kill $(docker ps -q)'
+                sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q); fi'
             }
 
             try {
