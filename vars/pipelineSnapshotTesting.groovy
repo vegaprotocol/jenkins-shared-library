@@ -242,8 +242,10 @@ void call(Map config=[:]) {
                             'Postgres': {
                                 writFile(
                                     file: 'init-db.sh',
-                                    text: """#!/bin/sh -e
+                                    text: """#!/bin/sh -ex
                                         whoami
+                                        useradd jenkins --gid ${env.GID} --uid ${env.UID}
+                                        usermod -a -G postgres jenkins
                                     """
                                 )
                                 sh 'chmod +x init-db.sh'
@@ -256,7 +258,6 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_USER=vega \
                                                 -v /jenkins/workspace:/jenkins/workspace \
                                                 -v ./init-db.sh/:/docker-entrypoint-initdb.d/init-db.sh \
-                                                -u root \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
