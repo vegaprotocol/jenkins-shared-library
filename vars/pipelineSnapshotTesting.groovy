@@ -267,7 +267,7 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_DB=vega \
                                                 -e POSTGRES_USER=vega \
                                                 -v /jenkins/workspace:/jenkins/workspace \
-                                                -v $PWD/init-db.sh/:/docker-entrypoint-initdb.d/init-db.sh \
+                                                -v $PWD/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
