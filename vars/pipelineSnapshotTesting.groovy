@@ -232,14 +232,8 @@ void call(Map config=[:]) {
                                         cat vega_config/config/data-node/config.toml
                                     """
                                     // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
-                            }
-                        )
-                    }
-
-                    stage('Run') {
-                        parallel(
-                            failFast: true,
-                            'Postgres': {
+                            },
+                            'postgres': {
                                 writeFile(
                                     file: 'init-db.sh',
                                     text: """#!/bin/sh -ex
@@ -250,6 +244,13 @@ void call(Map config=[:]) {
                                     """
                                 )
                                 sh 'cat init-db.sh; chmod +x init-db.sh'
+                            }
+                        )
+                    }
+                    stage('Run') {
+                        parallel(
+                            failFast: true,
+                            'Postgres': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
                                         script: '''#!/bin/bash -e
