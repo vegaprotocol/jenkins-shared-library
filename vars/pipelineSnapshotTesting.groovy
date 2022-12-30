@@ -234,11 +234,19 @@ void call(Map config=[:]) {
                                     // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
                             },
                             'postgres': {
+                                UID = sh(
+                                    script: 'id -u $(whoami)',
+                                    returnStdout: true
+                                ).trim()
+                                GID = sh(
+                                    script: 'id -g $(whoami)',
+                                    returnStdout: true
+                                ).trim()
                                 writeFile(
                                     file: 'init-db.sh',
                                     text: """#!/bin/sh -ex
                                         whoami
-                                        useradd jenkins --gid ${env.GID} --uid ${env.UID}
+                                        useradd jenkins --gid ${UID} --uid ${GID}
                                         usermod -a -G postgres jenkins
                                         chmod -R a+rwx /jenkins/workspace
                                     """
