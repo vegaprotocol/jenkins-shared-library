@@ -221,9 +221,9 @@ void call(Map config=[:]) {
                                         ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
                                         ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
-                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
-                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
-                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username vega
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password vega
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
@@ -238,7 +238,14 @@ void call(Map config=[:]) {
                             'Postgres': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     sh label: 'run postgres',
-                                        script: 'docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 timescale/timescaledb:latest-pg14'
+                                        script: '''#!/bin/bash -e
+                                            docker run \
+                                                -e POSTGRES_PASSWORD=vega \
+                                                -e POSTGRES_DB=vega \
+                                                -e POSTGRES_USER=vega \
+                                                -p 5432:5432 \
+                                                    timescale/timescaledb:latest-pg14
+                                        '''
                                 }
                             },
                             'Data node': {
