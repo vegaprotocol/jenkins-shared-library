@@ -188,39 +188,48 @@ void call(Map config=[:]) {
                         }
                     }
                     stage("Set configs") {
-                        sh label: 'set Tendermint config',
-                            script: """#!/bin/bash -e
-                                ./dasel put bool -f tm_config/config/config.toml statesync.enable true
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust_period "744h0m0s"
-                                ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
-                                ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
-                                ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
-                                ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
-                                ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
-                                ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
-                                ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
-                                ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
-                                cat tm_config/config/config.toml
-                            """
-                        sh label: 'set vega config',
-                            script: """#!/bin/bash -e
-                                ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
-                            """
-
-                        sh label: 'set data-node config',
-                            script: """#!/bin/bash -e
-                                ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
-                                ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
-                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
-                                ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
-                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
-                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
-                                ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
-                                sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${PEERS}|g' vega_config/config/data-node/config.toml
-                                cat vega_config/config/data-node/config.toml
-                            """
-                            // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
+                        parallel(
+                            failFast: false,
+                            'tendermint': {
+                                sh label: 'set Tendermint config',
+                                    script: """#!/bin/bash -e
+                                        ./dasel put bool -f tm_config/config/config.toml statesync.enable true
+                                        ./dasel put string -f tm_config/config/config.toml statesync.trust_period "744h0m0s"
+                                        ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
+                                        ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                        ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
+                                        ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
+                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
+                                        ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
+                                        ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
+                                        ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                        ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
+                                        cat tm_config/config/config.toml
+                                    """
+                            },
+                            'vega': {
+                                sh label: 'set vega config',
+                                    script: """#!/bin/bash -e
+                                        ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
+                                        cat vega_config/config/node/config.toml
+                                    """
+                            },
+                            'data-node': {
+                                sh label: 'set data-node config',
+                                    script: """#!/bin/bash -e
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
+                                        ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username postgres
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password postgres
+                                        ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database postgres
+                                        sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${PEERS}|g' vega_config/config/data-node/config.toml
+                                        cat vega_config/config/data-node/config.toml
+                                    """
+                                    // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
+                            }
+                        )
                     }
 
                     stage('Run') {
