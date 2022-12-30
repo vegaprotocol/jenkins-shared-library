@@ -243,6 +243,8 @@ void call(Map config=[:]) {
                                                 -e POSTGRES_PASSWORD=vega \
                                                 -e POSTGRES_DB=vega \
                                                 -e POSTGRES_USER=vega \
+                                                -v /jenkins/workspace:/jenkins/workspace \
+                                                -u $UID:$GID \
                                                 -p 5432:5432 \
                                                     timescale/timescaledb:latest-pg14
                                         '''
