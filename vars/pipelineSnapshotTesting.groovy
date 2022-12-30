@@ -246,6 +246,7 @@ void call(Map config=[:]) {
                                         whoami
                                         useradd jenkins --gid ${env.GID} --uid ${env.UID}
                                         usermod -a -G postgres jenkins
+                                        chmod -R a+rwx /jenkins/workspace
                                     """
                                 )
                                 sh 'cat init-db.sh; chmod +x init-db.sh'
