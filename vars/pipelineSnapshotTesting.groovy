@@ -240,7 +240,7 @@ void call(Map config=[:]) {
                         parallel(
                             failFast: true,
                             'Postgres': {
-                                writFile(
+                                writeFile(
                                     file: 'init-db.sh',
                                     text: """#!/bin/sh -ex
                                         whoami
