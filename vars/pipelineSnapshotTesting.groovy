@@ -373,6 +373,8 @@ void call(Map config=[:]) {
                             'Info': {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
                                 echo "http://${jenkinsAgentPublicIP}:3003/statistics"
+                                echo "http://${jenkinsAgentPublicIP}:3008/graphql/"
+                                echo "http://${jenkinsAgentPublicIP}:3008/api/v2/epoch"
                                 echo "https://${remoteServer}/statistics"
                                 echo "https://tm.${remoteServer}/net_info"
                             }
