@@ -326,13 +326,13 @@ void call(Map config=[:]) {
                                         String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
 
                                         String remoteServerStats = sh(
-                                                script: "curl --max-time 5 https://${remoteServer}/statistics",
+                                                script: "curl --max-time 5 https://${remoteServer}/statistics || true",
                                                 returnStdout: true,
                                             ).trim()
                                         println("https://${remoteServer}/statistics\n${remoteServerStats}")
                                         Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
                                         String localServerStats = sh(
-                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics",
+                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics || true",
                                                 returnStdout: true,
                                             ).trim()
                                         println("http://127.0.0.1:3003/statistics\n${localServerStats}")
