@@ -361,7 +361,7 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
-                                            if (!caughtUp && (remoteHeight - localHeight < 10)) {
+                                            if (!caughtUp && remoteHeight != 0 && (remoteHeight - localHeight < 10)) {
                                                 caughtUp = true
                                                 catchupTime = currentBuild.durationString - ' and counting'
                                                 println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
