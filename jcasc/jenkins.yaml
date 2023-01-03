@@ -105,7 +105,7 @@ jenkins:
             instanceCapStr: "8"
             labelString: "non-validator"
             securityGroups: "jenkins-non-validator"
-            type: T3Medium
+            type: T3Xlarge
         useInstanceProfileForCredentials: false
   systemMessage: "Welcome to Vegaprotocol Jenkins Instance :)!"
 security:
