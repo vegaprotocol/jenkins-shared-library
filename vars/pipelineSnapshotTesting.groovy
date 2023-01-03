@@ -385,14 +385,17 @@ void call(Map config=[:]) {
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
+                        echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
+                        echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
                         }
+                        echo "Caught up: ${caughtUp}"
                         println("All checks passed.")
                     }
                 }
