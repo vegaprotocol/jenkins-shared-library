@@ -306,6 +306,7 @@ void call(Map config=[:]) {
                                 if ( !nice && isRemoteServerAlive(remoteServer) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
+                                    sleep(time: '3600', unit:'SECONDS')
                                 }
                             },
                             'Checks': {
