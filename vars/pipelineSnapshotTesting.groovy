@@ -286,7 +286,7 @@ void call(Map config=[:]) {
                             },
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '55', unit:'SECONDS')
+                                    sleep(time: '35', unit:'SECONDS')
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
