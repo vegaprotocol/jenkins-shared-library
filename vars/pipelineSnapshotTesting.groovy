@@ -277,7 +277,7 @@ void call(Map config=[:]) {
                             'Data node': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     // wait for db
-                                    sleep(time: '20', unit:'SECONDS')
+                                    sleep(time: '30', unit:'SECONDS')
                                     sh label: 'run data node',
                                         script: """#!/bin/bash -e
                                             ./vega datanode start --home=vega_config
@@ -286,7 +286,7 @@ void call(Map config=[:]) {
                             },
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '25', unit:'SECONDS')
+                                    sleep(time: '55', unit:'SECONDS')
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
@@ -310,7 +310,7 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '30', unit:'SECONDS')
+                                    sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
                                     int runEveryMs = runEverySec * 1000
@@ -346,8 +346,8 @@ void call(Map config=[:]) {
                                             }
                                         }
                                         if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight.toInteger()
-                                            int localHeight = localStats?.statistics?.blockHeight.toInteger()
+                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: remoteHeight ?: 0
+                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: localHeight ?: 0
 
                                             if (!blockHeightIncreased) {
                                                 if (localHeight > 0) {
