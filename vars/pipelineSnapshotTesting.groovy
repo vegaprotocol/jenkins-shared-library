@@ -277,7 +277,7 @@ void call(Map config=[:]) {
                             'Data node': {
                                 nicelyStopAfter(params.TIMEOUT) {
                                     // wait for db
-                                    sleep(time: '20', unit:'SECONDS')
+                                    sleep(time: '30', unit:'SECONDS')
                                     sh label: 'run data node',
                                         script: """#!/bin/bash -e
                                             ./vega datanode start --home=vega_config
@@ -286,7 +286,7 @@ void call(Map config=[:]) {
                             },
                             'Vega': {
                                 boolean nice = nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '25', unit:'SECONDS')
+                                    sleep(time: '55', unit:'SECONDS')
                                     sh label: 'Start vega node',
                                         script: """#!/bin/bash -e
                                             ./vega start --home=vega_config \
@@ -310,7 +310,7 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '30', unit:'SECONDS')
+                                    sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
                                     int runEveryMs = runEverySec * 1000
@@ -346,8 +346,8 @@ void call(Map config=[:]) {
                                             }
                                         }
                                         if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight.toInteger()
-                                            int localHeight = localStats?.statistics?.blockHeight.toInteger()
+                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
+                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
 
                                             if (!blockHeightIncreased) {
                                                 if (localHeight > 0) {
@@ -361,7 +361,7 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
-                                            if (!caughtUp && (remoteHeight - localHeight < 10)) {
+                                            if (!caughtUp && remoteHeight != 0 && (remoteHeight - localHeight < 10)) {
                                                 caughtUp = true
                                                 catchupTime = currentBuild.durationString - ' and counting'
                                                 println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
@@ -385,14 +385,17 @@ void call(Map config=[:]) {
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
+                        echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
+                        echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
                         }
+                        echo "Caught up: ${caughtUp}"
                         println("All checks passed.")
                     }
                 }
