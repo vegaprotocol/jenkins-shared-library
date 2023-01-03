@@ -407,14 +407,6 @@ void call(Map config=[:]) {
                 currentBuild.result = 'FAILURE'
                 throw e
             } finally {
-                stage('System logs') {
-                    sh (
-                        script: '''
-                            journalctl | grep -i 'killed process' -C 20
-                        ''',
-                        label: 'detect OOMs'
-                    )
-                }
                 stage('Notification') {
                     sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
                 }
