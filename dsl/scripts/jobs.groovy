@@ -831,7 +831,7 @@ def jobs = [
             NET_NAME: 'devnet1',
         ],
         parameters: {
-            stringParam('TIMEOUT', '11', 'Number of minutes after which the node will stop')
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         daysToKeep: 4,
@@ -847,7 +847,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
         ],
         parameters: {
-            stringParam('TIMEOUT', '11', 'Number of minutes after which the node will stop')
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         daysToKeep: 4,
@@ -863,7 +863,7 @@ def jobs = [
             NET_NAME: 'stagnet3',
         ],
         parameters: {
-            stringParam('TIMEOUT', '11', 'Number of minutes after which the node will stop')
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         daysToKeep: 4,
@@ -880,7 +880,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: {
-            stringParam('TIMEOUT', '11', 'Number of minutes after which the node will stop')
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         daysToKeep: 4,

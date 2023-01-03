@@ -346,8 +346,8 @@ void call(Map config=[:]) {
                                             }
                                         }
                                         if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: remoteHeight ?: 0
-                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: localHeight ?: 0
+                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
+                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
 
                                             if (!blockHeightIncreased) {
                                                 if (localHeight > 0) {
