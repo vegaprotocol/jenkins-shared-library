@@ -120,6 +120,23 @@ void call() {
                             '''
                         }
                     }
+                    stage('Generate Plots') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == false
+                            }
+                        }
+                        steps {
+                            sh label: 'Market Behaviour Plots', script: '''
+                                scripts/run-docker-plot-gen.sh
+                            '''
+                        }
+                        post {
+                            success {
+                                uploadSlackPlot()
+                            }
+                        }
+                    }
                 }
                 post {
                     failure {
@@ -177,5 +194,24 @@ void sendSlackMessage() {
         channel: slackChannel,
         color: color,
         message: msg,
+    )
+}
+
+void uploadSlackPlot() {
+    String slackChannel = '#vega-market-sim-notify'
+    String jobURL = env.RUN_DISPLAY_URL
+    String jobName = currentBuild.id
+
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
+    String duration = currentBuild.durationString - ' and counting'
+    String msg = ''
+    String color = ''
+
+    String msgTitle = 'Vega Market Sim - Plots'
+
+    slackUploadFile(
+        filePath: "run.jpg",
+        channel: slackChannel,
+        initialComment: "Simulation behaviour plots",
     )
 }
