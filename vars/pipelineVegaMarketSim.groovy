@@ -158,7 +158,7 @@ void call() {
 
 
 void sendSlackMessage() {
-    String slackChannel = '#vega-market-sim-notify'
+    String slackChannel = '#vega-market-sim-notify-test'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.id
 
@@ -198,7 +198,7 @@ void sendSlackMessage() {
 }
 
 void uploadSlackPlot() {
-    String slackChannel = '#vega-market-sim-notify'
+    String slackChannel = '#vega-market-sim-notify-test'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.id
 
