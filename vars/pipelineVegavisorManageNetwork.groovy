@@ -192,7 +192,7 @@ void call() {
                                 '''
                                 sh label: 'Sanity check: vegawallet', script: '''#!/bin/bash -e
                                     file ./vegawallet
-                                    ./vegawallet version
+                                    ./vegawallet software version
                                 '''
                                 sh label: 'Sanity check: visor', script: '''#!/bin/bash -e
                                     file ./visor
