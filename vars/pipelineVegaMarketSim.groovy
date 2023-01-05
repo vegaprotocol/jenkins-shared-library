@@ -133,7 +133,7 @@ void call() {
                         }
                         post {
                             success {
-                                uploadSlackPlot()
+                                archiveArtifacts artifacts: 'run.jpg'
                             }
                         }
                     }
@@ -158,7 +158,7 @@ void call() {
 
 
 void sendSlackMessage() {
-    String slackChannel = '#vega-market-sim-notify-test'
+    String slackChannel = '#vega-market-sim-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.id
 
@@ -194,24 +194,5 @@ void sendSlackMessage() {
         channel: slackChannel,
         color: color,
         message: msg,
-    )
-}
-
-void uploadSlackPlot() {
-    String slackChannel = '#vega-market-sim-notify-test'
-    String jobURL = env.RUN_DISPLAY_URL
-    String jobName = currentBuild.id
-
-    String currentResult = currentBuild.result ?: currentBuild.currentResult
-    String duration = currentBuild.durationString - ' and counting'
-    String msg = ''
-    String color = ''
-
-    String msgTitle = 'Vega Market Sim - Plots'
-
-    slackUploadFile(
-        filePath: "run.jpg",
-        channel: slackChannel,
-        initialComment: "Simulation behaviour plots",
     )
 }
