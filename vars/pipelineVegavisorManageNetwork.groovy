@@ -173,7 +173,7 @@ void call() {
                         steps {
                             dir('vega') {
                                 sh label: 'Compile', script: """#!/bin/bash -e
-                                    go build -v \
+                                    go build -tags pebbledb -v \
                                         -o ../bin/ \
                                         ./cmd/vega \
                                         ./cmd/data-node \
