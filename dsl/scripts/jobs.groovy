@@ -910,6 +910,24 @@ def jobs = [
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
         definition: libDefinition('pipelineCheckpointBackup()'),
     ],
+    [
+        name: 'private/Automations/Spam-orders',
+        useScmDefinition: false,
+        parameters: {
+            choiceParam('NETWORK_NAME', ['devnet1', 'stagnet1', 'stagnet3', 'fairground'], 'Network name')
+            stringParam('THREADS', '4', 'Number of thread for spammers')
+            stringParam('MAX_PRICE', '10000', 'Max price for single order')
+            stringParam('THREAD_RATE_LIMIT', '15', 'Maximum number of orders single thread can send')
+            stringParam('MARKET_ID', '', 'Market ID bots are sending orders to')
+            stringParam('DURATION', '15m30s', 'Duration of stress-test')
+            stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        //cron: 'H */2 * * *',
+        disableConcurrentBuilds: true,
+        description: 'Send orders which will stay in order book to the network',
+        definition: libDefinition('spamOrders()'),
+    ],
     //
     // Approbations
     //
