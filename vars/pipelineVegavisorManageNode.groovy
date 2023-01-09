@@ -227,14 +227,22 @@ void call() {
                                     """
                                 }
 
+                                extraAnsibleArgs = ''
+                                unsafeResetAll = params.UNSAFE_RESET_ALL
+                                if (!params.UNSAFE_RESET_ALL && params.USE_REMOTE_SNAPSHOT) {
+                                    extraAnsibleArgs = '--skip-tags unsafe-reset-all-datanode'
+                                    unsafeResetAll = true
+                                }
+
                                 // create json with function instead of manual
                                 ANSIBLE_VARS = writeJSON(
                                     returnText: true,
                                     json: ANSIBLE_VARS_DICT + [
                                         release_version: (RELEASE_VERSION ?: VEGA_VERSION_FROM_STATISTICS),
-                                        unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                                        unsafe_reset_all: unsafeResetAll,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
+                                        custom_snapshot_block_height: (params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT == 0 ? null : params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT),
                                     ].findAll{ key, value -> value != null }
                                 )
                             }
@@ -248,7 +256,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${NODE_NAME ?: params.NODE}" \
                                         --tag "${params.ACTION}" \
-                                        --extra-vars '${ANSIBLE_VARS}' \
+                                        --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
                                         playbooks/${env.ANSIBLE_PLAYBOOK}
                                 """
                             }
