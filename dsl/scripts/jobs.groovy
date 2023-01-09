@@ -918,7 +918,6 @@ def jobs = [
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         //cron: 'H */2 * * *',
-        disableConcurrentBuilds: true,
         description: 'Send orders which will stay in order book to the network',
         definition: libDefinition('spamOrders()'),
     ],
