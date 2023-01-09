@@ -242,6 +242,7 @@ void call() {
                                         unsafe_reset_all: unsafeResetAll,
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
+                                        custom_snapshot_block_height: (params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT == 0 ? null : params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT),
                                     ].findAll{ key, value -> value != null }
                                 )
                             }
