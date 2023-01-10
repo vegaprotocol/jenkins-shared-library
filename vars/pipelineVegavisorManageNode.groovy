@@ -289,7 +289,7 @@ void call() {
                     stage('Validate delegation') {
                         steps {
                             echo "Sleep 30 seconds to ensure epoch have passed"
-                            sleep '30'
+                            sleep 30
                             script {
                                 def url = "https://api.${env.NET_NAME}.vega.xyz/api/v2/epoch".replaceAll('fairground', 'testnet1')
                                 def request = new URL(url).openConnection()
