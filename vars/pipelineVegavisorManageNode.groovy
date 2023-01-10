@@ -37,6 +37,8 @@ void call() {
     RELEASE_VERSION = null
     DOCKER_VERSION = null
 
+    NEW_VALIDATOR_PUBLIC_KEY = ''
+
     pipeline {
         agent any
         options {
@@ -270,10 +272,40 @@ void call() {
                         params.JOIN_AS_VALIDATOR
                     }
                 }
-                steps {
-                    withDevopstools(
-                        command: "validator join --node ${SHORT_NODE} --self-delegate --send-ethereum-events"
-                    )
+                stages {
+                    stage('Self delegate') {
+                        steps {
+                            script {
+                                def stdout = withDevopstools(
+                                    command: "validator join --node ${SHORT_NODE} --self-delegate --send-ethereum-events",
+                                    returnStdout: true
+                                ).trim()
+                                echo "${stdout}"
+                                // line format: '[2023-01-10T11:55:45.748Z] 2023-01-10T11:55:45.166Zinfovalidator/join.go:241data{"VegaId": "682838b8509dc463189f47aeebc253882a66980215cc361d3978ecf5bc27ea70", "VegaPubKey": "6330f63014881579e4a7b7c081837d1a684058d076a3acd1448b442428705137"}'
+                                NEW_VALIDATOR_PUBLIC_KEY = stdout.split('\n').findAll{ line -> line.contains('VegaPubKey')}.split(':')[-1].replaceAll('"', '').replaceAll('}', '')
+                            }
+                        }
+                    }
+                    stage('Validate delegation') {
+                        steps {
+                            echo "Sleep 30 seconds to ensure epoch have passed"
+                            sleep '30'
+                            script {
+                                def url = "https://api.${env.NET_NAME}.vega.xyz/api/v2/epoch".replaceAll('fairground', 'testnet1')
+                                def request = new URL(url).openConnection()
+                                def response = new groovy.json.JsonSlurperClassic().parseText(request.getInputStream().getText())
+                                def newValidator = response['epoch']['validators'].find{validatorIndex, validatorData ->
+                                    validatorData['pubKey'] == NEW_VALIDATOR_PUBLIC_KEY
+                                }
+                                if (!newValidator) {
+                                    error("Couldn't find new validator with given key: ${NEW_VALIDATOR_PUBLIC_KEY} under url: ${url}")
+                                }
+                                else {
+                                    echo "New validator data: ${newValidator}"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
