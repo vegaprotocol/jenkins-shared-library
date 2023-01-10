@@ -287,7 +287,7 @@ void call() {
                                 )
                                 NEW_VALIDATOR_PUBLIC_KEY = sh (
                                     script: '''#!/bin/sh -ex
-                                        cat tmp.txt | grep 'VegaPubKey' | rev | cut -f 1 -d ':' | rev | tr -d '}'
+                                        cat tmp.txt | grep 'VegaPubKey' | rev | cut -f 1 -d ':' | rev | tr -d '}' | tr -d '"'
                                     ''',
                                     returnStdout: true
                                 ).trim()
