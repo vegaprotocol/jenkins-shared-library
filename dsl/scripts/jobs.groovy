@@ -200,7 +200,7 @@ def vegavisorManageNodeParams(args=[:]) {
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
         booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
-        stringParam('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT', 0, 'If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
+        stringParam('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT', '0', 'If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
         booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         choiceParam(
