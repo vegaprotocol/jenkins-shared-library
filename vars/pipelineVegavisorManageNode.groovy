@@ -276,6 +276,7 @@ void call() {
                     stage('Self delegate') {
                         steps {
                             script {
+                                sleep 90
                                 def stdout = withDevopstools(
                                     command: "validator join --node ${SHORT_NODE} --self-delegate --send-ethereum-events",
                                     returnStdout: true,
