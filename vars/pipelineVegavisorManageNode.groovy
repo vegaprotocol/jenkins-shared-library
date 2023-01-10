@@ -304,7 +304,7 @@ void call() {
                                 def request = new URL(url).openConnection()
                                 def response = new groovy.json.JsonSlurperClassic().parseText(request.getInputStream().getText())
                                 echo ">>> response:\n${response}"
-                                def newValidator = response?.epoch?.validators?.find{validatorIndex, validatorData ->
+                                def newValidator = response?.epoch?.validators?.find{ validatorData ->
                                     validatorData?.pubKey == NEW_VALIDATOR_PUBLIC_KEY
                                 }
                                 if (!newValidator) {
