@@ -291,7 +291,7 @@ void call() {
                                     ''',
                                     returnStdout: true
                                 ).trim()
-                                echo "New validator public key: ${NEW_VALIDATOR_PUBLIC_KEY}"
+                                echo ">>> New validator public key: ${NEW_VALIDATOR_PUBLIC_KEY}"
                             }
                         }
                     }
@@ -303,8 +303,9 @@ void call() {
                                 def url = "https://api.${env.NET_NAME}.vega.xyz/api/v2/epoch".replaceAll('fairground', 'testnet1')
                                 def request = new URL(url).openConnection()
                                 def response = new groovy.json.JsonSlurperClassic().parseText(request.getInputStream().getText())
-                                def newValidator = response['epoch']['validators'].find{validatorIndex, validatorData ->
-                                    validatorData['pubKey'] == NEW_VALIDATOR_PUBLIC_KEY
+                                echo ">>> response:\n${response}"
+                                def newValidator = response?.epoch?.validators?.find{validatorIndex, validatorData ->
+                                    validatorData?.pubKey == NEW_VALIDATOR_PUBLIC_KEY
                                 }
                                 if (!newValidator) {
                                     error("Couldn't find new validator with given key: ${NEW_VALIDATOR_PUBLIC_KEY} under url: ${url}")
