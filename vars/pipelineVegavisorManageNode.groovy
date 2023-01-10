@@ -280,7 +280,15 @@ void call() {
                                     command: "validator join --node ${SHORT_NODE} --self-delegate --send-ethereum-events",
                                     returnStdout: true,
                                 ).trim()
-                                echo ">>> stdout: \n${stdout}"
+                                // convert from array of chars to array of lines by writing to file
+                                writeFile(
+                                    file: 'tmp.txt',
+                                    text: stdout,
+                                )
+                                stdout = readFile(
+                                    file: 'tmp.txt'
+                                )
+                                echo ">>> stdout:\n ${stdout}"
                                 // line format: '2023-01-10T11:55:45.166Zinfovalidator/join.go:241data{"VegaId": "682838b8509dc463189f47aeebc253882a66980215cc361d3978ecf5bc27ea70", "VegaPubKey": "6330f63014881579e4a7b7c081837d1a684058d076a3acd1448b442428705137"}'
                                 stdout.each{ line ->
                                     echo "line: ${line}"
