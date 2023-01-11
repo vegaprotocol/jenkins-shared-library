@@ -129,20 +129,22 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               retry(3)
             }
             steps {
-              sh label: 'Install python', script: '''
-                pyenv install 3.8 --skip-existing
-                pyenv global 3.8
-              '''
-
-              sh label: 'Print versions', script: '''
-                python --version
-                poetry --version
-              '''
-
-              dir('system-tests/scripts') {
-                sh label: 'Install poetry dependencies', script: '''
-                  make poetry-install
+              dir('system-tests') {
+                // Use automatic pyenv resolution for installation & resolution
+                sh label: 'Install python', script: '''
+                  pyenv install --skip-existing
                 '''
+
+                sh label: 'Print versions', script: '''
+                  python --version
+                  poetry --version
+                '''
+
+                dir('scripts') {
+                  sh label: 'Install poetry dependencies', script: '''
+                    make poetry-install
+                  '''
+                }
               }
             }
           }
