@@ -120,6 +120,23 @@ void call() {
                             '''
                         }
                     }
+                    stage('Generate Plots') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == false
+                            }
+                        }
+                        steps {
+                            sh label: 'Market Behaviour Plots', script: '''
+                                scripts/run-docker-plot-gen.sh
+                            '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: 'run.jpg'
+                            }
+                        }
+                    }
                 }
                 post {
                     failure {
