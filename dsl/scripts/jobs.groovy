@@ -147,6 +147,7 @@ def libDefinition(methodName) {
 
 def vegavisorParamsBase() {
     return {
+        booleanParam('SKIP_INFRA_PROVISION', false, 'switch to true when you use `create-*` action and wish to ommit infrastrucutre provisioning like: accounts, grafana-agent, etc.')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')

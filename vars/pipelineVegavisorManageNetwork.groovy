@@ -374,7 +374,7 @@ void call() {
                         dir('ansible') {
                             withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
                                 withCredentials([sshCredentials]) {
-                                    if (params.ACTION == 'create-network') {
+                                    if (params.ACTION == 'create-network' && !params.SKIP_INFRA_PROVISION) {
                                         stage('Provision Infrastructure') {
                                             sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \

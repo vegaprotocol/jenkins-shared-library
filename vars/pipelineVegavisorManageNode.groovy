@@ -247,10 +247,10 @@ void call() {
                                         custom_snapshot_block_height: (params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT == 0 ? null : params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT),
                                     ].findAll{ key, value -> value != null }
                                 )
-                                
+
                                 dir('ansible') {
 
-                                    if (params.ACTION == 'create-node') {
+                                    if (params.ACTION == 'create-node' && !params.SKIP_INFRA_PROVISION) {
                                         stage('Provision Infrastructure') {
                                             sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
