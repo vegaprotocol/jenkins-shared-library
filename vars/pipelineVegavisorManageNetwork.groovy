@@ -346,7 +346,7 @@ void call() {
                     }
                 }
             }
-            stage('Restart Network') {
+            stage('Ansible') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
                 }
@@ -375,19 +375,37 @@ void call() {
                     dir('ansible') {
                         withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
                             withCredentials([sshCredentials]) {
+
+                                if (params.ACTION == 'create-network') {
+                                    stage('Provision Infrastructure') {
+                                        sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
+                                            ansible-playbook \
+                                                --diff \
+                                                -u "\${PSSH_USER}" \
+                                                --private-key "\${PSSH_KEYFILE}" \
+                                                --inventory inventories \
+                                                --limit "${env.ANSIBLE_LIMIT}" \
+                                                playbooks/playbook-barenode-common.yaml
+                                        """
+                                    }
+                                }
+
+                                def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                 //        are set by withCredentials wrapper
-                                sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
-                                    ansible-playbook \
-                                        --diff \
-                                        -u "\${PSSH_USER}" \
-                                        --private-key "\${PSSH_KEYFILE}" \
-                                        --inventory inventories \
-                                        --limit "${env.ANSIBLE_LIMIT}" \
-                                        --tag "${params.ACTION}" \
-                                        --extra-vars '${ANSIBLE_VARS}' \
-                                        playbooks/${env.ANSIBLE_PLAYBOOK}
-                                """
+                                stage(stageName) {
+                                    sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
+                                        ansible-playbook \
+                                            --diff \
+                                            -u "\${PSSH_USER}" \
+                                            --private-key "\${PSSH_KEYFILE}" \
+                                            --inventory inventories \
+                                            --limit "${env.ANSIBLE_LIMIT}" \
+                                            --tag "${params.ACTION}" \
+                                            --extra-vars '${ANSIBLE_VARS}' \
+                                            playbooks/${env.ANSIBLE_PLAYBOOK}
+                                    """
+                                }
                             }
                         }
                     }

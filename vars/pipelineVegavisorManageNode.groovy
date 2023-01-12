@@ -195,7 +195,7 @@ void call() {
                     }
                 }
             }
-            stage('Run ansible playbook') {
+            stage('Ansible') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
@@ -249,18 +249,36 @@ void call() {
                                 )
                             }
                             dir('ansible') {
-                                // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
-                                sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
-                                    ansible-playbook \
-                                        --diff \
-                                        -u "\${PSSH_USER}" \
-                                        --private-key "\${PSSH_KEYFILE}" \
-                                        --inventory inventories \
-                                        --limit "${NODE_NAME ?: params.NODE}" \
-                                        --tag "${params.ACTION}" \
-                                        --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
-                                        playbooks/${env.ANSIBLE_PLAYBOOK}
-                                """
+
+                                if (params.ACTION == 'create-node') {
+                                    stage('Provision Infrastructure') {
+                                        sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
+                                            ansible-playbook \
+                                                --diff \
+                                                -u "\${PSSH_USER}" \
+                                                --private-key "\${PSSH_KEYFILE}" \
+                                                --inventory inventories \
+                                                --limit "${env.ANSIBLE_LIMIT}" \
+                                                playbooks/playbook-barenode-common.yaml
+                                        """
+                                    }
+                                }
+
+                                def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
+                                stage(stageName) {
+                                    // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
+                                    sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
+                                        ansible-playbook \
+                                            --diff \
+                                            -u "\${PSSH_USER}" \
+                                            --private-key "\${PSSH_KEYFILE}" \
+                                            --inventory inventories \
+                                            --limit "${NODE_NAME ?: params.NODE}" \
+                                            --tag "${params.ACTION}" \
+                                            --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
+                                            playbooks/${env.ANSIBLE_PLAYBOOK}
+                                    """
+                                }
                             }
                         }
                     }
