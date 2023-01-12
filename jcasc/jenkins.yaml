@@ -5,7 +5,7 @@ x-instance-template: &instance-template
     - name: "tag:Name"
       values: "jenkins-agent"
     - name: "tag:Version"
-      values: "v0.2.0"
+      values: "v0.3.0"
   amiOwners: "355206837991"
   amiType:
     unixData:
