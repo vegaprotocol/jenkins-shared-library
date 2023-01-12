@@ -193,7 +193,6 @@ void call(def config=[:]) {
 
 
 void sendSlackMessage(String scriptMsg, String slackChannel) {
-    String slackChannel = '#coverage-notify'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
 
