@@ -247,37 +247,38 @@ void call() {
                                         custom_snapshot_block_height: (params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT == 0 ? null : params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT),
                                     ].findAll{ key, value -> value != null }
                                 )
-                            }
-                            dir('ansible') {
+                                
+                                dir('ansible') {
 
-                                if (params.ACTION == 'create-node') {
-                                    stage('Provision Infrastructure') {
-                                        sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
+                                    if (params.ACTION == 'create-node') {
+                                        stage('Provision Infrastructure') {
+                                            sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
+                                                ansible-playbook \
+                                                    --diff \
+                                                    -u "\${PSSH_USER}" \
+                                                    --private-key "\${PSSH_KEYFILE}" \
+                                                    --inventory inventories \
+                                                    --limit "${env.ANSIBLE_LIMIT}" \
+                                                    playbooks/playbook-barenode-common.yaml
+                                            """
+                                        }
+                                    }
+
+                                    def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
+                                    stage(stageName) {
+                                        // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
+                                        sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
                                             ansible-playbook \
                                                 --diff \
                                                 -u "\${PSSH_USER}" \
                                                 --private-key "\${PSSH_KEYFILE}" \
                                                 --inventory inventories \
-                                                --limit "${env.ANSIBLE_LIMIT}" \
-                                                playbooks/playbook-barenode-common.yaml
+                                                --limit "${NODE_NAME ?: params.NODE}" \
+                                                --tag "${params.ACTION}" \
+                                                --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
+                                                playbooks/${env.ANSIBLE_PLAYBOOK}
                                         """
                                     }
-                                }
-
-                                def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
-                                stage(stageName) {
-                                    // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
-                                    sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
-                                        ansible-playbook \
-                                            --diff \
-                                            -u "\${PSSH_USER}" \
-                                            --private-key "\${PSSH_KEYFILE}" \
-                                            --inventory inventories \
-                                            --limit "${NODE_NAME ?: params.NODE}" \
-                                            --tag "${params.ACTION}" \
-                                            --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
-                                            playbooks/${env.ANSIBLE_PLAYBOOK}
-                                    """
                                 }
                             }
                         }
