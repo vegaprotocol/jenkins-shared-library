@@ -105,7 +105,7 @@ void call(Map config=[:]) {
                                 }
                                 PEERS = sh(
                                     label: 'read persistent peers',
-                                    script: './dasel -f data-node-config.toml -w json -c DeHistory.Store.BootstrapPeers',
+                                    script: "./dasel -f data-node-config.toml -w json -c ${env.HISTORY_KEY}.Store.BootstrapPeers",
                                     returnStdout: true
                                 ).trim()
                                 echo "PEERS=${PEERS}"
@@ -221,7 +221,7 @@ void call(Map config=[:]) {
                             'data-node': {
                                 sh label: 'set data-node config',
                                     script: """#!/bin/bash -e
-                                        ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromDeHistory true
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFrom${env.HISTORY_KEY} true
                                         ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
                                         ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
