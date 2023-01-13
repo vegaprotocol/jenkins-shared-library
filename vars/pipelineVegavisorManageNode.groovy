@@ -258,7 +258,7 @@ void call() {
                                                     -u "\${PSSH_USER}" \
                                                     --private-key "\${PSSH_KEYFILE}" \
                                                     --inventory inventories \
-                                                    --limit "${env.ANSIBLE_LIMIT}" \
+                                                    --limit "${NODE_NAME ?: params.NODE}" \
                                                     playbooks/playbook-barenode-common.yaml
                                             """
                                         }
