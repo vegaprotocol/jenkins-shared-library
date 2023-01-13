@@ -831,6 +831,7 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'devnet1',
+            HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -847,6 +848,7 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet1',
+            HISTORY_KEY: 'DeHistory',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -863,6 +865,7 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet3',
+            HISTORY_KEY: 'DeHistory',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
@@ -880,6 +883,7 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
+            HISTORY_KEY: 'DeHistory',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
