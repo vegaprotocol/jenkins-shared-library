@@ -340,6 +340,7 @@ def jobs = [
     // DSL Job - the one that manages this file
     [
         name: 'private/DSL Job',
+        numToKeep: '50',
         repo: 'jenkins-shared-library',
         description: h('this job is used to generate other jobs'),
         jenkinsfile: 'dsl/Jenkinsfile',
@@ -351,6 +352,7 @@ def jobs = [
     // Jenkins Configuration As Code
     [
         name: 'private/Jenkins Configuration as Code Pipeline',
+        numToKeep: '50',
         check: 'Jenkins Configuration as Code pipeline',
         repo: 'jenkins-shared-library',
         description: h('This job is used to auto apply changes to jenkins instance configuration'),
@@ -361,6 +363,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/Publish-vega-dev-releases',
+        numToKeep: '200',
         description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaDevRelease()'),
@@ -377,6 +380,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/devnet1/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -394,6 +398,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/devnet1/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -418,6 +423,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/devnet1/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -429,6 +435,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/devnet1/Topup-Bots',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -443,6 +450,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/sandbox/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -456,6 +464,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/sandbox/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -470,6 +479,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/sandbox/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -484,6 +494,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/stagnet1/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -497,6 +508,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet1/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -511,6 +523,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet1/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -522,6 +535,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet1/Topup-Bots',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -536,6 +550,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/stagnet2/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -549,6 +564,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet2/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -563,6 +579,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet2/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -574,6 +591,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet2/Topup-Bots',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -588,6 +606,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/stagnet3/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -601,6 +620,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet3/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -615,6 +635,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet3/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -630,6 +651,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/stagnet3/Topup-Bots',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -644,6 +666,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/fairground/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -657,6 +680,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/fairground/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -671,6 +695,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/fairground/Protocol-Upgrade',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
         env: [
@@ -682,6 +707,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/fairground/Topup-Bots',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
@@ -696,6 +722,7 @@ def jobs = [
     //
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Network',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -709,6 +736,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Node',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -721,6 +749,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Network-53',
+        numToKeep: '100',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
@@ -734,6 +763,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Node-53',
+        numToKeep: '100',
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
@@ -753,8 +783,8 @@ def jobs = [
         definition: libDefinition('capsuleSystemTests()'),
         parameters: systemTestsParamsWrapper(),
         copyArtifacts: true,
-        daysToKeep: 14,
-        numToKeep: 4000,
+        daysToKeep: 10,
+        numToKeep: 3500,
     ],
     [
         name: 'common/system-tests-lnl-mainnet',
@@ -762,7 +792,7 @@ def jobs = [
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(),
         copyArtifacts: true,
-        daysToKeep: 14,
+        daysToKeep: 10,
         cron: 'H 3 * * *',
     ],
     [
@@ -772,7 +802,7 @@ def jobs = [
         definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParamsGeneric('SCENARIO': 'PR'),
         copyArtifacts: true,
-        daysToKeep: 14,
+        daysToKeep: 10,
     ],
     [
         name: 'common/system-tests-nightly',
@@ -781,7 +811,7 @@ def jobs = [
         definition: libDefinition('pipelineCapsuleSystemTests()'),
         parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY'),
         copyArtifacts: true,
-        daysToKeep: 14,
+        daysToKeep: 10,
         cron: 'H 0 * * *',
     ],
     //
@@ -802,7 +832,7 @@ def jobs = [
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,
-        daysToKeep: 14,
+        daysToKeep: 10,
     ],
     [
         name: 'common/vega-market-sim-reinforcement',
@@ -820,7 +850,7 @@ def jobs = [
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         copyArtifacts: true,
-        daysToKeep: 14,
+        daysToKeep: 10,
         cron: 'H 0 * * *',
     ],
     //
@@ -828,6 +858,7 @@ def jobs = [
     //
     [
         name: 'private/Snapshots/Devnet1',
+        numToKeep: '100',
         useScmDefinition: false,
         env: [
             NET_NAME: 'devnet1',
@@ -845,6 +876,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Stagnet1',
+        numToKeep: '100',
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet1',
@@ -862,6 +894,7 @@ def jobs = [
     ],
     [
         name: 'private/Snapshots/Stagnet3',
+        numToKeep: '100',
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet3',
@@ -880,6 +913,7 @@ def jobs = [
     [
         name: 'private/Snapshots/Fairground',
         // disabled: true,
+        numToKeep: '100',
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
@@ -932,6 +966,7 @@ def jobs = [
     //
     [
         name: 'common/approbation',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation(type: "core")'),
         parameters: approbationParams(type: 'core'),
@@ -939,6 +974,7 @@ def jobs = [
     ],
     [
         name: 'common/approbation-frontend',
+        numToKeep: '100',
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation(type: "frontend")'),
         parameters: approbationParams(type: 'frontend'),
@@ -947,6 +983,7 @@ def jobs = [
     [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
+        numToKeep: '300',
         useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         check: 'Approbation Pipeline',
@@ -975,6 +1012,7 @@ def jobs = [
     [
         name: 'common/snapshot-soak-tests',
         useScmDefinition: false,
+        numToKeep: '100',
         definition: libDefinition('pipelineSnapshotSoakTest()'),
         parameters: {
             stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
