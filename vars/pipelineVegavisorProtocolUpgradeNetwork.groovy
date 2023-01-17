@@ -133,7 +133,7 @@ void call() {
                                         --limit "${env.ANSIBLE_LIMIT}" \
                                         --tag protocol-upgrade \
                                         --extra-vars '${ANSIBLE_VARS}' \
-                                        playbooks/playbook-barenode.yaml
+                                        playbooks/playbook-barenode-protocol-upgrade.yaml
                                 """
                             }
                         }
