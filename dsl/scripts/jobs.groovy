@@ -920,7 +920,7 @@ def jobs = [
         },
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        // cron: "H/12 * * * *",
+        cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
