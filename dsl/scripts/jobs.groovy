@@ -894,7 +894,7 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'stagnet3',
-            HISTORY_KEY: 'DeHistory',
+            HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
