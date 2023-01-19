@@ -8,6 +8,10 @@ def dirs = [
         display: 'Automations',
     ],
     [
+        id: 'private/Automations/Ethereum-Events',
+        display: 'Ethereum Events',
+    ],
+    [
         id :'private/Deployments',
         display: 'Deployments',
     ],
