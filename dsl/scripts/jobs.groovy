@@ -1026,7 +1026,7 @@ def jobs = [
         ],
         cron: 'H/30 * * * *',
         parameters: {
-            stringParam('NUMBER_OF_EVENTS', '10', 'Number of ethereum events to be sent by pipeline')
+            stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
             stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
