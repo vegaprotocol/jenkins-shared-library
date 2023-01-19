@@ -4,6 +4,7 @@ def call() {
         sandbox: [
             party: '1a94865a473e547c3e284f266af627856680cadf29fb52aecb3bf72ffff447ad',
             erc20: '0x51d9Dbe9a724C6a8383016FaD566e55c95359D36',
+            amount: '0.0001',
         ]
     ]
     pipeline {
@@ -31,9 +32,9 @@ def call() {
                     withDevopstools(
                         command: """topup parties \
                             --parties ${settings[env.NET_NAME].party} \
-                            --amount 0.0001 \
+                            --amount ${settings[env.NET_NAME].amount} \
                             --erc20-token-address ${settings[env.NET_NAME].erc20} \
-                            --repeat 10
+                            --repeat ${params.NUMBER_OF_EVENTS}
                         """
                     )
                 }
