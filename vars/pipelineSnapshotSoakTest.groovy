@@ -25,6 +25,7 @@ def call() {
                                     fingerprintArtifacts: true,
                                     target: ".",
                                 )
+                                sh "ls -al"
                             }
                         }
                     }
@@ -66,29 +67,48 @@ def call() {
                             returnStdout: true,
                         ).trim().split("\n").findAll{ it }
                         echo "dirs with testnet name: ${DIRS}"
-                        DIRS = DIRS.collectEntries{ basePath -> [
-                            // generate suit names out of collected paths
-                            (basePath): basePath.split('/').find { it.startsWith('system-tests-') }
-                        ]}
-                        DIRS.collectEntries{ basePath, suit -> [
-                            (suit): {
-                                script {
-                                    // it always needs to be node 2 (or 5 if its a network infra run) because that’ll be the non-validator node which means we need less setup
-                                    def nodeName = basePath.contains('network_infra') ? '5' : '2'
-                                    def tmHome = "tendermint/${nodeName}"
-                                    def vegaHome = "vega/${nodeName}"
-                                    def vegaBinary = "./../tests/vega"
-                                    dir (basePath) {
-                                        // generate all of the snapshots by replaying the whole chain
-                                        sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
-                                        // now load from all of the snapshots
-                                        sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                        if (DIRS.isEmpty()) {
+                            error("Test directories are empty, most probably copy artifcats are configured wrong way or upstream build has failed.")
+                        }
+                        if (DIRS.size() > 1) {
+                            DIRS = DIRS.collectEntries{ basePath -> [
+                                // generate suit names out of collected paths
+                                (basePath): basePath.split('/').find { it.startsWith('system-tests-') }
+                            ]}
+                            DIRS.collectEntries{ basePath, suit -> [
+                                (suit): {
+                                    script {
+                                        // it always needs to be node 2 (or 5 if its a network infra run) because that’ll be the non-validator node which means we need less setup
+                                        def nodeName = basePath.contains('network_infra') ? '5' : '2'
+                                        def tmHome = "tendermint/${nodeName}"
+                                        def vegaHome = "vega/${nodeName}"
+                                        def vegaBinary = "./../tests/vega"
+                                        dir(basePath) {
+                                            // generate all of the snapshots by replaying the whole chain
+                                            sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
+                                            // now load from all of the snapshots
+                                            sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                        }
                                     }
                                 }
+                            ]}.each { stageName, codeToExecute -> stage(stageName) {
+                                codeToExecute()
+                            }}
+                        }
+                        else {
+                            DIR = DIRS[0]
+                            def nodeName = params.SUIT_NAME.contains('network_infra') ? '5' : '2'
+                            def tmHome = "tendermint/${nodeName}"
+                            def vegaHome = "vega/${nodeName}"
+                            def vegaBinary = "./../testnet/vega"
+                            dir(DIR) {
+                                // generate all of the snapshots by replaying the whole chain
+                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
+                                // now load from all of the snapshots
+                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
                             }
-                        ]}.each { stageName, codeToExecute -> stage(stageName) {
-                            codeToExecute()
-                        }}
+
+                        }
                     }
                 }
                 post {
