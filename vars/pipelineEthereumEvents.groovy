@@ -30,12 +30,7 @@ def call() {
             stage('Send ethereum events') {
                 steps {
                     withDevopstools(
-                        command: """topup parties \
-                            --parties ${settings[env.NET_NAME].party} \
-                            --amount ${settings[env.NET_NAME].amount} \
-                            --erc20-token-address ${settings[env.NET_NAME].erc20} \
-                            --repeat ${params.NUMBER_OF_EVENTS}
-                        """
+                        command: "topup parties --parties ${settings[env.NET_NAME].party} --amount ${settings[env.NET_NAME].amount} --erc20-token-address ${settings[env.NET_NAME].erc20} --repeat ${params.NUMBER_OF_EVENTS}"
                     )
                 }
             }
