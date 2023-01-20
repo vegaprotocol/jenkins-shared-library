@@ -77,7 +77,6 @@ void call() {
       timestamps()
       ansiColor('xterm')
       timeout(time: 3, unit: 'HOURS')
-      copyArtifactPermission(downstreamBuildName)
     }
     stages {
       stage('config') {
@@ -88,23 +87,6 @@ void call() {
         }
       }
       stage('Call tests') {
-        post {
-          always {
-            script {
-              if (params.SCENARIO == 'NIGHTLY') {
-                build (
-                  job: 'common/snapshot-soak-tests',
-                  parameters: [
-                    string(name: 'SYSTEM_TEST_JOB_NAME', value: 'common/system-tests-nightly'),
-                    string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: "${env.BUILD_NUMBER}" as String),
-                  ],
-                  propagate: false,
-                  wait: false,
-                )
-              }
-            }
-          }
-        }
         steps {
           script {
             if (scenario == null) {
@@ -127,11 +109,26 @@ void call() {
                   if (testSpec.capsuleConfig) {
                     childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
                   }
+                  if (params.SCENARIO == 'NIGHTLY') {
+                    childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
+                  }
                   RunWrapper downstreamBuild = build(
                     job: downstreamBuildName,
                     parameters: childParams,
                     propagate: false,  // don't fail yet
                   )
+                  if (params.SCENARIO == 'NIGHTLY') {
+                    build (
+                      job: 'common/snapshot-soak-tests',
+                      parameters: [
+                        string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
+                        string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
+                        string(name: 'SUIT_NAME', value: name),
+                      ],
+                      propagate: false,
+                      wait: false,
+                    )
+                  }
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node {
                     def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')

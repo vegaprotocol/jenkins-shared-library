@@ -266,6 +266,7 @@ def systemTestsParamsWrapper() {
         stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
         stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
         booleanParam('SKIP_MULTISIGN_SETUP', false, h('When true validators are not added to multisig as signers'))
+        booleanParam('ARCHIVE_VEGA_BINARY', false, 'Define if vega binary needs to be archived - requirement for soak test pipelines')
     }
 }
 
@@ -1008,9 +1009,11 @@ def jobs = [
         useScmDefinition: false,
         numToKeep: 100,
         definition: libDefinition('pipelineSnapshotSoakTest()'),
+        copyArtifacts: true,
         parameters: {
             stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
             stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
+            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
         }
