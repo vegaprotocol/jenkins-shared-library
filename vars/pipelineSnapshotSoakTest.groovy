@@ -77,6 +77,7 @@ def call() {
                         if (DIRS.isEmpty()) {
                             error("Test directories are empty, most probably copy artifcats are configured wrong way or upstream build has failed.")
                         }
+                        // scenario for multiple suit cases at once
                         if (DIRS.size() > 1) {
                             DIRS = DIRS.collectEntries{ basePath -> [
                                 // generate suit names out of collected paths
@@ -96,8 +97,8 @@ def call() {
                                             // now load from all of the snapshots
                                             sh """
                                                 . ${env.WORKSPACE}/venv/bin/activate
-                                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
-                                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                                ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
+                                                ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
                                             """
                                         }
                                     }
@@ -106,6 +107,7 @@ def call() {
                                 codeToExecute()
                             }}
                         }
+                        // scenario for 1 suit case at the time
                         else {
                             DIR = DIRS[0]
                             def nodeName = params.SUIT_NAME.contains('network_infra') ? '5' : '2'
@@ -122,8 +124,8 @@ def call() {
                                     ls -al ${tmHome}
                                     ls -al ${vegaHome}
                                     . ${env.WORKSPACE}/venv/bin/activate
-                                    sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
-                                    sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                    ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
+                                    ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
                                 """
                             }
 
