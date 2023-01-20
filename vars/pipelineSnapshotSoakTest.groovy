@@ -57,6 +57,15 @@ def call() {
                             sh "chmod +x pv-snapshot-all"
                         }
                     }
+                    stage('Prepare venv') {
+                        steps {
+                            sh '''
+                                python3 -m venv venv
+                                source venv/bin/activate
+                                pip3 install toml
+                            '''
+                        }
+                    }
                 }
             }
             stage('Soak'){
@@ -84,10 +93,14 @@ def call() {
                                         def vegaHome = "vega/${nodeName}"
                                         def vegaBinary = "./../tests/vega"
                                         dir(basePath) {
+                                            // prepare venv
                                             // generate all of the snapshots by replaying the whole chain
-                                            sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                             // now load from all of the snapshots
-                                            sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                            sh """
+                                                source ${env.WORKSPACE}/venv/bin/activate
+                                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
+                                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                            """
                                         }
                                     }
                                 }
@@ -102,10 +115,14 @@ def call() {
                             def vegaHome = "vega/${nodeName}"
                             def vegaBinary = "../vega"
                             dir(DIR) {
+                                // prepare venv
                                 // generate all of the snapshots by replaying the whole chain
-                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                 // now load from all of the snapshots
-                                sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                sh """
+                                    source ${env.WORKSPACE}/venv/bin/activate
+                                    sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
+                                    sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
+                                """
                             }
 
                         }
