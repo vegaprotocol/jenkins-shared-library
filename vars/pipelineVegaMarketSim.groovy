@@ -1,10 +1,6 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
-void call(additionalConfig=[:]) {
-    Map defaultConfig = [
-        sleepAfterPipeline: '0', // seconds
-    ]
-
-    Map config = defaultConfig + additionalConfig
+void call(customParams=[:]) {
+    params = params + customParams
 
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
@@ -27,12 +23,8 @@ void call(additionalConfig=[:]) {
             stage('CI Config') {
                 steps {
                     script {
-                        if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
-                            sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ?
-                                params.SLEEP_AFTER_PIPELINE.toInteger() : 
-                                config.sleepAfterPipeline.toInteger()
-
-                            echo 'Sleeping ' + sleepTime
+                        if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
+                            echo 'Sleeping ' + params.SLEEP_AFTER_PIPELINE.toInteger()
                         }
                     }
                     
@@ -169,13 +161,9 @@ void call(additionalConfig=[:]) {
                 }
 
                 script {
-                    if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
-                        sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ?
-                            params.SLEEP_AFTER_PIPELINE.toInteger() : 
-                            config.sleepAfterPipeline.toInteger()
-
+                    if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
                         echo 'Sleeping ' + sleepTime
-                        sleep(sleepTime)
+                        sleep(params.SLEEP_AFTER_PIPELINE.toInteger())
                     }
                 }
             }
