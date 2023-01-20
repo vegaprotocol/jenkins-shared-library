@@ -110,7 +110,7 @@ void call() {
                     childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
                   }
                   if (params.SCENARIO == 'NIGHTLY') {
-                    childParams += [string(name: 'ARCHIVE_VEGA_BINARY', value: true)]
+                    childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
                   }
                   RunWrapper downstreamBuild = build(
                     job: downstreamBuildName,
