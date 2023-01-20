@@ -26,6 +26,16 @@ void call(additionalConfig=[:]) {
         stages {
             stage('CI Config') {
                 steps {
+                    script {
+                        if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
+                            sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ?
+                                params.SLEEP_AFTER_PIPELINE.toInteger() : 
+                                config.sleepAfterPipeline.toInteger()
+
+                            echo 'Sleeping ' + sleepTime
+                        }
+                    }
+                    
                     sh "printenv"
                     echo "params=${params.inspect()}"
                 }
@@ -158,10 +168,15 @@ void call(additionalConfig=[:]) {
                     cleanWs()
                 }
 
-                if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
-                    sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ? params.SLEEP_AFTER_PIPELINE.toInteger() : config.sleepAfterPipeline.toInteger()
+                script {
+                    if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
+                        sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ?
+                            params.SLEEP_AFTER_PIPELINE.toInteger() : 
+                            config.sleepAfterPipeline.toInteger()
 
-                    sleep(sleepTime)
+                        echo 'Sleeping ' + sleepTime
+                        sleep(sleepTime)
+                    }
                 }
             }
         }
