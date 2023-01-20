@@ -63,6 +63,7 @@ def call() {
                                 python3 -m venv venv
                                 source venv/bin/activate
                                 pip3 install toml
+                                pip3 install requests
                             '''
                         }
                     }
