@@ -1,6 +1,6 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
-void call(customParams=[:]) {
-    params = params + customParams
+void call(Map parametersOverride=[:]) {
+    params = params + parametersOverride
 
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
