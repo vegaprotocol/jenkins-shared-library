@@ -58,7 +58,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             def repositories = [
-              [ name: params.ORIGIN_REPO, branch: params.VEGA_BRANCH ],
+              [ name: params.ORIGIN_REPO, branch: params.VEGA_BRANCH, directory: 'vega' ],
               [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
               [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
@@ -72,7 +72,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   gitClone([
                     url: 'git@github.com:' + value.name + '.git',
                     branch: value.branch,
-                    directory: value.name.split('/')[1],
+                    directory: value.directory ?: value.name.split('/')[1],
                     credentialsId: 'vega-ci-bot',
                     timeout: 2,
                   ])
@@ -122,7 +122,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               // dependency for soak tests
               script {
                 if (params.ARCHIVE_VEGA_BINARY) {
-                  dir(params.ORIGIN_REPO) {
+                  sh "ls -al vega"
+                  sh "ls -al system-tests/scripts"
+                  dir('/jenkins/workspace/common/system-tests-wrapper/vega') {
                     sh 'ls -al'
                     // https://github.com/vegaprotocol/system-tests/blob/develop/scripts/Makefile#LL157C49-L157C49
                     sh "cp vega-linux vega"
