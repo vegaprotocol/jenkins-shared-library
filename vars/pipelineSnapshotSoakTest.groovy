@@ -54,16 +54,13 @@ def call() {
                                 ),
                                 file: 'pv-snapshot-all',
                             )
-                            sh "chmod +x pv-snapshot-all"
-                        }
-                    }
-                    stage('Prepare venv') {
-                        steps {
                             sh '''
+                                chmod +x pv-snapshot-all
                                 python3 -m venv venv
                                 . venv/bin/activate
                                 pip3 install toml
                                 pip3 install requests
+                                ./pv-snapshot-all --help
                             '''
                         }
                     }
