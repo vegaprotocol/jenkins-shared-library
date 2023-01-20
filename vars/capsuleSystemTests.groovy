@@ -118,12 +118,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             steps {
               dir('system-tests/scripts') {
                 sh 'make build-binaries'
-                sh 'make vegacapsule-cleanup'
               }
               // dependency for soak tests
               script {
                 if (params.ARCHIVE_VEGA_BINARY) {
                   dir(params.ORIGIN_REPO) {
+                    sh 'ls -al'
                     // https://github.com/vegaprotocol/system-tests/blob/develop/scripts/Makefile#LL157C49-L157C49
                     sh "cp vega-linux vega"
                     archiveArtifacts(
@@ -131,6 +131,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     )
                   }
                 }
+              }
+              dir('system-tests/scripts') {
+                sh 'make vegacapsule-cleanup'
               }
             }
           }
