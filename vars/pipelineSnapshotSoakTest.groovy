@@ -119,10 +119,8 @@ def call() {
                                 // generate all of the snapshots by replaying the whole chain
                                 // now load from all of the snapshots
                                 sh """
-                                    ls -al
-                                    ls -al ..
-                                    ls -al ${tmHome}
-                                    ls -al ${vegaHome}
+                                    ls -al tendermint
+                                    ls -al vega
                                     . ${env.WORKSPACE}/venv/bin/activate
                                     ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
                                     ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
