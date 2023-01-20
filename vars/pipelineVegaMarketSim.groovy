@@ -23,7 +23,7 @@ void call(Map parametersOverride=[:]) {
             stage('CI Config') {
                 steps {
                     script {
-                        if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
+                        if (params.SLEEP_AFTER_PIPELINE !== null && params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
                             echo 'Sleeping ' + params.SLEEP_AFTER_PIPELINE.toInteger()
                         }
                     }
@@ -161,7 +161,7 @@ void call(Map parametersOverride=[:]) {
                 }
 
                 script {
-                    if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
+                    if (params.SLEEP_AFTER_PIPELINE !== null && params.SLEEP_AFTER_PIPELINE.toInteger() > 0) {
                         echo 'Sleeping ' + sleepTime
                         sleep(params.SLEEP_AFTER_PIPELINE.toInteger())
                     }
