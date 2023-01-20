@@ -1,5 +1,11 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
-void call() {
+void call(additionalConfig=[:]) {
+    Map defaultConfig = [
+        sleepAfterPipeline: '0', // seconds
+    ]
+
+    Map config = defaultConfig + additionalConfig
+
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
@@ -150,6 +156,12 @@ void call() {
                 sendSlackMessage()
                 retry(3) {
                     cleanWs()
+                }
+
+                if (params.SLEEP_AFTER_PIPELINE.toInteger() > 0 || config.sleepAfterPipeline.toInteger() > 0) {
+                    sleepTime = params.SLEEP_AFTER_PIPELINE.toInteger() > 0 ? params.SLEEP_AFTER_PIPELINE.toInteger() : config.sleepAfterPipeline.toInteger()
+
+                    sleep(sleepTime)
                 }
             }
         }

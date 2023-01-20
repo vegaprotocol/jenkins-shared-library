@@ -829,6 +829,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('SLEEP_AFTER_PIPELINE', '0', 'The number of seconds the pipeline will still run after all steps are finished, even if failed')
         },
         copyArtifacts: true,
         daysToKeep: 10,
