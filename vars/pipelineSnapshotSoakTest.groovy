@@ -100,7 +100,7 @@ def call() {
                             def nodeName = params.SUIT_NAME.contains('network_infra') ? '5' : '2'
                             def tmHome = "tendermint/${nodeName}"
                             def vegaHome = "vega/${nodeName}"
-                            def vegaBinary = "./../testnet/vega"
+                            def vegaBinary = "../vega"
                             dir(DIR) {
                                 // generate all of the snapshots by replaying the whole chain
                                 sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"

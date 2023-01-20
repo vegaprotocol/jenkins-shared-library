@@ -122,10 +122,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               // dependency for soak tests
               script {
                 if (params.ARCHIVE_VEGA_BINARY) {
-                  sh "ls -al vega"
-                  sh "ls -al system-tests/scripts"
                   dir('/jenkins/workspace/common/system-tests-wrapper/vega') {
-                    sh 'ls -al'
                     // https://github.com/vegaprotocol/system-tests/blob/develop/scripts/Makefile#LL157C49-L157C49
                     sh "cp vega-linux vega"
                     archiveArtifacts(
