@@ -86,8 +86,8 @@ def call() {
                             DIRS.collectEntries{ basePath, suit -> [
                                 (suit): {
                                     script {
-                                        // it always needs to be node 2 (or 5 if its a network infra run) because that’ll be the non-validator node which means we need less setup
-                                        def nodeName = basePath.contains('network_infra') ? '5' : '2'
+                                        // it always needs to be node 2 (or 5 if its a network infra run) because that'll be the non-validator node which means we need less setup
+                                        def nodeName = basePath.contains('network_infra') ? 'node05' : 'node02'
                                         def tmHome = "tendermint/${nodeName}"
                                         def vegaHome = "vega/${nodeName}"
                                         def vegaBinary = "./../tests/vega"
@@ -110,7 +110,7 @@ def call() {
                         // scenario for 1 suit case at the time
                         else {
                             DIR = DIRS[0]
-                            def nodeName = params.SUIT_NAME.contains('network_infra') ? '5' : '2'
+                            def nodeName = params.SUIT_NAME.contains('network_infra') ? 'node05' : 'node02'
                             def tmHome = "tendermint/${nodeName}"
                             def vegaHome = "vega/${nodeName}"
                             def vegaBinary = "../vega"
