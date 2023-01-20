@@ -61,7 +61,7 @@ def call() {
                         steps {
                             sh '''
                                 python3 -m venv venv
-                                source venv/bin/activate
+                                . venv/bin/activate
                                 pip3 install toml
                                 pip3 install requests
                             '''
@@ -98,7 +98,7 @@ def call() {
                                             // generate all of the snapshots by replaying the whole chain
                                             // now load from all of the snapshots
                                             sh """
-                                                source ${env.WORKSPACE}/venv/bin/activate
+                                                . ${env.WORKSPACE}/venv/bin/activate
                                                 sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                                 sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
                                             """
@@ -120,7 +120,7 @@ def call() {
                                 // generate all of the snapshots by replaying the whole chain
                                 // now load from all of the snapshots
                                 sh """
-                                    source ${env.WORKSPACE}/venv/bin/activate
+                                    . ${env.WORKSPACE}/venv/bin/activate
                                     sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay"
                                     sh "${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'"
                                 """
