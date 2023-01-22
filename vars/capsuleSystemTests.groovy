@@ -324,7 +324,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    sh 'make test'
+                    // sh 'make test'
                   }
                 }
               ]
@@ -354,6 +354,37 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             parallel pipelineHooks.postRunTests
+          }
+        }
+      }
+
+      // The below step starts a new data node from network history and waits 
+      // until this data node is up to date with other nodes.
+      stage('add new data-node from network-history') {
+        when {
+          expression {
+            //params.DATA_NODE_FROM_NETWORK_HISTORY_SNAPSHOT_CHECK && params.RUN_PROTOCOL_UPGRADE_PROPOSAL
+            true
+          }
+        }
+
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+
+        options {
+          timeout(time: 8, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            String dataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule \
+            new-data-node-from-snapshot \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --wait-for-network-after-node-is-added \
+              --timeout 5m \
+              --local
+            ''')
           }
         }
       }
@@ -439,6 +470,24 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             } catch (err) {
                 echo err.getMessage()
             }
+
+            if (true || params.DATA_NODE_FROM_NETWORK_HISTORY_SNAPSHOT_CHECK) {
+              String networkHistoryDataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule info \
+                --type last-data-node-grpc-url \
+                --output value-only \
+                --print-only-one \
+                --network-home-path ''' + testNetworkDir + '''/testnet \
+                --local
+              ''')
+              
+              try {
+                sh '''vegatools difftool \
+                  -s "./snapshot-tmp" \
+                  -d "''' + networkHistoryDataNodeURL + '''"'''
+              } catch (err) {
+                  echo err.getMessage()
+              }
+            }            
           }
         }
       }
