@@ -324,7 +324,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    // sh 'make test'
+                    sh 'make test'
                   }
                 }
               ]
@@ -363,8 +363,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       stage('add new data-node from network-history') {
         when {
           expression {
-            //params.DATA_NODE_FROM_NETWORK_HISTORY_SNAPSHOT_CHECK && params.RUN_PROTOCOL_UPGRADE_PROPOSAL
-            true
+            params.RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY && params.RUN_PROTOCOL_UPGRADE_PROPOSAL
           }
         }
 
@@ -471,7 +470,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 echo err.getMessage()
             }
 
-            if (true || params.DATA_NODE_FROM_NETWORK_HISTORY_SNAPSHOT_CHECK) {
+            if (params.RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY) {
               String networkHistoryDataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule info \
                 --type last-data-node-grpc-url \
                 --output value-only \
