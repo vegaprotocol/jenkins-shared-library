@@ -114,7 +114,9 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp vega core from ${remoteServer}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vegavisor_home/current/vega vega
+                                            # scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vegavisor_home/current/vega vega
+                                            wget https://github.com/vegaprotocol/vega/releases/download/v0.67.3/vega-linux-amd64.zip
+                                            unzip vega-linux-amd64.zip
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
