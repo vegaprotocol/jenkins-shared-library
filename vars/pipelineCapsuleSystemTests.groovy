@@ -76,7 +76,7 @@ void call() {
     options {
       timestamps()
       ansiColor('xterm')
-      timeout(time: 3, unit: 'HOURS')
+      timeout(time: 4, unit: 'HOURS')
     }
     stages {
       stage('config') {
