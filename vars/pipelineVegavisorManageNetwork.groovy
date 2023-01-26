@@ -557,7 +557,8 @@ void call() {
                                         makeCheckout: false,
                                         version: DOCKER_VERSION,
                                         forceRestart: false,
-                                        timeout: 60,
+                                        timeout: 5,
+                                        wait: false,
                                     )
                                 }
                             }

@@ -9,6 +9,7 @@ void call(Map additionalConfig=[:]) {
         forceRestart: false,
         k8sObjectName: '',
         makeCheckout: true,
+        wait: true,
     ]
 
     Map config = defaultConfig + additionalConfig
@@ -50,28 +51,33 @@ void call(Map additionalConfig=[:]) {
                 sh 'kubectl delete -n ' + config.networkName + ' ' + config.k8sObjectName
             }
 
-            waitUntil {
-                try {
-                    imageVersion = sh (
-                        script: '''
-                        #!/bin/bash +x
-                        kubectl get ''' + config.k8sObjectName + ''' -n ''' + config.networkName + ''' -o yaml \
-                            | grep "image:" \
-                            | grep ''' + config.version + ''' \
-                            || echo "NOT READY"
-                        ''',
-                        returnStdout: true,
-                    ).trim()
+            if (config.wait) {
+                waitUntil {
+                    try {
+                        imageVersion = sh (
+                            script: '''
+                            #!/bin/bash +x
+                            kubectl get ''' + config.k8sObjectName + ''' -n ''' + config.networkName + ''' -o yaml \
+                                | grep "image:" \
+                                | grep ''' + config.version + ''' \
+                                || echo "NOT READY"
+                            ''',
+                            returnStdout: true,
+                        ).trim()
 
-                    if (!imageVersion.contains(config.version)) {
-                        throw "application not ready yet"
+                        print("imageVersion: " + imageVersion)
+                        print("config.version: " + config.version)
+
+                        if (!imageVersion.contains(config.version)) {
+                            throw "application not ready yet"
+                        }
+                    } catch (err) {
+                        print(err)
+                        sleep config.period
+                        return false
                     }
-                } catch (err) {
-                    print(err)
-                    sleep config.period
-                    return false
+                    return true
                 }
-                return true
             }
         }
     }
