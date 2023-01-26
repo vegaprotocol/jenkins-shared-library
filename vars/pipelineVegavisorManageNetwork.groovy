@@ -448,7 +448,7 @@ void call() {
                             }
                         }
                         steps {
-                            sleep 180
+                            sleep 90
                             withDevopstools(
                                 command: 'network self-delegate'
                             )
@@ -557,7 +557,8 @@ void call() {
                                         makeCheckout: false,
                                         version: DOCKER_VERSION,
                                         forceRestart: false,
-                                        timeout: 60,
+                                        timeout: 5,
+                                        wait: false,
                                     )
                                 }
                             }
