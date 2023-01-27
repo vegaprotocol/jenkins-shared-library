@@ -346,6 +346,13 @@ void call() {
                     }
                 }
             }
+            stage('Turn on maintenance') {
+                steps {
+                    script {
+                        TURN_OFF_LINK = pagerdutyMaintenance()
+                    }
+                }
+            }
             stage('Ansible') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
@@ -584,6 +591,7 @@ void call() {
                 )
             }
             always {
+                pagerdutyMaintenance(false, TURN_OFF_LINK)
                 cleanWs()
             }
         }
