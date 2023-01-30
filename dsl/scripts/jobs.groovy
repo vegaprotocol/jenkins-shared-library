@@ -775,6 +775,22 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     //
+    // Validators-Testnet
+    //
+    [
+        name: 'private/Deployments/validators-Testnet/Manage-Network-53',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+
+    //
     // System-Tests
     //
     [
