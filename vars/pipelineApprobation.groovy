@@ -45,7 +45,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'vega',
                                 githubUrl: params.ORIGIN_REPO,
-                                branch: "*/${params.VEGA_CORE_BRANCH}",
+                                branch: params.VEGA_CORE_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf vega@tmp"
@@ -56,7 +56,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'specs',
                                 vegaUrl: 'specs',
-                                branch: "*/${params.SPECS_BRANCH}",
+                                branch: params.SPECS_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf specs@tmp"
@@ -72,7 +72,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'MultisigControl',
                                 vegaUrl: 'MultisigControl',
-                                branch: "*/${params.MULTISIG_CONTROL_BRANCH}",
+                                branch: params.MULTISIG_CONTROL_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf MultisigControl@tmp"
@@ -88,7 +88,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'Vega_Token_V2',
                                 vegaUrl: 'Vega_Token_V2',
-                                branch: "*/${params.VEGA_TOKEN_V2_BRANCH}",
+                                branch: params.VEGA_TOKEN_V2_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf Vega_Token_V2@tmp"
@@ -104,7 +104,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'Staking_Bridge',
                                 vegaUrl: 'Staking_Bridge',
-                                branch: "*/${params.STAKING_BRIDGE_BRANCH}",
+                                branch: params.STAKING_BRIDGE_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf Staking_Bridge@tmp"
@@ -120,7 +120,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'system-tests',
                                 vegaUrl: 'system-tests',
-                                branch: "*/${params.SYSTEM_TESTS_BRANCH}",
+                                branch: params.SYSTEM_TESTS_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf system-tests@tmp"
@@ -136,7 +136,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'frontend-monorepo',
                                 vegaUrl: 'frontend-monorepo',
-                                branch: "*/${params.FRONTEND_BRANCH}",
+                                branch: params.FRONTEND_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf frontend-monorepo@tmp"
@@ -152,7 +152,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'vegawallet-desktop',
                                 vegaUrl: 'vegawallet-desktop',
-                                branch: "*/${params.VEGAWALLET_DESKTOP_BRANCH}",
+                                branch: params.VEGAWALLET_DESKTOP_BRANCH,
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf vegawallet-desktop@tmp"
