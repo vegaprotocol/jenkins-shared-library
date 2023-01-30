@@ -40,6 +40,10 @@ def dirs = [
         display: 'Mainnet Mirror',
     ],
     [
+        id: 'private/Deployments/validators-testnet',
+        display: 'Validators Testnet',
+    ],
+    [
         id: 'private/Deployments/Vegacapsule',
         display: 'Vegacapsule',
     ],
