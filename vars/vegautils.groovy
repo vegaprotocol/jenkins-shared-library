@@ -71,3 +71,32 @@ Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
 
   return [:]
 }
+
+
+// returns 1 if a > b, 0 if a == b, -1 if a < b
+// examples:
+// semVerCompare('v0.66.1', 'v0.66.2')
+// semVerCompare('1.0.1', 'v0.66.2')
+int semVerCompare(String a, String b) {
+    // leave only dots and numbers
+    semVerA = a.replaceAll(/[^\d\.]/, '')
+    semVerB = b.replaceAll(/[^\d\.]/, '')
+
+    List verA = semVerA.tokenize('.')
+    List verB = semVerB.tokenize('.')
+    int commonIndices = Math.min(verA.size(), verB.size())
+
+    for (int i = 0; i < commonIndices; ++i) {
+        int numA = verA[i].toInteger()
+        int numB = verB[i].toInteger()
+
+        if (numA > numB) {
+            return 1
+        } else if (numA < numB) {
+            return -1
+        }
+        continue
+    }
+
+    return 0
+}
