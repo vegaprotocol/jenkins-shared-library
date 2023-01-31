@@ -786,7 +786,7 @@ def jobs = [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
         disableConcurrentBuilds: true,
     ],
 
