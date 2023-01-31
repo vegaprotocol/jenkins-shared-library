@@ -778,7 +778,7 @@ def jobs = [
     // Validators-Testnet
     //
     [
-        name: 'private/Deployments/validators-Testnet/Manage-Network-53',
+        name: 'private/Deployments/validators-testnet/Manage-Node-53',
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
