@@ -4,8 +4,8 @@ library (
     changelog: false,
 )
 
-String latestAvailableRelease
-String versionLowerThanLatestAvailableRelease
+String versionToUpgradeNetwork
+String versionToStartNetwork
 String networkDataPath
 Map vegacapsuleNodes
 
@@ -15,6 +15,8 @@ params = params + [
     VEGACAPSULE_BRANCH: 'main',
     VEGATOOLS_BRANCH: 'develop',
     DEVOPSSCRIPTS_BRANCH: 'main',
+    CREATE_RELEASE: true,
+    VEGA_BRANCH: 'fix-visor-autoinstall',
 ]
 
 // returns 1 if a > b, 0 if a == b, -1 if a < b
@@ -46,11 +48,14 @@ int semVerCompare(String a, String b) {
 }
 
 pipeline {
-    agent any
+    agent {
+      label 'system-tests-capsule'
+    }
+
     options {
-        skipDefaultCheckout true
+        // skipDefaultCheckout true
         timestamps()
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 60, unit: 'MINUTES')
     }
 
     stages {
@@ -62,6 +67,14 @@ pipeline {
                 echo "isPRBuild=${isPRBuild()}"
 
                 script {
+                    if (params.CREATE_RELEASE && params.VEGA_BRANCH.length() < 1) {
+                        error('params.VEGA_BRANCH cannot be empty when params.CREATE_RELEASE is true')
+                    }
+
+                    // do not use already created release, build vega
+                    if (params.CREATE_RELEASE) {
+                        versionToStartNetwork = params.VEGA_BRANCH
+                    }
 
                     publicIP = agent.getPublicIP()
                     print("The box public IP is: " + publicIP)
@@ -76,6 +89,13 @@ pipeline {
         }
 
         stage('Find releases to start and upgrade network') {
+            when {
+                not {
+                    expression {
+                        params.CREATE_RELEASE
+                    }
+                }
+            }
             steps {
                 script {
                     String releasesListJSON
@@ -96,21 +116,23 @@ pipeline {
                         error('Not enough releases found in github repo: ' + params.RELEASES_REPO + '. ' +
                               'At least two releases are requied. One for start the network, second one for upgrade')
                     }
-                    latestAvailableRelease = devRelasesNames[0]
-                    lastAvailableReleaseSemVersion = latestAvailableRelease.tokenize('-')[0]
+                    versionToUpgradeNetwork = devRelasesNames[0]
+                    lastAvailableReleaseSemVersion = versionToUpgradeNetwork.tokenize('-')[0]
 
-                    // Find first lower version than `latestAvailableRelease` to avoid the `upgrade version is too old` error
+                    // Find first lower version than `versionToUpgradeNetwork` to avoid the `upgrade version is too old` error
                     for (releaseName in devRelasesNames) {
                         String releaseSemVer = releaseName.tokenize('-')[0]
                         // latest version higher than this version
                         if (semVerCompare(lastAvailableReleaseSemVersion, releaseSemVer) > 0) {
-                            versionLowerThanLatestAvailableRelease = releaseName
+                            versionToStartNetwork = releaseName
                             break
                         }
                     }
 
-                    echo 'This pipeline will start the network with version ' + versionLowerThanLatestAvailableRelease +
-                         ', then perform protocol upgrade to version: ' + latestAvailableRelease
+                    echo 'This pipeline will start the network with version ' + versionToStartNetwork +
+                         ', then perform protocol upgrade to version: ' + versionToUpgradeNetwork
+
+                    versionToStartNetwork = versionToStartNetwork.tokenize('-')[0]
                 }
             }
         }
@@ -119,7 +141,7 @@ pipeline {
             steps {
                 script {
                     List repositories = [
-                        [ name: 'vegaprotocol/vega', branch: versionLowerThanLatestAvailableRelease.tokenize('-')[0] ], // using tag with older version
+                        [ name: 'vegaprotocol/vega', branch: versionToStartNetwork ],
                         [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
                         [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
                         [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
@@ -161,6 +183,37 @@ pipeline {
             }
         }
 
+        stage('create further release and upload binaries') {
+            when {
+                expression {
+                    params.CREATE_RELEASE
+                }
+            }
+
+            steps {
+                script {
+                    sh 'mkdir -p vega/dist'
+                    vegautils.buildGoBinary('vega', 'dist', './...')
+
+                    dir('vega/dist') {
+                        sh './vega version'
+                        sh './data-node version'
+                        sh 'zip data-node-linux-amd64.zip data-node'
+                        sh 'zip vega-linux-amd64.zip vega'
+
+                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                            sh '''gh release create \
+                                --repo ''' + params.RELEASES_REPO + ''' \
+                                v77.7.7-jenkins-visor-pup-''' + currentBuild.number + ''' \
+                                *.zip'''
+                        }
+                    }
+
+                    versionToUpgradeNetwork = 'v77.7.7-jenkins-visor-pup-' + currentBuild.number
+                }
+            }
+        }
+
         stage('start nomad') {
             steps {
                 script {
@@ -173,7 +226,7 @@ pipeline {
                             -e ''' + networkDataPath + '''/nomad.log \
                             -c ''' + cwd + ''' \
                             -p ''' + networkDataPath + '''/vegacapsule_nomad.pid \
-                            ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only '''
+                            ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only'''
                     }
                 }
             }
@@ -193,13 +246,15 @@ pipeline {
             steps {
                 script {
                     dir('system-tests/scripts') {
-                        sh 'sudo make vegacapsule-start-network'
+                        sh 'make vegacapsule-generate-network'
+                        sh 'make vegacapsule-start-network-only'
+                        sh 'sleep 60' // wait for some blocks to be produced
                     }
                 }
             }
         }
 
-        stage('Propose network upgrade') {
+        stage('Protocol upgrade') {
             environment {
                 PATH = "${networkDataPath}:${env.PATH}"
             }
@@ -210,7 +265,6 @@ pipeline {
 
             steps {
                 script {
-                    sh 'sleep 720'
                     String vegacapsuleNodesJSON = vegautils.shellOutput('''vegacapsule nodes ls \
                         --home-path ''' + networkDataPath + '''/testnet''')
                     vegacapsuleNodes = readJSON text: vegacapsuleNodesJSON
@@ -226,24 +280,53 @@ pipeline {
 
                     int initNetworkHeight = getLastBlock(false)
                     int proposalBlock = initNetworkHeight + upgradeProposalOffset
+                    int waitForBlock = proposalBlock + 20 // wait for a few blocks after uprade
                     print('Current network heigh is ' + initNetworkHeight)
                     print('Proposing protocol upgrade on block ' + proposalBlock)
 
                     vegacapsuleNodes.each{nodeName, details -> 
-                        if (detauls.Mode != "validator") {
+                        if (details.Mode != "validator") {
                             return
                         }
 
                         sh('''vega protocol_upgrade_proposal \
                             --home ''' + details.Vega.HomeDir + ''' \
                              --passphrase-file ''' + details.Vega.NodeWalletPassFilePath + ''' \
-                             --vega-release-tag ''' + latestAvailableRelease + '''\
-                             --height ''' + proposalBlock)
+                             --vega-release-tag ''' + versionToUpgradeNetwork + '''\
+                             --height ''' + proposalBlock + ''' \
+                             --output json''')
+                    }
 
-                        
-                        sh 'sleep 360'
+                    waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
+                        int currentNetworkHeight = getLastBlock(true)
+                        print('... still waiting, network heigh is ' + currentNetworkHeight)
+                        return (currentNetworkHeight >= waitForBlock)
+                    }
+                    initNetworkHeight = getLastBlock(false)
+                    print('Current network heigh is ' + initNetworkHeight)
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (params.CREATE_RELEASE) {
+                    withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                        sh '''gh release delete \
+                            --yes \
+                            --repo ''' + params.RELEASES_REPO + ''' \
+                            v77.7.7-jenkins-visor-pup-''' + currentBuild.number + ''' \
+                        | echo "Release does not exist"'''
                     }
                 }
+
+                slack.slackSendCIStatus(
+                    name: 'Visor PUP automatic download binaries pipeline',
+                    channel: '#qa-notify',
+                    branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + versionToStartNetwork
+                )
             }
         }
     }
