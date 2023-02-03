@@ -406,46 +406,48 @@ void call(Map config=[:]) {
                 }
 
                 stage('Backup snapshots') {
-                    gitClone(
-                        url: 'git@github.com:vegaprotocol/snapshot-backups.git',
-                        branch: 'main',
-                        directory: 'snapshot-backups',
-                        credentialsId: 'vega-ci-bot',
-                        timeout: 3,
-                    )
+                    if (params.BACKUP_SNAPSHOTS) {
+                        gitClone(
+                            url: 'git@github.com:vegaprotocol/snapshot-backups.git',
+                            branch: 'main',
+                            directory: 'snapshot-backups',
+                            credentialsId: 'vega-ci-bot',
+                            timeout: 3,
+                        )
 
-                    // Example output:
-                    // { "snapshots":[
-                    //   {
-                    //     "height":774000,
-                    //     "version":774,"size":88,
-                    //     "hash":"449ac952c29c615fcf8ea9ee14ffe056fec034740b3a879c9c6818563f83fb75"
-                    //   },
-                    //   {"height":773000,...},
-                    //   ...
-                    // ]}
-                    String snapshotsDetailsJSON = vegautils.shellOutput('''./vega tools snapshot \
-                            --db-path ./vega_config/state/node/snapshots \
-                            --output json''')
+                        // Example output:
+                        // { "snapshots":[
+                        //   {
+                        //     "height":774000,
+                        //     "version":774,"size":88,
+                        //     "hash":"449ac952c29c615fcf8ea9ee14ffe056fec034740b3a879c9c6818563f83fb75"
+                        //   },
+                        //   {"height":773000,...},
+                        //   ...
+                        // ]}
+                        String snapshotsDetailsJSON = vegautils.shellOutput('''./vega tools snapshot \
+                                --db-path ./vega_config/state/node/snapshots \
+                                --output json''')
 
-                    Map snapshotDetails = readJSON text: snapshotsDetailsJSON
+                        Map snapshotDetails = readJSON text: snapshotsDetailsJSON
 
-                    List snapshotsHeight = snapshotDetails?.snapshots.collect{ it?.height as int }
+                        List snapshotsHeight = snapshotDetails?.snapshots.collect{ it?.height as int }
 
-                    sh 'mkdir -p snapshot-backups/' + env.NET_NAME + '/' + networkVersion + '/' + snapshotsHeight.min() + '-' + snapshotsHeight.max()
+                        sh 'mkdir -p snapshot-backups/' + env.NET_NAME + '/' + networkVersion + '/' + snapshotsHeight.min() + '-' + snapshotsHeight.max()
 
-                    sh 'tar -czvf ' + snapshotsHeight.min() + '-' + snapshotsHeight.max() + '.tar.gz vega_config/state/node/snapshots'
-                    sh '''cp ''' + snapshotsHeight.min() + '''-''' + snapshotsHeight.max() + '''.tar.gz \
-                        snapshot-backups/''' + env.NET_NAME + '''/''' + networkVersion + '''/''' + snapshotsHeight.min() + '''-''' + snapshotsHeight.max()
+                        sh 'tar -czvf ' + snapshotsHeight.min() + '-' + snapshotsHeight.max() + '.tar.gz vega_config/state/node/snapshots'
+                        sh '''cp ''' + snapshotsHeight.min() + '''-''' + snapshotsHeight.max() + '''.tar.gz \
+                            snapshot-backups/''' + env.NET_NAME + '''/''' + networkVersion + '''/''' + snapshotsHeight.min() + '''-''' + snapshotsHeight.max()
 
-                    makeCommit(
-                        makeCheckout: true,
-                        directory: 'snapshot-backups',
-                        url: 'git@github.com:vegaprotocol/snapshot-backups.git',
-                        branchName: 'snapshot-' + env.NET_NAME + '-' + snapshotsHeight.min() + '-' + snapshotsHeight.max(),
-                        commitMessage: '[Automated] Snapshot backup for ' + env.NET_NAME + ', blocks ' + snapshotsHeight.min() + '-' + snapshotsHeight.max(),
-                        commitAction: 'git add ' + env.NET_NAME + '/' + networkVersion + '/' + snapshotsHeight.min() + '-' + snapshotsHeight.max()
-                    )
+                        makeCommit(
+                            makeCheckout: true,
+                            directory: 'snapshot-backups',
+                            url: 'git@github.com:vegaprotocol/snapshot-backups.git',
+                            branchName: 'snapshot-' + env.NET_NAME + '-' + snapshotsHeight.min() + '-' + snapshotsHeight.max(),
+                            commitMessage: '[Automated] Snapshot backup for ' + env.NET_NAME + ', blocks ' + snapshotsHeight.min() + '-' + snapshotsHeight.max(),
+                            commitAction: 'git add ' + env.NET_NAME + '/' + networkVersion + '/' + snapshotsHeight.min() + '-' + snapshotsHeight.max()
+                        )
+                    }
                 }
 
                 currentBuild.result = 'SUCCESS'
