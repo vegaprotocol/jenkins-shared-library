@@ -61,23 +61,16 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        gitClone(
-                            url: 'git@github.com:vegaprotocol/ansible.git',
-                            branch: 'master',
-                            directory: 'ansible',
-                            credentialsId: 'vega-ci-bot',
-                            timeout: 2,
-                        )
-                        def networkServers = readYaml(
-                            file: "ansible/inventories/${env.NET_NAME}.yaml"
-                        )[env.NET_NAME]['hosts']
-                            .findAll{serverName, serverSettings -> serverSettings.get('data_node', false)}
-                            .collect{serverName, serverSettings -> serverName}
+                        def baseDomain = "${env.NET_NAME}.vega.xyz"
+                        if (env.NET_NAME == "fairground") {
+                            baseDomain = "testnet.vega.xyz"
+                        }
+                        def networkServers = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${baseDomain}" }
 
                         Collections.shuffle(networkServers as List)
 
                         echo "Going to check servers: ${networkServers}"
-                        remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
+                        remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
