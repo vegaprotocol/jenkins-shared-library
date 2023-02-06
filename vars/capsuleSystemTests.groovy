@@ -528,7 +528,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             artifacts: 'testnet/**/*',
             excludes: [
               'testnet/**/*.sock',
-              'testnet/data/**/state/data-node/**/*'
+              'testnet/data/**/state/data-node/**/*',
+              // do not archive vega binaries
+              'testnet/visor/**/vega',
+              'testnet/visor/**/data-node',
             ].join(','),
             allowEmptyArchive: true
           )
