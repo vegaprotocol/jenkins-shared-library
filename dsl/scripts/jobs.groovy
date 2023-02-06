@@ -843,8 +843,8 @@ def jobs = [
             stringParam('VEGA_VERSION', 'develop', 'git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/system-tests repository')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vegatools repository')
-            booleanParam('VEGACAPSULE_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-            booleanParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            stringParam('VEGACAPSULE_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             booleanParam('CREATE_RELEASE', true, 'If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
