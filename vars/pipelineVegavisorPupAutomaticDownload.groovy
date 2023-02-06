@@ -163,7 +163,9 @@ void call() {
 
                 steps {
                     script {
+                        String newVegaVersion = 'v77.7.7-jenkins-visor-pup-' + currentBuild.number
                         sh 'mkdir -p vega/dist'
+                        sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="''' + newVegaVersion + '''"/' vega/version/version.go'''
                         vegautils.buildGoBinary('vega', 'dist', './...')
 
                         dir('vega/dist') {
@@ -175,7 +177,7 @@ void call() {
                             withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
                                 sh '''gh release create \
                                     --repo ''' + params.RELEASES_REPO + ''' \
-                                    v77.7.7-jenkins-visor-pup-''' + currentBuild.number + ''' \
+                                    ''' + newVegaVersion + ''' \
                                     *.zip'''
                             }
                         }
@@ -242,10 +244,11 @@ void call() {
 
                         int upgradeProposalOffset = 100
                         def getLastBlock = { boolean silent ->
+                        // We return 0 here because there is a moment when data node is killed for 
                         return vegautils.shellOutput('''devopsscripts vegacapsule last-block \
                             --output value-only \
                             --network-home-path ''' + networkDataPath + '''/testnet \
-                            --local
+                            --local || echo 0
                             ''', silent).toInteger()
                         }
 
@@ -256,7 +259,7 @@ void call() {
                         print('Proposing protocol upgrade on block ' + proposalBlock)
 
                         vegacapsuleNodes.each{nodeName, details -> 
-                            if (details.Mode != "validator") {
+                            if (details.Mode != 'validator') {
                                 return
                             }
 
@@ -292,6 +295,19 @@ void call() {
                             | echo "Release does not exist"'''
                         }
                     }
+
+                    dir(networkDataPath) {
+                    archiveArtifacts(
+                        artifacts: 'testnet/**/*',
+                        excludes: [
+                        'testnet/**/*.sock',
+                        'testnet/data/**/state/data-node/**/*',
+                        'testnet/visor/**/vega', // ignore binaries
+                        'testnet/visor/**/data-node',
+                        ].join(','),
+                        allowEmptyArchive: true
+                    )
+                }
 
                     slack.slackSendCIStatus(
                         name: 'Visor PUP automatic download binaries pipeline',
