@@ -7,7 +7,7 @@ void call() {
     Map vegacapsuleNodes
 
     // apply default values for pipeline
-    params = [
+    params = params.withDefault([
         RELEASES_REPO: 'vegaprotocol/vega-dev-releases',
         SYSTEM_TESTS_BRANCH: 'visor_pup_tests',
         VEGACAPSULE_BRANCH: 'main',
@@ -15,7 +15,7 @@ void call() {
         DEVOPSSCRIPTS_BRANCH: 'main',
         CREATE_RELEASE: true,
         VEGA_BRANCH: 'fix-visor-autoinstall',
-    ] + params
+    ].&get)
 
 
     pipeline {
