@@ -834,7 +834,7 @@ def jobs = [
     // Vegavisor automatic download and PUP
     //
     [
-        name: 'common/vegavisor-pup-automatic-download-binaries',
+        name: 'common/visor-autoinstall-and-pup',
         description: 'Job starts the network, perform protocol upgrade and waits until new binaries are automatically downloaded and network is upgraded',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
