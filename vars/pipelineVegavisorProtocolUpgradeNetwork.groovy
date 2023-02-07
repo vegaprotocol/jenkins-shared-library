@@ -155,7 +155,8 @@ void call() {
                                 makeCheckout: false,
                                 version: DOCKER_VERSION,
                                 forceRestart: false,
-                                timeout: 20,
+                                timeout: 5,
+                                wait: false,
                             )
                         }
                     }
