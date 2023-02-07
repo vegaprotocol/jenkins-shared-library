@@ -21,13 +21,11 @@ void call(Map config=[:]) {
 
     // api output placeholders
     def TM_VERSION
-    def TRUST_HASH
-    def TRUST_HEIGHT
     def RPC_SERVERS
     def SEEDS
     def SNAPSHOT_HEIGHT
     def SNAPSHOT_HASH
-    def PEERS
+    def NETWORK_HISTORY_PEERS
 
     // Checks
     String extraMsg = null  // extra message to print on Slack. In case of multiple message, keep only first.
@@ -97,12 +95,12 @@ void call(Map config=[:]) {
                                             scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
                                         """
                                 }
-                                PEERS = sh(
+                                NETWORK_HISTORY_PEERS = sh(
                                     label: 'read persistent peers',
                                     script: "./dasel -f data-node-config.toml -w json -c ${env.HISTORY_KEY}.Store.BootstrapPeers",
                                     returnStdout: true
                                 ).trim()
-                                echo "PEERS=${PEERS}"
+                                echo "NETWORK_HISTORY_PEERS=${NETWORK_HISTORY_PEERS}"
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
@@ -147,8 +145,8 @@ void call(Map config=[:]) {
                             def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
                             SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
                             SNAPSHOT_HASH = snapshotInfo['blockHash']
-                            println("SNAPSHOT_HEIGHT=${SNAPSHOT_HEIGHT}")
-                            println("SNAPSHOT_HASH=${SNAPSHOT_HASH}")
+                            println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
+                            println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
 
                             // Check TM version
                             def status_req = new URL("https://tm.${remoteServer}/status").openConnection()
@@ -164,13 +162,6 @@ void call(Map config=[:]) {
                             println("RPC_SERVERS=${RPC_SERVERS}")
                             println("SEEDS=${SEEDS}")
 
-                            // Get trust block info
-                            def block_req = new URL("https://tm.${remoteServer}/block?height=2").openConnection()
-                            def tm_block = new groovy.json.JsonSlurperClassic().parseText(block_req.getInputStream().getText())
-                            TRUST_HASH = tm_block.result.block_id.hash
-                            TRUST_HEIGHT = tm_block.result.block.header.height
-                            println("TRUST_HASH=${TRUST_HASH}")
-                            println("TRUST_HEIGHT=${TRUST_HEIGHT}")
                         } catch (e) {
                             if ( !isRemoteServerAlive(remoteServer) ) {
                                 // Remote server stopped being available.
@@ -193,8 +184,8 @@ void call(Map config=[:]) {
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f tm_config/config/config.toml statesync.enable true
                                         ./dasel put string -f tm_config/config/config.toml statesync.trust_period "744h0m0s"
-                                        ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${TRUST_HASH}
-                                        ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${TRUST_HEIGHT}
+                                        ./dasel put string -f tm_config/config/config.toml statesync.trust_hash ${SNAPSHOT_HASH}
+                                        ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${SNAPSHOT_HEIGHT}
                                         ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                         ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
                                         ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
@@ -222,10 +213,10 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
-                                        sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${PEERS}|g' vega_config/config/data-node/config.toml
+                                        sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
-                                    // ^ easier to use sed rather than dasel. number of spaces is hardcoded and PEERS var is in toml compatible format (minimized JSON)
+                                    // ^ easier to use sed rather than dasel. number of spaces is hardcoded and NETWORK_HISTORY_PEERS var is in toml compatible format (minimized JSON)
                             },
                             'postgres': {
                                 // jenkins needs to be added to postgres image and be added to postgres group so it's files loaded from actual workspace by volume binding are able to be loaded into database
