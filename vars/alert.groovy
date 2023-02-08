@@ -1,7 +1,7 @@
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonBuilder
 
-String createSilence(Map args=[:]) {
+String disableAlerts(Map args=[:]) {
     String matcherName = ""
     String matcherValue = ""
 
@@ -12,7 +12,7 @@ String createSilence(Map args=[:]) {
         matcherName = "environment"
         matcherValue = args.environment
     } else {
-        throw "createSilence error: need to provide 'node' or 'env' argument. Provided: ${args}"
+        throw "disableAlerts error: need to provide 'node' or 'environment' argument. Provided: ${args}"
     }
 
     int duration = (args?.duration ?: "20") as int // in minutes
@@ -46,25 +46,25 @@ String createSilence(Map args=[:]) {
         """
     ).trim()
 
-    print("createSilence response: ${strResponse}")
+    print("disableAlerts response: ${strResponse}")
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
 
-    print("Silenced alerts for ${matcherName}=${matcherValue} for ${duration} minutes, until: ${strEnd} UTC. Silence ID: ${silenceID}")
+    print("Disabled alerts for ${matcherName}=${matcherValue} for ${duration} minutes, until: ${strEnd} UTC. Prometheus Silence ID: ${silenceID}")
 
     return silenceID
 }
 
-void deleteSilence(Map args=[:]) {
-    assert args?.silenceID : "createSilence error: missing silenceID argument. Arguments: ${args}"
+void enableAlerts(Map args=[:]) {
+    assert args?.silenceID : "enableAlerts error: missing silenceID argument. Arguments: ${args}"
     int delay = (args?.delay ?: "5") as int // in minutes
 
     def now = new Date()
     def end = new Date(now.getTime() + (args.delay * 60 * 1000))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
-    silenceConfig = getSilence(silenceID: args.silenceID)
+    silenceConfig = getDisabledAlerts(silenceID: args.silenceID)
     silenceConfig["endsAt"] = strEnd
     String matcherName = silenceConfig["matchers"][0]["name"]
     String matcherValue = silenceConfig["matchers"][0]["value"]
@@ -78,11 +78,11 @@ void deleteSilence(Map args=[:]) {
             -d '${postData}'
     """
 
-    print("Silence for alert ${matcherName}=${matcherValue} will be disabled in ${args.delay} minutes, at ${strEnd} UTC. Silence ID: ${args.silenceID}")
+    print("Alerts ${matcherName}=${matcherValue} will be enabled in ${args.delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
 }
 
-Object getSilence(Map args=[:]) {
-    assert args?.silenceID : "getSilence error: missing silenceID argument. Arguments: ${args}"
+Object getDisabledAlerts(Map args=[:]) {
+    assert args?.silenceID : "getDisabledAlerts error: missing silenceID argument. Arguments: ${args}"
 
     String strResponse = sh(label: "HTTP Prometheus API: get silence",
         returnStdout: true,
@@ -92,7 +92,7 @@ Object getSilence(Map args=[:]) {
         """
     ).trim()
 
-    print("getSilence response: ${strResponse}")
+    print("getDisabledAlerts response: ${strResponse}")
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     return response

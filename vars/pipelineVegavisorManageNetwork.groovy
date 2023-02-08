@@ -351,7 +351,7 @@ void call() {
             stage('Disable Alerts') {
                 steps {
                     script {
-                        ALERT_SILENCE_ID = alert.createSilence(
+                        ALERT_SILENCE_ID = alert.disableAlerts(
                             environment: env.ANSIBLE_LIMIT,
                             duration: 40, // minutes
                         )
@@ -425,7 +425,7 @@ void call() {
                     success {
                         catchError {
                             script {
-                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 5)
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
                             }
                         }
                         script {
@@ -440,7 +440,7 @@ void call() {
                     unsuccessful {
                         catchError {
                             script {
-                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 0)
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 0)
                             }
                         }
                         script {

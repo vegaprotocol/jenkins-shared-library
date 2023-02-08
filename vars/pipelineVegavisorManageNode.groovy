@@ -200,7 +200,7 @@ void call() {
             stage('Disable Alerts') {
                 steps {
                     script {
-                        ALERT_SILENCE_ID = alert.createSilence(
+                        ALERT_SILENCE_ID = alert.disableAlerts(
                             node: NODE_NAME ?: params.NODE,
                             duration: 10, // minutes
                         )
@@ -300,14 +300,14 @@ void call() {
                     success {
                         catchError {
                             script {
-                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 5)
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
                             }
                         }
                     }
                     unsuccessful {
                         catchError {
                             script {
-                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 0)
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 0)
                             }
                         }
                     }
