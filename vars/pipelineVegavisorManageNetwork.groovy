@@ -53,6 +53,8 @@ void call() {
 
     ANSIBLE_VARS = ''
 
+    ALERT_SILENCE_ID = ''
+
     pipeline {
         agent any
         options {
@@ -346,6 +348,16 @@ void call() {
                     }
                 }
             }
+            stage('Disable Alerts') {
+                steps {
+                    script {
+                        ALERT_SILENCE_ID = alert.createSilence(
+                            environment: env.ANSIBLE_LIMIT,
+                            duration: 35, // minutes
+                        )
+                    }
+                }
+            }
             stage('Ansible') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
@@ -410,6 +422,11 @@ void call() {
                     }
                 }
                 post {
+                    always {
+                        script {
+                            alert.deleteSilence(silenceID: ALERT_SILENCE_ID)
+                        }
+                    }
                     success {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok

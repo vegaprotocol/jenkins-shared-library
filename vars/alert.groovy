@@ -7,9 +7,9 @@ String createSilence(Map args=[:]) {
     if (args?.node) {
         matcherName = "instance"
         matcherValue = args.node
-    } else if (args?.env) {
+    } else if (args?.environment) {
         matcherName = "environment"
-        matcherValue = args.env
+        matcherValue = args.environment
     } else {
         throw "createSilence error: need to provide 'node' or 'env' argument. Provided: ${args}"
     }
