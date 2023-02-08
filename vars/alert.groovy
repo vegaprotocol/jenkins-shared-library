@@ -1,6 +1,13 @@
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonBuilder
 
+//
+// Disable all alerts for a single machine or entire vega network.
+// Arguments:
+//  - node - node name to disable alerts for, e.g. `n00.devnet1.vega.xyz`
+//  - environment - environment name to disable alerts for, e.g. `fairground`
+//  - duration (optional) - duration in minutes for how long the alerts will be disabled for, default: 20
+//
 String disableAlerts(Map args=[:]) {
     String matcherName = ""
     String matcherValue = ""
@@ -50,12 +57,19 @@ String disableAlerts(Map args=[:]) {
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
+    assert silenceID: "silenceID is missing in the response from Prometheus"
 
     print("Disabled alerts for ${matcherName}=${matcherValue} for ${duration} minutes, until: ${strEnd} UTC. Prometheus Silence ID: ${silenceID}")
 
     return silenceID
 }
 
+//
+// Re-enable alerts that got disabled.
+// Arguments:
+//  - silenceID (required) - the id of the alerts disablement,
+//  - delay (optional) - the number of minutes after which the alerts will be enabled, default: 5
+//
 void enableAlerts(Map args=[:]) {
     assert args?.silenceID : "enableAlerts error: missing silenceID argument. Arguments: ${args}"
     int delay = (args?.delay ?: "5") as int // in minutes
@@ -65,6 +79,7 @@ void enableAlerts(Map args=[:]) {
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
     silenceConfig = getDisabledAlerts(silenceID: args.silenceID)
+    assert silenceConfig : "Alert config for ${args.silenceID} cannot be empty."
     silenceConfig["endsAt"] = strEnd
     String matcherName = silenceConfig["matchers"][0]["name"]
     String matcherValue = silenceConfig["matchers"][0]["value"]
@@ -81,6 +96,11 @@ void enableAlerts(Map args=[:]) {
     print("Alerts ${matcherName}=${matcherValue} will be enabled in ${args.delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
 }
 
+//
+// Get information/config of alert disablement.
+// Arguments:
+//  - silenceID (required) - the id of the alerts disablement,
+//
 Object getDisabledAlerts(Map args=[:]) {
     assert args?.silenceID : "getDisabledAlerts error: missing silenceID argument. Arguments: ${args}"
 
