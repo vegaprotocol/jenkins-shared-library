@@ -60,6 +60,6 @@ void deleteSilence(Map args=[:]) {
 
     sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
         curl -X DELETE \
-            https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${silenceID}
+            https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID}
     """
 }
