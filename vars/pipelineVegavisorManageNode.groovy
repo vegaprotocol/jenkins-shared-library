@@ -39,6 +39,8 @@ void call() {
 
     NEW_VALIDATOR_PUBLIC_KEY = ''
 
+    ALERT_SILENCE_ID = ''
+
     pipeline {
         agent any
         options {
@@ -195,6 +197,16 @@ void call() {
                     }
                 }
             }
+            stage('Disable Alerts') {
+                steps {
+                    script {
+                        ALERT_SILENCE_ID = alert.disableAlerts(
+                            node: NODE_NAME ?: params.NODE,
+                            duration: 10, // minutes
+                        )
+                    }
+                }
+            }
             stage('Ansible') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -280,6 +292,22 @@ void call() {
                                         """
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+                post {
+                    success {
+                        catchError {
+                            script {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
+                    }
+                    unsuccessful {
+                        catchError {
+                            script {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 0)
                             }
                         }
                     }

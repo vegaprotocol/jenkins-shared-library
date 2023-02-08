@@ -53,6 +53,8 @@ void call() {
 
     ANSIBLE_VARS = ''
 
+    ALERT_SILENCE_ID = ''
+
     pipeline {
         agent any
         options {
@@ -346,6 +348,16 @@ void call() {
                     }
                 }
             }
+            stage('Disable Alerts') {
+                steps {
+                    script {
+                        ALERT_SILENCE_ID = alert.disableAlerts(
+                            environment: env.ANSIBLE_LIMIT,
+                            duration: 40, // minutes
+                        )
+                    }
+                }
+            }
             stage('Ansible') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
@@ -411,6 +423,11 @@ void call() {
                 }
                 post {
                     success {
+                        catchError {
+                            script {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
@@ -421,6 +438,11 @@ void call() {
                         }
                     }
                     unsuccessful {
+                        catchError {
+                            script {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 0)
+                            }
+                        }
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
