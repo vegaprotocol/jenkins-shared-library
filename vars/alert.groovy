@@ -51,7 +51,7 @@ String createSilence(Map args=[:]) {
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
 
-    print("Silenced alerts for ${matcherName}=${matcherValue} for ${duration} minutes. Silence ID: ${silenceID}")
+    print("Silenced alerts for ${matcherName}=${matcherValue} for ${duration} minutes, until: ${strEnd} UTC. Silence ID: ${silenceID}")
 
     return silenceID
 }
@@ -78,7 +78,7 @@ void deleteSilence(Map args=[:]) {
             -d '${postData}'
     """
 
-    print("Silence for alert ${matcherName}=${matcherValue} will be disabled in ${args.delay} minutes. Silence ID: ${args.silenceID}")
+    print("Silence for alert ${matcherName}=${matcherValue} will be disabled in ${args.delay} minutes, at ${strEnd} UTC. Silence ID: ${args.silenceID}")
 }
 
 Object getSilence(Map args=[:]) {
