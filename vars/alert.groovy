@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurperClassic
+import groovy.json.JsonBuilder
 
 String createSilence(Map args=[:]) {
     String matcherName = ""
@@ -45,7 +46,7 @@ String createSilence(Map args=[:]) {
         """
     ).trim()
 
-    print("response: ${strResponse}")
+    print("createSilence response: ${strResponse}")
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
@@ -57,9 +58,42 @@ String createSilence(Map args=[:]) {
 
 void deleteSilence(Map args=[:]) {
     assert args?.silenceID : "createSilence error: missing silenceID argument. Arguments: ${args}"
+    int delay = (args?.delay ?: "5") as int // in minutes
+
+    def now = new Date()
+    def end = new Date(now.getTime() + (args.delay * 60 * 1000))
+    String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+
+    silenceConfig = getSilence(silenceID: args.silenceID)
+    silenceConfig["endsAt"] = strEnd
+    String matcherName = silenceConfig["matchers"][0]["name"]
+    String matcherValue = silenceConfig["matchers"][0]["value"]
+
+    String postData = new JsonBuilder(silenceConfig).toPrettyString()
 
     sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
-        curl -X DELETE \
-            https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID}
+        curl -X POST \
+            https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
+            -H 'Content-Type: application/json' \
+            -d '${postData}'
     """
+
+    print("Silence for alert ${matcherName}=${matcherValue} will be disabled in ${args.delay} minutes. Silence ID: ${args.silenceID}")
+}
+
+Object getSilence(Map args=[:]) {
+    assert args?.silenceID : "getSilence error: missing silenceID argument. Arguments: ${args}"
+
+    String strResponse = sh(label: "HTTP Prometheus API: get silence",
+        returnStdout: true,
+        script: """#!/bin/bash -e
+            curl -X GET \
+                https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID}
+        """
+    ).trim()
+
+    print("getSilence response: ${strResponse}")
+
+    def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
+    return response
 }

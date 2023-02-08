@@ -297,9 +297,18 @@ void call() {
                     }
                 }
                 post {
-                    always {
-                        script {
-                            alert.deleteSilence(silenceID: ALERT_SILENCE_ID)
+                    success {
+                        catchError {
+                            script {
+                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
+                    }
+                    unsuccessful {
+                        catchError {
+                            script {
+                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 0)
+                            }
                         }
                     }
                 }

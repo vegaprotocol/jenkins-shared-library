@@ -422,12 +422,12 @@ void call() {
                     }
                 }
                 post {
-                    always {
-                        script {
-                            alert.deleteSilence(silenceID: ALERT_SILENCE_ID)
-                        }
-                    }
                     success {
+                        catchError {
+                            script {
+                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
@@ -438,6 +438,11 @@ void call() {
                         }
                     }
                     unsuccessful {
+                        catchError {
+                            script {
+                                alert.deleteSilence(silenceID: ALERT_SILENCE_ID, delay: 0)
+                            }
+                        }
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
