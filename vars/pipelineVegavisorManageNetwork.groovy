@@ -353,7 +353,7 @@ void call() {
                     script {
                         ALERT_SILENCE_ID = alert.createSilence(
                             environment: env.ANSIBLE_LIMIT,
-                            duration: 35, // minutes
+                            duration: 40, // minutes
                         )
                     }
                 }

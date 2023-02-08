@@ -40,7 +40,7 @@ String createSilence(Map args=[:]) {
                     "startsAt": "${strStart}",
                     "endsAt": "${strEnd}",
                     "createdBy": "Jenkins",
-                    "comment": "Created by Jenkins pipeline: ${env.JOB_URL}",
+                    "comment": "Created by Jenkins pipeline: ${env.RUN_DISPLAY_URL}",
                     "id": null
                 }'
         """
