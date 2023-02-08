@@ -18,8 +18,8 @@ String createSilence(Map args=[:]) {
     def start = new Date()
     def end = new Date(start.getTime() + (duration * 60 * 1000))
 
-    String strStart = start.format("yyyy-MM-dd'T'HH:mm:ssZ", TimeZone.getTimeZone('UTC'))
-    String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ssZ", TimeZone.getTimeZone('UTC'))
+    String strStart = start.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+    String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
     String strResponse = sh(label: "HTTP Prometheus API: create silence",
         returnStdout: true,
@@ -44,6 +44,8 @@ String createSilence(Map args=[:]) {
                 }'
         """
     ).trim()
+
+    print("response: ${strResponse}")
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
