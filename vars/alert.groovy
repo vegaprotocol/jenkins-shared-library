@@ -28,11 +28,12 @@ String disableAlerts(Map args=[:]) {
 
     String strStart = start.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+    String strResponse
 
     withCredentials([
         usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
     ]) {
-        String strResponse = sh(label: "HTTP Prometheus API: create silence",
+        strResponse = sh(label: "HTTP Prometheus API: create silence",
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X POST \
@@ -115,10 +116,12 @@ void enableAlerts(Map args=[:]) {
 Object getDisabledAlerts(Map args=[:]) {
     assert args?.silenceID : "getDisabledAlerts error: missing silenceID argument. Arguments: ${args}"
 
+    String strResponse
+
     withCredentials([
         usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
     ]) {
-        String strResponse = sh(label: "HTTP Prometheus API: get silence",
+        strResponse = sh(label: "HTTP Prometheus API: get silence",
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X GET \
