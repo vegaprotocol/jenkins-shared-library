@@ -440,7 +440,7 @@ void call() {
                     unsuccessful {
                         catchError {
                             script {
-                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 0)
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
                             }
                         }
                         script {

@@ -68,14 +68,15 @@ String disableAlerts(Map args=[:]) {
 // Re-enable alerts that got disabled.
 // Arguments:
 //  - silenceID (required) - the id of the alerts disablement,
-//  - delay (optional) - the number of minutes after which the alerts will be enabled, default: 5
+//  - delay (optional) - the number of minutes after which the alerts will be enabled. Must be > 0, default: 5
 //
 void enableAlerts(Map args=[:]) {
     assert args?.silenceID : "enableAlerts error: missing silenceID argument. Arguments: ${args}"
     int delay = (args?.delay ?: "5") as int // in minutes
+    assert delay > 0 : "delay cannot be zero"
 
     def now = new Date()
-    def end = new Date(now.getTime() + (args.delay * 60 * 1000))
+    def end = new Date(now.getTime() + (delay * 60 * 1000))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
     silenceConfig = getDisabledAlerts(silenceID: args.silenceID)
@@ -93,7 +94,7 @@ void enableAlerts(Map args=[:]) {
             -d '${postData}'
     """
 
-    print("Alerts ${matcherName}=${matcherValue} will be enabled in ${args.delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
+    print("Alerts ${matcherName}=${matcherValue} will be enabled in ${delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
 }
 
 //
