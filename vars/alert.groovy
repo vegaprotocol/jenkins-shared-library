@@ -68,7 +68,7 @@ String disableAlerts(Map args=[:]) {
 // Re-enable alerts that got disabled.
 // Arguments:
 //  - silenceID (required) - the id of the alerts disablement,
-//  - delay (optional) - the number of minutes after which the alerts will be enabled, default: 5
+//  - delay (optional) - the number of minutes after which the alerts will be enabled. Must be > 0, default: 5
 //
 void enableAlerts(Map args=[:]) {
     assert args?.silenceID : "enableAlerts error: missing silenceID argument. Arguments: ${args}"
