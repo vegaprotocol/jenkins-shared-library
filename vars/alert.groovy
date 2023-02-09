@@ -76,7 +76,7 @@ void enableAlerts(Map args=[:]) {
     assert delay > 0 : "delay cannot be zero"
 
     def now = new Date()
-    def end = new Date(now.getTime() + (args.delay * 60 * 1000))
+    def end = new Date(now.getTime() + (delay * 60 * 1000))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
     silenceConfig = getDisabledAlerts(silenceID: args.silenceID)
