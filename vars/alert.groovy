@@ -73,6 +73,7 @@ String disableAlerts(Map args=[:]) {
 void enableAlerts(Map args=[:]) {
     assert args?.silenceID : "enableAlerts error: missing silenceID argument. Arguments: ${args}"
     int delay = (args?.delay ?: "5") as int // in minutes
+    assert delay > 0 : "delay cannot be zero"
 
     def now = new Date()
     def end = new Date(now.getTime() + (args.delay * 60 * 1000))
