@@ -94,7 +94,7 @@ void enableAlerts(Map args=[:]) {
             -d '${postData}'
     """
 
-    print("Alerts ${matcherName}=${matcherValue} will be enabled in ${args.delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
+    print("Alerts ${matcherName}=${matcherValue} will be enabled in ${delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
 }
 
 //
