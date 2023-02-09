@@ -28,30 +28,36 @@ String disableAlerts(Map args=[:]) {
 
     String strStart = start.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+    String strResponse
 
-    String strResponse = sh(label: "HTTP Prometheus API: create silence",
-        returnStdout: true,
-        script: """#!/bin/bash -e
-            curl -X POST \
-                https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
-                -H 'Content-Type: application/json' \
-                -d '{
-                    "matchers": [
-                    {
-                        "name": "${matcherName}",
-                        "value": "${matcherValue}",
-                        "isRegex": false,
-                        "isEqual": true
-                    }
-                    ],
-                    "startsAt": "${strStart}",
-                    "endsAt": "${strEnd}",
-                    "createdBy": "Jenkins",
-                    "comment": "Created by Jenkins pipeline: ${env.RUN_DISPLAY_URL}",
-                    "id": null
-                }'
-        """
-    ).trim()
+    withCredentials([
+        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
+    ]) {
+        strResponse = sh(label: "HTTP Prometheus API: create silence",
+            returnStdout: true,
+            script: """#!/bin/bash -e
+                curl -X POST \
+                    https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
+                    -H 'Content-Type: application/json' \
+                    -u "\${PROM_LOGIN}:\${PROM_PASSWORD}" \
+                    -d '{
+                        "matchers": [
+                        {
+                            "name": "${matcherName}",
+                            "value": "${matcherValue}",
+                            "isRegex": false,
+                            "isEqual": true
+                        }
+                        ],
+                        "startsAt": "${strStart}",
+                        "endsAt": "${strEnd}",
+                        "createdBy": "Jenkins",
+                        "comment": "Created by Jenkins pipeline: ${env.RUN_DISPLAY_URL}",
+                        "id": null
+                    }'
+            """
+        ).trim()
+    }
 
     print("disableAlerts response: ${strResponse}")
 
@@ -87,12 +93,17 @@ void enableAlerts(Map args=[:]) {
 
     String postData = new JsonBuilder(silenceConfig).toPrettyString()
 
-    sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
-        curl -X POST \
-            https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
-            -H 'Content-Type: application/json' \
-            -d '${postData}'
-    """
+    withCredentials([
+        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
+    ]) {
+        sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
+            curl -X POST \
+                https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
+                -H 'Content-Type: application/json' \
+                -u "\${PROM_LOGIN}:\${PROM_PASSWORD}" \
+                -d '${postData}'
+        """
+    }
 
     print("Alerts ${matcherName}=${matcherValue} will be enabled in ${delay} minutes, at ${strEnd} UTC. Prometheus Silence ID: ${args.silenceID}")
 }
@@ -105,13 +116,20 @@ void enableAlerts(Map args=[:]) {
 Object getDisabledAlerts(Map args=[:]) {
     assert args?.silenceID : "getDisabledAlerts error: missing silenceID argument. Arguments: ${args}"
 
-    String strResponse = sh(label: "HTTP Prometheus API: get silence",
-        returnStdout: true,
-        script: """#!/bin/bash -e
-            curl -X GET \
-                https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID}
-        """
-    ).trim()
+    String strResponse
+
+    withCredentials([
+        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
+    ]) {
+        strResponse = sh(label: "HTTP Prometheus API: get silence",
+            returnStdout: true,
+            script: """#!/bin/bash -e
+                curl -X GET \
+                    https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID} \
+                    -u "\${PROM_LOGIN}:\${PROM_PASSWORD}"
+            """
+        ).trim()
+    }
 
     print("getDisabledAlerts response: ${strResponse}")
 
