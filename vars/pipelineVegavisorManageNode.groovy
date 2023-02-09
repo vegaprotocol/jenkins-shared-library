@@ -197,9 +197,32 @@ void call() {
                     }
                 }
             }
+            stage('Select random node') {
+                when {
+                    expression { params.RANDOM_NODE }
+                }
+                steps {
+                    script {
+                        if (params.JOIN_AS_VALIDATOR) {
+                            echo "!!!!! you can't assign random node for 'JOIN_AS_VALIDATOR' !!!!!!"
+                            echo "!!!! ${NODE_NAME} is used instead"
+                        }
+                        else {
+                            dir('devopstools') {
+                                NODE_NAME = sh (
+                                    script: "go run main.go live nodename --network ${env.NET_NAME} --random",
+                                    returnStdout: true,
+                                ).trim()
+                            }
+                        }
+                    }
+                }
+            }
             stage('Disable Alerts') {
                 steps {
                     script {
+                        currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
+
                         ALERT_SILENCE_ID = alert.disableAlerts(
                             node: NODE_NAME ?: params.NODE,
                             duration: 10, // minutes
@@ -216,23 +239,6 @@ void call() {
                     withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
                         withCredentials([sshCredentials]) {
                             script {
-                                if (params.RANDOM_NODE) {
-                                    if (params.JOIN_AS_VALIDATOR) {
-                                        echo "!!!!! you can't assign random node for 'JOIN_AS_VALIDATOR' !!!!!!"
-                                        echo "!!!! ${NODE_NAME} is used instead"
-                                    }
-                                    else {
-                                        dir('devopstools') {
-                                            NODE_NAME = sh (
-                                                script: "go run main.go live nodename --network ${env.NET_NAME} --random",
-                                                returnStdout: true,
-                                            ).trim()
-                                        }
-                                    }
-                                }
-
-                                currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
-
                                 if (params.VEGA_VERSION) {
                                     sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
                                         cp ./bin/vega ./ansible/roles/barenode/files/bin/
