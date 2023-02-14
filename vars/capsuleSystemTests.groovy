@@ -5,6 +5,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
     agentLabel: 'system-tests-capsule',
+    fastFail: true,
     protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
   ]
@@ -462,7 +463,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    sh 'make test'
+                    try {
+                      sh 'make test'
+                    } catch(err) {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
+                      currentBuild.result = 'FAILURE'
+                      if (!config.fastFail) {
+                        print(err)
+                      } else {
+                        throw err
+                      }
+                    }
                   }
                 }
               ]
@@ -491,7 +502,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           script {
-            parallel pipelineHooks.postRunTests
+            withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
+              parallel pipelineHooks.postRunTests
+            }
           }
         }
       }

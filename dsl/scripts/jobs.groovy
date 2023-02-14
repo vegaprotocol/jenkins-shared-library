@@ -259,6 +259,7 @@ def systemTestsParamsGeneric(args=[:]) {
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', true, 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY', false, 'Determines if data-node is started from network-history and its snapshot verified against core')
+        booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', false, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
@@ -287,6 +288,8 @@ def lnlSystemTestsparams() {
         stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
         stringParam('CAPSULE_CONFIG', 'capsule_config_mainnet.hcl', 'Run tests using the given vegacapsule config file')
         booleanParam('SKIP_MULTISIGN_SETUP', true, h('When true validators are not added to multisig as signers'))
+        booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', true, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
+
     }
 }
 
