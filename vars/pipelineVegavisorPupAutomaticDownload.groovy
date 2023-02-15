@@ -296,18 +296,24 @@ void call() {
                         }
                     }
 
+                    catchError {
+                        dir(networkDataPath) {
+                            sh './vegacapsule network stop --home-path ' + networkDataPath + '/testnet 2>/dev/null'
+                        }
+                    }
+
                     dir(networkDataPath) {
-                    archiveArtifacts(
-                        artifacts: 'testnet/**/*',
-                        excludes: [
-                        'testnet/**/*.sock',
-                        'testnet/data/**/state/data-node/**/*',
-                        'testnet/visor/**/vega', // ignore binaries
-                        'testnet/visor/**/data-node',
-                        ].join(','),
-                        allowEmptyArchive: true
-                    )
-                }
+                        archiveArtifacts(
+                            artifacts: 'testnet/**/*',
+                            excludes: [
+                            'testnet/**/*.sock',
+                            'testnet/data/**/state/data-node/**/*',
+                            'testnet/visor/**/vega', // ignore binaries
+                            'testnet/visor/**/data-node',
+                            ].join(','),
+                            allowEmptyArchive: true
+                        )
+                    }
 
                     slack.slackSendCIStatus(
                         name: 'Visor PUP automatic download binaries pipeline',
