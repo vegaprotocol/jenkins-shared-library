@@ -297,7 +297,7 @@ void call() {
                     }
 
                     catchError {
-                        dir(testNetworkDir) {
+                        dir(networkDataPath) {
                             sh './vegacapsule network stop --home-path ' + networkDataPath + '/testnet 2>/dev/null'
                         }
                     }
