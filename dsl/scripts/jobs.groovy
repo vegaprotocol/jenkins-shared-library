@@ -960,7 +960,7 @@ def jobs = [
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', true, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
+            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
         },
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
