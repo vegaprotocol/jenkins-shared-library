@@ -94,7 +94,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
-      stage('prepare environemnt') {
+      stage('prepare environment') {
         parallel {
           stage('build devopsscripts') {
             options {
@@ -242,18 +242,18 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
           }
         }
-        stage('finalize preparation') {
-          environment {
-            TESTS_DIR = "${testNetworkDir}"
-          }
-          steps {
-            dir('system-tests/scripts') {
-              sh 'make prepare-tests'
-            }
+      }
+
+      stage('finalize preparation') {
+        environment {
+          TESTS_DIR = "${testNetworkDir}"
+        }
+        steps {
+          dir('system-tests/scripts') {
+            sh 'make prepare-tests'
           }
         }
       }
-
       // stage('build upgrade binaries') {
       //   steps {
       //     script {
