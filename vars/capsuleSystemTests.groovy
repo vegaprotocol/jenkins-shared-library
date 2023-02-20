@@ -109,7 +109,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make binaries') {
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 15, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
               retry(3)
             }
             environment {
