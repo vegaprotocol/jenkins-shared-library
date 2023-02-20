@@ -172,7 +172,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make build-vegatools'
+                sh 'make build-vega-tools'
               }
             }
           }
