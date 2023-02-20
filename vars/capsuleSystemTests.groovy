@@ -83,6 +83,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
+      stage('check') {
+        environment {
+          TESTS_DIR = "${testNetworkDir}"
+        }
+        steps {
+          dir('system-tests/scripts') {
+            sh 'make check'
+          }
+        }
+      }
+
       stage('prepare environemnt') {
         parallel {
           stage('build devopsscripts') {
@@ -107,7 +118,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               }
             }
           }
-          stage('make binaries') {
+          stage('make vegacapsule'){
             options {
               timeout(time: 15, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
               retry(3)
@@ -117,9 +128,81 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make build-binaries'
+                sh 'make vegacapsule-prepare'
+                sh 'make build-vegacapsule'
+                sh 'make vegacapsule-cleanup'
               }
-              // dependency for soak tests
+            }
+          }
+          stage('make visor'){
+            options {
+              timeout(time: 10, unit: 'MINUTES')
+              retry(3)
+            }
+            environment {
+              TESTS_DIR = "${testNetworkDir}"
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make build-visor'
+              }
+            }
+          }
+          stage('make toxiproxy'){
+            options {
+              timeout(time: 10, unit: 'MINUTES')
+              retry(3)
+            }
+            environment {
+              TESTS_DIR = "${testNetworkDir}"
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make build-toxiproxy'
+              }
+            }
+          }
+          stage('make vega tools'){
+            options {
+              timeout(time: 10, unit: 'MINUTES')
+              retry(3)
+            }
+            environment {
+              TESTS_DIR = "${testNetworkDir}"
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make build-vegatools'
+              }
+            }
+          }
+          stage('make test proto'){
+            options {
+              timeout(time: 10, unit: 'MINUTES')
+              retry(3)
+            }
+            environment {
+              TESTS_DIR = "${testNetworkDir}"
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make build-test-proto'
+              }
+            }
+          }
+          stage('make core'){
+            options {
+              timeout(time: 10, unit: 'MINUTES')
+              retry(3)
+            }
+            environment {
+              TESTS_DIR = "${testNetworkDir}"
+            }
+            steps {
+              dir('system-tests/scripts') {
+                sh 'make build-vega-core'
+                sh 'make build-vega-core-upgrade-version'
+              }
               script {
                 if (params.ARCHIVE_VEGA_BINARY) {
                   dir('/jenkins/workspace/common/system-tests-wrapper/vega') {
@@ -131,12 +214,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   }
                 }
               }
-              dir('system-tests/scripts') {
-                sh 'make vegacapsule-cleanup'
-              }
             }
           }
-
           stage('prepare system tests dependencies') {
             options {
               timeout(time: 20, unit: 'MINUTES')
@@ -160,6 +239,16 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   '''
                 }
               }
+            }
+          }
+        }
+        stage('finalize preparation') {
+          environment {
+            TESTS_DIR = "${testNetworkDir}"
+          }
+          steps {
+            dir('system-tests/scripts') {
+              sh 'make prepare-tests'
             }
           }
         }
@@ -358,7 +447,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
-      // The below step starts a new data node from network history and waits 
+      // The below step starts a new data node from network history and waits
       // until this data node is up to date with other nodes.
       stage('add new data-node from network-history') {
         when {
@@ -478,7 +567,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 --network-home-path ''' + testNetworkDir + '''/testnet \
                 --local
               ''')
-              
+
               try {
                 sh '''vegatools difftool \
                   -s "./snapshot-tmp" \
@@ -486,7 +575,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               } catch (err) {
                   echo err.getMessage()
               }
-            }            
+            }
           }
         }
       }
