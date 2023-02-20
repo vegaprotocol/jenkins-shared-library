@@ -83,6 +83,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
+      stage('check') {
+        environment {
+          TESTS_DIR = "${testNetworkDir}"
+        }
+        steps {
+          dir('system-tests/scripts') {
+            sh 'make check'
+          }
+        }
+      }
+
       stage('prepare environemnt') {
         parallel {
           stage('build devopsscripts') {
@@ -117,7 +128,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make vegacapsule-prepare'
                 sh 'make build-vegacapsule'
                 sh 'make vegacapsule-cleanup'
@@ -134,7 +144,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make build-visor'
               }
             }
@@ -149,7 +158,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make build-toxiproxy'
               }
             }
@@ -164,7 +172,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make build-vegatools'
               }
             }
@@ -179,7 +186,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make build-test-proto'
               }
             }
@@ -194,7 +200,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make check'
                 sh 'make build-vega-core'
                 sh 'make build-vega-core-upgrade-version'
               }
