@@ -125,8 +125,8 @@ void call() {
                         string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
                         string(name: 'SUIT_NAME', value: name),
                       ],
-                      propagate: false,
-                      wait: false,
+                      propagate: true,
+                      wait: true,
                     )
                   }
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
