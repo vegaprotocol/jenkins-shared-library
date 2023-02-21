@@ -211,7 +211,7 @@ def main():
     #    return
 
     print("Looking for snapshots in local store...")
-    res = subprocess.check_output(['vegatools', 'snapshotdb', '--db-path', os.path.join(vghome, "state", "node", "snapshots")])
+    res = subprocess.check_output([args.vega_binary, 'tools', 'snapshot', '--output', 'json', '--db-path', os.path.join(vghome, "state", "node", "snapshots")])
     snapshots = json.loads(res)["snapshots"]
     print(f"found {len(snapshots)} snapshots")
 
