@@ -223,6 +223,8 @@ void call() {
                                 steps {
                                     dir('checkpoint-store') {
                                         withCredentials([sshCredentials]) {
+                                            sh 'which rsync'
+                                            sh 'mkdir -p ~/.ssh && echo "Host *" > ~/.ssh/config && echo " StrictHostKeyChecking no" >> ~/.ssh/config && chmod 0400 ~/.ssh/config'
                                             sh label: 'Download latest checkpoint', script: """#!/bin/bash -e
                                                 go run scripts/main.go \
                                                     download-latest \
