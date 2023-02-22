@@ -223,8 +223,9 @@ void call() {
                                 steps {
                                     dir('checkpoint-store') {
                                         withCredentials([sshCredentials]) {
-                                            sh 'which rsync'
-                                            sh 'mkdir -p ~/.ssh && echo "Host *" > ~/.ssh/config && echo " StrictHostKeyChecking no" >> ~/.ssh/config && chmod 0400 ~/.ssh/config'
+                                            // debug steps it this stage fails, most likely you miss known host on network, configured in jcasc/scripts/init.sh
+                                            // sh 'which rsync; cat ~/.ssh/config; cat ~/.ssh/known_hosts'
+                                            // sh 'mkdir -p ~/.ssh && echo "Host *" > ~/.ssh/config && echo " StrictHostKeyChecking no" >> ~/.ssh/config && chmod 0400 ~/.ssh/config'
                                             sh label: 'Download latest checkpoint', script: """#!/bin/bash -e
                                                 go run scripts/main.go \
                                                     download-latest \
