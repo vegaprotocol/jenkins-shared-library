@@ -643,8 +643,8 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet3',
         ],
         parameters: vegavisorProtocolUpgradeParams(),
-        // weekdays 5AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 1 * * 1-5 %' + [
+        // everyday 2AM UTC, jenkins prefred minute
+        parameterizedCron: 'H 2 * * * %' + [
             'RELEASE_VERSION=latest',
         ].join(';'),
         disableConcurrentBuilds: true,
