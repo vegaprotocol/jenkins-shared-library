@@ -220,7 +220,7 @@ def vegavisorManageNodeParams(args=[:]) {
 
 def vegavisorProtocolUpgradeParams() {
     return vegavisorParamsBase() << {
-        stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 200')
+        stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 400')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
@@ -644,9 +644,9 @@ def jobs = [
         ],
         parameters: vegavisorProtocolUpgradeParams(),
         // weekdays 5AM UTC, jenkins prefred minute
-        // parameterizedCron: 'H 1 * * 1-5 %' + [
-        //     'RELEASE_VERSION=latest',
-        // ].join(';'),
+        parameterizedCron: 'H 1 * * 1-5 %' + [
+            'RELEASE_VERSION=latest',
+        ].join(';'),
         disableConcurrentBuilds: true,
     ],
     [
