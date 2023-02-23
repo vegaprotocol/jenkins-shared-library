@@ -48,13 +48,18 @@ void call() {
         pytestArgs: "--ignore-glob 'tests/[a-sA-S]*'",
         mark: 'full',
       ],
-      'network_infra a-n': [
-        pytestDirectory: "tests/[a-nA-N]*",
+      'network_infra a-o': [
+        pytestDirectory: "tests/[a-oA-O]*",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra o-z without validators': [
-        pytestArgs: "--ignore-glob 'tests/[a-nA-N]*' --ignore-glob 'tests/validators/*'",
+      'network_infra p without validators': [
+        pytestDirectory: "tests/[pP]*",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+      ],
+      'network_infra q-z without validators': [
+        pytestArgs: "--ignore-glob 'tests/[a-pA-P]*' --ignore-glob 'tests/validators/*'",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
