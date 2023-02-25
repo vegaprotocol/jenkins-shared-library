@@ -228,10 +228,11 @@ def vegavisorProtocolUpgradeParams() {
     }
 }
 
-def vegavisorTopupBotsParams() {
+def vegavisorTopupBotsParams(additionalTraderbotsIds=[]) {
     return {
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+        stringParam('ADDITIONAL_TRADER_BOTS_IDS', additionalTraderbotsIds.join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
     }
 }
@@ -541,7 +542,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(["2","3","4","5"]),
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
