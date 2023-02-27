@@ -642,9 +642,9 @@ def jobs = [
         ],
         parameters: vegavisorProtocolUpgradeParams(),
         // everyday 2AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 2 * * * %' + [
-            'RELEASE_VERSION=latest',
-        ].join(';'),
+        // parameterizedCron: 'H 2 * * * %' + [
+        //     'RELEASE_VERSION=latest',
+        // ].join(';'),
         disableConcurrentBuilds: true,
     ],
     [
