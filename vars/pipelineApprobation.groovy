@@ -163,7 +163,7 @@ void call(def config=[:]) {
             stage('Run Approbation') {
                 steps {
                     sh label: 'approbation', script: """#!/bin/bash -e
-                        npx @vegaprotocol/approbation@${params.APPROBATION_VERSION} check-references \
+                        npx --yes --silent github:vegaprotocol/approbation check-references \
                             --specs="${params.SPECS_ARG}" \
                             --tests="${params.TESTS_ARG}" \
                             --categories="${params.CATEGORIES_ARG}" \
