@@ -332,8 +332,6 @@ def approbationParams(def config=[:]) {
             stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv', 'Other arguments')
         }
 
-        stringParam('APPROBATION_VERSION', 'latest', 'Released version of Approbation. latest can be used')
-
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
     }
 }
