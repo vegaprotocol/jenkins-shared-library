@@ -202,7 +202,7 @@ def vegavisorManageNodeParams(args=[:]) {
             (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
             [
                 "be.${args.name}.vega.xyz"
-            ],
+            ] + (0..30).collect { "sn${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" },
             'Choose which node to restart')
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
