@@ -787,7 +787,21 @@ def jobs = [
         parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
         disableConcurrentBuilds: true,
     ],
-
+    [
+        name: 'private/Deployments/fairground/Manage-Node-v0-68',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
+        disableConcurrentBuilds: true,
+        // restart a random node every 30min
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
     //
     // System-Tests
     //
