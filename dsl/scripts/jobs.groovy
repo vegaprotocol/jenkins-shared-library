@@ -196,14 +196,16 @@ def vegavisorManageNodeParams(args=[:]) {
         'create-node': 'reset node',
         'stop-node': 'stop node',
     ]
+    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [ "be.${args.name}.vega.xyz" ]
+
+    if (args.sentryNodes) {
+        nodesList += ((0..15).collect { nodeNumber -> 
+            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
+        }).flatten()
+    }
+
     return vegavisorParamsBase() << {
-        choiceParam(
-            'NODE',
-            (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
-            [
-                "be.${args.name}.vega.xyz"
-            ] + (0..30).collect { "sn${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" },
-            'Choose which node to restart')
+        choiceParam('NODE', nodesList, 'Choose which node to restart')
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
@@ -785,7 +787,7 @@ def jobs = [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
+        parameters: vegavisorManageNodeParams(name: 'validators-testnet', sentryNodes: true),
         disableConcurrentBuilds: true,
     ],
     [
