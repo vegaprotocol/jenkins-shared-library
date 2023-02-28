@@ -197,13 +197,6 @@ def vegavisorManageNodeParams(args=[:]) {
         'stop-node': 'stop node',
     ]
     return vegavisorParamsBase() << {
-        choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
-        booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
-        booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
-        stringParam('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT', '0', 'If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
-        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
-        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         choiceParam(
             'NODE',
             (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } +
@@ -211,6 +204,13 @@ def vegavisorManageNodeParams(args=[:]) {
                 "be.${args.name}.vega.xyz"
             ],
             'Choose which node to restart')
+        choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
+        booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
+        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
+        booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
+        stringParam('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT', '0', 'If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
+        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
+        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
         stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
@@ -776,19 +776,7 @@ def jobs = [
     // Validators-Testnet
     //
     [
-        name: 'private/Deployments/validators-testnet/Manage-Node-53',
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/fairground/Manage-Node-v0-68',
+        name: 'private/Deployments/validators-testnet/Manage-Node-v0-68',
         numToKeep: 100,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
@@ -799,8 +787,18 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
         disableConcurrentBuilds: true,
-        // restart a random node every 30min
-        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/validators-testnet/Manage-Node-53',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
+        disableConcurrentBuilds: true,
     ],
     //
     // System-Tests
