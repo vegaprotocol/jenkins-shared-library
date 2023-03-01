@@ -160,7 +160,7 @@ void call(def config=[:]) {
                     }
                 }
             }
-            stage('Run Approbation') {
+            stage('Run Approbation: Categories') {
                 steps {
                     sh label: 'approbation', script: """#!/bin/bash -e
                         npx --yes --silent github:vegaprotocol/approbation check-references \
@@ -171,6 +171,22 @@ void call(def config=[:]) {
                     """
                 }
             }
+            stage('Run Approbation: Apps') {
+                    when {
+                        expression {
+                            config.type == 'frontend'
+                        }
+                    }
+                    steps {
+                        sh label: 'approbation', script: """#!/bin/bash -e
+                            npx --yes --silent github:vegaprotocol/approbation check-references \
+                                --specs="${params.SPECS_ARG}" \
+                                --tests="${params.TESTS_ARG}" \
+                                --categories="${params.APPS_ARG}" \
+                                ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
+                        """
+                    }
+                }
         }
         post {
             always {
