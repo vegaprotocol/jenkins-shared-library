@@ -313,7 +313,8 @@ def approbationParams(def config=[:]) {
             stringParam('CATEGORIES_ARG', './specs/protocol/categories.json', '--categories argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value')
+            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value for the categories run')
+            stringParam('APPS_ARG', 'specs/user-interface/apps.json', '--categories argument value for the apps run')
         }
 
         if (config.type == 'core') {
