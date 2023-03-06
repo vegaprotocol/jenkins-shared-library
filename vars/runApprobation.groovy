@@ -26,6 +26,10 @@ void call(Map config = [:]) {
     if (config.vegawalletDesktopBranch) {
         buildParameters.add(string(name: 'VEGAWALLET_DESKTOP_BRANCH', value: config.vegawalletDesktopBranch))
     }
+    if (config.vegawalletUiBranch) {
+        buildParameters.add(string(name: 'VEGAWALLET_UI_BRANCH', value: config.vegawalletUiBranch))
+    }
+
 
 
     echo "Starting Approbation with parameters: ${buildParameters}"

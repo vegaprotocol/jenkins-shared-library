@@ -158,6 +158,22 @@ void call(def config=[:]) {
                             sh "rm -rf vegawallet-desktop@tmp"
                         }
                     }
+                    stage('vegawallet-ui') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'vegawallet-ui',
+                                vegaUrl: 'vegawallet-ui',
+                                branch: params.VEGAWALLET_UI_BRANCH,
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf vegawallet-ui@tmp"
+                        }
+                    }
                 }
             }
             stage('Run Approbation') {
