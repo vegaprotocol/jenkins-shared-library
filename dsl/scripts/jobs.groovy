@@ -1061,20 +1061,6 @@ def jobs = [
         ],
     ],
     [
-        name: 'common/vegawallet-ui',
-        repo: 'vegawallet-ui',
-        useGithub: true,
-        jenkinsfile: 'Jenkinsfile',
-        branch: 'main',
-        disableConcurrentBuilds: true,
-        check: 'Approbation Pipeline',
-        env: [
-            // hax getCommitHash()
-            BRANCH_NAME: 'main',
-            CHANGE_BRANCH: 'main',
-        ],
-    ],
-    [
         name: 'common/snapshot-soak-tests',
         useScmDefinition: false,
         numToKeep: 100,
