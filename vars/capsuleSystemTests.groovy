@@ -577,7 +577,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 --home-path ''' + testNetworkDir + '''/testnet \
                 --template-path system-tests/vegacapsule/net_configs/visor_run.tmpl \
                 --height ''' + proposalBlock + ''' \
-                --release-tag v0.990.0
+                --release-tag v99.990.0
             '''
 
             print('Waiting on block ' + proposalBlock)
