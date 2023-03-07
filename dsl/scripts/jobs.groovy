@@ -853,7 +853,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
         parameters: {
-            stringParam('RELEASES_REPO', 'vegaprotocol/vega-dev-releases', 'repository where we keep all our releases for vega')
+            stringParam('RELEASES_REPO', 'vegaprotocol/vega-dev-releases-system-tests', 'repository where we keep all our releases for vega')
             stringParam('VEGA_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vega repository')
             stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/system-tests repository')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vegatools repository')
