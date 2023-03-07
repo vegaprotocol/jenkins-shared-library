@@ -384,6 +384,8 @@ void call() {
                             json: [
                                 release_version: RELEASE_VERSION,
                                 unsafe_reset_all: params.UNSAFE_RESET_ALL,
+                                perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
+                                update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
                         )
                         dir('ansible') {
