@@ -298,6 +298,7 @@ def approbationParams(def config=[:]) {
         else if (config.type == 'frontend') {
             stringParam('FRONTEND_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
             stringParam('VEGAWALLET_DESKTOP_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
+            stringParam('VEGAWALLET_UI_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
         }
 
         stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
@@ -321,7 +322,7 @@ def approbationParams(def config=[:]) {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js,./Vega_Token_V2/test/*.js,./Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/**/*.cy.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.cy.{ts,js,tsx,jsx}}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
