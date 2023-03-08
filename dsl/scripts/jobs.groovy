@@ -199,7 +199,7 @@ def vegavisorManageNodeParams(args=[:]) {
     List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [ "be.${args.name}.vega.xyz" ]
 
     if (args.sentryNodes) {
-        nodesList += ((0..15).collect { nodeNumber -> 
+        nodesList += ((0..15).collect { nodeNumber ->
             (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
         }).flatten()
     }
@@ -969,6 +969,25 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
+            HISTORY_KEY: 'NetworkHistory',
+        ],
+        parameters: {
+            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
+        },
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Validators-Testnet',
+        // disabled: true,
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'validators-testnet',
             HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: {
