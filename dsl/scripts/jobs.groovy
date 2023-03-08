@@ -989,6 +989,7 @@ def jobs = [
         env: [
             NET_NAME: 'validators-testnet',
             HISTORY_KEY: 'NetworkHistory',
+            NODES_DENYLIST: 'n01.validators-testnet.vega.xyz'
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
