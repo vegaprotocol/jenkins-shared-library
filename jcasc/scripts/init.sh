@@ -1,10 +1,10 @@
 #!/bin/bash -ex
-for net in devnet1 stagnet1 stagnet2 stagnet3 testnet sandbox; do
+for net in devnet1 stagnet1 stagnet2 stagnet3 testnet sandbox validators-testnet; do
     for i in {00..50}; do
         # Remove
-        ssh-keygen -R "n$i.$net.vega.xyz" || true
+        ssh-keygen -R "n$i.$net.vega.xyz" || break
         # Readd
-        ssh-keyscan -t rsa,dsa "n$i.$net.vega.xyz" >> ~/.ssh/known_hosts || true
+        ssh-keyscan -t rsa,dsa "n$i.$net.vega.xyz" >> ~/.ssh/known_hosts || break
     done
 done
 ssh-keyscan -t rsa,dsa "mainnet-observer.ops.vega.xyz" >> ~/.ssh/known_hosts || true
