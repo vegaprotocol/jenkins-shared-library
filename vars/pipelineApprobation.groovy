@@ -22,7 +22,7 @@ void call(def config=[:]) {
             ansiColor('xterm')
             skipDefaultCheckout()
             timestamps()
-            timeout(time: 20, unit: 'MINUTES')
+            timeout(time: 35, unit: 'MINUTES')
         }
         stages {
             stage('CI Config') {
