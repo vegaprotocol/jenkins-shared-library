@@ -145,9 +145,11 @@ def libDefinition(methodName) {
     }
 }
 
-def vegavisorParamsBase() {
+def vegavisorParamsBase(args=[:]) {
     return {
         booleanParam('SKIP_INFRA_PROVISION', false, 'switch to true when you use `create-*` action and wish to ommit infrastrucutre provisioning like: accounts, grafana-agent, etc.')
+        booleanParam('UPDATE_SYSTEM_CONFIGURATION', args.get('UPDATE_CONFIGURATION', true), 'This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
+        booleanParam('PERFORM_NETWORK_OPERATIONS', true, 'This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
@@ -221,7 +223,9 @@ def vegavisorManageNodeParams(args=[:]) {
 }
 
 def vegavisorProtocolUpgradeParams() {
-    return vegavisorParamsBase() << {
+    return vegavisorParamsBase([
+        'UPDATE_CONFIGURATION': false,
+    ]) << {
         stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 400')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')

@@ -263,6 +263,8 @@ void call() {
                                         use_remote_snapshot: params.USE_REMOTE_SNAPSHOT,
                                         eth_address_to_submit_multisig_changes: ETH_ADDRESS,
                                         custom_snapshot_block_height: (params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT == 0 ? null : params.USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT),
+                                        perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
+                                        update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                                     ].findAll{ key, value -> value != null }
                                 )
 

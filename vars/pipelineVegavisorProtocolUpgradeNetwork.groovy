@@ -116,6 +116,8 @@ void call() {
                                 protocol_upgrade_version: RELEASE_VERSION,
                                 protocol_upgrade_block: protocolUpgradeBlock,
                                 protocol_upgrade_manual_install: params.MANUAL_INSTALL,
+                                perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
+                                update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
                         )
                     }
