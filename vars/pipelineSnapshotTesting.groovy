@@ -65,6 +65,12 @@ void call(Map config=[:]) {
                         }
                         def networkServers = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${baseDomain}" }
 
+                        // exclude from checking servers that are in the denylist configured in DSL
+                        if (env.NODES_DENYLIST) {
+                            def denyList = (env.NODES_DENYLIST as String).split(',')
+                            networkServers = networkServers.findAll{ server -> !denyList.contains(server) }
+                        }
+
                         Collections.shuffle(networkServers as List)
 
                         echo "Going to check servers: ${networkServers}"
