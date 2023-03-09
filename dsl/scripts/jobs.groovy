@@ -454,47 +454,47 @@ def jobs = [
     //
     // Sandbox
     //
-    [
-        name: 'private/Deployments/sandbox/Manage-Network',
-        numToKeep: 100,
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNetwork()'),
-        env: [
-            NET_NAME: 'sandbox',
-            ANSIBLE_LIMIT: 'sandbox',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorRestartNetworkParams(),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/sandbox/Manage-Node',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'sandbox',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(name: 'sandbox'),
-        disableConcurrentBuilds: true,
-        // restart a random node every 30min
-        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    ],
-    [
-        name: 'private/Deployments/sandbox/Protocol-Upgrade',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-        env: [
-            NET_NAME: 'sandbox',
-            ANSIBLE_LIMIT: 'sandbox',
-        ],
-        parameters: vegavisorProtocolUpgradeParams(),
-        disableConcurrentBuilds: true,
-    ],
+    // [
+    //     name: 'private/Deployments/sandbox/Manage-Network',
+    //     numToKeep: 100,
+    //     description: devopsInfraDocs,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
+    //     env: [
+    //         NET_NAME: 'sandbox',
+    //         ANSIBLE_LIMIT: 'sandbox',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorRestartNetworkParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/sandbox/Manage-Node',
+    //     numToKeep: 100,
+    //     description: vegavisorManageNodeDescription(),
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNode()'),
+    //     env: [
+    //         NET_NAME: 'sandbox',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorManageNodeParams(name: 'sandbox'),
+    //     disableConcurrentBuilds: true,
+    //     // restart a random node every 30min
+    //     // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    // ],
+    // [
+    //     name: 'private/Deployments/sandbox/Protocol-Upgrade',
+    //     numToKeep: 100,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+    //     env: [
+    //         NET_NAME: 'sandbox',
+    //         ANSIBLE_LIMIT: 'sandbox',
+    //     ],
+    //     parameters: vegavisorProtocolUpgradeParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
     //
     // Stagnet 1
     //
@@ -554,59 +554,59 @@ def jobs = [
     //
     // Stagnet 2
     //
-    [
-        name: 'private/Deployments/stagnet2/Manage-Network',
-        numToKeep: 100,
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNetwork()'),
-        env: [
-            NET_NAME: 'stagnet2',
-            ANSIBLE_LIMIT: 'stagnet2',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorRestartNetworkParams(),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet2/Manage-Node',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'stagnet2',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(name: 'stagnet2'),
-        disableConcurrentBuilds: true,
-        // restart a random node every 30min
-        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    ],
-    [
-        name: 'private/Deployments/stagnet2/Protocol-Upgrade',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-        env: [
-            NET_NAME: 'stagnet2',
-            ANSIBLE_LIMIT: 'stagnet2',
-        ],
-        parameters: vegavisorProtocolUpgradeParams(),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet2/Topup-Bots',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorTopupBots()'),
-        env: [
-            NET_NAME: 'stagnet2',
-        ],
-        parameters: vegavisorTopupBotsParams(),
-        // cron: 'H/30 * * * *',
-        disableConcurrentBuilds: true,
-    ],
+    // [
+    //     name: 'private/Deployments/stagnet2/Manage-Network',
+    //     numToKeep: 100,
+    //     description: devopsInfraDocs,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
+    //     env: [
+    //         NET_NAME: 'stagnet2',
+    //         ANSIBLE_LIMIT: 'stagnet2',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorRestartNetworkParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/stagnet2/Manage-Node',
+    //     numToKeep: 100,
+    //     description: vegavisorManageNodeDescription(),
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNode()'),
+    //     env: [
+    //         NET_NAME: 'stagnet2',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorManageNodeParams(name: 'stagnet2'),
+    //     disableConcurrentBuilds: true,
+    //     // restart a random node every 30min
+    //     //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    // ],
+    // [
+    //     name: 'private/Deployments/stagnet2/Protocol-Upgrade',
+    //     numToKeep: 100,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+    //     env: [
+    //         NET_NAME: 'stagnet2',
+    //         ANSIBLE_LIMIT: 'stagnet2',
+    //     ],
+    //     parameters: vegavisorProtocolUpgradeParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/stagnet2/Topup-Bots',
+    //     numToKeep: 100,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorTopupBots()'),
+    //     env: [
+    //         NET_NAME: 'stagnet2',
+    //     ],
+    //     parameters: vegavisorTopupBotsParams(),
+    //     // cron: 'H/30 * * * *',
+    //     disableConcurrentBuilds: true,
+    // ],
     //
     // Stagnet 3
     //
@@ -726,60 +726,60 @@ def jobs = [
     //
     // mainnet-mirror
     //
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Network',
-        numToKeep: 100,
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNetwork()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorRestartNetworkParams(),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Node',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Network-53',
-        numToKeep: 100,
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNetwork()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-        ],
-        parameters: vegavisorRestartNetworkParams(),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Node-53',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
-        disableConcurrentBuilds: true,
-    ],
+    // [
+    //     name: 'private/Deployments/mainnet-mirror/Manage-Network',
+    //     numToKeep: 100,
+    //     description: devopsInfraDocs,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
+    //     env: [
+    //         NET_NAME: 'mainnet-mirror',
+    //         ANSIBLE_LIMIT: 'mainnet-mirror',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorRestartNetworkParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/mainnet-mirror/Manage-Node',
+    //     numToKeep: 100,
+    //     description: vegavisorManageNodeDescription(),
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNode()'),
+    //     env: [
+    //         NET_NAME: 'mainnet-mirror',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //     ],
+    //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/mainnet-mirror/Manage-Network-53',
+    //     numToKeep: 100,
+    //     description: devopsInfraDocs,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
+    //     env: [
+    //         NET_NAME: 'mainnet-mirror',
+    //         ANSIBLE_LIMIT: 'mainnet-mirror',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+    //     ],
+    //     parameters: vegavisorRestartNetworkParams(),
+    //     disableConcurrentBuilds: true,
+    // ],
+    // [
+    //     name: 'private/Deployments/mainnet-mirror/Manage-Node-53',
+    //     numToKeep: 100,
+    //     description: vegavisorManageNodeDescription(),
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorManageNode()'),
+    //     env: [
+    //         NET_NAME: 'mainnet-mirror',
+    //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+    //     ],
+    //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
+    //     disableConcurrentBuilds: true,
+    // ],
     //
     // Validators-Testnet
     //
@@ -1100,21 +1100,21 @@ def jobs = [
         }
     ],
     // ethereum events
-    [
-        name: 'private/Automations/Ethereum-Events/Sandbox',
-        useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineEthereumEvents()'),
-        env: [
-            NET_NAME: 'sandbox',
-        ],
-        cron: 'H/30 * * * *',
-        parameters: {
-            stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
-            stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-    ],
+    // [
+    //     name: 'private/Automations/Ethereum-Events/Sandbox',
+    //     useScmDefinition: false,
+    //     numToKeep: 100,
+    //     definition: libDefinition('pipelineEthereumEvents()'),
+    //     env: [
+    //         NET_NAME: 'sandbox',
+    //     ],
+    //     cron: 'H/30 * * * *',
+    //     parameters: {
+    //         stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
+    //         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+    //         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    //     },
+    // ],
 ]
 
 // MAIN
