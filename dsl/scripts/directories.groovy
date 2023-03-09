@@ -27,18 +27,18 @@ def dirs = [
         id: 'private/Deployments/stagnet1',
         display: 'Stagnet 1',
     ],
-    [
-        id: 'private/Deployments/stagnet2',
-        display: 'Stagnet 2',
-    ],
+    // [
+    //     id: 'private/Deployments/stagnet2',
+    //     display: 'Stagnet 2',
+    // ],
     [
         id: 'private/Deployments/stagnet3',
         display: 'Stagnet 3',
     ],
-    [
-        id: 'private/Deployments/mainnet-mirror',
-        display: 'Mainnet Mirror',
-    ],
+    // [
+    //     id: 'private/Deployments/mainnet-mirror',
+    //     display: 'Mainnet Mirror',
+    // ],
     [
         id: 'private/Deployments/validators-testnet',
         display: 'Validators Testnet',
@@ -51,10 +51,10 @@ def dirs = [
         id: 'private/Deployments/Veganet',
         display: 'Veganet',
     ],
-    [
-        id: 'private/Deployments/sandbox',
-        display: 'Sandbox',
-    ],
+    // [
+    //     id: 'private/Deployments/sandbox',
+    //     display: 'Sandbox',
+    // ],
     [
         id: 'private/playgrounds',
         display: 'Playgrounds',
