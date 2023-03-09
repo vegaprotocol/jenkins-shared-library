@@ -70,7 +70,7 @@ void call() {
                 parallel {
                     stage('vega'){
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS }
                         }
                         steps {
                             script {
@@ -164,7 +164,7 @@ void call() {
             }
             stage('Build vega, data-node, vegawallet and visor') {
                 when {
-                    expression { params.VEGA_VERSION }
+                    expression { params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS }
                 }
                 steps {
                     dir('vega') {

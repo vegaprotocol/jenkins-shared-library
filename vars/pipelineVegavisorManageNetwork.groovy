@@ -82,7 +82,7 @@ void call() {
                 parallel {
                     stage('vega'){
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS }
                         }
                         steps {
                             script {
@@ -110,7 +110,7 @@ void call() {
                     }
                     stage('checkpoint-store'){
                         when {
-                            expression { params.USE_CHECKPOINT }
+                            expression { params.USE_CHECKPOINT && params.PERFORM_NETWORK_OPERATIONS }
                         }
                         steps {
                             script {
@@ -145,11 +145,11 @@ void call() {
                         when {
                             anyOf {
                                 expression {
-                                    params.CREATE_MARKETS
+                                    params.CREATE_MARKETS && params.PERFORM_NETWORK_OPERATIONS
                                 }
                                 not {
                                     expression {
-                                        params.USE_CHECKPOINT
+                                        params.USE_CHECKPOINT && params.PERFORM_NETWORK_OPERATIONS
                                     }
                                 }
                             }
@@ -170,7 +170,7 @@ void call() {
                 parallel {
                     stage('Build vega, data-node, vegawallet and visor') {
                         when {
-                            expression { params.VEGA_VERSION }
+                            expression { params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS }
                         }
                         steps {
                             dir('vega') {
@@ -205,7 +205,7 @@ void call() {
                     }
                     stage('Checkpoint') {
                         when {
-                            expression { params.USE_CHECKPOINT }
+                            expression { params.USE_CHECKPOINT && params.PERFORM_NETWORK_OPERATIONS }
                         }
                         stages {
                             stage('Prepare scripts') {
@@ -280,7 +280,7 @@ void call() {
             stage('Generate genesis') {
                 when {
                     expression {
-                        params.ACTION != 'stop-network'
+                        params.ACTION != 'stop-network' && params.PERFORM_NETWORK_OPERATIONS
                     }
                 }
                 stages {
@@ -371,7 +371,7 @@ void call() {
                 }
                 steps {
                     script {
-                        if (params.VEGA_VERSION) {
+                        if (params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS ) {
                             sh label: 'copy binaries to ansible', script: """#!/bin/bash -e
                                 cp ./bin/vega ./ansible/roles/barenode/files/bin/
                                 cp ./bin/data-node ./ansible/roles/barenode/files/bin/
@@ -436,7 +436,7 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
-                            if (RELEASE_VERSION) {
+                            if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS ) {
                                 action = ": deploy `${RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
@@ -451,7 +451,7 @@ void call() {
                         script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
-                            if (RELEASE_VERSION) {
+                            if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS) {
                                 action = ": deploy `${RELEASE_VERSION}`"
                             }
                             stagesExtraMessages[stagesHeaders.version] = action
@@ -466,11 +466,11 @@ void call() {
                             allOf {
                                 not {
                                     expression {
-                                        params.USE_CHECKPOINT
+                                        params.USE_CHECKPOINT && params.PERFORM_NETWORK_OPERATIONS
                                     }
                                 }
                                 expression {
-                                    params.ACTION != 'stop-network'
+                                    params.ACTION != 'stop-network' && params.PERFORM_NETWORK_OPERATIONS
                                 }
                             }
                         }
@@ -499,10 +499,10 @@ void call() {
                                 when {
                                     allOf {
                                         expression {
-                                            params.ACTION != 'stop-network'
+                                            params.ACTION != 'stop-network' && params.PERFORM_NETWORK_OPERATIONS
                                         }
                                         expression {
-                                            params.CREATE_MARKETS
+                                            params.CREATE_MARKETS && params.PERFORM_NETWORK_OPERATIONS
                                         }
                                     }
                                 }
@@ -565,6 +565,9 @@ void call() {
                     stage('Update vegawallet service') {
                         when {
                             allOf {
+                                expression {
+                                    params.PERFORM_NETWORK_OPERATIONS
+                                }
                                 expression {
                                     DOCKER_VERSION
                                 }
