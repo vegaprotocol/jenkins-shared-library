@@ -475,7 +475,18 @@ void call() {
                             }
                         }
                         steps {
-                            sleep 90
+                            //
+                            // This can start constantly failing for
+                            //   - Devnet for a single node that takes part in validator join&leave pipeline
+                            //   - or any network that start from block 0 and has a lot of events to read from Ethereum blockchain.
+                            // The reason might be that the `Staking bridge` `stake` event might take a lot of time to get to the network
+                            // When we restart with checkpoint the network does not need to re-read all the events from Ethereum.
+                            // Without a checkpoint it needs to be done, and some `stake` events are at the end of the replay
+                            // Solutions/Workarounds:
+                            //   - redeploy smart contracts for Devnet (and decrease sleep)
+                            //   - increase sleep
+                            //
+                            sleep 180
                             withDevopstools(
                                 command: 'network self-delegate'
                             )
