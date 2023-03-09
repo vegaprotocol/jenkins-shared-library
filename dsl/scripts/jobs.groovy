@@ -249,6 +249,14 @@ def vegavisorTopupBotsParams(additionalTraderbotsIds=[]) {
     }
 }
 
+def backupChainDataParams(String networkName, String nodeNumber) {
+    return {
+        stringParam('S3_BUCKET_NAME', 'vega-chain-data-backups', 'The S3 bucket destination for backup')
+        stringParam('NET_NAME', networkName, 'The network name to backup')
+        stringParam('NODE_NAME', nodeNumber, 'Number of the node used to backup: e.g.: n08')
+    }
+}
+
 def systemTestsParamsGeneric(args=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
@@ -673,6 +681,18 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(),
         cron: 'H */6 * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet3/backup',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('backupChainData()'),
+        env: [
+            NET_NAME: 'stagnet3',
+        ],
+        parameters: backupChainDataParams('stagnet3', 'n08'),
+        cron: 'H */3 * * *',
         disableConcurrentBuilds: true,
     ],
     //
