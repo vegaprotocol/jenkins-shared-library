@@ -414,7 +414,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'devnet1'),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         parameterizedCron: [
             // restart a random node every 1 hour
             '20 * * * * %' + ['RANDOM_NODE=true'].join(';'),
@@ -480,7 +480,7 @@ def jobs = [
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'sandbox'),
-    //     disableConcurrentBuilds: true,
+    //     disableConcurrentBuilds: false,
     //     // restart a random node every 30min
     //     // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     // ],
@@ -524,7 +524,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet1'),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
@@ -580,7 +580,7 @@ def jobs = [
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'stagnet2'),
-    //     disableConcurrentBuilds: true,
+    //     disableConcurrentBuilds: false,
     //     // restart a random node every 30min
     //     //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     // ],
@@ -636,7 +636,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet3'),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
@@ -696,7 +696,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'testnet'),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
@@ -752,7 +752,7 @@ def jobs = [
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
-    //     disableConcurrentBuilds: true,
+    //     disableConcurrentBuilds: false,
     // ],
     // [
     //     name: 'private/Deployments/mainnet-mirror/Manage-Network-53',
@@ -795,7 +795,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'validators-testnet', sentryNodes: true),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
     ],
     [
         name: 'private/Deployments/validators-testnet/Manage-Node-53',
