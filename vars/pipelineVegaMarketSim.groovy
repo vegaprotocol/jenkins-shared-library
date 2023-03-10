@@ -120,6 +120,18 @@ void call() {
                             '''
                         }
                     }
+                    stage('Fuzz Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            sh label: 'Fuzz Test', script: '''
+                                scripts/run-docker-fuzz-test.sh
+                            '''
+                        }
+                    }
                     stage('Generate Plots') {
                         when {
                             expression {
@@ -169,7 +181,7 @@ void sendSlackMessage() {
 
     String msgTitle = 'Vega Market Sim'
     if (params.RUN_LEARNING == true) {
-        msgTitle = 'Vega Market Sim - RL Nightly'
+        msgTitle = 'Vega Market Sim - Nightly Long Tests'
     }
 
     if (currentResult == 'SUCCESS') {
