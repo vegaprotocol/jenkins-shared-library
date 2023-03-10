@@ -51,10 +51,8 @@ def call() {
 
                         try {
                             List additionalTraderbotsIds = []
-                            // params.ADDITIONAL_TRADER_BOTS_IDS = "2,3,4,5"
-                            String botsIds = "2,3,4,5"
-                            if (true || params.ADDITIONAL_TRADER_BOTS_IDS) {
-                                additionalTraderbotsIds = botsIds.split(',')
+                            if (params.ADDITIONAL_TRADER_BOTS_IDS) {
+                                additionalTraderbotsIds = params.ADDITIONAL_TRADER_BOTS_IDS.split(',')
                             }
 
                             additionalTraderbotsIds.each{traderbotId ->
