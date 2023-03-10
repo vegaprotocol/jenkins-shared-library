@@ -36,11 +36,39 @@ def call() {
             }
             stage('Top ups Traderbot') {
                 steps {
-                    withDevopstools(
-                        command: 'topup traderbot'
-                    )
-                    withGoogleSA('gcp-k8s') {
-                        sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
+                    script {
+                        try {
+                            withDevopstools(
+                                command: 'topup traderbot'
+                            )
+                            withGoogleSA('gcp-k8s') {
+                                sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
+                            }
+                        } catch(err) {
+                            print(err)
+                            currentBuild.result = 'UNSTABLE'
+                        }
+
+                        try {
+                            List additionalTraderbotsIds = []
+                            // params.ADDITIONAL_TRADER_BOTS_IDS = "2,3,4,5"
+                            String botsIds = "2,3,4,5"
+                            if (true || params.ADDITIONAL_TRADER_BOTS_IDS) {
+                                additionalTraderbotsIds = botsIds.split(',')
+                            }
+
+                            additionalTraderbotsIds.each{traderbotId ->
+                                withDevopstools(
+                                    command: 'topup traderbot --traderbot-id ' + traderbotId
+                                )
+                                withGoogleSA('gcp-k8s') {
+                                    sh "kubectl rollout restart statefulset traderbot${traderbotId}-app -n ${env.NET_NAME}"
+                                }
+                            }
+                        } catch(err) {
+                            print(err)
+                            currentBuild.result = 'UNSTABLE'
+                        }
                     }
                 }
             }
