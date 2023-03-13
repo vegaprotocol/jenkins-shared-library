@@ -189,7 +189,7 @@ void call(Map config=[:]) {
                                 if (env.NET_NAME == 'validators-testnet') {
                                     sh label: 'set Tendermint config (validators-testnet specific)',
                                         script: """#!/bin/bash -e
-                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn012.validators-testnet.vega.xyz:40126,sn011.validators-testnet.vega.xyz:40116"
+                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn012.validators-testnet.vega.xyz:40127,sn011.validators-testnet.vega.xyz:40117"
                                         """
                                 }
                                 sh label: 'set Tendermint config',
