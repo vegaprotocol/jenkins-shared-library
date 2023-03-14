@@ -198,7 +198,13 @@ def vegavisorManageNodeParams(args=[:]) {
         'create-node': 'reset node',
         'stop-node': 'stop node',
     ]
-    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [ "be.${args.name}.vega.xyz", "be02.${args.name}.vega.xyz" ]
+    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
+        "be.${args.name}.vega.xyz",
+        "be02.${args.name}.vega.xyz",
+        "metabase00.${args.name}.vega.xyz",
+        "metabase01.${args.name}.vega.xyz",
+        "metabase02.${args.name}.vega.xyz",
+    ]
 
     if (args.sentryNodes) {
         nodesList += ((0..15).collect { nodeNumber ->
