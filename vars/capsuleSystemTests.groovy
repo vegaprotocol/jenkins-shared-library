@@ -5,6 +5,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
     agentLabel: 'system-tests-capsule',
+    fastFail: true,
+    protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
   ]
 
@@ -20,7 +22,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       postPipeline: [:],
   ] + config.hooks
 
-  String testNetworkDir = ""
+  String testNetworkDir = ''
+
+  String protocolUpgradeVersion = 'v99.9.9-system-tests-' + currentBuild.number
 
   pipeline {
     agent {
@@ -274,6 +278,42 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       //     }
       //   }
       // }
+      stage('build upgrade binaries') {
+        when {
+          expression {
+            params.BUILD_PROTOCOL_UPGRADE_VERSION
+          }
+        }
+
+        options {
+          timeout(time: 10, unit: 'MINUTES')
+          retry(2)
+        }
+
+        steps {
+          script {
+            sh 'mkdir -p vega/dist'
+            sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="''' + protocolUpgradeVersion + '''"/' vega/version/version.go'''
+            vegautils.buildGoBinary('vega', 'dist', './...')
+
+            dir('vega/dist') {
+              sh './vega version'
+              sh './data-node version'
+              sh 'zip data-node-linux-amd64.zip data-node'
+              sh 'zip vega-linux-amd64.zip vega'
+
+              withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                sh '''gh release create \
+                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
+                    ''' + protocolUpgradeVersion + ''' \
+                    *.zip'''
+              }
+            }
+
+            versionToUpgradeNetwork = 'v77.7.7-jenkins-visor-pup-' + currentBuild.number
+          }
+        }
+      }
 
       stage('start nomad') {
         steps {
@@ -298,6 +338,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -319,6 +361,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${networkPath}:${env.PATH}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -333,6 +377,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -371,6 +417,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${env.PATH}:${networkPath}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         options {
@@ -403,6 +451,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -413,7 +463,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    sh 'make test'
+                    try {
+                      sh 'make test'
+                    } catch(err) {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
+                      currentBuild.result = 'FAILURE'
+                      if (!config.fastFail) {
+                        print(err)
+                      } else {
+                        throw err
+                      }
+                    }
                   }
                 }
               ]
@@ -442,7 +502,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           script {
-            parallel pipelineHooks.postRunTests
+            withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
+              parallel pipelineHooks.postRunTests
+            }
           }
         }
       }
@@ -515,7 +577,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 --home-path ''' + testNetworkDir + '''/testnet \
                 --template-path system-tests/vegacapsule/net_configs/visor_run.tmpl \
                 --height ''' + proposalBlock + ''' \
-                --release-tag v0.990.0
+                --release-tag v99.990.0
             '''
 
             print('Waiting on block ' + proposalBlock)
@@ -593,6 +655,20 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         catchError {
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
+          }
+        }
+
+        catchError {
+          script {
+            if (params.BUILD_PROTOCOL_UPGRADE_VERSION) {
+              withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                sh '''gh release delete \
+                    --yes \
+                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
+                    ''' + protocolUpgradeVersion + ''' \
+                | echo "Release does not exist"'''
+              }
+            }
           }
         }
 

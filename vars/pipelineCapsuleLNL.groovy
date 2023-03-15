@@ -5,6 +5,7 @@ void call(Map paramsOverrides=[:]) {
         extraEnvVars: [
             "MAINNET_TEST_CASE": "true",
         ],
+        fastFail: false,
         hooks: [
             postNetworkGenerate: [
                 'Load mainnet checkpoint': {
@@ -77,6 +78,13 @@ void call(Map paramsOverrides=[:]) {
                         --out system-tests/tests/LNL/after_checkpoint_load.json \
                         1> /dev/null
                     '''
+                }
+            ],
+            postRunTests: [
+                'Extended LNL pipeline': {
+                  dir('system-tests/scripts') {
+                    sh 'TEST_FUNCTION=test_extended_lnl make test'
+                    }
                 }
             ],
             postPipeline: [
