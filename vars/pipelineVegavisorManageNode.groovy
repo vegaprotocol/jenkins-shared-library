@@ -287,17 +287,17 @@ void call() {
                                     def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
                                     stage(stageName) {
                                         // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
-                                        sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
-                                            ansible-playbook \
-                                                --diff \
-                                                -u "\${PSSH_USER}" \
-                                                --private-key "\${PSSH_KEYFILE}" \
-                                                --inventory inventories \
-                                                --limit "${NODE_NAME ?: params.NODE}" \
-                                                --tag "${params.ACTION}" \
-                                                --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
-                                                playbooks/${env.ANSIBLE_PLAYBOOK}
-                                        """
+                                        // sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
+                                        //     ansible-playbook \
+                                        //         --diff \
+                                        //         -u "\${PSSH_USER}" \
+                                        //         --private-key "\${PSSH_KEYFILE}" \
+                                        //         --inventory inventories \
+                                        //         --limit "${NODE_NAME ?: params.NODE}" \
+                                        //         --tag "${params.ACTION}" \
+                                        //         --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
+                                        //         playbooks/${env.ANSIBLE_PLAYBOOK}
+                                        // """
                                     }
                                 }
                             }
