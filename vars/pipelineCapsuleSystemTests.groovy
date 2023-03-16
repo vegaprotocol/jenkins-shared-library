@@ -117,6 +117,9 @@ void call() {
                   if (params.SCENARIO == 'NIGHTLY') {
                     childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
                   }
+                  if (params.SCENARIO == 'NIGHTLY' && params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES == '') {
+                    childParams += [booleanParam(name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', value: '{"network.markPriceUpdateMaximumFrequency":"5s"}')]
+                  }
                   RunWrapper downstreamBuild = build(
                     job: downstreamBuildName,
                     parameters: childParams,
