@@ -294,8 +294,6 @@ def lnlSystemTestsparams() {
         stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests executiom')
         stringParam('CAPSULE_CONFIG', 'capsule_config_mainnet.hcl', 'Run tests using the given vegacapsule config file')
         booleanParam('SKIP_MULTISIGN_SETUP', true, h('When true validators are not added to multisig as signers'))
-        booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', true, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
-
     }
 }
 
