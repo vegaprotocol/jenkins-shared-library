@@ -10,19 +10,129 @@ void call() {
   // this is default scenario for smoke test, but it will require changing for other types
   scenario = [
     'PR': [
-      'smoke a-g': [
-        pytestDirectory: "tests/[a-gA-G]*",
+    'smoke API': [
+        pytestDirectory: "tests/API",
         mark: 'smoke'
       ],
-      'smoke h-m': [
-        pytestDirectory: "tests/[h-mH-M]*",
+      'smoke AssetMarketData': [
+        pytestDirectory: "tests/AssetMarketData",
         mark: 'smoke'
       ],
-      'smoke n-z': [
-        pytestArgs: "--ignore-glob 'tests/[a-mA-M]*'",
+      'smoke assets': [
+        pytestDirectory: "tests/assets",
         mark: 'smoke'
       ],
-      'network_infra_smoke a-z': [
+      'smoke cash_settled_futures': [
+        pytestDirectory: "tests/cash_settled_futures",
+        mark: 'smoke'
+      ],
+      'smoke collateral': [
+        pytestDirectory: "tests/collateral",
+        mark: 'smoke'
+      ],
+      'smoke data_sources': [
+        pytestDirectory: "tests/data_sources",
+        mark: 'smoke'
+      ],
+            'smoke datanode': [
+        pytestDirectory: "tests/datanode",
+        mark: 'smoke'
+      ],
+            'smoke deposits_withdrawals': [
+        pytestDirectory: "tests/deposits_withdrawals",
+        mark: 'smoke'
+      ],
+            'smoke fees': [
+        pytestDirectory: "tests/fees",
+        mark: 'smoke'
+      ],
+            'smoke gas': [
+        pytestDirectory: "tests/gas",
+        mark: 'smoke'
+      ],
+            'smoke governance': [
+        pytestDirectory: "tests/governance",
+        mark: 'smoke'
+      ],
+            'smoke limits': [
+        pytestDirectory: "tests/limits",
+        mark: 'smoke'
+      ],
+                  'smoke margins': [
+        pytestDirectory: "tests/margins",
+        mark: 'smoke'
+      ],
+                  'smoke market_data': [
+        pytestDirectory: "tests/market_data",
+        mark: 'smoke'
+      ],
+                  'smoke market_depth': [
+        pytestDirectory: "tests/market_depth",
+        mark: 'smoke'
+      ],
+                  'smoke matching_engine': [
+        pytestDirectory: "tests/matching_engine",
+        mark: 'smoke'
+      ],
+                  'smoke network_parameters': [
+        pytestDirectory: "tests/network_parameters",
+        mark: 'smoke'
+      ],
+                  'smoke orders': [
+        pytestDirectory: "tests/orders",
+        mark: 'smoke'
+      ],
+                  'smoke parties': [
+        pytestDirectory: "tests/parties",
+        mark: 'smoke'
+      ],
+                        'smoke price_monitoring': [
+        pytestDirectory: "tests/price_monitoring",
+        mark: 'smoke'
+      ],
+                        'smoke rewards': [
+        pytestDirectory: "tests/rewards",
+        mark: 'smoke'
+      ],
+                        'smoke settlement': [
+        pytestDirectory: "tests/settlement",
+        mark: 'smoke'
+      ],
+                        'smoke snapshots': [
+        pytestDirectory: "tests/snapshots",
+        mark: 'smoke'
+      ],
+                        'smoke spam': [
+        pytestDirectory: "tests/spam",
+        mark: 'smoke'
+      ],
+                              'smoke staking_delegation': [
+        pytestDirectory: "tests/staking_delegation",
+        mark: 'smoke'
+      ],
+                              'smoke trading': [
+        pytestDirectory: "tests/trading",
+        mark: 'smoke'
+      ],
+
+                              'smoke treasury': [
+        pytestDirectory: "tests/treasury",
+        mark: 'smoke'
+      ],
+                              'smoke TxfersAndMargins': [
+        pytestDirectory: "tests/TxfersAndMargins",
+        mark: 'smoke'
+      ],
+                              'smoke validators': [
+        pytestDirectory: "tests/validators",
+        mark: 'smoke'
+      ],
+                              'smoke wallet': [
+        pytestDirectory: "tests/wallet",
+        mark: 'smoke'
+      ],
+      'smoke newLnl': [
+        pytestDirectory: "tests/newLNL",
         mark: 'network_infra_smoke',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
