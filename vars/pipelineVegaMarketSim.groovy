@@ -151,7 +151,7 @@ void call() {
                     }
                 }
                 post {
-                    failure {
+                    unsuccessful {
                         archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
                     }
                 }
