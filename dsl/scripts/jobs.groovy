@@ -198,6 +198,7 @@ def vegavisorManageNodeParams(args=[:]) {
         'create-node': 'reset node',
         'stop-node': 'stop node',
     ]
+
     List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
         "be.${args.name}.vega.xyz",
         "be02.${args.name}.vega.xyz",
@@ -211,6 +212,20 @@ def vegavisorManageNodeParams(args=[:]) {
             (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
         }).flatten()
     }
+
+    
+    if (args.name == "mainnetapi") {
+        nodesList = [
+            "api0.mainnet.vega.xyz",
+            "api1.mainnet.vega.xyz",
+            "api2.mainnet.vega.xyz",
+            "api3.mainnet.vega.xyz",
+            "be0.mainnet.vega.xyz",
+            "be1.mainnet.vega.xyz",
+            "observer-01.mainnet.vega.xyz",
+            "observer-02.mainnet.vega.xyz",
+        ]
+    } 
 
     return vegavisorParamsBase() << {
         choiceParam('NODE', nodesList, 'Choose which node to restart')
