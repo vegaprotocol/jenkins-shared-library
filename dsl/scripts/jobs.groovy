@@ -816,6 +816,18 @@ def jobs = [
         parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/mainnet/Manage-Node-53',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'mainnetapi',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(name: 'mainnetapi'),
+        disableConcurrentBuilds: true,
+    ],
     //
     // System-Tests
     //
