@@ -45,7 +45,7 @@ def dirs = [
     ],
     [
         id: 'private/Deployments/mainnet',
-        display: 'Mainnett',
+        display: 'Mainnet',
     ],
     [
         id: 'private/Deployments/Vegacapsule',
