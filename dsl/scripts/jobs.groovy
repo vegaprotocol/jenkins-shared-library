@@ -838,7 +838,7 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'mainnetapi',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-mainnetapi.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'mainnetapi'),
         disableConcurrentBuilds: true,
