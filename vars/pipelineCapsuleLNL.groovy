@@ -23,7 +23,6 @@ void call(Map paramsOverrides=[:]) {
                         }
 
                         List availableCheckpointServers = [
-                            "api0.mainnet.vega.xyz",
                             "api1.mainnet.vega.xyz",
                             "api2.mainnet.vega.xyz",
                             "api3.mainnet.vega.xyz",
@@ -37,7 +36,7 @@ void call(Map paramsOverrides=[:]) {
                                 --checkpoint-server-host "''' + selectedCheckpointSourceServer + '''" \
                                 --checkpoint-server-key-file "''' + PSSH_KEYFILE + '''" \
                                 --checkpoint-server-user "''' + PSSH_USER + '''" \
-                                --tendermint-rest-api-url=http://api0.mainnet.vega.xyz:26657 \
+                                --tendermint-rest-api-url=http://api1.mainnet.vega.xyz:26657 \
                                 --genesis-uri "file://system-tests/vegacapsule/net_configs/mainnet/genesis.json" \
                                 --vegacapsule-network-home "''' + networkDir + '''/testnet" \
                                 --out-dir "./lnl-workdir" \
