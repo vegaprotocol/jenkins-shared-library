@@ -128,8 +128,13 @@ void call() {
                         }
                         steps {
                             sh label: 'Fuzz Test', script: '''
-                                scripts/run-docker-fuzz-test.sh
+                                scripts/run-docker-fuzz-test.sh ${NUM_FUZZ_TESTS}
                             '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: '*.jpg, *.html'
+                            }
                         }
                     }
                     stage('Generate Plots') {
