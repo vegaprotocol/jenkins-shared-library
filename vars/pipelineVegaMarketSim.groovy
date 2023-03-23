@@ -128,7 +128,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Fuzz Test', script: '''
-                                scripts/run-docker-fuzz-test.sh ${NUM_FUZZ_TESTS}
+                                scripts/run-docker-fuzz-test.sh ${NUM_FUZZ_STEPS}
                             '''
                         }
                         post {
