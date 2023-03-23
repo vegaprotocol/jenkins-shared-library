@@ -131,6 +131,11 @@ void call() {
                                 scripts/run-docker-fuzz-test.sh
                             '''
                         }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: '*.jpg, *.html'
+                            }
+                        }
                     }
                     stage('Generate Plots') {
                         when {
