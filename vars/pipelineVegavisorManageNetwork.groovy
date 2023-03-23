@@ -400,7 +400,7 @@ void call() {
                                                     --private-key "\${PSSH_KEYFILE}" \
                                                     --inventory inventories \
                                                     --limit "${env.ANSIBLE_LIMIT}" \
-                                                    playbooks/playbook-barenode-common.yaml
+                                                    playbooks/${env.ANSIBLE_PLAYBOOK_COMMON}
                                             """
                                         }
                                     }

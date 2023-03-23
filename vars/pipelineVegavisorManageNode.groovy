@@ -279,7 +279,7 @@ void call() {
                                                     --private-key "\${PSSH_KEYFILE}" \
                                                     --inventory inventories \
                                                     --limit "${NODE_NAME ?: params.NODE}" \
-                                                    playbooks/playbook-barenode-common.yaml
+                                                    playbooks/${env.ANSIBLE_PLAYBOOK_COMMON}
                                             """
                                         }
                                     }
