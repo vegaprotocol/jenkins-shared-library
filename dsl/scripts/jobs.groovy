@@ -417,6 +417,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             'TOP_UP_BOTS': true,
@@ -434,6 +435,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'devnet1'),
         disableConcurrentBuilds: false,
@@ -487,6 +489,7 @@ def jobs = [
     //         NET_NAME: 'sandbox',
     //         ANSIBLE_LIMIT: 'sandbox',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorRestartNetworkParams(),
     //     disableConcurrentBuilds: true,
@@ -500,6 +503,7 @@ def jobs = [
     //     env: [
     //         NET_NAME: 'sandbox',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'sandbox'),
     //     disableConcurrentBuilds: false,
@@ -531,6 +535,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -544,6 +549,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet1'),
         disableConcurrentBuilds: false,
@@ -587,6 +593,7 @@ def jobs = [
     //         NET_NAME: 'stagnet2',
     //         ANSIBLE_LIMIT: 'stagnet2',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorRestartNetworkParams(),
     //     disableConcurrentBuilds: true,
@@ -600,6 +607,7 @@ def jobs = [
     //     env: [
     //         NET_NAME: 'stagnet2',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'stagnet2'),
     //     disableConcurrentBuilds: false,
@@ -643,6 +651,7 @@ def jobs = [
             NET_NAME: 'stagnet3',
             ANSIBLE_LIMIT: 'stagnet3',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
@@ -656,6 +665,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet3',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'stagnet3'),
         disableConcurrentBuilds: false,
@@ -703,6 +713,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
         disableConcurrentBuilds: true,
@@ -716,6 +727,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'testnet'),
         disableConcurrentBuilds: false,
@@ -759,6 +771,7 @@ def jobs = [
     //         NET_NAME: 'mainnet-mirror',
     //         ANSIBLE_LIMIT: 'mainnet-mirror',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorRestartNetworkParams(),
     //     disableConcurrentBuilds: true,
@@ -772,6 +785,7 @@ def jobs = [
     //     env: [
     //         NET_NAME: 'mainnet-mirror',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
     //     disableConcurrentBuilds: false,
@@ -786,6 +800,7 @@ def jobs = [
     //         NET_NAME: 'mainnet-mirror',
     //         ANSIBLE_LIMIT: 'mainnet-mirror',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorRestartNetworkParams(),
     //     disableConcurrentBuilds: true,
@@ -799,6 +814,7 @@ def jobs = [
     //     env: [
     //         NET_NAME: 'mainnet-mirror',
     //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
     //     ],
     //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
     //     disableConcurrentBuilds: true,
@@ -815,6 +831,7 @@ def jobs = [
         env: [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'validators-testnet', sentryNodes: true),
         disableConcurrentBuilds: false,
@@ -827,6 +844,7 @@ def jobs = [
         env: [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
         disableConcurrentBuilds: true,
@@ -839,6 +857,7 @@ def jobs = [
         env: [
             NET_NAME: 'mainnetapi',
             ANSIBLE_PLAYBOOK: 'playbook-mainnetapi.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-mainnetapi-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(name: 'mainnetapi'),
         disableConcurrentBuilds: true,
