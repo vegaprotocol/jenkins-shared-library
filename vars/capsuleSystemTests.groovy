@@ -453,7 +453,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
           PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
           PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
-          SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : '{}'}"
+          SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
