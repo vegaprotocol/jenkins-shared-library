@@ -273,6 +273,7 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
         stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
         stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+        stringParam('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', '', 'Override network parameters at the beginning of the run.')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
