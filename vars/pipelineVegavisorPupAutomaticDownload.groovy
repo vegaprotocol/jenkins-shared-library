@@ -134,6 +134,39 @@ void call() {
                     }
                 }
             }
+            
+            stage('patch visor config for old version of vega') {
+                steps{
+                    script{
+                        String visorConfigSourceFile
+
+                        dir('vega') {
+                            visorConfigSourceFile = readFile file: 'visor/config/visor_config.go'
+                        }
+
+                        if (visorConfigSourceFile.contains('assset_name')) {
+                            print('Applying visor config patch for 3s')
+                            String visorConfigInSystemTests = readFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl'
+                            visorConfigInSystemTests = visorConfigInSystemTests.replaceAll('asset_name', 'assset_name')
+                            writeFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl', text: visorConfigInSystemTests
+
+
+                            print('Using older version of vegacapsule - v0.69.0')
+                            // We have to use older version of capsule
+                            sh 'rm -r vegacapsule'
+                            gitClone([
+                                url: 'git@github.com:vegaprotocol/vegacapsule.git',
+                                branch: 'v0.69.0',
+                                directory: 'vegacapsule',
+                                credentialsId: 'vega-ci-bot',
+                                timeout: 2,
+                            ])
+                        } else {
+                            print('Skipping apply visor config patch for 3s')
+                        }
+                    }
+                }
+            }
 
             stage('make binaries') {
                 options {
@@ -204,6 +237,7 @@ void call() {
                     }
                 }
             }
+
 
             stage('generate network config') {
                 environment {
