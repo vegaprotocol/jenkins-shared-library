@@ -205,6 +205,24 @@ void call() {
                 }
             }
 
+            stage('patch visor config for old version of vega') {
+                steps{
+                    script{
+                        String visorConfigSourceFile
+
+                        dir('vega') {
+                            visorConfigSourceFile = readFile file: 'visor/config/visor_config.go'
+                        }
+
+                        if (visorConfigSourceFile.contains('assset_name')) {
+                            String visorConfigInSystemTests = readFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl'
+                            visorConfigInSystemTests = visorConfigInSystemTests.replaceAll('asset_name', 'assset_name')
+                            writeFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl', text: visorConfigInSystemTests
+                        }
+                    }
+                }
+            }
+
             stage('generate network config') {
                 environment {
                     PATH = "${networkDataPath}:${env.PATH}"
