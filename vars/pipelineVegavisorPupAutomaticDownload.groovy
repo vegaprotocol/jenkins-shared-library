@@ -215,9 +215,12 @@ void call() {
                         }
 
                         if (visorConfigSourceFile.contains('assset_name')) {
+                            print('Applying visor config patch for 3s')
                             String visorConfigInSystemTests = readFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl'
                             visorConfigInSystemTests = visorConfigInSystemTests.replaceAll('asset_name', 'assset_name')
                             writeFile file: 'system-tests/vegacapsule/net_configs/visor_pup/visor_config.tmpl', text: visorConfigInSystemTests
+                        } else {
+                            print('Skipping apply visor config patch for 3s')
                         }
                     }
                 }
