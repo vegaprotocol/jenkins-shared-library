@@ -577,7 +577,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: vegavisorTopupBotsParams(["2","3","4","5"]),
+        parameters: vegavisorTopupBotsParams(["2","3","4","5", "6", "7"]),
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
