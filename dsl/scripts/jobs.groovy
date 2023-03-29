@@ -567,6 +567,18 @@ def jobs = [
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/stagnet1/Backup',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineBackupChainData()'),
+        env: [
+            NET_NAME: 'stagnet3',
+        ],
+        parameters: backupChainDataParams('stagnet1', 'be02'),
+        cron: 'H */3 * * *',
+        disableConcurrentBuilds: true,
+    ],
     //
     // Stagnet 2
     //
@@ -681,18 +693,6 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(),
         cron: 'H */6 * * *',
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet3/backup',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('backupChainData()'),
-        env: [
-            NET_NAME: 'stagnet3',
-        ],
-        parameters: backupChainDataParams('stagnet3', 'n08'),
-        cron: 'H */3 * * *',
         disableConcurrentBuilds: true,
     ],
     //
