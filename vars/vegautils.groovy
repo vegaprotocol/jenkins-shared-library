@@ -100,3 +100,19 @@ int semVerCompare(String a, String b) {
 
     return 0
 }
+
+void sshCommand(String serverHost, String command) {
+    withCredentials([sshUserPrivateKey(
+        credentialsId: 'ssh-vega-network',
+        keyFileVariable: 'PSSH_KEYFILE',
+        usernameVariable: 'PSSH_USER'
+    )]) {
+        sh '''
+            set -x;
+            ssh \
+            -o "StrictHostKeyChecking=no" \
+            -i "''' + PSSH_KEYFILE + '''" \
+            ''' + PSSH_USER + '''@''' + serverHost + ''' \
+            \'''' + command + '''\''''
+    }
+}
