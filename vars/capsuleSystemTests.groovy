@@ -732,6 +732,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             artifacts: 'checkpoints/**/*',
             allowEmptyArchive: true
           )
+          archiveArtifacts(
+            artifacts: 'prof/**/*',
+            allowEmptyArchive: true
+          )
           catchError {
             junit(
               checksName: 'System Tests',
