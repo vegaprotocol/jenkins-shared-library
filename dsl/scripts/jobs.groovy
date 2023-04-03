@@ -1044,7 +1044,7 @@ def jobs = [
     [
         name: 'private/Snapshots/Validators-Testnet',
         // disabled: true,
-        numToKeep: 500,
+        numToKeep: 1200,
         useScmDefinition: false,
         env: [
             NET_NAME: 'validators-testnet',
