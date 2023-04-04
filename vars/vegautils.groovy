@@ -100,3 +100,11 @@ int semVerCompare(String a, String b) {
 
     return 0
 }
+
+// We have two credentials to avoid github rate limits. We are returning random credentials from given list
+String getVegaCiBotCredentials() {
+  List credentialNames = ["github-vega-ci-bot-artifacts", "github-vega-ci-bot-artifacts-2"]
+  Collections.shuffle credentialNames
+
+  return credentialNames.first()
+}

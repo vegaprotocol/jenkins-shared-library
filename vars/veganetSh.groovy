@@ -5,7 +5,7 @@ void call(Map additionalConfig) {
       network: '',
       directory: 'devops-infra',
       sshCredentialsId: 'ubuntu-ansible-key',
-      dockerCredentialsId: 'github-vega-ci-bot-artifacts',
+      dockerCredentialsId: vegautils.getVegaCiBotCredentials(),
       gcpCredentials: 'gcp-k8s',
       timeout: 15,
       label: null,

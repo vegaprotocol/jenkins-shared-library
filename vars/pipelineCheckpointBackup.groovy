@@ -7,7 +7,7 @@ void call() {
         usernameVariable: 'PSSH_USER'
     )
     def githubAPICredentials = usernamePassword(
-        credentialsId: 'github-vega-ci-bot-artifacts',
+        credentialsId: vegautils.getVegaCiBotCredentials(),
         passwordVariable: 'GITHUB_API_TOKEN',
         usernameVariable: 'GITHUB_API_USER'
     )

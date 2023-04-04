@@ -71,7 +71,7 @@ void call() {
                     script {
                         String releasesListJSON
                         List devRelasesNames
-                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                        withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                             releasesListJSON = vegautils.shellOutput('''
                             gh api \
                                 --jq '[ .[] | .tag_name ]' \
@@ -207,7 +207,7 @@ void call() {
                             sh 'zip data-node-linux-amd64.zip data-node'
                             sh 'zip vega-linux-amd64.zip vega'
 
-                            withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                            withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                                 sh '''gh release create \
                                     --repo ''' + params.RELEASES_REPO + ''' \
                                     ''' + newVegaVersion + ''' \
@@ -321,7 +321,7 @@ void call() {
             always {
                 script {
                     if (params.CREATE_RELEASE) {
-                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                        withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                             sh '''gh release delete \
                                 --yes \
                                 --repo ''' + params.RELEASES_REPO + ''' \

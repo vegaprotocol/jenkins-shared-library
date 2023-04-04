@@ -1,7 +1,7 @@
 def call(args){
     creds = args.get('credentialsId', 'vega-ci-bot')
     sshagent(credentials: [creds]) {
-        withGHCLI('credentialsId': args.get('ghCredentialsId', 'github-vega-ci-bot-artifacts')) {
+        withGHCLI('credentialsId': args.get('ghCredentialsId', vegautils.getVegaCiBotCredentials())) {
             if (args.get('makeCheckout', true)) {
                 gitClone(
                     [credentialsId: creds] + args

@@ -10,11 +10,11 @@ void call() {
         usernameVariable: 'PSSH_USER'
     )
     Map dockerCredentials = [
-        credentialsId: 'github-vega-ci-bot-artifacts',
+        credentialsId: vegautils.getVegaCiBotCredentials(),
         url: 'https://ghcr.io'
     ]
     def githubAPICredentials = usernamePassword(
-        credentialsId: 'github-vega-ci-bot-artifacts',
+        credentialsId: vegautils.getVegaCiBotCredentials(),
         passwordVariable: 'GITHUB_API_TOKEN',
         usernameVariable: 'GITHUB_API_USER'
     )
@@ -189,7 +189,7 @@ void call() {
                 }
                 steps {
                     script {
-                        withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+                        withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                             sh label: 'Upload artifacts', script: """#!/bin/bash -e
                                 gh release view $TAG_NAME --repo vegaprotocol/vega-dev-releases \
                                 && gh release upload $TAG_NAME ../release/* --repo vegaprotocol/vega-dev-releases \

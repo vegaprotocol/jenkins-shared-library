@@ -100,7 +100,7 @@ void call(Map customConfig = [:]) {
       VEGACAPSULE_S3_RELEASE_TARGET = "bin/${releasedVersion}"
 
       PATH = "${env.WORKSPACE}/bin:${env.PATH}"
-      GITHUB_CREDS = 'github-vega-ci-bot-artifacts'
+      GITHUB_CREDS = vegautils.getVegaCiBotCredentials()
       GITHUB_SSH_CREDS = 'vega-ci-bot'
       NETWORK_SSH_CREDENTIALS = 'ubuntu-ansible-key'
     }

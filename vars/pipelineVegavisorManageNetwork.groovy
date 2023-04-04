@@ -318,7 +318,7 @@ void call() {
                                 }
                             }
                             withCredentials([
-                                usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+                                usernamePassword(credentialsId: vegautils.getVegaCiBotCredentials(), passwordVariable: 'TOKEN', usernameVariable:'USER')
                             ]) {
                                 dir('networks-internal') {
                                     sh label: 'Generate genesis', script: """#!/bin/bash -e
