@@ -13,7 +13,7 @@ Map getData(Map config = [:]) {
     // if empty - use current repo or from `url`
     String repo = config.get('repo', '')
     // optional GH CLI credentials
-    String credentialsId = config.get('credentialsId', 'github-vega-ci-bot-artifacts')
+    String credentialsId = config.get('credentialsId', vegautils.getVegaCiBotCredentials())
     // List of fields to get for a PR
     List<String> prFields = config.get('prFields', ['body'])
 

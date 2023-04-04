@@ -302,7 +302,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               sh 'zip data-node-linux-amd64.zip data-node'
               sh 'zip vega-linux-amd64.zip vega'
 
-              withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                 sh '''gh release create \
                     --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
                     ''' + protocolUpgradeVersion + ''' \
@@ -458,7 +458,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           withCredentials([
-            usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable:'GITHUB_API_USER')
+            usernamePassword(credentialsId:  vegautils.getVegaCiBotCredentials(), passwordVariable: 'GITHUB_API_TOKEN', usernameVariable:'GITHUB_API_USER')
           ]) {
             script {
               Map runStages = [
@@ -662,7 +662,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         catchError {
           script {
             if (params.BUILD_PROTOCOL_UPGRADE_VERSION) {
-              withGHCLI('credentialsId': 'github-vega-ci-bot-artifacts') {
+              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                 sh '''gh release delete \
                     --yes \
                     --repo ''' + config.protocolUpgradeReleaseRepository + ''' \

@@ -1,7 +1,7 @@
 def call(args=[:]) {
     networkname = args.netName ?: env.NET_NAME
     withCredentials([
-        usernamePassword(credentialsId: 'github-vega-ci-bot-artifacts', passwordVariable: 'TOKEN', usernameVariable:'USER')
+        usernamePassword(credentialsId: vegautils.getVegaCiBotCredentials(), passwordVariable: 'TOKEN', usernameVariable:'USER')
     ]) {
         dir('devopstools') {
             return sh (
