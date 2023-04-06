@@ -129,7 +129,7 @@ void call() {
         pytestDirectory: "tests/assets",
         mark: 'full',
       ],
-            'full cash_settled_futures: [
+            'full cash_settled_futures': [
         pytestDirectory: "tests/cash_settled_futures",
         mark: 'full',
       ],
@@ -153,7 +153,6 @@ void call() {
         pytestDirectory: "tests/fees",
         mark: 'full',
       ],
-
       'full gas': [
         pytestDirectory: "tests/gas",
         mark: 'full',
