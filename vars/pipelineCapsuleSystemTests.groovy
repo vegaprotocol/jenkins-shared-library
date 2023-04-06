@@ -22,20 +22,8 @@ void call() {
         pytestDirectory: "tests/assets",
         mark: 'smoke'
       ],
-      'smoke cash_settled_futures': [
-        pytestDirectory: "tests/cash_settled_futures",
-        mark: 'smoke'
-      ],
-      'smoke collateral': [
-        pytestDirectory: "tests/collateral",
-        mark: 'smoke'
-      ],
       'smoke data_sources': [
         pytestDirectory: "tests/data_sources",
-        mark: 'smoke'
-      ],
-            'smoke datanode': [
-        pytestDirectory: "tests/datanode",
         mark: 'smoke'
       ],
             'smoke deposits_withdrawals': [
@@ -52,10 +40,6 @@ void call() {
       ],
             'smoke governance': [
         pytestDirectory: "tests/governance",
-        mark: 'smoke'
-      ],
-            'smoke limits': [
-        pytestDirectory: "tests/limits",
         mark: 'smoke'
       ],
                   'smoke margins': [
@@ -94,10 +78,6 @@ void call() {
         pytestDirectory: "tests/rewards",
         mark: 'smoke'
       ],
-                        'smoke settlement': [
-        pytestDirectory: "tests/settlement",
-        mark: 'smoke'
-      ],
                         'smoke snapshots': [
         pytestDirectory: "tests/snapshots",
         mark: 'smoke'
@@ -114,7 +94,6 @@ void call() {
         pytestDirectory: "tests/trading",
         mark: 'smoke'
       ],
-
                               'smoke treasury': [
         pytestDirectory: "tests/treasury",
         mark: 'smoke'
@@ -138,51 +117,183 @@ void call() {
       ],
     ],
     'NIGHTLY': [
-      'full a-f': [
-        pytestDirectory: "tests/[a-fA-F]*",
+          'full API': [
+        pytestDirectory: "tests/API",
         mark: 'full',
       ],
-      'full g-n': [
-        pytestDirectory: "tests/[g-nG-N]*",
+      'full AssetMarketData': [
+        pytestDirectory: "tests/AssetMarketData",
         mark: 'full',
       ],
-      'full o-r': [
-        pytestDirectory: "tests/[o-rO-R]*",
+            'full assets': [
+        pytestDirectory: "tests/assets",
         mark: 'full',
       ],
-      'full s': [
-        pytestDirectory: "tests/[sS]*",
+            'full cash_settled_futures: [
+        pytestDirectory: "tests/cash_settled_futures",
         mark: 'full',
       ],
-      'full t-z': [
-        pytestArgs: "--ignore-glob 'tests/[a-sA-S]*'",
+            'full collateral': [
+        pytestDirectory: "tests/collateral",
         mark: 'full',
       ],
-      'network_infra a-o': [
-        pytestDirectory: "tests/[a-oA-O]*",
+            'full data_sources': [
+        pytestDirectory: "tests/data_sources",
+        mark: 'full',
+      ],
+            'full datanode': [
+        pytestDirectory: "tests/datanode",
+        mark: 'full',
+      ],
+            'full deposits_withdrawals': [
+        pytestDirectory: "tests/deposits_withdrawals",
+        mark: 'full',
+      ],
+            'full fees': [
+        pytestDirectory: "tests/fees",
+        mark: 'full',
+      ],
+
+      'full gas': [
+        pytestDirectory: "tests/gas",
+        mark: 'full',
+      ],
+      'full governance': [
+        pytestDirectory: "tests/governance",
+        mark: 'full',
+      ],
+      'full limits': [
+        pytestDirectory: "tests/limits",
+        mark: 'full',
+      ],
+                 'full margins': [
+        pytestDirectory: "tests/margins",
+        mark: 'full'
+      ],
+                  'full market_data': [
+        pytestDirectory: "tests/market_data",
+        mark: 'full'
+      ],
+                  'full market_depth': [
+        pytestDirectory: "tests/market_depth",
+        mark: 'full'
+      ],
+                  'full matching_engine': [
+        pytestDirectory: "tests/matching_engine",
+        mark: 'full'
+      ],
+                  'full network_parameters': [
+        pytestDirectory: "tests/network_parameters",
+        mark: 'full'
+      ],
+                  'full orders': [
+        pytestDirectory: "tests/orders",
+        mark: 'full'
+      ],
+                  'full parties': [
+        pytestDirectory: "tests/parties",
+        mark: 'full'
+      ],
+                        'full price_monitoring': [
+        pytestDirectory: "tests/price_monitoring",
+        mark: 'full'
+      ],
+                        'full rewards': [
+        pytestDirectory: "tests/rewards",
+        mark: 'full'
+      ],
+                        'full settlement': [
+        pytestDirectory: "tests/settlement",
+        mark: 'full'
+      ],
+                        'full snapshots': [
+        pytestDirectory: "tests/snapshots",
+        mark: 'full'
+      ],
+                        'full spam': [
+        pytestDirectory: "tests/spam",
+        mark: 'full'
+      ],
+                              'full staking_delegation': [
+        pytestDirectory: "tests/staking_delegation",
+        mark: 'full'
+      ],
+                              'full trading': [
+        pytestDirectory: "tests/trading",
+        mark: 'full'
+      ],
+                              'full treasury': [
+        pytestDirectory: "tests/treasury",
+        mark: 'full'
+      ],
+                              'full TxfersAndMargins': [
+        pytestDirectory: "tests/TxfersAndMargins",
+        mark: 'full'
+      ],
+                              'full validators': [
+        pytestDirectory: "tests/validators",
+        mark: 'full'
+      ],
+                              'full wallet': [
+        pytestDirectory: "tests/wallet",
+        mark: 'full'
+      ],
+
+            'network_infra validators': [
+        pytestDirectory: "tests/validators",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra p without validators': [
-        pytestDirectory: "tests/[pP]*",
+                 'network_infra assets': [
+        pytestDirectory: "tests/assets",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra q-z without validators': [
-        pytestArgs: "--ignore-glob 'tests/[a-pA-P]*' --ignore-glob 'tests/validators/*'",
+                      'network_infra network_parameters': [
+        pytestDirectory: "tests/network_parameters",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra validators a-p': [
-        pytestDirectory: "tests/validators/[a-pA-P]*",
+                           'network_infra newLNL': [
+        pytestDirectory: "tests/network_parameters",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
-      'network_infra validators r-z': [
-        pytestDirectory: "tests/validators/[r-zR-Z]*",
+                           'network_infra protocol_upgrade': [
+        pytestDirectory: "tests/protocol_upgrade",
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
+                                 'network_infra rewards': [
+        pytestDirectory: "tests/rewards",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+      ],
+       'network_infra snapshots': [
+        pytestDirectory: "tests/snapshots",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+        ],
+           'network_infra spam': [
+        pytestDirectory: "tests/spam",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+        ],
+                 'network_infra staking_delegation': [
+        pytestDirectory: "tests/staking_delegation",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+        ],
+                         'network_infra validators': [
+        pytestDirectory: "tests/validators",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+        ],
+                                 'network_infra wallet': [
+        pytestDirectory: "tests/wallet",
+        mark: 'network_infra',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
+        ],
     ]
   ][params.SCENARIO]
 
