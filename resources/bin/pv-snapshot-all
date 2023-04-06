@@ -166,6 +166,14 @@ def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
                 last_height_change = now
                 continue
 
+            if current_block_height == 0:
+                if now > last_height_change + 5:
+                    # Took too long to load snapshot. Fail
+                    return False
+                else:
+                    # Continue waiting for initial load.
+                    continue
+
             last_block_height = current_block_height
             if now > last_height_change + 1:
                 # no height change in 3 seconds, chain finished
