@@ -116,13 +116,13 @@ def is_running(vp):
     Check if the vega process is still running and is reachable
     """
 
-
     if not vp.is_alive():
         print("vega DIED")
         return False, 0
 
     stats =  vp.statistics()
     if stats is None:
+        print("failed to get statistics. stats is None")
         return False, 0
 
     print("height:", int(stats["blockHeight"]))
@@ -148,7 +148,7 @@ def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
 
         last_block_height = 0
         current_block_height = 0
-        last_height_change =time.time()
+        last_height_change = time.time()
         while True:
             print("sleeping")
             time.sleep(1)
