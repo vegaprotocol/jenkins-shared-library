@@ -150,13 +150,16 @@ def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
         current_block_height = 0
         last_height_change =time.time()
         while True:
-            time.sleep(0.1)
+            print("sleeping")
+            time.sleep(1)
             last_block_height = current_block_height
             alive, current_block_height = is_running(vp)
             if not alive:
+                print("node is not alive")
                 return False # chain died
 
             if restore_from != 0 and current_block_height > restore_from + 50:
+                print("node has been restored and produced 50 blocks over the snapshot")
                 # we've restore from a snapshot and made is 50 blocks into the future
                 # we call that a success
                 return True
@@ -168,6 +171,7 @@ def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
 
             last_block_height = current_block_height
             if now > last_height_change + 1:
+                print("chain finished")
                 # no height change in 3 seconds, chain finished
                 return True
 
