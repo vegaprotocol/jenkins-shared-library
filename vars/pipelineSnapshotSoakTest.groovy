@@ -17,6 +17,11 @@ def call() {
                 parallel {
                     stage('Copy artifacts') {
                         steps {
+                            script {
+                                String jobFullPath = params.SYSTEM_TEST_JOB_NAME.split('/').join('/job/')
+                                print("Copying artifact from build: https://jenkins.ops.vega.xyz/job/" + jobFullPath + "/" + params.SYSTEM_TEST_BUILD_NUMBER)
+                            }
+
                             // todo: copy only required artifacts to speed up?
                             dir('artifacts') {
                                 copyArtifacts(
