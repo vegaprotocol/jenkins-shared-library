@@ -29,23 +29,6 @@ def call() {
                             }
                         }
                     }
-                    stage('Install vegatools') {
-                        steps {
-                            dir('bin') {
-                                sh 'echo "xx" > xx'
-                            }
-                            gitClone([
-                                url: 'git@github.com:' + 'vegaprotocol/vegatools' + '.git',
-                                branch: params.VEGATOOLS_BRANCH,
-                                directory: 'vegatools',
-                                credentialsId: 'vega-ci-bot',
-                                timeout: 2,
-                            ])
-                            script {
-                                vegautils.buildGoBinary('vegatools', "${env.WORKSPACE}/bin/vegatools", './')
-                            }
-                        }
-                    }
                     stage('Prepare script') {
                         steps {
                             writeFile (
