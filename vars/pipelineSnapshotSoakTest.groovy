@@ -92,6 +92,7 @@ def call() {
                                         def vegaHome = "vega/${nodeName}"
                                         def vegaBinary = "./../tests/vega"
                                         dir(basePath) {
+                                            print(">>> DEBUG: Vega version")
                                             sh vegaBinary + ' version'
                                             // prepare venv
                                             // generate all of the snapshots by replaying the whole chain
