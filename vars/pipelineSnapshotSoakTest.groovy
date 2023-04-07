@@ -95,12 +95,15 @@ def call() {
                         }
                         // scenario for 1 suit case at the time
                         else {
+                            print('''Running suit "''' + suit + '''" for for base path "''' + basePath + '''"''')
                             DIR = DIRS[0]
                             def nodeName = params.SUIT_NAME.contains('network_infra') ? 'node5' : 'node2'
                             def tmHome = "tendermint/${nodeName}"
                             def vegaHome = "vega/${nodeName}"
                             def vegaBinary = "../vega"
                             dir(DIR) {
+                                print(">>> DEBUG: Vega version")
+                                sh vegaBinary + ' version'
                                 // prepare venv
                                 // generate all of the snapshots by replaying the whole chain
                                 // now load from all of the snapshots
