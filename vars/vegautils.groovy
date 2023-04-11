@@ -47,7 +47,7 @@ Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
   }
 
   String statisticsJSON = ""
-  
+
   for (int nn=0; nn<nodesRetry; nn++) {
     try {
       networkURL = sprintf('https://n%02d.%s.vega.xyz/statistics', nn, netName)
@@ -61,8 +61,8 @@ Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
   if (statisticsJSON.length() < 1) {
     error('[vegautils.networkStatistics] Empty response from network statistics for network: ' + netName)
   }
-  
-  
+
+
   try {
     return (readJSON(text: statisticsJSON, returnPojo: true))
   } catch(err) {
@@ -103,8 +103,11 @@ int semVerCompare(String a, String b) {
 
 // We have two credentials to avoid github rate limits. We are returning random credentials from given list
 String getVegaCiBotCredentials() {
-  // List credentialNames = ["github-vega-ci-bot-artifacts", "github-vega-ci-bot-artifacts-2"]
-  List credentialNames = ["github-vega-ci-bot-artifacts-2"]
+  // change this if hitting any rate limits. -ci-bot-artifacts-2 is for argocd ATM
+  List credentialNames = [
+    "github-vega-ci-bot-artifacts",
+    // "github-vega-ci-bot-artifacts-2",
+  ]
   Collections.shuffle credentialNames
 
   return credentialNames.first()
