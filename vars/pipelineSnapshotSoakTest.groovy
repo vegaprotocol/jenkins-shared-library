@@ -141,6 +141,8 @@ def call() {
         }
         post {
             always {
+                sleep(86400)
+
                 cleanWs()
             }
         }
