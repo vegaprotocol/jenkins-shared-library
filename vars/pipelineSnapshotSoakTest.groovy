@@ -18,6 +18,9 @@ def call() {
                     stage('Copy artifacts') {
                         steps {
                             script {
+                                publicIP = agent.getPublicIP()
+                                print("The box public IP is: " + publicIP)
+
                                 String jobFullPath = params.SYSTEM_TEST_JOB_NAME.split('/').join('/job/')
                                 print("Copying artifact from build: https://jenkins.ops.vega.xyz/job/" + jobFullPath + "/" + params.SYSTEM_TEST_BUILD_NUMBER)
                             }
