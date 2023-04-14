@@ -6,7 +6,7 @@ def call() {
         options {
             ansiColor('xterm')
             timestamps()
-            timeout(time: 3, unit: 'HOURS')
+            timeout(time: 72, unit: 'HOURS')
         }
         environment {
             PATH = "${env.PATH}:${env.WORKSPACE}/bin"
@@ -144,7 +144,7 @@ def call() {
         }
         post {
             always {
-                sleep(86400)
+                sleep(3*86400)
 
                 cleanWs()
             }
