@@ -124,6 +124,7 @@ void call() {
                     job: downstreamBuildName,
                     parameters: childParams,
                     propagate: false,  // don't fail yet
+                    wait: true, 
                   )
                   if (params.SCENARIO == 'NIGHTLY') {
                     build (
