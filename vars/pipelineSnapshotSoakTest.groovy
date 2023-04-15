@@ -144,7 +144,7 @@ def call() {
         }
         post {
             always {
-                sleep(3*86400)
+                // sleep(3*86400)
 
                 cleanWs()
             }
