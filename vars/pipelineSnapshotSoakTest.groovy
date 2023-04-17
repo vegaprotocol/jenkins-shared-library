@@ -6,7 +6,7 @@ def call() {
         options {
             ansiColor('xterm')
             timestamps()
-            timeout(time: 72, unit: 'HOURS')
+            timeout(time: 3, unit: 'HOURS')
         }
         environment {
             PATH = "${env.PATH}:${env.WORKSPACE}/bin"
@@ -84,7 +84,7 @@ def call() {
                                         def vegaHome = "vega/${nodeName}"
                                         def vegaBinary = "./../tests/vega"
                                         dir(basePath) {
-                                            print(">>> DEBUG: Vega version")
+                                            print(">>> Vega version")
                                             sh vegaBinary + ' version'
                                             // prepare venv
                                             // generate all of the snapshots by replaying the whole chain
@@ -111,7 +111,7 @@ def call() {
                             def vegaHome = "vega/${nodeName}"
                             def vegaBinary = "../vega"
                             dir(DIR) {
-                                print(">>> DEBUG: Vega version")
+                                print(">>> Vega version")
                                 sh vegaBinary + ' version'
                                 // prepare venv
                                 // generate all of the snapshots by replaying the whole chain
@@ -144,8 +144,6 @@ def call() {
         }
         post {
             always {
-                // sleep(3*86400)
-
                 cleanWs()
             }
         }

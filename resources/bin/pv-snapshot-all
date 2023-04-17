@@ -150,8 +150,7 @@ def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
         current_block_height = 0
         last_height_change = time.time()
         while True:
-            print("sleeping")
-            time.sleep(1)
+            time.sleep(0.1)
             last_block_height = current_block_height
             alive, current_block_height = is_running(vp)
             if not alive:
