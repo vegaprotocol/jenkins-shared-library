@@ -133,6 +133,7 @@ void call() {
                         string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
                         string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
                         string(name: 'SUIT_NAME', value: name),
+                        string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
                       ],
                       propagate: true,
                       wait: true,
