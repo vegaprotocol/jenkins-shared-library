@@ -207,17 +207,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 sh 'make build-vega-core'
                 sh 'make build-vega-core-upgrade-version'
               }
-              script {
-                if (params.ARCHIVE_VEGA_BINARY) {
-                  dir('/jenkins/workspace/common/system-tests-wrapper/vega') {
-                    // https://github.com/vegaprotocol/system-tests/blob/develop/scripts/Makefile#LL157C49-L157C49
-                    sh "cp vega-linux vega"
-                    archiveArtifacts(
-                      artifacts: 'vega',
-                    )
-                  }
-                }
-              }
             }
           }
           stage('prepare system tests dependencies') {
@@ -368,6 +357,21 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             parallel pipelineHooks.postNetworkGenerate
+          }
+        }
+      }
+
+      stage('Archive vega binary') {
+        steps {
+          script {
+            if (params.ARCHIVE_VEGA_BINARY) {
+              dir(testNetworkDir) {
+                // binary is copied in the Makefile into the testNetworkDir, ref: https://github.com/vegaprotocol/system-tests/blob/develop/scripts/Makefile#L198
+                archiveArtifacts(
+                  artifacts: 'vega',
+                )
+              }
+            }
           }
         }
       }

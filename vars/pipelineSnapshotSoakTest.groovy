@@ -17,6 +17,14 @@ def call() {
                 parallel {
                     stage('Copy artifacts') {
                         steps {
+                            script {
+                                publicIP = agent.getPublicIP()
+                                print("The box public IP is: " + publicIP)
+
+                                String jobFullPath = params.SYSTEM_TEST_JOB_NAME.split('/').join('/job/')
+                                print("Copying artifact from build: https://jenkins.ops.vega.xyz/job/" + jobFullPath + "/" + params.SYSTEM_TEST_BUILD_NUMBER)
+                            }
+
                             // todo: copy only required artifacts to speed up?
                             dir('artifacts') {
                                 copyArtifacts(
@@ -26,23 +34,6 @@ def call() {
                                     target: ".",
                                 )
                                 sh "ls -al"
-                            }
-                        }
-                    }
-                    stage('Install vegatools') {
-                        steps {
-                            dir('bin') {
-                                sh 'echo "xx" > xx'
-                            }
-                            gitClone([
-                                url: 'git@github.com:' + 'vegaprotocol/vegatools' + '.git',
-                                branch: params.VEGATOOLS_BRANCH,
-                                directory: 'vegatools',
-                                credentialsId: 'vega-ci-bot',
-                                timeout: 2,
-                            ])
-                            script {
-                                vegautils.buildGoBinary('vegatools', "${env.WORKSPACE}/bin/vegatools", './')
                             }
                         }
                     }
@@ -86,12 +77,15 @@ def call() {
                             DIRS.collectEntries{ basePath, suit -> [
                                 (suit): {
                                     script {
+                                        print('''Running scenario for multiple suit cases at once, suit: "''' + suit + '''" for for base path "''' + basePath + '''"''')
                                         // it always needs to be node 2 (or 5 if its a network infra run) because that'll be the non-validator node which means we need less setup
                                         def nodeName = basePath.contains('network_infra') ? 'node5' : 'node2'
                                         def tmHome = "tendermint/${nodeName}"
                                         def vegaHome = "vega/${nodeName}"
                                         def vegaBinary = "./../tests/vega"
                                         dir(basePath) {
+                                            print(">>> Vega version")
+                                            sh vegaBinary + ' version'
                                             // prepare venv
                                             // generate all of the snapshots by replaying the whole chain
                                             // now load from all of the snapshots
@@ -110,11 +104,15 @@ def call() {
                         // scenario for 1 suit case at the time
                         else {
                             DIR = DIRS[0]
+                            
+                            print('''Running scenario for 1 suit case at the time for for base path "''' + DIR + '''"''')
                             def nodeName = params.SUIT_NAME.contains('network_infra') ? 'node5' : 'node2'
                             def tmHome = "tendermint/${nodeName}"
                             def vegaHome = "vega/${nodeName}"
                             def vegaBinary = "../vega"
                             dir(DIR) {
+                                print(">>> Vega version")
+                                sh vegaBinary + ' version'
                                 // prepare venv
                                 // generate all of the snapshots by replaying the whole chain
                                 // now load from all of the snapshots
