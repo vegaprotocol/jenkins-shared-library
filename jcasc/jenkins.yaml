@@ -53,7 +53,7 @@ x-do-template: &do-template
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
-  installMonitoring: false
+  installMonitoring: true
   instanceCap: 30
   labellessJobsAllowed: false
   name: "ubuntu"
