@@ -35,7 +35,7 @@ void call(Map config=[:]) {
     boolean blockHeightIncreased = false
     String networkVersion = null
 
-    node(env.get('NODE_LABEL', 'non-validator')) {
+    node(params.NODE_LABEL) {
         timestamps {
 
             stage('init') {

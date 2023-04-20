@@ -368,6 +368,16 @@ def approbationParams(def config=[:]) {
     }
 }
 
+def snapshotParams(args=[:]) {
+    return {
+        stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'non-validator'), 'Jenkins label for running pipeline')
+    }
+}
+
+
 def jobs = [
     // DSL Job - the one that manages this file
     [
@@ -976,13 +986,8 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             HISTORY_KEY: 'NetworkHistory',
-            NODE_LABEL: 's-4vcpu-8gb',
         ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        },
+        parameters: snapshotParams(NODE_LABEL: 's-4vcpu-8gb'),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
@@ -996,11 +1001,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             HISTORY_KEY: 'NetworkHistory',
         ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        },
+        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
@@ -1014,11 +1015,7 @@ def jobs = [
             NET_NAME: 'stagnet3',
             HISTORY_KEY: 'NetworkHistory',
         ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        },
+        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
@@ -1033,11 +1030,7 @@ def jobs = [
             NET_NAME: 'fairground',
             HISTORY_KEY: 'NetworkHistory',
         ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        },
+        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
@@ -1053,11 +1046,7 @@ def jobs = [
             HISTORY_KEY: 'NetworkHistory',
             NODES_DENYLIST: 'n01.validators-testnet.vega.xyz'
         ],
-        parameters: {
-            stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        },
+        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",

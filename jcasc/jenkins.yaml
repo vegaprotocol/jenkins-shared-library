@@ -49,7 +49,7 @@ x-aws-template: &aws-template
 x-do-template: &do-template
   idleTerminationInMinutes: 10
   # this needs to be looked up in digitalocean UI or Jenkins UI to provide updated image ID
-  imageId: "131013686"
+  imageId: "131078318"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
