@@ -48,7 +48,6 @@ x-aws-template: &aws-template
 
 x-do-template: &do-template
   idleTerminationInMinutes: 10
-  # this needs to be looked up in digitalocean UI or Jenkins UI to provide updated image ID
   imageId: "131078318"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
@@ -95,13 +94,9 @@ jenkins:
       privateKeyCredentialId: "ubuntu-ansible-key"
       sshKeyId: 35449484
       templates:
-      - <<: *do-template
-        labelString: "s-4vcpu-8gb"
-        sizeId: "s-4vcpu-8gb"
-      - <<: *do-template
-        labelString: "s-8vcpu-16gb"
-        sizeId: "s-8vcpu-16gb"
-
+        - <<: *do-template
+          labelString: "s-4vcpu-8gb"
+          sizeId: "s-4vcpu-8gb"
       timeoutMinutes: 5
       usePrivateNetworking: false
     - amazonEC2:
