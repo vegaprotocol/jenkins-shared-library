@@ -213,7 +213,7 @@ def vegavisorManageNodeParams(args=[:]) {
         }).flatten()
     }
 
-    
+
     if (args.name == "mainnetapi") {
         nodesList = [
             "api0.mainnet.vega.xyz",
@@ -225,7 +225,7 @@ def vegavisorManageNodeParams(args=[:]) {
             "observer-01.mainnet.vega.xyz",
             "observer-02.mainnet.vega.xyz",
         ]
-    } 
+    }
 
     return vegavisorParamsBase() << {
         choiceParam('NODE', nodesList, 'Choose which node to restart')
@@ -976,6 +976,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             HISTORY_KEY: 'NetworkHistory',
+            NODE_LABEL: 's-4vcpu-8gb',
         ],
         parameters: {
             stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')

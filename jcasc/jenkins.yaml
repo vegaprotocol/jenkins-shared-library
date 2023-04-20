@@ -1,6 +1,6 @@
 # you can view existing configuration here: https://jenkins.ops.vega.xyz/configuration-as-code/viewExport
 
-x-instance-template: &instance-template
+x-aws-template: &aws-template
   amiFilters:
     - name: "tag:Name"
       values: "jenkins-agent"
@@ -46,7 +46,7 @@ x-instance-template: &instance-template
   useEphemeralDevices: false
   zone: "eu-west-2c"
 
-x-do-template: &template
+x-do-template: &do-template
   idleTerminationInMinutes: 10
   # this needs to be looked up in digitalocean UI or Jenkins UI to provide updated image ID
   imageId: "131013686"
@@ -55,17 +55,14 @@ x-do-template: &template
     bash /tmp/j-init.sh
   installMonitoring: false
   instanceCap: 30
-  labelString: "digitalocean-test"
   labellessJobsAllowed: false
   name: "ubuntu"
   numExecutors: 1
   regionId: "fra1"
   setupPrivateNetworking: false
-  sizeId: "s-8vcpu-16gb"
   sshPort: 22
   username: "ubuntu"
   workspacePath: "/jenkins/"
-
 
 jenkins:
   authorizationStrategy:
@@ -98,7 +95,13 @@ jenkins:
       privateKeyCredentialId: "ubuntu-ansible-key"
       sshKeyId: 35449484
       templates:
-      - *labels
+      - <<: *do-template
+        labelString: "s-4vcpu-8gb"
+        sizeId: "s-4vcpu-8gb"
+      - <<: *do-template
+        labelString: "s-8vcpu-16gb"
+        sizeId: "s-8vcpu-16gb"
+
       timeoutMinutes: 5
       usePrivateNetworking: false
     - amazonEC2:
@@ -108,31 +111,31 @@ jenkins:
         region: "eu-west-2"
         sshKeysCredentialsId: "aws-jenkins-ssh"
         templates:
-          - <<: *instance-template
+          - <<: *aws-template
             labelString: general
             description: "general"
             mode: NORMAL
-          - <<: *instance-template
+          - <<: *aws-template
             description: "system-tests"
             labelString: "system-tests"
             instanceCapStr: 200
-          - <<: *instance-template
+          - <<: *aws-template
             description: "private-network"
             idleTerminationMinutes: "1"
             instanceCapStr: "8"
             labelString: "private-network"
             maxTotalUses: 1
             securityGroups: jenkins-dv-network
-          - <<: *instance-template
+          - <<: *aws-template
             description: "system-tests-capsule"
             labelString: "system-tests-capsule"
             instanceCapStr: 200
-          - <<: *instance-template
+          - <<: *aws-template
             description: "test-instance"
             ebsEncryptRootVolume: DEFAULT
             instanceCapStr: "5"
             labelString: "test-instance"
-          - <<: *instance-template
+          - <<: *aws-template
             description: "non-validator"
             instanceCapStr: "8"
             labelString: "non-validator"
