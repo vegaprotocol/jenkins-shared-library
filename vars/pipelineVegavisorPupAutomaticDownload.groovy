@@ -324,6 +324,7 @@ void call() {
                         withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                             sh '''gh release delete \
                                 --yes \
+                                --cleanup-tag \
                                 --repo ''' + params.RELEASES_REPO + ''' \
                                 v77.7.7-jenkins-visor-pup-''' + currentBuild.number + ''' \
                             | echo "Release does not exist"'''
