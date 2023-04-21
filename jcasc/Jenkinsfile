@@ -32,7 +32,7 @@ pipeline {
                             mv doctl bin/
                             chmod +x bin/doctl
                             export PATH="$PWD/bin:$PATH"
-                            doctl --access-token $DIGITALOCEAN_TOKEN compute image list --no-header | grep jenkins-agent | awk '{printf("%s=\"%s\"\n", $2, $1)}'
+                            doctl --access-token $DIGITALOCEAN_TOKEN compute image list --no-header | grep jenkins-agent | awk '{printf("%s=%s\\n", $2, $1)}'
                         '''
                     )
                     def configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins.yaml'
