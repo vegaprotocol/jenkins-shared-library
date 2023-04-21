@@ -122,6 +122,7 @@ void call() {
                             environment {
                                 GOOS         = "${GOOS}"
                                 GOARCH       = "${GOARCH}"
+                                CGO_ENABLED  = "0"
                             }
                             options { retry(3) }
                             steps {
