@@ -457,6 +457,7 @@ void call(Map config=[:]) {
                 currentBuild.result = 'FAILURE'
                 throw e
             } finally {
+                sleep 60000
                 stage('Notification') {
                     sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
                 }
