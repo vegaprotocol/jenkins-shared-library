@@ -244,7 +244,7 @@ def vegavisorManageNodeParams(args=[:]) {
     }
 }
 
-def vegavisorProtocolUpgradeParams() {
+def vegavisorProtocolUpgradeParams(args=[:]) {
     return vegavisorParamsBase([
         'UPDATE_CONFIGURATION': false,
     ]) << {
