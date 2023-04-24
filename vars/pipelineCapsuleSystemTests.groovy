@@ -82,12 +82,11 @@ void call() {
       timestamps()
       ansiColor('xterm')
       timeout(time: 270, unit: 'MINUTES')
+      skipDefaultCheckout()
     }
     stages {
       stage('config') {
-        agent any
         steps {
-          sh "printenv"
           echo "params=${params.inspect()}"
         }
       }
@@ -124,7 +123,7 @@ void call() {
                     job: downstreamBuildName,
                     parameters: childParams,
                     propagate: false,  // don't fail yet
-                    wait: true, 
+                    wait: true,
                   )
                   if (params.SCENARIO == 'NIGHTLY') {
                     build (
@@ -141,6 +140,7 @@ void call() {
                   }
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node {
+                    sh 'printenv'
                     def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
                     // Copy all artifacts
                     copyArtifacts(

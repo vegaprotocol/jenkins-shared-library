@@ -1,6 +1,8 @@
 void call() {
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             ansiColor('xterm')
             skipDefaultCheckout()
@@ -19,7 +21,7 @@ void call() {
                     }
                 }
             }
-            
+
             stage('Run spammer') {
                 steps {
                     script {

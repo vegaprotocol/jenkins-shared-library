@@ -42,7 +42,9 @@ void call() {
     def versionTag = 'UNKNOWN'
 
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             skipDefaultCheckout()
             timeout(time: 40, unit: 'MINUTES')

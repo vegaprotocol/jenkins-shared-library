@@ -8,7 +8,9 @@ def call() {
         ]
     ]
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             timestamps()
             ansiColor('xterm')

@@ -20,7 +20,7 @@ void call() {
 
     pipeline {
         agent {
-        label 'system-tests-capsule'
+            label params.NODE_LABEL
         }
 
         options {
@@ -134,7 +134,7 @@ void call() {
                     }
                 }
             }
-            
+
             stage('patch visor config for old version of vega') {
                 steps{
                     script{
@@ -278,7 +278,7 @@ void call() {
 
                         int upgradeProposalOffset = 100
                         def getLastBlock = { boolean silent ->
-                        // We return 0 here because there is a moment when data node is killed for 
+                        // We return 0 here because there is a moment when data node is killed for
                         return vegautils.shellOutput('''devopsscripts vegacapsule last-block \
                             --output value-only \
                             --network-home-path ''' + networkDataPath + '''/testnet \
@@ -292,7 +292,7 @@ void call() {
                         print('Current network heigh is ' + initNetworkHeight)
                         print('Proposing protocol upgrade on block ' + proposalBlock)
 
-                        vegacapsuleNodes.each{nodeName, details -> 
+                        vegacapsuleNodes.each{nodeName, details ->
                             if (details.Mode != 'validator') {
                                 return
                             }

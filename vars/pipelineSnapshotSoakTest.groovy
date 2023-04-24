@@ -1,7 +1,7 @@
 def call() {
     pipeline {
         agent {
-            label 'system-tests-capsule'
+            label params.NODE_LABEL
         }
         options {
             ansiColor('xterm')
@@ -104,7 +104,7 @@ def call() {
                         // scenario for 1 suit case at the time
                         else {
                             DIR = DIRS[0]
-                            
+
                             print('''Running scenario for 1 suit case at the time for for base path "''' + DIR + '''"''')
                             def nodeName = params.SUIT_NAME.contains('network_infra') ? 'node5' : 'node2'
                             def tmHome = "tendermint/${nodeName}"
