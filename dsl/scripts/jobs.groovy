@@ -495,7 +495,7 @@ def jobs = [
             NET_NAME: 'devnet1',
         ],
         parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 's-2vcpu-4gb',
         ),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
