@@ -166,7 +166,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
         'create-network': 'reset network, additionally runs playbook-barenode-common.yaml that provisions software for nodes',
         'stop-network': 'stop entire network',
     ]
-    return vegavisorParamsBase() << {
+    return vegavisorParamsBase(args) << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a network') + ul(choices))
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
@@ -228,7 +228,7 @@ def vegavisorManageNodeParams(args=[:]) {
         ]
     }
 
-    return vegavisorParamsBase() << {
+    return vegavisorParamsBase(args) << {
         choiceParam('NODE', nodesList, 'Choose which node to restart')
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
@@ -253,13 +253,14 @@ def vegavisorProtocolUpgradeParams() {
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
-def vegavisorTopupBotsParams(additionalTraderbotsIds=[]) {
+def vegavisorTopupBotsParams(args) {
     return {
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        stringParam('ADDITIONAL_TRADER_BOTS_IDS', additionalTraderbotsIds.join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
+        stringParam('ADDITIONAL_TRADER_BOTS_IDS', args.get('additionalTraderbotsIds', []).join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
@@ -416,7 +417,7 @@ def jobs = [
             booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
     ],
@@ -439,6 +440,7 @@ def jobs = [
             'TOP_UP_BOTS': true,
             'USE_CHECKPOINT': false,
             'CREATE_MARKETS': true,
+            'NODE_LABEL': 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -453,7 +455,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'devnet1'),
+        parameters: vegavisorManageNodeParams(
+            name: 'devnet1',
+            'NODE_LABEL': 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // restart a random node every 1 hour
@@ -477,7 +482,9 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -488,7 +495,9 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
