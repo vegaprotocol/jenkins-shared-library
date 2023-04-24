@@ -98,6 +98,9 @@ jenkins:
           - <<: *do-template
             labelString: "s-4vcpu-8gb"
             sizeId: "s-4vcpu-8gb"
+          - <<: *do-template
+            labelString: "s-2vcpu-4gb"
+            sizeId: "s-2vcpu-4gb"
         timeoutMinutes: 5
         usePrivateNetworking: false
     - amazonEC2:
