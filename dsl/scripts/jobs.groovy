@@ -245,7 +245,7 @@ def vegavisorManageNodeParams(args=[:]) {
 }
 
 def vegavisorProtocolUpgradeParams(args=[:]) {
-    return vegavisorParamsBase([
+    return vegavisorParamsBase(args + [
         'UPDATE_CONFIGURATION': false,
     ]) << {
         stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 400')
@@ -253,11 +253,10 @@ def vegavisorProtocolUpgradeParams(args=[:]) {
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
-def vegavisorTopupBotsParams(args) {
+def vegavisorTopupBotsParams(args=[:]) {
     return {
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         stringParam('ADDITIONAL_TRADER_BOTS_IDS', args.get('additionalTraderbotsIds', []).join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
