@@ -133,7 +133,7 @@ void call() {
                         }
                         post {
                             success {
-                                archiveArtifacts artifacts: '*.jpg, *.html'
+                                archiveArtifacts artifacts: '*.jpg, *.html' '*.csv'
                             }
                         }
                     }
