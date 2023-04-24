@@ -155,6 +155,7 @@ def vegavisorParamsBase(args=[:]) {
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -257,10 +258,11 @@ def vegavisorProtocolUpgradeParams() {
 
 def vegavisorTopupBotsParams(additionalTraderbotsIds=[]) {
     return {
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         stringParam('ADDITIONAL_TRADER_BOTS_IDS', additionalTraderbotsIds.join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -275,7 +277,6 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
         stringParam('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', '', 'Override network parameters at the beginning of the run.')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
@@ -285,6 +286,8 @@ def systemTestsParamsGeneric(args=[:]) {
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -365,15 +368,16 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
 def snapshotParams(args=[:]) {
     return {
         stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 's-4vcpu-8gb'), 'Jenkins label for running pipeline')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 's-4vcpu-8gb'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -412,6 +416,7 @@ def jobs = [
             booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
     ],
@@ -931,6 +936,7 @@ def jobs = [
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             booleanParam('CREATE_RELEASE', true, 'If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 14,
@@ -952,6 +958,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
@@ -971,6 +978,7 @@ def jobs = [
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
             stringParam('NUM_RL_ITERATIONS', '600', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
@@ -1062,6 +1070,7 @@ def jobs = [
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
@@ -1080,6 +1089,7 @@ def jobs = [
             stringParam('DURATION', '15m30s', 'Duration of stress-test')
             stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',
@@ -1114,7 +1124,6 @@ def jobs = [
         branch: 'develop',
         disableConcurrentBuilds: true,
         env: [
-            // hax getCommitHash()
             BRANCH_NAME: 'develop',
             CHANGE_BRANCH: 'develop',
         ],
@@ -1128,7 +1137,6 @@ def jobs = [
         disableConcurrentBuilds: true,
         check: 'Approbation Pipeline',
         env: [
-            // hax getCommitHash()
             BRANCH_NAME: 'develop',
             CHANGE_BRANCH: 'develop',
         ],
@@ -1143,8 +1151,9 @@ def jobs = [
             stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
             stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
             stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // ethereum events
@@ -1161,6 +1170,7 @@ def jobs = [
     //         stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
     //         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
     //         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+    //         stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
     //     },
     // ],
 ]

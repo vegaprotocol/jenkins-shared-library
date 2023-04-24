@@ -33,7 +33,9 @@ void call() {
     }
 
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             skipDefaultCheckout()
             timeout(time: 20, unit: 'MINUTES')

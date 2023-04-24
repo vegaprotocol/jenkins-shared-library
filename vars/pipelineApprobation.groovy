@@ -17,7 +17,9 @@ void call(def config=[:]) {
     echo "params=${params}"
 
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             ansiColor('xterm')
             skipDefaultCheckout()

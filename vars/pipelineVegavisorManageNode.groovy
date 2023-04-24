@@ -42,7 +42,9 @@ void call() {
     ALERT_SILENCE_ID = ''
 
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')

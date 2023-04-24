@@ -20,7 +20,9 @@ void call() {
     ANSIBLE_VARS = ''
 
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')

@@ -5,7 +5,9 @@ void call() {
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')

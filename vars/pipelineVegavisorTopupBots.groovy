@@ -1,6 +1,8 @@
 def call() {
     pipeline {
-        agent any
+        agent {
+            label params.NODE_LABEL
+        }
         options {
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
