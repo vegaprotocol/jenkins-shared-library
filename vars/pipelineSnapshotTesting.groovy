@@ -51,11 +51,24 @@ void call(Map config=[:]) {
                         // Printout all configuration variables
                         sh 'printenv'
                         echo "params=${params.inspect()}"
-                        jenkinsAgentPublicIP = sh(
-                            script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
-                            returnStdout: true,
-                        ).trim()
+                        // digitalocean
+                        if (params.NODE_LABEL == "s-4vcpu-8gb") {
+                            jenkinsAgentPublicIP = sh(
+                                script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
+                                returnStdout: true,
+                            ).trim()
+                        }
+                        // aws
+                        else {
+                            jenkinsAgentPublicIP = sh(
+                                script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
+                                returnStdout: true,
+                            ).trim()
+                        }
                         echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
+                        if (!jenkinsAgentPublicIP) {
+                            error("Couldn't resolve jenkinsAgentPublicIP")
+                        }
                     }
 
                     stage('Find available remote server') {
