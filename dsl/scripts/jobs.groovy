@@ -368,7 +368,7 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', config.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
