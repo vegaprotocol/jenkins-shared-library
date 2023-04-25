@@ -986,7 +986,7 @@ def jobs = [
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
             stringParam('NUM_RL_ITERATIONS', '600', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 's-8vcpu-16gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
