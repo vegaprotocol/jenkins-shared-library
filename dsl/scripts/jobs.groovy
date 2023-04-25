@@ -368,7 +368,7 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', config.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', config.get('NODE_LABEL', 'general'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -416,7 +416,7 @@ def jobs = [
             booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
     ],
@@ -436,10 +436,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
-            'TOP_UP_BOTS': true,
-            'USE_CHECKPOINT': false,
-            'CREATE_MARKETS': true,
-            'NODE_LABEL': 's-4vcpu-8gb',
+            TOP_UP_BOTS: true,
+            USE_CHECKPOINT: false,
+            CREATE_MARKETS: true,
+            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -456,7 +456,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            'NODE_LABEL': 's-4vcpu-8gb',
+            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -561,7 +561,9 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -575,7 +577,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'stagnet1'),
+        parameters: vegavisorManageNodeParams(
+            name: 'stagnet1',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -589,7 +594,9 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -601,7 +608,9 @@ def jobs = [
             NET_NAME: 'stagnet1',
         ],
         // parameters: vegavisorTopupBotsParams(["2","3","4","5", "6", "7"]),
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 's-2vcpu-4gb',
+        ),
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -678,7 +687,9 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -692,7 +703,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'stagnet3'),
+        parameters: vegavisorManageNodeParams(
+            name: 'stagnet3'
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -706,7 +720,9 @@ def jobs = [
             NET_NAME: 'stagnet3',
             ANSIBLE_LIMIT: 'stagnet3',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         // everyday 2AM UTC, jenkins prefred minute
         parameterizedCron: 'H 2 * * * %' + [
             'RELEASE_VERSION=latest',
@@ -721,7 +737,9 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet3',
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 's-2vcpu-4gb',
+        ),
         cron: 'H */6 * * *',
         disableConcurrentBuilds: true,
     ],
@@ -740,7 +758,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams('USE_CHECKPOINT': true),
+        parameters: vegavisorRestartNetworkParams(
+            USE_CHECKPOINT: true,
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -754,7 +775,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'testnet'),
+        parameters: vegavisorManageNodeParams(
+            name: 'testnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
@@ -768,7 +792,9 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -779,7 +805,9 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 's-2vcpu-4gb',
+        ),
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -858,7 +886,11 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'validators-testnet', sentryNodes: true),
+        parameters: vegavisorManageNodeParams(
+            name: 'validators-testnet',
+            sentryNodes: true,
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: false,
     ],
     [
@@ -871,7 +903,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'validators-testnet'),
+        parameters: vegavisorManageNodeParams(
+            name: 'validators-testnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -884,7 +919,10 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-mainnetapi.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-mainnetapi-common.yaml',
         ],
-        parameters: vegavisorManageNodeParams(name: 'mainnetapi'),
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnetapi',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
         disableConcurrentBuilds: true,
     ],
     //
@@ -903,7 +941,9 @@ def jobs = [
         name: 'common/system-tests-lnl-mainnet',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
-        parameters: lnlSystemTestsparams(),
+        parameters: lnlSystemTestsparams(
+            NODE_LABEL: 'general',
+        ),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 3 * * *',
@@ -966,7 +1006,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 's-8vcpu-16gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
@@ -1004,7 +1044,6 @@ def jobs = [
             HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: snapshotParams(),
-        // parameters: snapshotParams(NODE_LABEL: 's-4vcpu-8gb'),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
@@ -1069,6 +1108,7 @@ def jobs = [
         cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
+    // review deprecation of this job
     [
         name: 'private/Automations/Checkpoint-Backup',
         useScmDefinition: false,
@@ -1078,13 +1118,13 @@ def jobs = [
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
         },
-        //cron: 'H */2 * * *',
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
         definition: libDefinition('pipelineCheckpointBackup()'),
     ],
+    // review deprecation of this job
     [
         name: 'private/Automations/Spam-orders',
         useScmDefinition: false,
@@ -1097,7 +1137,7 @@ def jobs = [
             stringParam('DURATION', '15m30s', 'Duration of stress-test')
             stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', '', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',
