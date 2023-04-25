@@ -96,6 +96,9 @@ jenkins:
         sshKeyId: 35449484
         templates:
           - <<: *do-template
+            labelString: "s-8vcpu-16gb"
+            sizeId: "s-8vcpu-16gb"
+          - <<: *do-template
             labelString: "s-4vcpu-8gb"
             sizeId: "s-4vcpu-8gb"
           - <<: *do-template
