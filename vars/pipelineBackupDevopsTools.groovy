@@ -1,3 +1,4 @@
+/* groovylint-disable DuplicateStringLiteral, NestedBlockDepth */
 def call() {
     String nodeLabel = params.NODE_LABEL ?: 'general'
     int pipelineTimeout = params.TIMEOUT ? params.TIMEOUT as int : 60
@@ -56,7 +57,8 @@ def call() {
                                 scp \
                                 -o "StrictHostKeyChecking=no" \
                                 -i "''' + PSSH_KEYFILE + '''" \
-                                devopstools ''' + server + ''':/tmp/devopstools'''
+                                devopstools \
+                                ''' + PSSH_USER + '''@''' + server + ''':/tmp/devopstools'''
                         }
                     }
                 }
@@ -65,10 +67,24 @@ def call() {
             stage('Upload the previous backups state') {
                 dir(stateRepository) {
                     script {
-                        if (!fileExists(server + '.json'))
+                        if (!fileExists(server + '.json')) {
+                            withCredentials([sshUserPrivateKey(
+                                credentialsId: 'ssh-vega-network',
+                                keyFileVariable: 'PSSH_KEYFILE',
+                                usernameVariable: 'PSSH_USER'
+                            )]) {
+                                dir('devopstools') {
+                                    sh '''
+                                        scp \
+                                        -o "StrictHostKeyChecking=no" \
+                                        -i "''' + PSSH_KEYFILE + '''" \
+                                        ''' + server + '''.json \
+                                        ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state.json'''
+                                }
+                            }
+                        }
                     }
                 }
-                
             }
 
             stage('Backup') {
@@ -79,36 +95,21 @@ def call() {
                 }
                 steps {
                     script {
-                        try {
-                            withDevopstools(
-                                command: 'topup traderbot'
-                            )
-                            withGoogleSA('gcp-k8s') {
-                                sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
-                            }
-                        } catch(err) {
-                            print(err)
-                            currentBuild.result = 'UNSTABLE'
-                        }
-
-                        try {
-                            List additionalTraderbotsIds = []
-                            if (params.ADDITIONAL_TRADER_BOTS_IDS) {
-                                additionalTraderbotsIds = params.ADDITIONAL_TRADER_BOTS_IDS.split(',')
-                            }
-
-                            additionalTraderbotsIds.each{traderbotId ->
-                                withDevopstools(
-                                    command: 'topup traderbot --traderbot-id ' + traderbotId
-                                )
-                                withGoogleSA('gcp-k8s') {
-                                    sh "kubectl rollout restart statefulset traderbot${traderbotId}-app -n ${env.NET_NAME}"
+                        withCredentials([sshUserPrivateKey(
+                                credentialsId: 'ssh-vega-network',
+                                keyFileVariable: 'PSSH_KEYFILE',
+                                usernameVariable: 'PSSH_USER'
+                            )]) {
+                                dir('devopstools') {
+                                    sh '''
+                                        ssh \
+                                        -o "StrictHostKeyChecking=no" \
+                                        -i "''' + PSSH_KEYFILE + '''" \
+                                        ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state.json''' \
+                                        'sudo /tmp/devopstools backup list-backups'
                                 }
                             }
-                        } catch(err) {
-                            print(err)
-                            currentBuild.result = 'UNSTABLE'
-                        }
+
                     }
                 }
             }
@@ -116,7 +117,7 @@ def call() {
         post {
             always {
                 // script {
-                //     slack.slackSendCIStatus channel: '#env-deploy', name: env.JOB_NAME, branch: 'Top-Up'
+                //     slack.slackSendCIStatus channel: '#tbd...', name: env.JOB_NAME, branch: 'Top-Up'
                 // }
                 cleanWs()
             }
