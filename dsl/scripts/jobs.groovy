@@ -1162,6 +1162,7 @@ def jobs = [
         parameters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
+    // just wrapper for runApprobation.groovy
     [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
@@ -1176,6 +1177,7 @@ def jobs = [
             CHANGE_BRANCH: 'develop',
         ],
     ],
+    // just wrapper for runApprobation.groovy
     [
         name: 'common/vegawallet-desktop',
         repo: 'vegawallet-desktop',
