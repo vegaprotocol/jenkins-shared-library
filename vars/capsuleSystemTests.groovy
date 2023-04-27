@@ -281,11 +281,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           script {
-            sh 'mkdir -p vega/dist'
+            sh 'mkdir -p vega/build'
             sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="''' + protocolUpgradeVersion + '''"/' vega/version/version.go'''
-            vegautils.buildGoBinary('vega', 'dist', './...')
+            vegautils.buildGoBinary('vega', 'build', './...')
 
-            dir('vega/dist') {
+            dir('vega/build') {
               sh './vega version'
               sh './data-node version'
               sh 'zip data-node-linux-amd64.zip data-node'
