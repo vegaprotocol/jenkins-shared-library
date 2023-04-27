@@ -910,6 +910,22 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
+        name: 'private/Deployments/validators-testnet/Backup',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineBackupDevopsTools()'),
+        env: [],
+        parameters: [
+            stringParam('NODE_LABEL', 'system-tests-capsule', 'The node label pipeline is going to run on')
+            stringParam('TIMEOUT', '120', 'Global timeout in minutes')
+            stringParam('DEVOPSTOOLS_BRANCH', 'backup-command', 'Branch for the vegaprotocol/devopstools repository')
+            choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
+            stringParam('SERVER', '', 'Server where we are going to execute action')
+
+        ],
+        disableConcurrentBuilds: true,
+    ],
+    [
         name: 'private/Deployments/mainnet/Manage-Node-53',
         description: devopsInfraDocs,
         useScmDefinition: false,
