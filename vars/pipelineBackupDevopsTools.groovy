@@ -1,8 +1,8 @@
 /* groovylint-disable DuplicateStringLiteral, LineLength, NestedBlockDepth */
 def call() {
-    String nodeLabel = params.NODE_LABEL ?: 'system-tests-capsule'
+    String nodeLabel = params.NODE_LABEL ?: 's-2vcpu-4gb'
     int pipelineTimeout = params.TIMEOUT ? params.TIMEOUT as int : 60
-    String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'backup-command'
+    String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'main'
     String pipelineAction = params.ACTION ?: 'BACKUP'
     String stateRepository = 'vega-backups-state'
 
