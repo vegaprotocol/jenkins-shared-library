@@ -1,9 +1,11 @@
+/* groovylint-disable LineLength */
 void call(Map paramsOverrides=[:]) {
     capsuleSystemTests([
+        agentLabel: params.NODE_LABEL ?: '',
         vegacapsuleConfig: 'mainnet_config.hcl',
         systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
-            "MAINNET_TEST_CASE": "true",
+            'MAINNET_TEST_CASE': 'true',
         ],
         fastFail: false,
         hooks: [
@@ -17,16 +19,15 @@ void call(Map paramsOverrides=[:]) {
 
                     withCredentials([sshCredentials]) {
                         String networkDir = ""
-                        String systemTestsDir = ""
                         dir (pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
                             networkDir = vegautils.escapePath(pwd())
                         }
 
                         List availableCheckpointServers = [
-                            "api0.mainnet.vega.xyz",
-                            "api1.mainnet.vega.xyz",
-                            "api2.mainnet.vega.xyz",
-                            "api3.mainnet.vega.xyz",
+                            'api0.mainnet.vega.xyz',
+                            'api1.mainnet.vega.xyz',
+                            'api2.mainnet.vega.xyz',
+                            'api3.mainnet.vega.xyz',
                         ]
                         Random rnd = new Random()
                         String selectedCheckpointSourceServer = availableCheckpointServers[rnd.nextInt(availableCheckpointServers.size)]
