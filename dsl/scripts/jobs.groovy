@@ -916,12 +916,12 @@ def jobs = [
         definition: libDefinition('pipelineBackupDevopsTools()'),
         env: [],
         parameters: [
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'The node label pipeline is going to run on')
+            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
             stringParam('TIMEOUT', '120', 'Global timeout in minutes')
             stringParam('DEVOPSTOOLS_BRANCH', 'backup-command', 'Branch for the vegaprotocol/devopstools repository')
             choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
             stringParam('SERVER', '', 'Server where we are going to execute action')
-
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         ],
         disableConcurrentBuilds: true,
     ],
