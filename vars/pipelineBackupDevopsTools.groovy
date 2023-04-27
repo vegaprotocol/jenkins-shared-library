@@ -1,12 +1,14 @@
-/* groovylint-disable DuplicateStringLiteral, NestedBlockDepth */
+/* groovylint-disable DuplicateStringLiteral, LineLength, NestedBlockDepth */
 def call() {
-    String nodeLabel = params.NODE_LABEL ?: 'general'
+    String nodeLabel = params.NODE_LABEL ?: 'system-tests-capsule'
     int pipelineTimeout = params.TIMEOUT ? params.TIMEOUT as int : 60
     String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'backup-command'
     String pipelineAction = params.ACTION ?: 'BACKUP'
     String stateRepository = 'vega-backups-state'
 
     String server = params.SERVER ?: 'be02.validators-testnet.vega.xyz'
+
+    int buildNumber = currentBuild.number
 
     pipeline {
         agent {
@@ -24,62 +26,94 @@ def call() {
             CGO_ENABLED = '0'
         }
         stages {
+            stage('Prepare') {
+                steps {
+                    script {
+                        switch(pipelineAction) {
+                            case 'BACKUP':
+                                currentBuild.displayName = sprintf("#%d: Backup %s", buildNumber, server)
+                                break
+                            case 'RESTORE':
+                                currentBuild.displayName = sprintf("#%d: Restore %s", buildNumber, server)
+                                break
+                        }
+                    }
+                }
+            }
+
             stage('Checkout devopstools') {
                 steps {
-                    sh 'printenv'
-                    echo "params=${params.inspect()}"
-                    gitClone(
-                        vegaUrl: 'devopstools',
-                        directory:'devopstools',
-                        branch: devopsToolsBranch,
-                    )
-                    vegautils.buildGoBinary('devopstools', './devopstools', '.')
+                    script {
+                        sh 'printenv'
+                        echo "params=${params.inspect()}"
+                        gitClone(
+                            vegaUrl: 'devopstools',
+                            directory:'devopstools',
+                            branch: devopsToolsBranch,
+                        )
+                        vegautils.buildGoBinary('devopstools', './devopstools', '.')
+                    }
                 }
             }
 
             stage('Checkout backup state') {
-                gitClone(
-                    vegaUrl: stateRepository,
-                    directory: stateRepository,
-                    branch: 'main'
-                )
+                steps {
+                    script {
+                        gitClone(
+                            vegaUrl: stateRepository,
+                            directory: stateRepository,
+                            branch: 'main'
+                        )
+                    }
+                }
             }
 
             stage('Upload devopstools binary to the server') {
-                script {
-                    withCredentials([sshUserPrivateKey(
-                        credentialsId: 'ssh-vega-network',
-                        keyFileVariable: 'PSSH_KEYFILE',
-                        usernameVariable: 'PSSH_USER'
-                    )]) {
-                        dir('devopstools') {
-                            sh '''
-                                scp \
-                                -o "StrictHostKeyChecking=no" \
-                                -i "''' + PSSH_KEYFILE + '''" \
-                                devopstools \
-                                ''' + PSSH_USER + '''@''' + server + ''':/tmp/devopstools'''
+                steps {
+                    script {
+                        withCredentials([
+                            sshUserPrivateKey(
+                                credentialsId: 'ssh-vega-network',
+                                keyFileVariable: 'PSSH_KEYFILE',
+                                usernameVariable: 'PSSH_USER'
+                            )
+                        ]) {
+                            dir('devopstools') {
+                                sh '''
+                                    scp \
+                                    -o "StrictHostKeyChecking=no" \
+                                    -i "''' + PSSH_KEYFILE + '''" \
+                                    devopstools \
+                                    ''' + PSSH_USER + '''@''' + server + ''':/tmp/devopstools'''
+                            }
                         }
                     }
                 }
             }
 
             stage('Upload the previous backups state') {
-                dir(stateRepository) {
-                    script {
-                        if (!fileExists(server + '.json')) {
-                            withCredentials([sshUserPrivateKey(
-                                credentialsId: 'ssh-vega-network',
-                                keyFileVariable: 'PSSH_KEYFILE',
-                                usernameVariable: 'PSSH_USER'
-                            )]) {
-                                dir('devopstools') {
+                    steps {
+                    dir(stateRepository) {
+                        script {
+                            if (fileExists(server + '.json')) {
+                                withCredentials([sshUserPrivateKey(
+                                    credentialsId: 'ssh-vega-network',
+                                    keyFileVariable: 'PSSH_KEYFILE',
+                                    usernameVariable: 'PSSH_USER'
+                                )]) {
                                     sh '''
                                         scp \
                                         -o "StrictHostKeyChecking=no" \
                                         -i "''' + PSSH_KEYFILE + '''" \
                                         ''' + server + '''.json \
-                                        ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state.json'''
+                                        ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state-''' + buildNumber + '''.json'''
+
+                                    sh '''
+                                        ssh \
+                                        -o "StrictHostKeyChecking=no" \
+                                        -i "''' + PSSH_KEYFILE + '''" \
+                                        ''' + PSSH_USER + '''@''' + server + ''' \
+                                        "sudo chown root:root /tmp/vega-backup-state-''' + buildNumber + '''.json" '''
                                 }
                             }
                         }
@@ -95,21 +129,68 @@ def call() {
                 }
                 steps {
                     script {
-                        withCredentials([sshUserPrivateKey(
+                        withCredentials([
+                            sshUserPrivateKey(
                                 credentialsId: 'ssh-vega-network',
                                 keyFileVariable: 'PSSH_KEYFILE',
                                 usernameVariable: 'PSSH_USER'
-                            )]) {
-                                dir('devopstools') {
-                                    sh '''
-                                        ssh \
-                                        -o "StrictHostKeyChecking=no" \
-                                        -i "''' + PSSH_KEYFILE + '''" \
-                                        ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state.json''' \
-                                        'sudo /tmp/devopstools backup list-backups'
-                                }
-                            }
+                            ),
+                            string(credentialsId: 'vega-backups-state-encryption-key', variable: 'ENCRYPTION_TOKEN')
+                        ]) {
+                            try {
+                                List args = [
+                                    '--passphrase', ENCRYPTION_TOKEN,
+                                    '--local-state-file', '/tmp/vega-backup-state-' + buildNumber + '.json',
+                                ]
 
+                                sh '''
+                                    ssh \
+                                    -o "StrictHostKeyChecking=no" \
+                                    -i "''' + PSSH_KEYFILE + '''" \
+                                    ''' + PSSH_USER + '''@''' + server + ''' \
+                                    "sudo /tmp/devopstools backup backup ''' + args.join(' ') + '''" '''
+                            } catch (err) {
+                                print('ERROR: ' + err)
+                                currentBuild.result = 'FAILED'
+                            }
+                        }
+                    }
+                }
+            }
+
+            stage('Save state') {
+                steps {
+                    script {
+                        withCredentials([sshUserPrivateKey(
+                            credentialsId: 'ssh-vega-network',
+                            keyFileVariable: 'PSSH_KEYFILE',
+                            usernameVariable: 'PSSH_USER'
+                        )]) {
+                            dir (stateRepository) {
+                                sh '''
+                                    scp \
+                                    -o "StrictHostKeyChecking=no" \
+                                    -i "''' + PSSH_KEYFILE + '''" \
+                                    ''' + PSSH_USER + '''@''' + server + ''':/tmp/vega-backup-state-''' + buildNumber + '''.json \
+                                    ''' + server + '''.json'''
+                            }
+                        }
+
+                        makeCommit(
+                            makeCheckout: false,
+                            directory: stateRepository,
+                            branchName: 'state-update',
+                            commitMessage: '[Automated] new backup state for ' + server,
+                            commitAction: 'git add ' + server + '.json'
+                        )
+                    }
+                }
+            }
+
+            stage('Print backup state') {
+                steps {
+                    script {
+                        sh 'devopstools/devopstools backup list-backups --local-state-file ' + stateRepository + '/' + server + '.json'
                     }
                 }
             }
@@ -124,3 +205,8 @@ def call() {
         }
     }
 }
+// library (
+//                 identifier: "vega-shared-library@main",
+//                 changelog: false,
+//             )
+// call()
