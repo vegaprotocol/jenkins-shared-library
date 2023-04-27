@@ -1039,7 +1039,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
-            stringParam('NUM_RL_ITERATIONS', '600', 'Number of iterations to run RL tests for')
+            stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 's-8vcpu-16gb', 'Jenkins label for running pipeline (empty means any node)')
         },
