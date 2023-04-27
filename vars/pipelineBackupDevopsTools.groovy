@@ -29,6 +29,10 @@ def call() {
             stage('Prepare') {
                 steps {
                     script {
+                        if (server == '') {
+                            error('The SERVER parameter MUST be specified')
+                        }
+
                         switch(pipelineAction) {
                             case 'BACKUP':
                                 currentBuild.displayName = sprintf("#%d: Backup %s", buildNumber, server)
@@ -36,6 +40,11 @@ def call() {
                             case 'RESTORE':
                                 currentBuild.displayName = sprintf("#%d: Restore %s", buildNumber, server)
                                 break
+                            case 'LIST_BACKUPS':
+                                currentBuild.displayName = sprintf("#%d: List backups %s", buildNumber, server)
+                                break
+                            default:
+                                error('Unknown operation. Expected one of [BACKUP, RESTORE, LIST_BACKUPS], got ' + pipelineAction)
                         }
                     }
                 }
@@ -157,8 +166,29 @@ def call() {
                     }
                 }
             }
+            
+            stage('Restore') {
+                 when {
+                    expression {
+                        pipelineAction == 'RESTORE'
+                    }
+                }
+
+                steps {
+                    script {
+                        error('Not implemented yet')
+                    }
+                }
+
+            }
 
             stage('Save state') {
+                when {
+                    expression {
+                        pipelineAction == 'BACKUP'
+                    }
+                }
+
                 steps {
                     script {
                         withCredentials([sshUserPrivateKey(
@@ -186,6 +216,8 @@ def call() {
                     }
                 }
             }
+
+            
 
             stage('Print backup state') {
                 steps {
