@@ -704,7 +704,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(
-            name: 'stagnet3'
+            name: 'stagnet3',
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
@@ -915,14 +915,14 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineBackupDevopsTools()'),
         env: [],
-        parameters: [
+        parameters: {
             stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
             stringParam('TIMEOUT', '120', 'Global timeout in minutes')
             stringParam('DEVOPSTOOLS_BRANCH', 'backup-command', 'Branch for the vegaprotocol/devopstools repository')
             choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
             stringParam('SERVER', '', 'Server where we are going to execute action')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        ],
+        },
         disableConcurrentBuilds: true,
     ],
     [
