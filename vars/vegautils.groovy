@@ -112,3 +112,11 @@ String getVegaCiBotCredentials() {
 
   return credentialNames.first()
 }
+
+def dockerCleanup() {
+  sh label: 'docker volume prune',
+  returnStatus: true,  // ignore exit code
+  script: '''#!/bin/bash -e
+      docker volume prune --force
+  '''
+}
