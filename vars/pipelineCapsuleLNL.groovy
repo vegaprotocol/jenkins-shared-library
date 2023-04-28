@@ -105,6 +105,11 @@ void call(Map paramsOverrides=[:]) {
                         }
                     }
                 }
+            ],
+            preNetworkStop: [
+                'Sleep': {
+                    sleep 86400
+                }
             ]
         ],
     ], paramsOverrides)
