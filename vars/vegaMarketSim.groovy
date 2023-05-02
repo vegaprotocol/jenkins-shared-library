@@ -17,7 +17,7 @@ void call(Map config = [:]) {
       string(name: 'VEGA_VERSION', value: config.vegaVersion ?: "develop"),
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: "main"),
-      string(name: 'NODE_LABEL', value: config.nodeLabel ?: 's-8vcpu-16gb'),
+      string(name: 'NODE_LABEL', value: config.nodeLabel ?: 'system-tests'),
   ]
 
    RunWrapper vms = build(
