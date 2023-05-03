@@ -29,6 +29,9 @@ void call(Map config = [:]) {
     if (config.vegawalletUiBranch) {
         buildParameters.add(string(name: 'VEGAWALLET_UI_BRANCH', value: config.vegawalletUiBranch))
     }
+    if (config.vegawalletBrowserBranch) {
+        buildParameters.add(string(name: 'VEGAWALLET_BROWSER_BRANCH', value: config.vegawalletBrowserBranch))
+    }
 
 
 
