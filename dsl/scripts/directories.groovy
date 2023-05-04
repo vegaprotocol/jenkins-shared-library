@@ -32,8 +32,8 @@ def dirs = [
     //     display: 'Stagnet 2',
     // ],
     [
-        id: 'private/Deployments/stagnet3',
-        display: 'Stagnet 3',
+        id: 'private/Deployments/mainnet-mirror',
+        display: 'Mainnet-mirror',
     ],
     // [
     //     id: 'private/Deployments/mainnet-mirror',
