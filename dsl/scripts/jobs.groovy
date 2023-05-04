@@ -1147,6 +1147,19 @@ def jobs = [
         ],
     ],
     [
+        name: 'common/vegawallet-browser',
+        repo: 'vegawallet-browser',
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'main',
+        disableConcurrentBuilds: true,
+        check: 'Approbation Pipeline',
+        env: [
+            BRANCH_NAME: 'main',
+            CHANGE_BRANCH: 'main',
+        ],
+    ],
+    [
         name: 'common/snapshot-soak-tests',
         useScmDefinition: false,
         numToKeep: 100,
