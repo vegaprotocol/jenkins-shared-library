@@ -176,6 +176,22 @@ void call(def config=[:]) {
                             sh "rm -rf vegawallet-ui@tmp"
                         }
                     }
+                    stage('vegawallet-browser') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'vegawallet-browser',
+                                vegaUrl: 'vegawallet-browser',
+                                branch: params.VEGAWALLET_BROWSER_BRANCH,
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf vegawallet-browser@tmp"
+                        }
+                    }
                 }
             }
             stage('Run Approbation: Categories') {
