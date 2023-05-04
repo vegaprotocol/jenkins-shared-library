@@ -35,10 +35,6 @@ def dirs = [
         id: 'private/Deployments/mainnet-mirror',
         display: 'Mainnet-mirror',
     ],
-    // [
-    //     id: 'private/Deployments/mainnet-mirror',
-    //     display: 'Mainnet Mirror',
-    // ],
     [
         id: 'private/Deployments/validators-testnet',
         display: 'Validators Testnet',
