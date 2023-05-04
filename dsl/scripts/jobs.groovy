@@ -675,14 +675,14 @@ def jobs = [
     // Stagnet 3
     //
     [
-        name: 'private/Deployments/stagnet3/Manage-Network',
+        name: 'private/Deployments/mainnet-mirror/Manage-Network',
         numToKeep: 100,
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNetwork()'),
         env: [
-            NET_NAME: 'stagnet3',
-            ANSIBLE_LIMIT: 'stagnet3',
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_LIMIT: 'mainnet-mirror',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
@@ -692,49 +692,49 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/stagnet3/Manage-Node',
+        name: 'private/Deployments/mainnet-mirror/Manage-Node',
         numToKeep: 100,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
-            NET_NAME: 'stagnet3',
+            NET_NAME: 'mainnet-mirror',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(
-            name: 'stagnet3',
+            name: 'mainnet-mirror',
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
+    // [
+    //     name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
+    //     numToKeep: 100,
+    //     useScmDefinition: false,
+    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+    //     env: [
+    //         NET_NAME: 'mainnet-mirror',
+    //         ANSIBLE_LIMIT: 'mainnet-mirror',
+    //     ],
+    //     parameters: vegavisorProtocolUpgradeParams(
+    //         NODE_LABEL: 's-4vcpu-8gb',
+    //     ),
+    //     // everyday 2AM UTC, jenkins prefred minute
+    //     // parameterizedCron: 'H 2 * * * %' + [
+    //     //     'RELEASE_VERSION=latest',
+    //     // ].join(';'),
+    //     disableConcurrentBuilds: true,
+    // ],
     [
-        name: 'private/Deployments/stagnet3/Protocol-Upgrade',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-        env: [
-            NET_NAME: 'stagnet3',
-            ANSIBLE_LIMIT: 'stagnet3',
-        ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
-        // everyday 2AM UTC, jenkins prefred minute
-        parameterizedCron: 'H 2 * * * %' + [
-            'RELEASE_VERSION=latest',
-        ].join(';'),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/stagnet3/Topup-Bots',
+        name: 'private/Deployments/mainnet-mirror/Topup-Bots',
         numToKeep: 100,
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
-            NET_NAME: 'stagnet3',
+            NET_NAME: 'mainnet-mirror',
         ],
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 's-2vcpu-4gb',
@@ -810,67 +810,6 @@ def jobs = [
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
-    //
-    // mainnet-mirror
-    //
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Manage-Network',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_LIMIT: 'mainnet-mirror',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Manage-Node',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
-    //     disableConcurrentBuilds: false,
-    // ],
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Manage-Network-53',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_LIMIT: 'mainnet-mirror',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Manage-Node-53',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'mainnet-mirror'),
-    //     disableConcurrentBuilds: true,
-    // ],
     //
     // Validators-Testnet
     //
@@ -1079,17 +1018,17 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Snapshots/Stagnet3',
+        name: 'private/Snapshots/mainnet-mirror',
         numToKeep: 500,
         useScmDefinition: false,
         env: [
-            NET_NAME: 'stagnet3',
+            NET_NAME: 'mainnet-mirror',
             HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        // cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
@@ -1144,7 +1083,7 @@ def jobs = [
         name: 'private/Automations/Spam-orders',
         useScmDefinition: false,
         parameters: {
-            choiceParam('NETWORK_NAME', ['devnet1', 'stagnet1', 'stagnet3', 'fairground'], 'Network name')
+            choiceParam('NETWORK_NAME', ['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'], 'Network name')
             stringParam('THREADS', '4', 'Number of thread for spammers')
             stringParam('MAX_PRICE', '10000', 'Max price for single order')
             stringParam('THREAD_RATE_LIMIT', '15', 'Maximum number of orders single thread can send')
