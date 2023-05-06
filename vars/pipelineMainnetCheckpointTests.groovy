@@ -130,7 +130,8 @@ void call() {
                                     }
                                 }
                             } catch (Exception e) {
-                                echo "TEST BRANCH!!! Temporarily don't care about failing system tests here."
+                                currentBuild.result = 'FAILURE'
+                                throw e
                             } finally {
                                 String junitReportFile = 'system-tests/build/test-reports/system-test-results.xml'
                                 String testLogDirectory = 'system-tests/test_logs/'
