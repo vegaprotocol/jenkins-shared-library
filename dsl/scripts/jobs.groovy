@@ -226,6 +226,18 @@ def vegavisorManageNodeParams(args=[:]) {
             "observer-01.mainnet.vega.xyz",
             "observer-02.mainnet.vega.xyz",
         ]
+    } else if (args.name == "mainnet") {
+        nodesList = [
+            "api0.vega.community",
+            "api1.vega.community",
+            "api2.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be2.vega.community",
+            "m0.vega.community",
+            "m1.vega.community",
+            "m2.vega.community",
+        ]
     }
 
     return vegavisorParamsBase(args) << {
@@ -879,6 +891,23 @@ def jobs = [
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/mainnet/Manage-Node-71',
+        numToKeep: 500,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineManageNode71()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
     ],
     //
     // System-Tests
