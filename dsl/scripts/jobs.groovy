@@ -880,6 +880,23 @@ def jobs = [
         ),
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/mainnet/Manage-Node-71',
+        numToKeep: 500,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineManageNode71()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // System-Tests
     //
