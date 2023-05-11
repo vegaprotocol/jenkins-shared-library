@@ -492,7 +492,7 @@ def jobs = [
                 'UNSAFE_RESET_ALL=true',
                 'JOIN_AS_VALIDATOR=true',
                 'USE_REMOTE_SNAPSHOT=true',
-                'NODE=n05.devnet1.vega.xyz'
+                'NODE=n05.devnet1.vega.rocks'
             ].join(';'),
         ].join('\n'),
     ],

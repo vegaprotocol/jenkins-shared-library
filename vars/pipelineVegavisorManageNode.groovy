@@ -122,7 +122,7 @@ void call() {
                     script {
                         switch(env.NET_NAME) {
                             case 'devnet1':
-                                NODE_NAME = 'n05.devnet1.vega.xyz'
+                                NODE_NAME = 'n05.devnet1.vega.rocks'
                                 SHORT_NODE = 'n05'
                                 break
                             default:
@@ -358,7 +358,7 @@ void call() {
                             echo "Sleep 30 seconds to ensure epoch have passed"
                             sleep 30
                             script {
-                                def url = "https://api.${env.NET_NAME}.vega.xyz/api/v2/epoch".replaceAll('fairground', 'testnet1')
+                                def url = "https://api.${env.NET_NAME}.vega.rocks/api/v2/epoch".replaceAll('fairground', 'testnet1')
                                 def request = new URL(url).openConnection()
                                 def response = new groovy.json.JsonSlurperClassic().parseText(request.getInputStream().getText())
                                 echo ">>> response:\n${response}"
