@@ -733,7 +733,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             allowEmptyArchive: true
           )
           script {
-            if (params.TEST_EXTRA_PYTEST_ARGS.contains("--generate-pprof")) {
+            if (params.TEST_EXTRA_PYTEST_ARGS.contains("--profile")) {
               archiveArtifacts(
                   artifacts: 'prof/**/*',
                   allowEmptyArchive: true
