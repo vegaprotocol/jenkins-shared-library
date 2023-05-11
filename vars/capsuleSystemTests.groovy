@@ -732,11 +732,13 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             artifacts: 'checkpoints/**/*',
             allowEmptyArchive: true
           )
-          if (params.TEST_EXTRA_PYTEST_ARGS.contains("--generate-pprof")) {
-            archiveArtifacts(
-                artifacts: 'prof/**/*',
-                allowEmptyArchive: true
-            )
+          script {
+            if (params.TEST_EXTRA_PYTEST_ARGS.contains("--generate-pprof")) {
+              archiveArtifacts(
+                  artifacts: 'prof/**/*',
+                  allowEmptyArchive: true
+              )
+            }
           }
 
           catchError {
