@@ -358,7 +358,7 @@ void call() {
                             echo "Sleep 30 seconds to ensure epoch have passed"
                             sleep 30
                             script {
-                                def url = "https://api.${env.NET_NAME}.vega.rocks/api/v2/epoch".replaceAll('fairground', 'testnet1')
+                                def url = "https://api-n00.${env.NET_NAME}.vega.rocks/api/v2/epoch".replaceAll('fairground', 'testnet')
                                 def request = new URL(url).openConnection()
                                 def response = new groovy.json.JsonSlurperClassic().parseText(request.getInputStream().getText())
                                 echo ">>> response:\n${response}"
