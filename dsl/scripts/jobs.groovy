@@ -208,6 +208,17 @@ def vegavisorManageNodeParams(args=[:]) {
         "metabase02.${args.name}.vega.xyz",
     ]
 
+
+    if (args.name == "devnet1") {
+        List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+            "be.${args.name}.vega.rocks",
+            "be02.${args.name}.vega.rocks",
+            "metabase00.${args.name}.vega.rocks",
+            "metabase01.${args.name}.vega.rocks",
+            "metabase02.${args.name}.vega.rocks",
+        ]
+    }
+
     if (args.sentryNodes) {
         nodesList += ((0..15).collect { nodeNumber ->
             (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
