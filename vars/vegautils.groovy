@@ -50,7 +50,7 @@ Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
 
   for (int nn=0; nn<nodesRetry; nn++) {
     try {
-      networkURL = sprintf('https://n%02d.%s.vega.xyz/statistics', nn, netName)
+      networkURL = sprintf('https://n%02d.%s.vega.rocks/statistics', nn, netName)
       statisticsJSON = shellOutput('curl --max-time 3 ' + networkURL)
       break
     } catch(err) {
