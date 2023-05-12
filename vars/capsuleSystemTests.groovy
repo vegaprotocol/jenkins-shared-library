@@ -8,6 +8,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     fastFail: true,
     protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
+    slackTitle: 'System Tests Capsule',
+    slackChannel: '#qa-notify',
   ]
 
   Map config = defaultConfig + additionalConfig
@@ -765,8 +767,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         script {
           slack.slackSendCIStatus(
-            name: 'System Tests Capsule',
-            channel: '#qa-notify',
+            name: config.slackTitle,
+            channel: config.slackChannel,
             branch: 'st:' + params.SYSTEM_TESTS_BRANCH + ' | vega:' + params.VEGA_BRANCH
           )
         }

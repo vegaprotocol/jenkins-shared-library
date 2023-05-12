@@ -8,6 +8,7 @@ void call(Map paramsOverrides=[:]) {
             'MAINNET_TEST_CASE': 'true',
         ],
         fastFail: false,
+        slackTitle: 'LNL Mainnet System Tests',
         hooks: [
             postNetworkGenerate: [
                 'Load mainnet checkpoint': {
