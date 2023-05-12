@@ -101,8 +101,16 @@ void call() {
               [
                 (name): {
                   childParams = collectParams()
+                  // Collect pytest args, which may be specified in parent, and/or used to collect parallel subjobs
+                  pytestArgs = []
                   if (testSpec.pytestArgs) {
-                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: testSpec.pytestArgs)]
+                    pytestArgs += testSpec.pytestArgs
+                  }
+                  if (params.TEST_EXTRA_PYTEST_ARGS != "") {
+                    pytestArgs += testSpec.pytestArgs
+                  }
+                  if (pytestArgs.size > 0) {
+                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value:  + pytestArgs.join(" ")]
                   }
                   if (testSpec.pytestDirectory) {
                     childParams += [string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: testSpec.pytestDirectory)]

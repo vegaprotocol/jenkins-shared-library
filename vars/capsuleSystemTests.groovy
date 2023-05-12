@@ -734,6 +734,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             artifacts: 'checkpoints/**/*',
             allowEmptyArchive: true
           )
+          script {
+            if (params.TEST_EXTRA_PYTEST_ARGS.contains("--profile")) {
+              archiveArtifacts(
+                  artifacts: 'prof/**/*',
+                  allowEmptyArchive: true
+              )
+            }
+          }
+
           catchError {
             junit(
               checksName: 'System Tests',
