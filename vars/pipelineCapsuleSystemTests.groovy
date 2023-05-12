@@ -110,7 +110,7 @@ void call() {
                     pytestArgs += testSpec.pytestArgs
                   }
                   if (pytestArgs.size > 0) {
-                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value:  + pytestArgs.join(" ")]
+                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: pytestArgs.join(" "))]
                   }
                   if (testSpec.pytestDirectory) {
                     childParams += [string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: testSpec.pytestDirectory)]
