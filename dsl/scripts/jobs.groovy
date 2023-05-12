@@ -288,6 +288,27 @@ def vegavisorTopupBotsParams(args=[:]) {
     }
 }
 
+def networkApplyNonRestartChangesParams(args=[:]) {
+
+    List nodesList = ['All'] + (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    return {
+        choiceParam('NODE', nodesList, 'Apply changes to specified node.')
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+        booleanParam('UPDATE_ACCOUNTS', false, 'Update ssh accounts.')
+        booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
+        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
+        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+    }
+}
+
 def systemTestsParamsGeneric(args=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
@@ -521,6 +542,20 @@ def jobs = [
         ),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/devnet1/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'devnet1',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
     ],
     //
     // Sandbox
@@ -907,7 +942,7 @@ def jobs = [
         numToKeep: 500,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
-        definition: libDefinition('pipelineManageNode71()'),
+        definition: libDefinition('pipelineNetworkManageNode71()'),
         env: [
             NET_NAME: 'mainnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
