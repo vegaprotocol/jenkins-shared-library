@@ -162,7 +162,6 @@ def vegavisorParamsBase(args=[:]) {
 def vegavisorRestartNetworkParams(args=[:]) {
     def choices = [
         'restart-network': 'regular restart',
-        'quick-restart-network': 'fast restart without config updates',
         'create-network': 'reset network, additionally runs playbook-barenode-common.yaml that provisions software for nodes',
         'stop-network': 'stop entire network',
     ]
@@ -195,7 +194,6 @@ def vegavisorManageNodeDescription() {
 def vegavisorManageNodeParams(args=[:]) {
     def choices = [
         'restart-node': 'regular restart',
-        'quick-restart-node': 'fast restart without config updates',
         'create-node': 'reset node',
         'stop-node': 'stop node',
     ]
