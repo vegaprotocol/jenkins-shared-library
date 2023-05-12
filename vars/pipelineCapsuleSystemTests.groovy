@@ -106,8 +106,8 @@ void call() {
                   if (testSpec.pytestArgs) {
                     pytestArgs += testSpec.pytestArgs
                   }
-                  if (params.TEST_EXTRA_PYTEST_ARGS != "") {
-                    pytestArgs += testSpec.pytestArgs
+                  if (params.TEST_EXTRA_PYTEST_ARGS) {
+                    pytestArgs += params.TEST_EXTRA_PYTEST_ARGS
                   }
                   if (pytestArgs.size() > 0) {
                     childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: pytestArgs.join(" "))]
