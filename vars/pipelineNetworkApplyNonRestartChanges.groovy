@@ -74,17 +74,19 @@ void call() {
                 steps {
                     withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
                         withCredentials([sshCredentials]) {
-                            sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
-                                ansible-playbook \
-                                    ${params.DRY_RUN ? '--check' : ''} \
-                                    --diff \
-                                    -u "\${PSSH_USER}" \
-                                    --private-key "\${PSSH_KEYFILE}" \
-                                    --inventory inventories \
-                                    --limit "${ANSIBLE_LIMIT}" \
-                                    --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
-                                    playbooks/playbook-barenode-non-restart-required.yaml
-                            """
+                            dir('ansible') {
+                                sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
+                                    ansible-playbook \
+                                        ${params.DRY_RUN ? '--check' : ''} \
+                                        --diff \
+                                        -u "\${PSSH_USER}" \
+                                        --private-key "\${PSSH_KEYFILE}" \
+                                        --inventory inventories \
+                                        --limit "${ANSIBLE_LIMIT}" \
+                                        --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
+                                        playbooks/playbook-barenode-non-restart-required.yaml
+                                """
+                            }
                         }
                     }
                 }
