@@ -553,6 +553,7 @@ def jobs = [
             NET_NAME: 'devnet1',
         ],
         parameters: networkApplyNonRestartChangesParams(
+            name: 'devnet1',
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
