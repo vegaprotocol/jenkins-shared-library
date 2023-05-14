@@ -83,6 +83,7 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${ANSIBLE_LIMIT}" \
+                                        --tag "non-restart-update" \
                                         --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
                                         playbooks/playbook-barenode-non-restart-required.yaml
                                 """
