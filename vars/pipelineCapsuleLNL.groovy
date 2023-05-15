@@ -25,10 +25,9 @@ void call(Map paramsOverrides=[:]) {
                         }
 
                         List availableCheckpointServers = [
-                            'api0.mainnet.vega.xyz',
-                            'api1.mainnet.vega.xyz',
-                            'api2.mainnet.vega.xyz',
-                            'api3.mainnet.vega.xyz',
+                            'api0.vega.community',
+                            'api1.vega.community',
+                            'api2.vega.community',
                         ]
                         Random rnd = new Random()
                         String selectedCheckpointSourceServer = availableCheckpointServers[rnd.nextInt(availableCheckpointServers.size)]
