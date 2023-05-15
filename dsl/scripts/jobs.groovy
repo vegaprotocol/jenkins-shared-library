@@ -671,6 +671,21 @@ def jobs = [
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/stagnet1/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'stagnet1',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // Stagnet 2
     //
@@ -868,6 +883,21 @@ def jobs = [
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/fairground/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'testnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // Validators-Testnet
     //
@@ -920,6 +950,21 @@ def jobs = [
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
         disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'validators-testnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
     ],
     [
         name: 'private/Deployments/mainnet/Manage-Node-53',
