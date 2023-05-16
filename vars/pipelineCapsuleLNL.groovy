@@ -29,6 +29,8 @@ void call(Map paramsOverrides=[:]) {
                             'api1.vega.community',
                             'api2.vega.community',
                         ]
+                        String tendermintRestAPIUrl = 'https://be.vega.community'
+
                         Random rnd = new Random()
                         String selectedCheckpointSourceServer = availableCheckpointServers[rnd.nextInt(availableCheckpointServers.size)]
                         print('Random server for checkpoint source: ' + selectedCheckpointSourceServer)
@@ -36,6 +38,7 @@ void call(Map paramsOverrides=[:]) {
                             devopsscripts lnl prepare-network \
                                 --checkpoint-server-checkpoint-dir "/home/vega/vega_home/state/node/checkpoints" \
                                 --checkpoint-server-host "''' + selectedCheckpointSourceServer + '''" \
+                                --tendermint-rest-api-url "''' + tendermintRestAPIUrl + '''" \
                                 --checkpoint-server-key-file "''' + PSSH_KEYFILE + '''" \
                                 --checkpoint-server-user "''' + PSSH_USER + '''" \
                                 --genesis-uri "file://system-tests/vegacapsule/net_configs/mainnet/genesis.json" \
