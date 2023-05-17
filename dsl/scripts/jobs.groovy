@@ -297,6 +297,22 @@ def networkApplyNonRestartChangesParams(args=[:]) {
         "metabase01.${args.name}.vega.rocks",
     ]
 
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api2.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be2.vega.community",
+            "m0.vega.community",
+            "m1.vega.community",
+            "m2.vega.community",
+            "metabase.vega.community",
+        ]
+    }
+
     return {
         choiceParam('NODE', nodesList, 'Apply changes to specified node.')
         booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
