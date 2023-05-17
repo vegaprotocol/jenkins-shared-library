@@ -550,6 +550,7 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'devnet1',
@@ -679,6 +680,7 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'stagnet1',
@@ -891,6 +893,7 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'testnet',
@@ -959,6 +962,7 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'validators-testnet',
@@ -994,6 +998,22 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
         ],
         parameters: vegavisorManageNodeParams(
+            name: 'mainnet',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet',
             NODE_LABEL: 's-4vcpu-8gb',
         ),

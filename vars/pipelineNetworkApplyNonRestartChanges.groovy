@@ -84,7 +84,7 @@ void call() {
                                         --inventory inventories \
                                         --limit "${ANSIBLE_LIMIT}" \
                                         --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
-                                        playbooks/playbook-barenode-non-restart-required.yaml
+                                        playbooks/${env.ANSIBLE_PLAYBOOK}
                                 """
                             }
                         }
