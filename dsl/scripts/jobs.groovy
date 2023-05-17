@@ -1036,7 +1036,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 'general',
+            NODE_LABEL: 's-8vcpu-16gb',
         ),
         copyArtifacts: true,
         daysToKeep: 10,
