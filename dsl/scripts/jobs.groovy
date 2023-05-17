@@ -833,6 +833,22 @@ def jobs = [
         cron: 'H */6 * * *',
         disableConcurrentBuilds: true,
     ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'mainnet-mirror',
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // Fairground
     //
