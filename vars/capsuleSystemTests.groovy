@@ -561,7 +561,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           script {
-            int upgradeProposalOffset = 100
+            int upgradeProposalOffset = 200
             def getLastBlock = { boolean silent ->
               return vegautils.shellOutput('''devopsscripts vegacapsule last-block \
                   --output value-only \
