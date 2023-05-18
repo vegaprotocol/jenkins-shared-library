@@ -390,7 +390,7 @@ def approbationParams(def config=[:]) {
             stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
         }
 
-        stringParam('SPECS_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/specs repository')
+        stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
 
         if (config.type == 'core') {
             stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
