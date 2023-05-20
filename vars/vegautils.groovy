@@ -105,7 +105,7 @@ int semVerCompare(String a, String b) {
 String getVegaCiBotCredentials() {
   // change this if hitting any rate limits. -ci-bot-artifacts-2 is for argocd ATM
   List credentialNames = [
-    "github-vega-ci-bot-artifacts",
+    // "github-vega-ci-bot-artifacts",
     "github-vega-ci-bot-artifacts-2",
   ]
   Collections.shuffle credentialNames
