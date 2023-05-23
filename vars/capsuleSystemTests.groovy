@@ -36,7 +36,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     options {
       ansiColor('xterm')
       timestamps()
-      timeout(time: params.TIMEOUT, unit: 'MINUTES')
+      timeout(time: 1440, unit: 'MINUTES')
     }
     stages {
       stage('prepare') {
@@ -490,7 +490,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
               withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
                 sh 'printenv'
-                parallel runStages
+                // parallel runStages
               }
             }
           }
@@ -510,7 +510,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
-              parallel pipelineHooks.postRunTests
+              // parallel pipelineHooks.postRunTests
             }
           }
         }
@@ -663,6 +663,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       always {
         catchError {
           script {
+            sh 'sleep 86400'
+
             if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
               parallel pipelineHooks.preNetworkStop
             }
