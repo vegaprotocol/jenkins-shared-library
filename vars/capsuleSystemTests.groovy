@@ -490,7 +490,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
               withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
                 sh 'printenv'
-                // parallel runStages
+                parallel runStages
               }
             }
           }
@@ -510,38 +510,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             withEnv(config?.extraEnvVars.collect{entry -> entry.key + '=' + entry.value}) {
-              // parallel pipelineHooks.postRunTests
+              parallel pipelineHooks.postRunTests
             }
-          }
-        }
-      }
-
-      // The below step starts a new data node from network history and waits
-      // until this data node is up to date with other nodes.
-      stage('add new data-node from network-history') {
-        when {
-          expression {
-            params.RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY && params.RUN_PROTOCOL_UPGRADE_PROPOSAL
-          }
-        }
-
-        environment {
-          PATH = "${networkPath}:${env.PATH}"
-        }
-
-        options {
-          timeout(time: 8, unit: 'MINUTES')
-        }
-
-        steps {
-          script {
-            String dataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule \
-            new-data-node-from-snapshot \
-              --network-home-path ''' + testNetworkDir + '''/testnet \
-              --wait-for-network-after-node-is-added \
-              --timeout 5m \
-              --local
-            ''')
           }
         }
       }
@@ -621,24 +591,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             } catch (err) {
                 echo err.getMessage()
             }
-
-            // if (params.RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY) {
-            //   String networkHistoryDataNodeURL = vegautils.shellOutput('''devopsscripts vegacapsule info \
-            //     --type last-data-node-grpc-url \
-            //     --output value-only \
-            //     --print-only-one \
-            //     --network-home-path ''' + testNetworkDir + '''/testnet \
-            //     --local
-            //   ''')
-
-            //   try {
-            //     sh '''vegatools difftool \
-            //       -s "./snapshot-tmp" \
-            //       -d "''' + networkHistoryDataNodeURL + '''"'''
-            //   } catch (err) {
-            //       echo err.getMessage()
-            //   }
-            // }
           }
         }
       }
@@ -649,7 +601,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         catchError {
           script {
             sh 'sleep 86400'
-
             if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
               parallel pipelineHooks.preNetworkStop
             }
