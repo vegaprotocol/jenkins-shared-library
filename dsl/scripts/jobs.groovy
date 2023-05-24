@@ -204,6 +204,7 @@ def vegavisorManageNodeParams(args=[:]) {
         "metabase00.${args.name}.vega.xyz",
         "metabase01.${args.name}.vega.xyz",
         "metabase02.${args.name}.vega.xyz",
+        "m.${args.name}.vega.xyz",
     ]
 
 
@@ -214,6 +215,7 @@ def vegavisorManageNodeParams(args=[:]) {
             "metabase00.${args.name}.vega.rocks",
             "metabase01.${args.name}.vega.rocks",
             "metabase02.${args.name}.vega.rocks",
+            "m.${args.name}.vega.rocks",
         ]
     }
 
