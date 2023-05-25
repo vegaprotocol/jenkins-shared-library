@@ -614,7 +614,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       always {
         catchError {
           script {
-            sh 'sleep 86400'
             if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
               parallel pipelineHooks.preNetworkStop
             }
