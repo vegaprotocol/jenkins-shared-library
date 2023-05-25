@@ -340,8 +340,7 @@ def systemTestsParamsGeneric(args=[:]) {
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
-        booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', true, 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
-        booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL_NETWORK_HISTORY', false, 'Determines if data-node is started from network-history and its snapshot verified against core')
+        booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
         booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', false, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
@@ -1069,6 +1068,7 @@ def jobs = [
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
             NODE_LABEL: 's-8vcpu-16gb',
+            RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
         ),
         copyArtifacts: true,
         daysToKeep: 10,
