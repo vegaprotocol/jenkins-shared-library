@@ -242,12 +242,14 @@ def vegavisorManageNodeParams(args=[:]) {
             "api0.vega.community",
             "api1.vega.community",
             "api2.vega.community",
+            "api3.vega.community",
             "be0.vega.community",
             "be1.vega.community",
             "be2.vega.community",
             "m0.vega.community",
             "m1.vega.community",
             "m2.vega.community",
+            "m3.vega.community",
             "metabase.vega.community",
         ]
     }
