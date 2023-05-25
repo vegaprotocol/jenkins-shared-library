@@ -531,6 +531,20 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
         steps {
           script {
+            // We cannot just start the data node as it is because we do not know what binary is
+            // currently running in the network. We may expect protocol upgrades/binaries shifts, etc. 
+            // We have a simple helper that checks each node, compares height, and selects 
+            // binary from the node at the highest block.
+            //
+            // We copy the binary which is running on the network to `<testNetworkDir>/vega-latest`
+            sh '''devopstools vegacapsule \
+              get-live-binary \
+              --network-home-path ''' + testNetworkDir + '''/testnet \
+              --copy-to ''' + testNetworkDir + '''/vega-latest \
+              --debug
+            '''
+
+
             int upgradeProposalOffset = 100
             def getLastBlock = { String restURL, boolean silent ->
               return vegautils.shellOutput('''curl ''' + restURL + '''/statistics | jq -r '.statistics.blockHeight' ''', silent).toInteger()
