@@ -36,7 +36,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     options {
       ansiColor('xterm')
       timestamps()
-      timeout(time: 1440, unit: 'MINUTES')
+      timeout(time: params.TIMEOUT, unit: 'MINUTES')
     }
     stages {
       stage('prepare') {
@@ -594,7 +594,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             sleep '30'
             sh '''
               mkdir -p ./snapshot-tmp;
-              rsync -av ''' + validatorHomePath + '''/state/node/snapshots/ ./snapshot-tmp;
+              rsync -av ''' + testNetworkDir + '''/testnet/vega/node1/state/node/snapshots/ ./snapshot-tmp;
               ls -als ./snapshot-tmp;
             '''
 
