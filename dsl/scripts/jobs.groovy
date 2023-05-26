@@ -853,6 +853,20 @@ def jobs = [
         ),
         disableConcurrentBuilds: false,
     ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_LIMIT: 'mainnet-mirror',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: true,
+    ],
     //
     // Fairground
     //
