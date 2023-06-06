@@ -12,13 +12,13 @@ for i in {0..9}; do
     ssh-keygen -R "api$i.vega.community" || true
     ssh-keygen -R "be$i.vega.community" || true
     ssh-keygen -R "m$i.vega.community" || true
-    ssh-keygen -R "metabase.vega.community" || true
 
     ssh-keyscan -t rsa,dsa "api$i.vega.community" >> ~/.ssh/known_hosts || true
     ssh-keyscan -t rsa,dsa "be$i.vega.community" >> ~/.ssh/known_hosts || true
     ssh-keyscan -t rsa,dsa "m$i.vega.community" >> ~/.ssh/known_hosts || true
-    ssh-keyscan -t rsa,dsa "metabase.vega.community" >> ~/.ssh/known_hosts || true
 done
+ssh-keygen -R "metabase.vega.community" || true
+ssh-keyscan -t rsa,dsa "metabase.vega.community" >> ~/.ssh/known_hosts || true
 ssh-keyscan -t rsa,dsa "api-token.ops.vega.xyz" >> ~/.ssh/known_hosts || true
 ssh-keyscan -t rsa,dsa "github.com" >> ~/.ssh/known_hosts || true
 export USE_GKE_GCLOUD_AUTH_PLUGIN="True"
