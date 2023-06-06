@@ -203,8 +203,8 @@ void call(Map config=[:]) {
                             (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
                             Collections.shuffle(SEEDS as List)
                             Collections.shuffle(RPC_SERVERS as List)
-                            SEEDS = SEEDS.take(2)
-                            RPC_SERVERS = RPC_SERVERS.take(2)
+                            SEEDS = SEEDS.take(2).join(",")
+                            RPC_SERVERS = RPC_SERVERS.take(2).join(",")
                             println("SEEDS=${SEEDS}")
                             println("RPC_SERVERS=${RPC_SERVERS}")
 
