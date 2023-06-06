@@ -1243,7 +1243,7 @@ def jobs = [
     [
         name: 'private/Snapshots/Validators-Testnet',
         // disabled: true,
-        numToKeep: 1200,
+        numToKeep: 500,
         useScmDefinition: false,
         env: [
             NET_NAME: 'validators-testnet',
@@ -1254,6 +1254,21 @@ def jobs = [
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Mainnet',
+        // disabled: true,
+        numToKeep: 2500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'mainnet',
+            HISTORY_KEY: 'NetworkHistory'
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 21,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        //cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     // review deprecation of this job
