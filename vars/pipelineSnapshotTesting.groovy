@@ -101,7 +101,12 @@ void call(Map config=[:]) {
                         Collections.shuffle(networkServers as List)
 
                         echo "Going to check servers: ${networkServers}"
-                        remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
+                        // Need to check Data Node endpoint
+                        if (env.NET_NAME == "mainnet") {
+                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
+                        } else {
+                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
+                        }
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
