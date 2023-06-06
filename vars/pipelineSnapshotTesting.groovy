@@ -200,12 +200,13 @@ void call(Map config=[:]) {
                             println("TM_VERSION=${TM_VERSION}")
 
                             // Get data from TM
-                            def net_info_req = new URL("https://${remoteServerCometBFT}/net_info").openConnection()
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.take(2).collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            SEEDS = net_info.result.peers*.node_info.findAll{node -> !node.listen_addr.contains("/")}.collect{node -> node.id + "@" + node.listen_addr}.join(",")
-                            println("RPC_SERVERS=${RPC_SERVERS}")
+                            (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                            Collections.shuffle(SEEDS as List)
+                            Collections.shuffle(RPC_SERVERS as List)
+                            SEEDS = SEEDS.take(2)
+                            RPC_SERVERS = RPC_SERVERS.take(2)
                             println("SEEDS=${SEEDS}")
+                            println("RPC_SERVERS=${RPC_SERVERS}")
 
                         } catch (e) {
                             if ( !isRemoteServerAlive(remoteServerDataNode) ) {
@@ -572,4 +573,59 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
         color: color,
         message: msg,
     )
+}
+
+boolean checkServerListening(String serverHost, int serverPort) {
+  timeoutMs = 1000
+  Socket s = null
+  try {
+    s = new Socket()
+    s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
+    return true
+  } catch (Exception e) {
+    return false
+  } finally {
+    if(s != null) {
+    try {s.close();}
+    catch(Exception e){}
+    }
+  }
+}
+
+def getSeedsAndRPCServers(String cometURL) {
+  def net_info_req = new URL("https://${cometURL}/net_info").openConnection()
+  def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+  
+  RPC_SERVERS = []
+  SEEDS = []
+  for(peer in net_info.result.peers) {
+    // Get domain/IP address and port
+    def addr = peer.node_info.listen_addr.minus('tcp://').split(":")
+    if(addr.size()<2) {
+      continue
+    }
+    def port = addr[1] as int
+    addr = addr[0]
+    if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
+      continue
+    }
+    if( ! checkServerListening(addr, port)) {
+      continue
+    }
+    // Get RPC port 
+    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
+    if(rpc_port.size()<2) {
+      continue
+    }
+    rpc_port = rpc_port[1] as int
+    if( ! checkServerListening(addr, rpc_port)) {
+      continue
+    }
+    // Get Peer ID
+    def comet_peer_id = peer.node_info.id
+    // Append result lists
+    SEEDS.add("${comet_peer_id}@${addr}:${port}")
+    RPC_SERVERS.add("${addr}:${rpc_port}")
+  }
+  new Tuple2(SEEDS, RPC_SERVERS)
 }
