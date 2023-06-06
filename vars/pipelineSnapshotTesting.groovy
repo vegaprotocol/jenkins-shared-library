@@ -17,6 +17,8 @@ void call(Map config=[:]) {
     )
 
     String remoteServer
+    String remoteServerDataNode
+    String remoteServerCometBFT
     String jenkinsAgentPublicIP
 
     // api output placeholders
@@ -77,6 +79,18 @@ void call(Map config=[:]) {
                             baseDomain = "testnet.vega.xyz"
                         }
                         def networkServers = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${baseDomain}" }
+                        if (env.NET_NAME == "mainnet") {
+                            networkServers = [
+                                "api0.vega.community",
+                                "api1.vega.community",
+                                "api2.vega.community",
+                                "api3.vega.community",
+                                "api4.vega.community",
+                                "api5.vega.community",
+                                "api6.vega.community",
+                                "api7.vega.community",
+                            ]
+                        }
 
                         // exclude from checking servers that are in the denylist configured in DSL
                         if (env.NODES_DENYLIST) {
@@ -87,7 +101,12 @@ void call(Map config=[:]) {
                         Collections.shuffle(networkServers as List)
 
                         echo "Going to check servers: ${networkServers}"
-                        remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
+                        // Need to check Data Node endpoint
+                        if (env.NET_NAME == "mainnet") {
+                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
+                        } else {
+                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
+                        }
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
                             // This is quite often for Devnet, when deployments happen all the time
@@ -95,7 +114,14 @@ void call(Map config=[:]) {
                             currentBuild.result = 'ABORTED'
                             error("${env.NET_NAME} seems down")
                         }
-                        echo "Found available server: ${remoteServer}"
+                        if (env.NET_NAME == "mainnet") {
+                            remoteServerDataNode = remoteServer
+                            remoteServerCometBFT = "tm.${remoteServer}"
+                        } else {
+                            remoteServerDataNode = "api.${remoteServer}"
+                            remoteServerCometBFT = "tm.${remoteServer}"
+                        }
+                        echo "Found available server: ${remoteServerDataNode} (${remoteServerCometBFT})"
                     }
 
                     stage('Download') {
@@ -109,9 +135,9 @@ void call(Map config=[:]) {
                                             chmod +x dasel
                                     '''
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp data node config from ${remoteServer}",
+                                    sh label: "scp data node config from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
                                         """
                                 }
                                 NETWORK_HISTORY_PEERS = sh(
@@ -123,9 +149,9 @@ void call(Map config=[:]) {
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp vega core from ${remoteServer}",
+                                    sh label: "scp vega core from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/vegavisor_home/current/vega vega
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vegavisor_home/current/vega vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
@@ -134,9 +160,9 @@ void call(Map config=[:]) {
                             },
                             'genesis.json': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp genesis.json from ${remoteServer}",
+                                    sh label: "scp genesis.json from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServer}\":/home/vega/tendermint_home/config/genesis.json genesis.json
+                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json
@@ -159,7 +185,7 @@ void call(Map config=[:]) {
                     stage("Get API data related to configs") {
                         try {
                             // Check last snapshoted block
-                            def snapshot_req = new URL("https://api.${remoteServer}/api/v2/snapshots").openConnection()
+                            def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
                             def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
                             def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
                             SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
@@ -168,28 +194,29 @@ void call(Map config=[:]) {
                             println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
 
                             // Check TM version
-                            def status_req = new URL("https://tm.${remoteServer}/status").openConnection()
+                            def status_req = new URL("https://${remoteServerCometBFT}/status").openConnection()
                             def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                             TM_VERSION = status.result.node_info.version
                             println("TM_VERSION=${TM_VERSION}")
 
                             // Get data from TM
-                            def net_info_req = new URL("https://tm.${remoteServer}/net_info").openConnection()
-                            def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-                            RPC_SERVERS = net_info.result.peers*.node_info.listen_addr.take(2).collect{addr -> addr.replaceAll(/26656/, "26657")}.join(",")
-                            SEEDS = net_info.result.peers*.node_info.findAll{node -> !node.listen_addr.contains("/")}.collect{node -> node.id + "@" + node.listen_addr}.join(",")
-                            println("RPC_SERVERS=${RPC_SERVERS}")
+                            (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                            Collections.shuffle(SEEDS as List)
+                            Collections.shuffle(RPC_SERVERS as List)
+                            SEEDS = SEEDS.take(2).join(",")
+                            RPC_SERVERS = RPC_SERVERS.take(2).join(",")
                             println("SEEDS=${SEEDS}")
+                            println("RPC_SERVERS=${RPC_SERVERS}")
 
                         } catch (e) {
-                            if ( !isRemoteServerAlive(remoteServer) ) {
+                            if ( !isRemoteServerAlive(remoteServerDataNode) ) {
                                 // Remote server stopped being available.
                                 // This is quite often for Devnet, when deployments happen all the time
                                 extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
                                 currentBuild.result = 'ABORTED'
                                 error("${env.NET_NAME} seems down")
                             } else {
-                                println("Remote server ${remoteServer} is still up.")
+                                println("Remote server ${remoteServerDataNode} is still up.")
                                 // re-throw
                                 throw e
                             }
@@ -316,7 +343,7 @@ void call(Map config=[:]) {
                                     artifacts: 'vega_config/**/*',
                                     allowEmptyArchive: true
                                 )
-                                if ( !nice && isRemoteServerAlive(remoteServer) ) {
+                                if ( !nice && isRemoteServerAlive(remoteServerDataNode) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
@@ -339,10 +366,10 @@ void call(Map config=[:]) {
                                         String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
 
                                         String remoteServerStats = sh(
-                                                script: "curl --max-time 5 https://${remoteServer}/statistics || echo '{}'",
+                                                script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
                                                 returnStdout: true,
                                             ).trim()
-                                        println("https://${remoteServer}/statistics\n${remoteServerStats}")
+                                        println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
                                         Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
                                         String localServerStats = sh(
                                                 script: "curl --max-time 5 http://127.0.0.1:3003/statistics || echo '{}'",
@@ -392,8 +419,8 @@ void call(Map config=[:]) {
                                 echo "http://${jenkinsAgentPublicIP}:3003/statistics"
                                 echo "http://${jenkinsAgentPublicIP}:3008/graphql/"
                                 echo "http://${jenkinsAgentPublicIP}:3008/api/v2/epoch"
-                                echo "https://${remoteServer}/statistics"
-                                echo "https://tm.${remoteServer}/net_info"
+                                echo "https://${remoteServerDataNode}/statistics"
+                                echo "https://${remoteServerCometBFT}/net_info"
                             }
                         )
                     }
@@ -497,9 +524,9 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isRemoteServerAlive(String remoteServer) {
+boolean isRemoteServerAlive(String serverURL) {
     try {
-        def statistics_req = new URL("https://${remoteServer}/statistics").openConnection()
+        def statistics_req = new URL("https://${serverURL}/statistics").openConnection()
         statistics_req.setConnectTimeout(5000)
         statistics_req.getInputStream().getText()
         return true
@@ -546,4 +573,59 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
         color: color,
         message: msg,
     )
+}
+
+boolean checkServerListening(String serverHost, int serverPort) {
+  timeoutMs = 1000
+  Socket s = null
+  try {
+    s = new Socket()
+    s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
+    return true
+  } catch (Exception e) {
+    return false
+  } finally {
+    if(s != null) {
+    try {s.close();}
+    catch(Exception e){}
+    }
+  }
+}
+
+def getSeedsAndRPCServers(String cometURL) {
+  def net_info_req = new URL("https://${cometURL}/net_info").openConnection()
+  def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
+  
+  RPC_SERVERS = []
+  SEEDS = []
+  for(peer in net_info.result.peers) {
+    // Get domain/IP address and port
+    def addr = peer.node_info.listen_addr.minus('tcp://').split(":")
+    if(addr.size()<2) {
+      continue
+    }
+    def port = addr[1] as int
+    addr = addr[0]
+    if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
+      continue
+    }
+    if( ! checkServerListening(addr, port)) {
+      continue
+    }
+    // Get RPC port 
+    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
+    if(rpc_port.size()<2) {
+      continue
+    }
+    rpc_port = rpc_port[1] as int
+    if( ! checkServerListening(addr, rpc_port)) {
+      continue
+    }
+    // Get Peer ID
+    def comet_peer_id = peer.node_info.id
+    // Append result lists
+    SEEDS.add("${comet_peer_id}@${addr}:${port}")
+    RPC_SERVERS.add("${addr}:${rpc_port}")
+  }
+  new Tuple2(SEEDS, RPC_SERVERS)
 }
