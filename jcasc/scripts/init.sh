@@ -3,9 +3,13 @@ for net in devnet1 stagnet1 stagnet2 stagnet3 testnet sandbox validators-testnet
     for i in {00..50}; do
         ssh-keygen -R "n$i.$net.vega.rocks" || true
         ssh-keyscan -t rsa,dsa "n$i.$net.vega.rocks" >> ~/.ssh/known_hosts || true
+        ssh-keygen -R "api.n$i.$net.vega.rocks" || true
+        ssh-keyscan -t rsa,dsa "api.n$i.$net.vega.rocks" >> ~/.ssh/known_hosts || true
 
         ssh-keygen -R "n$i.$net.vega.xyz" || break
         ssh-keyscan -t rsa,dsa "n$i.$net.vega.xyz" >> ~/.ssh/known_hosts || break
+        ssh-keygen -R "api.n$i.$net.vega.xyz" || break
+        ssh-keyscan -t rsa,dsa "api.n$i.$net.vega.xyz" >> ~/.ssh/known_hosts || break
     done
 done
 for i in {0..9}; do
