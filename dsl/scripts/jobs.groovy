@@ -1268,7 +1268,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        //cron: "H/12 * * * *",
+        cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     // review deprecation of this job
