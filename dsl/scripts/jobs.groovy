@@ -971,22 +971,6 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Deployments/validators-testnet/Backup',
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineBackupDevopsTools()'),
-        env: [],
-        parameters: {
-            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
-            stringParam('TIMEOUT', '120', 'Global timeout in minutes')
-            stringParam('DEVOPSTOOLS_BRANCH', 'backup-command', 'Branch for the vegaprotocol/devopstools repository')
-            choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
-            stringParam('SERVER', '', 'Server where we are going to execute action')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        },
-        disableConcurrentBuilds: true,
-    ],
-    [
         name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
         numToKeep: 100,
         description: 'Apply changes not requiring restarting a node or network',
@@ -1050,6 +1034,27 @@ def jobs = [
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/Backup',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineBackupDevopsTools()'),
+        env: [],
+        parameters: {
+            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
+            stringParam('TIMEOUT', '120', 'Global timeout in minutes')
+            choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
+            stringParam('SERVER', '', 'Server where we are going to execute action')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        },
+        disableConcurrentBuilds: true,
+        parameterizedCron: [
+            // automatic backup every 6h
+            'H */6 * * * %' + [
+                'SERVER=api7.vega.community',
+            ].join(';'),
+        ].join('\n'),
     ],
     //
     // System-Tests
