@@ -1060,7 +1060,7 @@ def jobs = [
         name: 'private/Deployments/mainnet/Backup',
         description: devopsInfraDocs,
         useScmDefinition: false,
-        definition: libDefinition('pipelineBackupDevopsTools()'),
+        definition: libDefinition('pipelineBackupNodeZFS()'),
         env: [],
         parameters: {
             stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
