@@ -41,20 +41,37 @@ String shellOutput(String command, boolean silent = false) {
     script: command).trim()
 }
 
-Map<String, ?> networkStatistics(String netName, int nodesRetry = 5) {
-  if (netName.length() < 1) {
-    error('[vegautils.networkStatistics] URL needs to be passed')
+Map<String, ?> networkStatistics(Map args=[:]) {
+  String netName = args.get("netName", "")
+  int nodesRetry = args.get("nodesRetry", 5)
+  List nodesList = args.get("nodesList", [])
+
+  if (netName.length() < 1 && nodesList.size < 1) {
+    error('[vegautils.networkStatistics] netName or nodesList parameter must be pass')
   }
 
   String statisticsJSON = ""
+  // network name is provided, let's generate list of nodes for the given netName
+  if (netName.length() > 0) {
+    nodesList = []
+    for (int nn=0; nn<nodesRetry; nn++) {
+        nodesList.add(sprintf('https://n%02d.%s.vega.rocks/statistics', nn, netName))
+      }
+  }
 
-  for (int nn=0; nn<nodesRetry; nn++) {
+  for (node in nodesList) {
     try {
-      networkURL = sprintf('https://n%02d.%s.vega.rocks/statistics', nn, netName)
-      statisticsJSON = shellOutput('curl --max-time 3 ' + networkURL)
+      nodeURL = node
+      if (!node.startsWith('http')) {
+          nodeURL = 'https://' + node
+      }
+      if (!node.endsWith('/statistics')) {
+        nodeURL = nodeURL + '/statistics'
+      }
+      statisticsJSON = shellOutput('curl --max-time 3 ' + nodeURL)
       break
     } catch(err) {
-      println('[vegautils.networkStatistics] Failed to get statistics for node ' + networkURL + ': ' + err.getMessage())
+      println('[vegautils.networkStatistics] Failed to get statistics for node ' + nodeURL + ': ' + err.getMessage())
     }
   }
 
