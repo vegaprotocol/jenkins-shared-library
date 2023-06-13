@@ -5,6 +5,7 @@
 /* groovylint-disable NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import groovy.time.TimeCategory
 
 void call(Map config=[:]) {
     echo "params=${params}"
@@ -103,9 +104,9 @@ void call(Map config=[:]) {
                         echo "Going to check servers: ${networkServers}"
                         // Need to check Data Node endpoint
                         if (env.NET_NAME == "mainnet") {
-                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive(serverName) }
+                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy(serverName) }
                         } else {
-                            remoteServer = networkServers.find{ serverName -> isRemoteServerAlive("api.${serverName}") }
+                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy("api.${serverName}") }
                         }
                         if ( remoteServer == null ) {
                             // No single machine online means that Vega Network is down
@@ -209,7 +210,7 @@ void call(Map config=[:]) {
                             println("RPC_SERVERS=${RPC_SERVERS}")
 
                         } catch (e) {
-                            if ( !isRemoteServerAlive(remoteServerDataNode) ) {
+                            if ( !isDataNodeHealthy(remoteServerDataNode) ) {
                                 // Remote server stopped being available.
                                 // This is quite often for Devnet, when deployments happen all the time
                                 extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
@@ -343,7 +344,7 @@ void call(Map config=[:]) {
                                     artifacts: 'vega_config/**/*',
                                     allowEmptyArchive: true
                                 )
-                                if ( !nice && isRemoteServerAlive(remoteServerDataNode) ) {
+                                if ( !nice && isDataNodeHealthy(remoteServerDataNode) ) {
                                     extraMsg = extraMsg ?: "Vega core stopped too early."
                                     error("Vega stopped too early, Remote Server is still alive.")
                                 }
@@ -524,11 +525,27 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isRemoteServerAlive(String serverURL) {
+boolean isDataNodeHealthy(String serverURL) {
     try {
-        def statistics_req = new URL("https://${serverURL}/statistics").openConnection()
-        statistics_req.setConnectTimeout(5000)
-        statistics_req.getInputStream().getText()
+        def conn = new URL("https://${serverURL}/statistics").openConnection()
+        conn.setConnectTimeout(1000)
+        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+          return false
+        }
+        int datanode_height = (conn.getHeaderField("x-block-height") ?: "-1") as int
+        if (datanode_height < 0) {
+          return false
+        }
+        def stats = new groovy.json.JsonSlurperClassic().parseText(conn.getInputStream().getText())
+        int core_height = stats.statistics.blockHeight as int
+        if ((core_height - datanode_height).abs() > 10) {
+            return false
+        }
+        Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
+        Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
+        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
+          return false
+        }
         return true
     } catch (IOException e) {
         return false
