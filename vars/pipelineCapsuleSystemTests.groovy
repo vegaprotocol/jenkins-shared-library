@@ -6,7 +6,6 @@ void call() {
     currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
   }
   println('pipelineCapsuleSystemTests params: ' + params)
-  def downstreamBuildName = 'common/system-tests-wrapper'
   // this is default scenario for smoke test, but it will require changing for other types
   scenario = [
     'PR': [
@@ -96,6 +95,12 @@ void call() {
             if (scenario == null) {
               error('Invalid scenario. Please update the "SCENARIO" parameter. Selected the ' + params.SCENARIO)
             }
+            def downstreamBuildName = 'common/system-tests-wrapper'
+            def downstreamSoakBuildName = 'common/snapshot-soak-tests'
+            if (env.DOWNSTREAM_SUBDIR) {
+              downstreamBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamBuildName
+              downstreamSoakBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamSoakBuildName
+            }
 
             parallel scenario.collectEntries { name, testSpec ->
               [
@@ -135,7 +140,7 @@ void call() {
                   )
                   if (params.SCENARIO == 'NIGHTLY') {
                     build (
-                      job: 'common/snapshot-soak-tests',
+                      job: downstreamSoakBuildName,
                       parameters: [
                         string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
                         string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
