@@ -178,6 +178,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
         stringParam('TIMEOUT', '80', 'Number of minutes after which the job will stop')
         stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+        stringParam('VEGA_REPO', 'vegaprotocol/vega', 'Works only when VEGA_VERSION is not empty')
     }
 }
 

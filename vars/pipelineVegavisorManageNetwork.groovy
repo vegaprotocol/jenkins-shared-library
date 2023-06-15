@@ -88,11 +88,13 @@ void call() {
                         }
                         steps {
                             script {
-                                gitClone(
-                                    directory: 'vega',
+                                gitClone([
+                                    githubUrl: params.VEGA_REPO,
                                     branch: params.VEGA_VERSION,
-                                    vegaUrl: 'vega',
-                                )
+                                    directory: 'vega',
+                                    credentialsId: 'vega-ci-bot',
+                                    timeout: 2,
+                                ])
                             }
                         }
                     }
