@@ -126,9 +126,8 @@ void call() {
                   if (testSpec.capsuleConfig) {
                     childParams += [string(name: 'CAPSULE_CONFIG', value: testSpec.capsuleConfig)]
                   }
-                  if (params.SCENARIO == 'NIGHTLY') {
-                    childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
-                  }
+                  childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
+                  
                   if (params.SCENARIO == 'NIGHTLY' && params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES == '') {
                     childParams += [stringParam(name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', value: '{"network.markPriceUpdateMaximumFrequency":"5s"}')]
                   }
@@ -138,19 +137,18 @@ void call() {
                     propagate: false,  // don't fail yet
                     wait: true,
                   )
-                  if (params.SCENARIO == 'NIGHTLY') {
-                    build (
-                      job: downstreamSoakBuildName,
-                      parameters: [
-                        string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
-                        string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
-                        string(name: 'SUIT_NAME', value: name),
-                        string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
-                      ],
-                      propagate: true,
-                      wait: true,
-                    )
-                  }
+                  build (
+                    job: downstreamSoakBuildName,
+                    parameters: [
+                      string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
+                      string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
+                      string(name: 'SUIT_NAME', value: name),
+                      string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
+                    ],
+                    propagate: true,
+                    wait: true,
+                  )
+              
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node {
                     sh 'printenv'
