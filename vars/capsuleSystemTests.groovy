@@ -220,7 +220,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               dir('system-tests') {
                 // Use automatic pyenv resolution for installation & resolution
                 sh label: 'Install python', script: '''
-                  pyenv install --skip-existing
+                  pyenv install 3.11.4 --skip-existing
                 '''
 
                 sh label: 'Print versions', script: '''
