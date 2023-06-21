@@ -1183,6 +1183,7 @@ def jobs = [
         parameters: {
             stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGACAPSULE_VERSION', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
@@ -1201,6 +1202,7 @@ def jobs = [
         parameters: {
             stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGACAPSULE_VERSION', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '1440', 'Number of minutes after which the job will stop')
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')

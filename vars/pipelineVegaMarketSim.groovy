@@ -46,6 +46,17 @@ void call() {
                     }
                 }
             }
+            stage('Clone vegacapsule'){    
+                options { retry(3) }
+                steps {
+                    dir('extern/vegacapsule') {
+                        checkout(
+                            [$class: 'GitSCM', branches: [[name: "${params.VEGACAPSULE_VERSION}" ]],
+                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: "git@github.com:vegaprotocol/vegacapsule.git"]]]
+                        )
+                    }
+                }
+            }
             stage('Build Docker Image') {
                 options { retry(3) }
                 when {

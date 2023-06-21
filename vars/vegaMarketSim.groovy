@@ -15,6 +15,7 @@ void call(Map config = [:]) {
       ),
       string(name: 'ORIGIN_REPO', value: config.originRepo ?: 'vegaprotocol/vega'),
       string(name: 'VEGA_VERSION', value: config.vegaVersion ?: "develop"),
+      string(name: 'VEGACAPSULE_VERSION', value: config.vegacapsuleVersion ?: "main"),
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: "main"),
       string(name: 'NODE_LABEL', value: config.nodeLabel ?: 'system-tests'),
