@@ -4,7 +4,6 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'system-tests-capsule',
     fastFail: true,
     protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
@@ -14,6 +13,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   Map config = defaultConfig + additionalConfig
   params = params + parametersOverride
+
+  String agentLabel = params.NODE_LABEL ?: 'system-tests-capsule'
 
   Map pipelineHooks = [
       postNetworkGenerate: [:],
@@ -30,7 +31,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   pipeline {
     agent {
-      label config.agentLabel
+      label agentLabel
     }
 
     options {
@@ -220,7 +221,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               dir('system-tests') {
                 // Use automatic pyenv resolution for installation & resolution
                 sh label: 'Install python', script: '''
-                  pyenv install 3.11.4 --skip-existing
+                  pyenv install --skip-existing
                 '''
 
                 sh label: 'Print versions', script: '''
