@@ -19,7 +19,7 @@ void call() {
         usernameVariable: 'GITHUB_API_USER'
     )
 
-    Boolean createReleaseWithGivenVersion = params.CREATE_RELEASE_WITH_GIVEN_VERSION != nil ? params.CREATE_RELEASE_WITH_GIVEN_VERSION.toBoolean() : false
+    Boolean createReleaseWithGivenVersion = params.CREATE_RELEASE_WITH_GIVEN_VERSION != null ? params.CREATE_RELEASE_WITH_GIVEN_VERSION.toBoolean() : false
 
     def doGitClone = { repo, branch ->
         dir(repo) {
