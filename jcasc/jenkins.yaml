@@ -96,6 +96,10 @@ jenkins:
         sshKeyId: 35449484
         templates:
           - <<: *do-template
+            labelString: "system-test-capsule-python-3-11-testing-only"
+            sizeId: "s-8vcpu-16gb"
+            imageId: "135114985"
+          - <<: *do-template
             labelString: "s-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
