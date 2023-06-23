@@ -19,7 +19,7 @@ void call() {
         usernameVariable: 'GITHUB_API_USER'
     )
 
-    String versionOverride := params.RELEASE_VERSION_OVERRIDE ?: ''
+    String versionOverride = params.RELEASE_VERSION_OVERRIDE ?: ''
 
     def doGitClone = { repo, branch ->
         dir(repo) {
