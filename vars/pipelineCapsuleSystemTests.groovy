@@ -146,7 +146,7 @@ void call() {
                         string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
                         string(name: 'SUIT_NAME', value: name),
                         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
-                        string(name: 'NODE_LABEL', value: (params.NODE_NAME ?: ''))
+                        string(name: 'NODE_LABEL', value: (params.NODE_LABEL ?: ''))
                       ],
                       propagate: true,
                       wait: true,
