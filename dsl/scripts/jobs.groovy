@@ -483,7 +483,7 @@ def jobs = [
             stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
             booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
-            booleanParam('CREATE_RELEASE_WITH_GIVEN_VERSION', false, 'Version is updated to the branch name and Github release matches the branch version. Useful when branch name is sem-version format.')
+            stringParam('RELEASE_VERSION_OVERRIDE', '', 'Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
         },

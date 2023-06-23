@@ -19,7 +19,7 @@ void call() {
         usernameVariable: 'GITHUB_API_USER'
     )
 
-    Boolean createReleaseWithGivenVersion = params.CREATE_RELEASE_WITH_GIVEN_VERSION != null ? params.CREATE_RELEASE_WITH_GIVEN_VERSION.toBoolean() : false
+    String versionOverride := params.RELEASE_VERSION_OVERRIDE ?: ''
 
     def doGitClone = { repo, branch ->
         dir(repo) {
@@ -92,10 +92,10 @@ void call() {
                                         returnStdout: true,
                                     ).trim()
                                     orgVersion = orgVersion.replace('"', '')
-                                    if (!createReleaseWithGivenVersion) {
+                                    if (versionOverride == '') {
                                         versionTag = orgVersion + '-' + counter + '-' + versionHash
                                     } else {
-                                        versionTag = params.VEGA_VERSION
+                                        versionTag = versionOverride
                                     }
                                 }
                                 sh label: 'Add hash to version', script: """#!/bin/bash -e
