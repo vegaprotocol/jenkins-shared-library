@@ -525,7 +525,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'proxmox-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
