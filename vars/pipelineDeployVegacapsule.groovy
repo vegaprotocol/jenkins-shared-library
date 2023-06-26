@@ -84,7 +84,9 @@ void call(Map customConfig = [:]) {
 
 
   pipeline {
-    agent any
+    agent {
+        label 's-4vcpu-8gb'
+    }
     environment {
       // TO-DO: Add secrets to jenkins
       NOMAD_TLS_SERVER_NAME = 'server.global.nomad'

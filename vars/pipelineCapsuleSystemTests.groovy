@@ -153,7 +153,7 @@ void call() {
                     )
                   }
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
-                  node {
+                  node(params.NODE_LABEL) {
                     sh 'printenv'
                     def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
                     // Copy all artifacts

@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 's-4vcpu-8gb'
+    }
     options {
         timestamps()
         ansiColor('xterm')

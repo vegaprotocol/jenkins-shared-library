@@ -1,6 +1,8 @@
 def call() {
     pipeline {
-        agent any
+        agent {
+            label 's-4vcpu-8gb'
+        }
         options {
             timeout(time: 15, unit: 'MINUTES')
             timestamps()

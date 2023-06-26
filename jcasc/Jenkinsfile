@@ -4,7 +4,9 @@ import jenkins.model.GlobalConfiguration;
 // https://jenkins.ops.vega.xyz/configuration-as-code/reference
 // https://jenkins.ops.vega.xyz/configuration-as-code/schema
 pipeline {
-    agent any
+    agent {
+        label 's-4vcpu-8gb'
+    }
     options {
         timestamps()
         ansiColor('xterm')

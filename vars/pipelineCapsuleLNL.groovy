@@ -5,8 +5,8 @@ void call(Map paramsOverrides=[:]) {
       'api1.vega.community',
       'api2.vega.community',
     ]
-    
-      node {
+
+      node('s-4vcpu-8gb') {
               Boolean isMainnetVersionScenario = paramsOverrides.get("mainnetVersionScenario", false)
               if (isMainnetVersionScenario) {
                 Map<String, ?> nodeStatistics = vegautils.networkStatistics(nodesList: mainnetApiServers)
@@ -31,7 +31,7 @@ void call(Map paramsOverrides=[:]) {
         slackTitle: 'LNL Mainnet System Tests',
         hooks: [
             postNetworkGenerate: [
-                'Load mainnet checkpoint': {    
+                'Load mainnet checkpoint': {
                     Random rnd = new Random()
                     String selectedMainnetApiServer = mainnetApiServers[rnd.nextInt(mainnetApiServers.size)]
 
@@ -90,9 +90,9 @@ void call(Map paramsOverrides=[:]) {
                             --no-secrets
                         '''
                     ).trim()
-                    
+
                     checkpointPath = vegautils.escapePath(rawPath)
-                    sh label: 'Copy found checkpoint', 
+                    sh label: 'Copy found checkpoint',
                     script: '''vegatools checkpoint \
                         --file "''' + checkpointPath + '''" \
                         --out system-tests/tests/LNL/after_checkpoint_load.json \
