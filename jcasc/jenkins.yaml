@@ -83,9 +83,21 @@ jenkins:
         - "USER:Overall/Administer:jeremyletang"
         - "USER:Overall/Administer:jgsbennett"
         - "USER:Overall/Administer:karlem"
-        - "USER:Overall/Administer:mirdhyn"
         - "USER:Overall/Administer:tommcl"
         - "USER:Overall/Read:anonymous"
+  nodes:
+    - permanent:
+        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb"
+        launcher:
+          inbound:
+            webSocket: true
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+        name: "jenkins01"
+        remoteFS: "/jenkins"
+        retentionStrategy: "always"
   clouds:
     - digitalOcean:
         authTokenCredentialId: "digitalocean-token"
@@ -100,13 +112,13 @@ jenkins:
             sizeId: "s-8vcpu-16gb"
             imageId: "135114985"
           - <<: *do-template
-            labelString: "s-8vcpu-16gb"
+            labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
-            labelString: "s-4vcpu-8gb"
+            labelString: "s-4vcpu-8gb generic-4vcpu-8gb"
             sizeId: "s-4vcpu-8gb"
           - <<: *do-template
-            labelString: "s-2vcpu-4gb"
+            labelString: "s-2vcpu-4gb generic-2vcpu-4gb"
             sizeId: "s-2vcpu-4gb"
         timeoutMinutes: 5
         usePrivateNetworking: false
