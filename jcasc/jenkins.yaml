@@ -47,13 +47,13 @@ x-aws-template: &aws-template
   zone: "eu-west-2c"
 
 x-do-template: &do-template
-  idleTerminationInMinutes: 10
+  idleTerminationInMinutes: 1
   # jcasc job will print IDs of image if you run it
   imageId: "131142681"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
-  installMonitoring: true
+  installMonitoring: false
   instanceCap: 30
   labellessJobsAllowed: false
   name: "ubuntu"
