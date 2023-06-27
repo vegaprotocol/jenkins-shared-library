@@ -313,7 +313,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
             "metabase00.${args.name}.vega.rocks",
             "metabase01.${args.name}.vega.rocks",
         ]
-    )
+    }
 
     if (args.name == "mainnet") {
         nodesList = [
