@@ -96,6 +96,7 @@ jenkins:
         - "USER:Overall/Administer:jeremyletang"
         - "USER:Overall/Administer:jgsbennett"
         - "USER:Overall/Administer:karlem"
+        - "USER:Overall/Administer:guoguojin"
         - "USER:Overall/Administer:tommcl"
 
         - "USER:Overall/Read:anonymous"
