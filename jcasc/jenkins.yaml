@@ -110,6 +110,7 @@ jenkins:
               failIfWorkDirIsMissing: false
               internalDir: "remoting"
         name: "jenkins01"
+        mode: EXCLUSIVE
         remoteFS: "/jenkins"
         retentionStrategy: "always"
   clouds:
