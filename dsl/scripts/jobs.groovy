@@ -299,12 +299,21 @@ def vegavisorTopupBotsParams(args=[:]) {
 
 def networkApplyNonRestartChangesParams(args=[:]) {
 
-    List nodesList = ['All'] + (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-        "be.${args.name}.vega.rocks",
-        "be02.${args.name}.vega.rocks",
-        "metabase00.${args.name}.vega.rocks",
-        "metabase01.${args.name}.vega.rocks",
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
+        "be.${args.name}.vega.xyz",
+        "be02.${args.name}.vega.xyz",
+        "metabase00.${args.name}.vega.xyz",
+        "metabase01.${args.name}.vega.xyz",
     ]
+
+    if (args.name == "devnet1") {
+        nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+            "be.${args.name}.vega.rocks",
+            "be02.${args.name}.vega.rocks",
+            "metabase00.${args.name}.vega.rocks",
+            "metabase01.${args.name}.vega.rocks",
+        ]
+    )
 
     if (args.name == "mainnet") {
         nodesList = [
