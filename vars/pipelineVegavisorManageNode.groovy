@@ -129,7 +129,7 @@ void call() {
                                 error("You can't run 'JOIN_AS_VALIDATOR' for ${env.NET_NAME}")
                         }
                         if (!params.VEGA_VERSION  && !RELEASE_VERSION) {
-                            statisticsEndpointOut = vegautils.networkStatistics(env.NET_NAME)
+                            statisticsEndpointOut = vegautils.networkStatistics(netName: env.NET_NAME)
                             if (statisticsEndpointOut['statistics'] == null || statisticsEndpointOut['statistics']['appVersion'] == null) {
                                 println('Failed to get vega network statistics to find the network version')
                                 error('VEGA_VERSION or RELEASE_VERSION must be set when recreating a node')
