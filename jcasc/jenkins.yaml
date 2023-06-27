@@ -74,16 +74,30 @@ jenkins:
         - "GROUP:Job/Cancel:vegaprotocol"
         - "GROUP:Job/Read:vegaprotocol"
         - "GROUP:Job/Workspace:vegaprotocol"
-        - "GROUP:Overall/Administer:vegaprotocol*Ops"
-        - "GROUP:Overall/Administer:vegaprotocol*core"
         - "GROUP:Overall/Read:vegaprotocol"
         - "GROUP:Run/Replay:vegaprotocol"
         - "GROUP:Run/Update:vegaprotocol"
+
+        - "USER:Agent/Build:vega-paul"
+        - "USER:Credentials/View:vega-paul"
+        - "USER:Job/Build:vega-paul"
+        - "USER:Job/Cancel:vega-paul"
+        - "USER:Job/Read:vega-paul"
+        - "USER:Job/Workspace:vega-paul"
+        - "USER:Overall/Read:vega-paul"
+        - "USER:Run/Replay:vega-paul"
+        - "USER:Run/Update:vega-paul"
+
+
+        - "GROUP:Overall/Administer:vegaprotocol*Ops"
+        - "GROUP:Overall/Administer:vegaprotocol*core"
+
         - "USER:Overall/Administer:ValentinTrinque"
         - "USER:Overall/Administer:jeremyletang"
         - "USER:Overall/Administer:jgsbennett"
         - "USER:Overall/Administer:karlem"
         - "USER:Overall/Administer:tommcl"
+
         - "USER:Overall/Read:anonymous"
   nodes:
     - permanent:
