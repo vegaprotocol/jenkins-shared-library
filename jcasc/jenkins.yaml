@@ -135,6 +135,9 @@ jenkins:
           - <<: *do-template
             labelString: "s-2vcpu-4gb generic-2vcpu-4gb"
             sizeId: "s-2vcpu-4gb"
+          - <<: *do-template
+            labelString: "c-16"
+            sizeId: "c-16"
         timeoutMinutes: 5
         usePrivateNetworking: false
     - amazonEC2:
