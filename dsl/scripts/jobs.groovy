@@ -421,7 +421,7 @@ def approbationParams(def config=[:]) {
             stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js,./Vega_Token_V2/test/*.js,./Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},vegawallet-browser/{src,test}/**/*.{spec,test}.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
