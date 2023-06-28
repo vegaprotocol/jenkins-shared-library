@@ -211,7 +211,7 @@ void call() {
                                 sh '''gh release create \
                                     --repo ''' + params.RELEASES_REPO + ''' \
                                     ''' + newVegaVersion + ''' \
-                                    *.zip'''
+                                    vega-linux-amd64.zip data-node-linux-amd64.zip'''
                             }
                         }
 
