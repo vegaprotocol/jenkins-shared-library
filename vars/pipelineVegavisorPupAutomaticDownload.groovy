@@ -209,12 +209,9 @@ void call() {
 
                             withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
                                 sh '''gh release create \
-                                    --generate-notes \
-                                    --latest \
-                                    --title ''' + newVegaVersion + ''' \
                                     --repo ''' + params.RELEASES_REPO + ''' \
                                     ''' + newVegaVersion + ''' \
-                                    *.zip'''
+                                    vega-linux-amd64.zip data-node-linux-amd64.zip'''
                             }
                         }
 
