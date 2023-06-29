@@ -47,9 +47,9 @@ x-aws-template: &aws-template
   zone: "eu-west-2c"
 
 x-do-template: &do-template
-  idleTerminationInMinutes: 1
+  idleTerminationInMinutes: 10
   # jcasc job will print IDs of image if you run it
-  imageId: "131142681"
+  imageId: "135557977"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
@@ -127,6 +127,9 @@ jenkins:
             labelString: "system-test-capsule-python-3-11-testing-only"
             sizeId: "s-8vcpu-16gb"
             imageId: "135114985"
+          - <<: *do-template
+            labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
+            sizeId: "g-8vcpu-32gb"
           - <<: *do-template
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"

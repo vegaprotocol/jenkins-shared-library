@@ -445,7 +445,7 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', config.get('NODE_LABEL', 'general'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', config.get('NODE_LABEL', 's-8vcpu-16gb'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -1176,7 +1176,7 @@ def jobs = [
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             booleanParam('CREATE_RELEASE', true, 'If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 14,
@@ -1199,7 +1199,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
@@ -1220,7 +1220,7 @@ def jobs = [
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
             stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 10,
@@ -1327,7 +1327,7 @@ def jobs = [
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
@@ -1346,7 +1346,7 @@ def jobs = [
             stringParam('DURATION', '15m30s', 'Duration of stress-test')
             stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',
@@ -1426,7 +1426,7 @@ def jobs = [
             stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // Secondary pipeline
@@ -1442,7 +1442,7 @@ def jobs = [
             stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // ethereum events
@@ -1459,7 +1459,7 @@ def jobs = [
     //         stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
     //         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
     //         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    //         stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
+    //         stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
     //     },
     // ],
 ]
