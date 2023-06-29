@@ -1429,6 +1429,21 @@ def jobs = [
             stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
+    [
+        name: 'common/snapshot-soak-tests',
+        useScmDefinition: false,
+        numToKeep: 30,
+        definition: libDefinition('pipelinePerformanceTest()'),
+        parameters: {
+            stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('VEGACAPSULE_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('PERFORMANCE_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', 'c-16', 'Jenkins label for running pipeline (empty means any node)')
+        }
+    ],
+
     // Secondary pipeline
     [
         name: 'private/common/snapshot-soak-tests',
