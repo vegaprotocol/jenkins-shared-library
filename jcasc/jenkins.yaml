@@ -152,35 +152,9 @@ jenkins:
         sshKeysCredentialsId: "aws-jenkins-ssh"
         templates:
           - <<: *aws-template
-            labelString: general
-            description: "general"
-            mode: NORMAL
-          - <<: *aws-template
-            description: "system-tests"
-            labelString: "system-tests"
-            instanceCapStr: 200
-          - <<: *aws-template
-            description: "private-network"
-            idleTerminationMinutes: "1"
-            instanceCapStr: "8"
-            labelString: "private-network"
-            maxTotalUses: 1
-            securityGroups: jenkins-dv-network
-          - <<: *aws-template
-            description: "system-tests-capsule"
-            labelString: "system-tests-capsule"
-            instanceCapStr: 200
-          - <<: *aws-template
-            description: "test-instance"
-            ebsEncryptRootVolume: DEFAULT
-            instanceCapStr: "5"
-            labelString: "test-instance"
-          - <<: *aws-template
-            description: "non-validator"
-            instanceCapStr: "8"
-            labelString: "non-validator"
-            securityGroups: "jenkins-non-validator"
-            type: T3Xlarge
+            labelString: aws-backup
+            description: "aws-backup"
+            mode: EXCLUSIVE
         useInstanceProfileForCredentials: false
   systemMessage: "Welcome to Vegaprotocol Jenkins Instance :)!"
 security:
