@@ -184,42 +184,45 @@ void call(Map config=[:]) {
                     }
 
                     stage("Get API data related to configs") {
-                        try {
-                            // Check last snapshoted block
-                            def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
-                            def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
-                            def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
-                            SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
-                            SNAPSHOT_HASH = snapshotInfo['blockHash']
-                            println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
-                            println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
+                        // mitigiate moment when network restarts
+                        retry(3) {
+                            try {
+                                // Check last snapshoted block
+                                def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
+                                def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
+                                def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
+                                SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
+                                SNAPSHOT_HASH = snapshotInfo['blockHash']
+                                println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
+                                println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
 
-                            // Check TM version
-                            def status_req = new URL("https://${remoteServerCometBFT}/status").openConnection()
-                            def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
-                            TM_VERSION = status.result.node_info.version
-                            println("TM_VERSION=${TM_VERSION}")
+                                // Check TM version
+                                def status_req = new URL("https://${remoteServerCometBFT}/status").openConnection()
+                                def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
+                                TM_VERSION = status.result.node_info.version
+                                println("TM_VERSION=${TM_VERSION}")
 
-                            // Get data from TM
-                            (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
-                            Collections.shuffle(SEEDS as List)
-                            Collections.shuffle(RPC_SERVERS as List)
-                            SEEDS = SEEDS.take(2).join(",")
-                            RPC_SERVERS = RPC_SERVERS.take(2).join(",")
-                            println("SEEDS=${SEEDS}")
-                            println("RPC_SERVERS=${RPC_SERVERS}")
+                                // Get data from TM
+                                (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                                Collections.shuffle(SEEDS as List)
+                                Collections.shuffle(RPC_SERVERS as List)
+                                SEEDS = SEEDS.take(2).join(",")
+                                RPC_SERVERS = RPC_SERVERS.take(2).join(",")
+                                println("SEEDS=${SEEDS}")
+                                println("RPC_SERVERS=${RPC_SERVERS}")
 
-                        } catch (e) {
-                            if ( !isDataNodeHealthy(remoteServerDataNode) ) {
-                                // Remote server stopped being available.
-                                // This is quite often for Devnet, when deployments happen all the time
-                                extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
-                                currentBuild.result = 'ABORTED'
-                                error("${env.NET_NAME} seems down")
-                            } else {
-                                println("Remote server ${remoteServerDataNode} is still up.")
-                                // re-throw
-                                throw e
+                            } catch (e) {
+                                if ( !isDataNodeHealthy(remoteServerDataNode) ) {
+                                    // Remote server stopped being available.
+                                    // This is quite often for Devnet, when deployments happen all the time
+                                    extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
+                                    currentBuild.result = 'ABORTED'
+                                    error("${env.NET_NAME} seems down")
+                                } else {
+                                    println("Remote server ${remoteServerDataNode} is still up.")
+                                    // re-throw
+                                    throw e
+                                }
                             }
                         }
                     }
