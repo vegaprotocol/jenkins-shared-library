@@ -44,7 +44,7 @@ void call(Map config=[:]) {
             stage('init') {
                 skipDefaultCheckout()
                 cleanWs()
-                sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q); fi'
+                sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
             }
 
             try {
@@ -612,7 +612,7 @@ boolean checkServerListening(String serverHost, int serverPort) {
 def getSeedsAndRPCServers(String cometURL) {
   def net_info_req = new URL("https://${cometURL}/net_info").openConnection()
   def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-  
+
   RPC_SERVERS = []
   SEEDS = []
   for(peer in net_info.result.peers) {
@@ -629,7 +629,7 @@ def getSeedsAndRPCServers(String cometURL) {
     if( ! checkServerListening(addr, port)) {
       continue
     }
-    // Get RPC port 
+    // Get RPC port
     def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
     if(rpc_port.size()<2) {
       continue
