@@ -128,6 +128,9 @@ jenkins:
             sizeId: "s-8vcpu-16gb"
             imageId: "135114985"
           - <<: *do-template
+            labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
+            sizeId: "g-8vcpu-32gb"
+          - <<: *do-template
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
