@@ -138,7 +138,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp data node config from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
+                                            scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
                                         """
                                 }
                                 NETWORK_HISTORY_PEERS = sh(
@@ -152,7 +152,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp vega core from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vegavisor_home/current/vega vega
+                                            scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vegavisor_home/current/vega vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
@@ -163,7 +163,7 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp genesis.json from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
+                                            scp  -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
                                     sh label: "print genesis.json", script: """#!/bin/bash -e
                                         cat genesis.json

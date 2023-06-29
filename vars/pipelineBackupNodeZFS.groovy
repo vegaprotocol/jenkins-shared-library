@@ -98,6 +98,7 @@ def call() {
                             dir (stateRepository) {
                                 sh '''
                                     scp \
+                                    -o "UserKnownHostsFile=/dev/null" \
                                     -o "StrictHostKeyChecking=no" \
                                     -i "''' + PSSH_KEYFILE + '''" \
                                     ''' + PSSH_USER + '''@''' + server + ''':/etc/backup-state.json \
