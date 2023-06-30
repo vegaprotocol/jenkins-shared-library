@@ -14,7 +14,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map config = defaultConfig + additionalConfig
   params = params + parametersOverride
 
-  String agentLabel = params.NODE_LABEL ?: 'system-tests-capsule'
+  String agentLabel = params.NODE_LABEL ?: 'g-8vcpu-32gb'
 
   Map pipelineHooks = [
       postNetworkGenerate: [:],
@@ -533,8 +533,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             // We cannot just start the data node as it is because we do not know what binary is
-            // currently running in the network. We may expect protocol upgrades/binaries shifts, etc. 
-            // We have a simple helper that checks each node, compares height, and selects 
+            // currently running in the network. We may expect protocol upgrades/binaries shifts, etc.
+            // We have a simple helper that checks each node, compares height, and selects
             // binary from the node at the highest block.
             //
             // We copy the binary which is running on the network to `<testNetworkDir>/vega-latest`

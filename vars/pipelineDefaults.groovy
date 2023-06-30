@@ -65,7 +65,7 @@ Map capsuleSystemTests = [
     systemTestsRunTimeout: '300',
     systemTestsNetworkDir: 'networkdata',
     printNetworkLogsInJenkinsPipeline: false,
-    nodeLabel: 'system-tests-capsule'
+    nodeLabel: 'g-8vcpu-32gb'
 ]
 
 // System Tests LNL pipeline
