@@ -49,11 +49,9 @@ def call() {
             stage('prerequisities') {
                 steps {
                     dir('performance') {
-                        sshagent(credentials: ['vega-ci-bot']) {
-                            sh '''
-                                bash -e prerequisites.sh
-                            '''
-                        }
+                        sh '''
+                            bash -e prerequisites.sh --skip-clone
+                        '''
                     }
                 }
             }
@@ -61,7 +59,6 @@ def call() {
                 steps {
                     dir('performance') {
                         sh '''
-                            api-token init
                             bash -e runtests.sh
                         '''
                     }
