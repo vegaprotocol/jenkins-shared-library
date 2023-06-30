@@ -5,7 +5,7 @@ def call() {
         }
         environment {
             GOBIN = "${env.PWD}/bin"
-            PERFHOME = "${env.JENKINS_WORKSPACE}/performance"
+            PERFHOME = "${env.WORKSPACE}/performance"
         }
         stages {
             stage('get source codes') {
