@@ -11,6 +11,7 @@ def call() {
         stages {
             stage('get source codes') {
                 steps {
+                    sh 'mkdir -p bin'
                     script {
                         def repositories = [
                             [ name: 'vegaprotocol/vega', branch: params.VEGA_BRANCH, install: true ],
