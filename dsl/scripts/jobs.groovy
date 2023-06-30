@@ -1430,7 +1430,7 @@ def jobs = [
         }
     ],
     [
-        name: 'common/snapshot-soak-tests',
+        name: 'common/performance-tests',
         useScmDefinition: false,
         numToKeep: 30,
         definition: libDefinition('pipelinePerformanceTest()'),
