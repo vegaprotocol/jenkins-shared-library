@@ -50,7 +50,7 @@ def call() {
                 steps {
                     dir('performance') {
                         sh '''
-                            bash -e prerequisites.sh --skip-clone
+                            bash -ex prerequisites.sh --skip-clone
                         '''
                     }
                 }
@@ -59,7 +59,7 @@ def call() {
                 steps {
                     dir('performance') {
                         sh '''
-                            bash -e runtests.sh
+                            bash -ex runtests.sh
                         '''
                     }
                 }
