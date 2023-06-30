@@ -45,17 +45,13 @@ def call() {
                     '''
                 }
             }
-            stage('prerequisites') {
-                steps {
-                    dir('performance') {
-                        sh 'bash prerequisites.sh'
-                    }
-                }
-            }
             stage('performance') {
                 steps {
                     dir('performance') {
-                        sh 'bash runtests.sh'
+                        sh '''
+                            api-token init
+                            bash -e runtests.sh
+                        '''
                     }
                 }
             }
