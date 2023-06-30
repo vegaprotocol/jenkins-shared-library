@@ -127,12 +127,15 @@ jenkins:
             labelString: "system-test-capsule-python-3-11-testing-only"
             sizeId: "s-8vcpu-16gb"
             imageId: "135114985"
+            mode: EXCLUSIVE
           - <<: *do-template
             labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
             sizeId: "g-8vcpu-32gb"
+            mode: EXCLUSIVE
           - <<: *do-template
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
+            mode: EXCLUSIVE
           - <<: *do-template
             labelString: "s-4vcpu-8gb generic-4vcpu-8gb"
             sizeId: "s-4vcpu-8gb"
@@ -142,6 +145,7 @@ jenkins:
           - <<: *do-template
             labelString: "c-16"
             sizeId: "c-16"
+            mode: EXCLUSIVE
         timeoutMinutes: 5
         usePrivateNetworking: false
     - amazonEC2:
