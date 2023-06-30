@@ -1438,7 +1438,7 @@ def jobs = [
             stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('VEGACAPSULE_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('PERFORMANCE_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 'c-16', 'Jenkins label for running pipeline (empty means any node)')
         }

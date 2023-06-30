@@ -62,7 +62,7 @@ def call() {
             post {
                 always {
                     archiveArtifacts(
-                        artifacts: 'performance/reuslts.sql'
+                        artifacts: 'performance/results.sql'
                     )
                     cleanWs()
                 }
