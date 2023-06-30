@@ -54,7 +54,7 @@ x-do-template: &do-template
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
   installMonitoring: false
-  instanceCap: 30
+  instanceCap: 60
   labellessJobsAllowed: false
   name: "ubuntu"
   numExecutors: 1
@@ -118,7 +118,7 @@ jenkins:
     - digitalOcean:
         authTokenCredentialId: "digitalocean-token"
         connectionRetryWait: 10
-        instanceCap: 40
+        instanceCap: 120
         name: "fra1"
         privateKeyCredentialId: "ubuntu-ansible-key"
         sshKeyId: 35449484
