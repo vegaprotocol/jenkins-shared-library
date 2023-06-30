@@ -6,6 +6,7 @@ def call() {
         environment {
             GOBIN = "${env.PWD}/bin"
             PERFHOME = "${env.WORKSPACE}/performance"
+            PATH = "${env.PATH}:${env.PERFHOME}/bin"
         }
         stages {
             stage('get source codes') {
