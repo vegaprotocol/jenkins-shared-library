@@ -70,6 +70,9 @@ def call() {
                 archiveArtifacts(
                     artifacts: 'performance/results.sql'
                 )
+                archiveArtifacts(
+                    artifacts: 'performance/logs/**'
+                )
                 cleanWs()
             }
         }
