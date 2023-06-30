@@ -58,6 +58,7 @@ def call() {
                     }
                 }
             }
+        }
             post {
                 always {
                     archiveArtifacts(
@@ -66,6 +67,5 @@ def call() {
                     cleanWs()
                 }
             }
-        }
     }
 }
