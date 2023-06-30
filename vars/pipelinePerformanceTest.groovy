@@ -51,7 +51,6 @@ def call() {
                     dir('performance') {
                         sshagent(credentials: ['vega-ci-bot']) {
                             sh '''
-                                api-token init
                                 bash -e prerequisites.sh
                             '''
                         }
