@@ -21,7 +21,7 @@ x-aws-template: &aws-template
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
-  instanceCapStr: "40"
+  instanceCapStr: "80"
   launchTimeoutStr: "200"
   maxTotalUses: 100
   metadataEndpointEnabled: true
