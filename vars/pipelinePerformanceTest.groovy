@@ -46,6 +46,18 @@ def call() {
                     '''
                 }
             }
+            stage('prerequisities') {
+                steps {
+                    dir('performance') {
+                        sshagent(credentials: ['vega-ci-bot']) {
+                            sh '''
+                                api-token init
+                                bash -e prerequisites.sh
+                            '''
+                        }
+                    }
+                }
+            }
             stage('performance') {
                 steps {
                     dir('performance') {
