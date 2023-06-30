@@ -32,7 +32,7 @@ Map dv = [
     vegaCoreLogLevel: 'Info',
     vegaCoreDLV: false,
 
-    agent: 'system-tests',
+    agent: 'g-8vcpu-32gb',
     timeout: '200'
 ]
 
