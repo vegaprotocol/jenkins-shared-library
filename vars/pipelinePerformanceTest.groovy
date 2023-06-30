@@ -59,13 +59,13 @@ def call() {
                 }
             }
         }
-            post {
-                always {
-                    archiveArtifacts(
-                        artifacts: 'performance/results.sql'
-                    )
-                    cleanWs()
-                }
+        post {
+            always {
+                archiveArtifacts(
+                    artifacts: 'performance/results.sql'
+                )
+                cleanWs()
             }
+        }
     }
 }
