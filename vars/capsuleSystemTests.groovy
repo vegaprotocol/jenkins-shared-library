@@ -208,10 +208,37 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             steps {
               dir('system-tests/scripts') {
                 sh 'make build-vega-core'
-                sh 'make build-vega-core-upgrade-version'
               }
             }
           }
+          stage('prepare upgrade binary') {
+            steps {
+              script {
+                // if vega noone requested specific branch for upgrade version, just build from the original commit 
+                if (params.VEGA_BRANCH_UPGRADE == null || params.VEGA_BRANCH_UPGRADE == '') {
+                  dir('system-tests/scripts') {
+                    sh 'make build-vega-core-upgrade-version'
+                  }
+                } else {
+                  // when a different branch specified for upgrade version, clone vega repository again, switch to the 
+                  // `VEGA_BRANCH_UPGRADE` commit, and build a binary for a protocol upgrade
+                  gitClone([
+                    url: 'git@github.com:vegaprotocol/vega.git',
+                    branch: params.VEGA_BRANCH_UPGRADE,
+                    directory: 'vega-upgrade',
+                    credentialsId: 'vega-ci-bot',
+                    timeout: 2,
+                  ])
+
+                  dir('vega-upgrade') {
+                    sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="v99.99.0+dev"/' vega/version/version.go'''                    
+                  }
+                  vegautils.buildGoBinary('vega-upgrade',  testNetworkDir + '/vega-v99.99.0+dev-linux', './cmd/vega')
+                }
+              }
+            }
+          }
+
           stage('prepare system tests dependencies') {
             options {
               timeout(time: 20, unit: 'MINUTES')
@@ -250,62 +277,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
       }
-      // stage('build upgrade binaries') {
-      //   steps {
-      //     script {
-      //       dir('vega') {
-      //           sh label: 'Build upgrade version of vega binary for tests', script: """#!/bin/bash -e
-      //           sed -i 's/"v0.*"/"v99.99.0+dev"/g' version/version.go
-      //           """
-      //       }
-      //       def binaries = [
-      //         [ repository: 'vega', name: 'vega-v99.99.0+dev', packages: './cmd/vega' ],
-      //       ]
-      //       parallel binaries.collectEntries{value -> [
-      //         value.name,
-      //         {
-      //           vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-      //         }
-      //       ]}
-      //     }
-      //   }
-      // }
-      stage('build upgrade binaries') {
-        when {
-          expression {
-            params.BUILD_PROTOCOL_UPGRADE_VERSION
-          }
-        }
-
-        options {
-          timeout(time: 10, unit: 'MINUTES')
-          retry(2)
-        }
-
-        steps {
-          script {
-            sh 'mkdir -p vega/build'
-            sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="''' + protocolUpgradeVersion + '''"/' vega/version/version.go'''
-            vegautils.buildGoBinary('vega', 'build', './...')
-
-            dir('vega/build') {
-              sh './vega version'
-              sh './data-node version'
-              sh 'zip data-node-linux-amd64.zip data-node'
-              sh 'zip vega-linux-amd64.zip vega'
-
-              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
-                sh '''gh release create \
-                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
-                    ''' + protocolUpgradeVersion + ''' \
-                    *.zip'''
-              }
-            }
-
-            versionToUpgradeNetwork = 'v77.7.7-jenkins-visor-pup-' + currentBuild.number
-          }
-        }
-      }
 
       stage('start nomad') {
         steps {
@@ -330,8 +301,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -353,8 +322,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${networkPath}:${env.PATH}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -384,8 +351,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -424,8 +389,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${env.PATH}:${networkPath}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         options {
@@ -458,9 +421,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
-          SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -623,20 +583,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         catchError {
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
-          }
-        }
-
-        catchError {
-          script {
-            if (params.BUILD_PROTOCOL_UPGRADE_VERSION) {
-              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
-                sh '''gh release delete \
-                    --yes \
-                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
-                    ''' + protocolUpgradeVersion + ''' \
-                | echo "Release does not exist"'''
-              }
-            }
           }
         }
 
