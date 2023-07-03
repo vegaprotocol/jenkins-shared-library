@@ -144,7 +144,7 @@ jenkins:
           - <<: *do-template
             labelString: "c-16"
             sizeId: "c-16"
-        timeoutMinutes: 5
+        timeoutMinutes: 10
         usePrivateNetworking: false
     - amazonEC2:
         cloudName: "eu-west-2"
