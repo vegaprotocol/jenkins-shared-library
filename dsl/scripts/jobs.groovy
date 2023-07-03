@@ -349,6 +349,7 @@ def systemTestsParamsGeneric(args=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
         stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+        stringParam('VEGA_BRANCH_UPGRADE', '', 'Git branch, tag or hash of the vegaprotocol/vega repository to build the upgrade binary. If empty upgrade binary is created from the VEGA_BRANCH')
         stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
         stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
@@ -361,7 +362,6 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
-        booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', false, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
