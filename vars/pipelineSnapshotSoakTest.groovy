@@ -41,17 +41,17 @@ def call() {
                         steps {
                             writeFile (
                                 text: libraryResource (
-                                    resource: 'bin/pv-snapshot-all'
+                                    resource: 'bin/snapshot-soak-test'
                                 ),
-                                file: 'pv-snapshot-all',
+                                file: 'snapshot-soak-test',
                             )
                             sh '''
-                                chmod +x pv-snapshot-all
+                                chmod +x snapshot-soak-test
                                 python3 -m venv venv
                                 . venv/bin/activate
                                 pip3 install toml
                                 pip3 install requests
-                                ./pv-snapshot-all --help
+                                ./snapshot-soak-test --help
                             '''
                         }
                     }
@@ -91,8 +91,8 @@ def call() {
                                             // now load from all of the snapshots
                                             sh """
                                                 . ${env.WORKSPACE}/venv/bin/activate
-                                                ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
-                                                ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
+                                                ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
+                                                ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
                                             """
                                         }
                                     }
@@ -120,8 +120,8 @@ def call() {
                                     ls -al tendermint
                                     ls -al vega
                                     . ${env.WORKSPACE}/venv/bin/activate
-                                    ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
-                                    ${env.WORKSPACE}/pv-snapshot-all --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
+                                    ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
+                                    ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
                                 """
                             }
 
