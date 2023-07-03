@@ -108,7 +108,7 @@ jenkins:
             webSocket: true
             workDirSettings:
               disabled: false
-              fail135810260IfWorkDirIsMissing: false
+              failIfWorkDirIsMissing: false
               internalDir: "remoting"
         name: "jenkins01"
         mode: EXCLUSIVE
