@@ -49,7 +49,7 @@ x-aws-template: &aws-template
 x-do-template: &do-template
   idleTerminationInMinutes: 10
   # jcasc job will print IDs of image if you run it
-  imageId: "135562071"
+  imageId: "135810260"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
@@ -108,7 +108,7 @@ jenkins:
             webSocket: true
             workDirSettings:
               disabled: false
-              failIfWorkDirIsMissing: false
+              fail135810260IfWorkDirIsMissing: false
               internalDir: "remoting"
         name: "jenkins01"
         mode: EXCLUSIVE
@@ -126,7 +126,7 @@ jenkins:
           - <<: *do-template
             labelString: "system-test-capsule-python-3-11-testing-only"
             sizeId: "s-8vcpu-16gb"
-            imageId: "135114985"
+            imageId: "135810260"
           - <<: *do-template
             labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
             sizeId: "g-8vcpu-32gb"
