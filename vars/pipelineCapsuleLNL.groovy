@@ -105,6 +105,10 @@ void call(Map paramsOverrides=[:]) {
                   dir('system-tests/scripts') {
                     sh 'TEST_FUNCTION=test_extended_lnl make test'
                     }
+                }, 
+                
+                'sleep': {
+                    sleep 7200
                 }
             ],
             postPipeline: [
@@ -123,6 +127,11 @@ void call(Map paramsOverrides=[:]) {
                             print('[WARN] Artifact ' + it + ' not found. Archive skipped')
                         }
                     }
+                }
+            ],
+            preNetworkStop: [
+                'sleep': {
+                    sleep 7200
                 }
             ]
         ],
