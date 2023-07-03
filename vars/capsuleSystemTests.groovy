@@ -231,7 +231,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   ])
 
                   dir('vega-upgrade') {
-                    sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="v99.99.0+dev"/' vega/version/version.go'''                    
+                    sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="v99.99.0+dev"/' version/version.go'''                    
                   }
                   vegautils.buildGoBinary('vega-upgrade',  testNetworkDir + '/vega-v99.99.0+dev', './cmd/vega')
 
