@@ -8,67 +8,233 @@ import requests
 import time
 import json
 import sys
+import glob
+import difflib
+import socket
 
-CHAIN_RUNNING = "chain_running"
-CHAIN_DIED = "chain_died"
-CHAIN_FINISHED = "chain_finished"
-CHAIN_STALLED = "chain_stalled"
+from enum import Enum
 
+class FailureMode(Enum):
+    # fell out of consensus because of a different snapshot hash
+    SNAPSHOT_STATE_MISMATCH = 1
+    # fell out of consensus because of a difference checkpoint hash
+    CHECKPOINT_STATE_MISMATCH = 2
+    # fell out of consensus on a non-snapshot or non-checkpoint block
+    GENERAL_STATE_MISMATCH = 3
+    # some issue with the script made it fail
+    SCRIPT_FAILURE = 4
+    # failed for a reason not related to consensus failed
+    OTHER = 5
+
+# how many blocks to replay the chain after restarting from a snapshot
+REPLAY_LENGTH = 50
+MAX_WAIT_TO_START = 5
+
+
+def get_diff(good, bad):
+    """
+    Return a printable diff between the two given files
+    """
+    with open(good, 'r') as f1:
+        with open(bad, 'r') as f2:
+            diff = list(difflib.unified_diff(f1.readlines(), f2.readlines(), fromfile=good, tofile=bad, n=10))
+            return "".join(diff)
+
+class VegaTool:
+    """
+    Wrapper for using the `vega tools` utitlity for reading/writing snapshot and checkpoint files.
+    """
+
+    def __init__(self, vega_home, vega_bin):
+        self.vega_home = vega_home
+        self.vega_bin = vega_bin
+
+    def _get_checkpoints(self):
+        """
+        Return a dict: height -> checkpoint-file of all the checkpoint files found in the node's
+        state folder.
+        """
+        checkpoints = dict()
+        checkpoint_glob = os.path.join(self.vega_home, "state", "node", "checkpoints", "*.cp")
+        for file_name in glob.glob(checkpoint_glob):
+            
+            base = os.path.basename(file_name)
+            chunks = base.split("-")
+
+            # expect a checkpoint file to look like {timestamp}-{height}-{hash}.cp
+            if len(chunks) != 3:
+                print(f"WARNING: unknown file in checkpoint state dir: {base}")
+                continue
+
+            if not chunks[1].isdigit():
+                print(f"WARNING: unknown file in checkpoint state dir: {base}")
+                continue
+
+            checkpoints[int(chunks[1])] =  file_name
+
+        return checkpoints
+
+    def get_snapshot_heights(self):
+        """
+        Return a list of block heights at which snapshots file exist.
+        """
+        res = subprocess.check_output([self.vega_bin, 'tools', 'snapshot', '--output', 'json', '--db-path', os.path.join(self.vega_home, "state", "node", "snapshots")])
+        snapshots = json.loads(res)["snapshots"]
+        
+        heights = []
+        for snapshot in snapshots:
+            heights.append(snapshot["height"])
+        heights.sort()
+        return heights
+
+    def write_snapshot_state(self, height, out_file):
+        """
+        Write the contents of the snapshot at the given height to the given file. Return whether it was successful.
+        """
+        try:
+            if os.path.exists(out_file):
+                print(f"WARNING: overwriting {out_file}")
+                os.remove(out_file)
+
+            subprocess.check_output([self.vega_bin, 'tools', 'snapshot', '--block-height', str(height), '--snapshot-contents', out_file, '--db-path', os.path.join(self.vega_home, "state", "node", "snapshots")])
+            return os.path.exists(out_file)
+        except Exception as e:
+            print(f"WARNING: unable to write snapshot file: {height} {out_file} {e}")
+            return False
+
+    def get_checkpoint_heights(self):
+        """
+        Return a list of heights at which a checkpoint was taken.
+        """
+        checkpoints = self._get_checkpoints()
+        return list(checkpoints.keys())
+    
+    def write_checkpoint_state(self, height, out_file):
+        """
+        Write the contents of the checkpoint at the given height to the given file. Return whether it was successful.
+        """
+        try:
+
+            if os.path.exists(out_file):
+                print(f"WARNING: overwriting {out_file}")
+                os.remove(out_file)
+
+            checkpoint_file = self._get_checkpoints().get(height)
+            if checkpoint_file is None:
+                return False
+
+            subprocess.check_output([self.vega_bin, 'tools', 'checkpoint', '--file', checkpoint_file, '--out', out_file])
+            return os.path.exists(out_file)
+        except Exception as e:
+            print(f"WARNING: unable to write checkpoint file: {height} {out_file} {e}")
+            return False
 
 class Vega:
+    """
+    Manager for the vega process
+    """
 
-    def __init__(self, vghome, tmhome):
-        self.vghome = vghome
-        self.tmhome = tmhome
-        self.out_to = None
-        self.err_to = None
+    def _set_configs(self):
+        """
+        Set values in the vega config file to allow running of smoke tests
+        """
 
+        # get the config values
         cfg = self.read_vega_config()
 
-        # pump up keep recent so that we keep all the snapshots
+        # increase kept snapshots so that we do not through away any
         cfg["Snapshot"]["KeepRecent"] = 100000
 
-        # turn off broker so we don't need a data-node
+
+        # increase kept checkpints so that we do not throw away any
+        cfg["Processor"]["KeepCheckpointsMax"] = 100000
+
+        # turn off the connection to the data node and turn off the admin server
         cfg["Broker"]["Socket"]["Enabled"] = False
         cfg["Broker"]["File"]["Enabled"] = False
         cfg["Admin"]["Server"] = dict()
 
-        # read REST API port
         rest_port = cfg["API"]["REST"]["Port"]
         self.rest_url = "http://localhost:" + str(rest_port)
 
+        # write the new values
         self.write_vega_config(cfg)
 
+    def __init__(self, vghome, tmhome, vega_bin):
+        self.vghome = vghome
+        self.tmhome = tmhome
+        
+        self.vega_bin = vega_bin
 
-    def start(self, restore_from, vega_binary):
 
-        cmd = [vega_binary, 'node', "--home="+self.vghome, "--tendermint-home="+self.tmhome]
+        # handle to open file logs are being written to so we can close them later
+        self.out_to = None
+        self.err_to = None
+
+        # and the file names of those open files
+        self.outlog = None
+        self.errlog = None
+
+        self._set_configs()
+
+    def get_log_files(self):
+        """
+        Return the file names that the process is writing stdout and stderr to.
+        """
+        return self.outlog, self.errlog
+
+    def start(self, restore_from):
+        """
+        Start the vega process
+        """
+
+        cmd = [self.vega_bin, 'node', "--home="+self.vghome, "--tendermint-home="+self.tmhome]
         cmd.append("--snapshot.load-from-block-height="+str(restore_from))
 
-        print("starting Vega", cmd)
-        self.out_to = open(f"node-{str(restore_from)}.log", "w")
-        self.err_to = open(f"err-node-{str(restore_from)}.log", "w")
+        # write to logs files named after the block height we are restoring from
+        self.outlog = f"node-{str(restore_from)}.log"
+        self.errlog = f"err-node-{str(restore_from)}.log"
+
+        self.out_to = open(self.outlog, "w")
+        self.err_to = open(self.errlog, "w")
+
         self._p = subprocess.Popen(cmd, stdout=self.out_to, stderr=self.err_to, universal_newlines=True)
-        #self._p = subprocess.Popen(cmd, universal_newlines=True)
 
 
     def stop(self):
-        print("stopping vega")
+        """
+        Stop the vega process if it is running
+        """
         self._p.terminate()
         self._p.wait(30)
+
         if self.out_to is not None:
             self.out_to.close()
         if self.err_to is not None:
             self.err_to.close()
 
+    def get_height(self):
+        """
+        Return the block height at which the node has reached. Returns -1 if it is not alive.
+        """
 
-    def is_alive(self):
-        return self._p.poll() is None
+        if self._p.poll() is not None:
+            return -1
+        
+        stats =  self.statistics()
+        if stats is None:
+            return -1
+        return int(stats["blockHeight"])
 
 
-    def wait_until_ready(self):
+
+    def wait_until_ready(self, wait=2):
+        """
+        Wait the given time until the node is up and running by pingin the statistics endpoint. Returns False
+        if it never starts.
+        """
         start = time.time()
-        while time.time() < start + 2:
+        while time.time() < start + wait:
             if self.statistics() is not None:
                 return True
             time.sleep(0.1)
@@ -76,13 +242,12 @@ class Vega:
 
 
     def statistics(self):
-
-        url = f"{self.rest_url}/statistics"
+        """
+        Return the result from pinging the statisitcs endpoint of the running node.
+        """
         try:
-            response = requests.get(url)
-            if not response.ok:
-                return None
-            return response.json()["statistics"]
+            response = requests.get(f"{self.rest_url}/statistics")
+            return response.json()["statistics"] if response.ok else None
         except:
             return None
 
@@ -97,94 +262,302 @@ class Vega:
     def write_vega_config(self, new_cfg):
         """
         Write the given dictionary to the vega config file. To be used in conjunction with
-        read_vega_config. Example:
-        cfg = node.read_vega_config()
-        cfg["field"] = new_value
-        node.write_vega_config(cfg)
+        read_vega_config.
         """
         cfg_path = os.path.join(self.vghome, "config", "node", "config.toml")
         with open(cfg_path, "w") as f:
             f.write(toml.dumps(new_cfg))
 
 
-
-
-
-
-def is_running(vp):
+class RestoreResult:
     """
-    Check if the vega process is still running and is reachable
+    Store for the results of a loading from a snapshot at a particular block height.
     """
 
-    if not vp.is_alive():
-        print("vega DIED")
-        return False, 0
+    def __init__(self, success, restore_height, outlog, errlog):
+        self.success = success
+        self.restore_height = restore_height
+        self.outlog = outlog
+        self.errlog = errlog
 
-    stats =  vp.statistics()
-    if stats is None:
-        print("failed to get statistics. stats is None")
-        return False, 0
+        # results for an attempt to auto-diagnose the failure
+        self.fail_mode = None
+        self.fail_height = None
+        self.fail_reason = None
+        self.state_file = None
 
-    print("height:", int(stats["blockHeight"]))
-    return True, int(stats["blockHeight"])
+    def _parse_error(self):
+        """
+        Read that error logs to find out if the failure was due to falling out of consensus. If so we can set
+        the block height at which is consensus failed.
+        """
+
+        full_lines = []
+        consensus_failure = False
+        with open(self.errlog) as f:
+
+            for line in f.readlines():
+
+                # keep track of the entire error file so we can at least print it out later
+                full_lines.append(line)
+
+                # did it fail because of a consensus issue?
+                if "panic: block.AppHash does not match" in line:
+                    consensus_failure = True
+
+                # try to find the height it failed at if it was a consensus issue
+                if consensus_failure and "Height:" in line:
+
+                    if len(line.split()) != 2:
+                        print(f"WARNING: cannot read failure height from logs: {line}")
+                        continue
+
+                    if not line.split()[1].isdigit():
+                        print(f"WARNING: cannot read failure height from logs, expected int: {line}")
+                        continue
+
+                    self.fail_height = int(line.split()[1]) - 1
+                    break
+
+        # set the reason to be the stderr output
+        self.fail_reason = "/n".join(full_lines)
+
+    def diagnose(self, vega_tool):
+        """
+        Parse the error logs to attempt to find out why the node failed to restore from a snapshot.
+        If it died at a height where a snapshot or checkpoint was taken, the state of the node at that
+        block is written to a file which can be diffed later.
+        """
+
+        if self.success:
+            return
+
+        # try to work out what happened
+        print(f"Diagnosing snapshot restore failure at height {self.restore_height}")
+        self._parse_error()
+
+        if "block.AppHash" not in self.fail_reason:
+            self.fail_mode =FailureMode.OTHER
+            return
+
+        # do we have a snapshot at this height
+        if self.fail_height in vega_tool.get_snapshot_heights():
+            self.fail_mode = FailureMode.SNAPSHOT_STATE_MISMATCH
+            self.state_file = "snapshot-fail-" + str(self.restore_height) + "-" + str(self.fail_height) + ".json"
+            if not vega_tool.write_snapshot_state(self.fail_height, self.state_file):
+                self.state_file = None
+            print(f"restore failed by falling out of consensus at a SNAPSHOT at height {self.fail_height}, state: {self.state_file}")
+            return
+
+        if self.fail_height in vega_tool.get_checkpoint_heights():
+            self.fail_mode = FailureMode.CHECKPOINT_STATE_MISMATCH
+            self.state_file = "checkpoint-fail-" + str(self.restore_height) + "-" + str(self.fail_height) + ".json"
+            if not vega_tool.write_checkpoint_state(self.fail_height, self.state_file):
+                self.state_file = None
+            print(f"restore failed by falling out of consensus at a CHECKPOINT at height {self.fail_height}, state: {self.state_file}")
+            return
+        
+        # fell out of consensus but it was not at a snapshot or checkpoint height so we cannot get at the state
+        self.fail_mode = FailureMode.GENERAL_STATE_MISMATCH
+        print(f"restore failed by falling out of consensus NOT at a snapshot or checkpoint, at height {self.fail_height}")
+        return
+            
+
+class ReplayWatcher:
+    """
+    Kicks off a snapshot restore and watches the node to see whether it makes it to the end of the chain
+    """
+
+    def __init__(self, vega, vega_tools):
+        self.vega = vega
+        self.vega_tools = vega_tools
+
+        # state of whether we have watched up to
+        self.last_block_height = 0
+        self.current_block_height = 0
+
+        # the time at which we last saw the block height increase
+        self.last_change_time = 0
+
+        # whether we've seen enough and everything is ok
+        self.finished = False
 
 
+    def _reset(self):
+        """
+        Set all watch state to zero so that we can play again
+        """
+        self.last_block_height = 0
+        self.current_block_height = 0
+        self.last_change_time = 0
+        self.finished = False
 
-def restore_from_snapshot(vghome, tmhome, restore_from, vega_binary):
+    def _start_vega(self, restore_from):
+        """
+        Start a vega node to restore from the given block height, returning whether it started up
+        """
+        # start the vega process and wait until its ready
+        self.vega.start(restore_from)
 
-    print("Restoring from block-height", restore_from)
+        # wait until its started by trying to ping statistics
+        return self.vega.wait_until_ready()
 
-    # start vega
-    vp = Vega(vghome, tmhome)
-    vp.start(restore_from, vega_binary)
 
-    # wait until its started by trying to ping statistics
-    if not vp.wait_until_ready():
-        print("node never started")
-        return False
+    def _check_status(self, restore_from):
+        """
+        Check the current state of the chain replay returning (ok, finished)
+        """
+        self.last_block_height = self.current_block_height
 
+        self.current_block_height = self.vega.get_height()
+        if self.current_block_height == -1:
+            return False
+
+        if restore_from != 0 and self.current_block_height > restore_from + REPLAY_LENGTH:
+            print(f"restore from {restore_from} has reached height {self.current_block_height} > {restore_from + REPLAY_LENGTH}")
+            self.finished = True
+            return True
+
+
+        now = time.time()
+        if self.current_block_height != self.last_block_height:
+            # block height has increased and all is well, update the time we last saw a change
+            self.last_change_time = now
+            return True
+
+        if self.current_block_height == 0:
+            if now > self.last_change_time + MAX_WAIT_TO_START:
+                print(f"node stuck at block height 0 for {MAX_WAIT_TO_START} seconds")
+                return False
+            # Continue waiting for initial load.
+            return True
+
+        self.last_block_height = self.current_block_height
+        if now > self.last_change_time + 1:
+            self.finished = True
+        
+        return True
+
+    def replay(self, restore_from):
+
+        self._reset()
+
+        started = self._start_vega(restore_from)
+
+        out, err = self.vega.get_log_files()
+        res = RestoreResult(started, restore_from, out, err)
+        
+        if not started:
+            return res
+        
+        self.last_change_time = time.time()
+        try:
+            while True:
+                time.sleep(0.1)
+                ok = self._check_status(restore_from)
+                res.success = ok
+                if self.finished or not ok:
+                    break
+        finally:
+            self.vega.stop()
+
+        if not res.success:
+            res.diagnose(self.vega_tools)
+
+        return res
+
+def print_summary(visual, failing_blocks):
+    working = len(visual) - len(failing_blocks)
+    print(f"percentage of working snapshots: {working/len(visual) * 100}% ({working}/{len(visual)})")
+    print("block heights of failing snapshots")
+    print(failing_blocks)
+    print("".join(visual))
+
+
+def run_soak_test(watcher, vega_tool):
+    """
+    Run the soak tests by looping over and attempting to restore from every snapshot that we can find
+    """
+
+    heights = vega_tool.get_snapshot_heights()
+    print(f"Found {len(heights)} snapshots in local store")
+
+    if len(heights) == 0:
+        return [], []
+
+     # we restore from snapshots at the highest blocks first because if a snapshot restore goes wrong, we may invalidate later ones
+    visual = []
+    failing_blocks = []
+    results = []
 
     try:
 
-        last_block_height = 0
-        current_block_height = 0
-        last_height_change = time.time()
-        while True:
-            time.sleep(0.1)
-            last_block_height = current_block_height
-            alive, current_block_height = is_running(vp)
-            if not alive:
-                print("node is not alive")
-                return False # chain died
+        for h in heights[::-1]:
+            # kick off a restore
+            print(f"Restoring from height {h}...")
+            res = watcher.replay(h)
+            results.append(res)
 
-            if restore_from != 0 and current_block_height > restore_from + 50:
-                print("node has been restored and produced 50 blocks over the snapshot")
-                # we've restore from a snapshot and made is 50 blocks into the future
-                # we call that a success
-                return True
+            if res.success:
+                print(f"Restoring from height {h} successful.\n")
+                visual.append(".")
 
-            now = time.time()
-            if current_block_height != last_block_height:
-                last_height_change = now
-                continue
+                # remove the logs files for the working ones
+                os.remove(res.outlog)
+                os.remove(res.errlog)
 
-            if current_block_height == 0:
-                if now > last_height_change + 5:
-                    # Took too long to load snapshot. Fail
-                    return False
-                else:
-                    # Continue waiting for initial load.
-                    continue
+            else:
+                print(f"Restoring from height {h} failed\n")
+                visual.append("F")
+                failing_blocks.append(h)
+    except KeyboardInterrupt:
+        print("stopping soak tests")
+        pass # this just allows us to stop half way through if we don't want to go the whole way
+        
 
-            last_block_height = current_block_height
-            if now > last_height_change + 1:
-                print("chain finished")
-                # no height change in 3 seconds, chain finished
-                return True
+    if len(failing_blocks) == 0:
+        print_summary(visual, failing_blocks)
+        return True
+    
 
+    res = watcher.replay(0)
+    if not res.success:
+        print("WARNING: unable to replay chain again to diagnose failures")
+        print_summary(visual, failing_blocks)
+        return False
 
-    finally:
-        vp.stop()
+    # let work out what happened
+    for res in results:
+
+        if res.success:
+            continue
+
+        if res.fail_mode in {FailureMode.GENERAL_STATE_MISMATCH, FailureMode.OTHER}:
+            # can't get any more information
+            continue
+
+        if res.fail_mode == FailureMode.SNAPSHOT_STATE_MISMATCH:
+            # get the good snapshot state for the height we fell out of consensus
+            out_file = "snapshot-fail-0" + "-" + str(res.fail_height) + ".json"
+            if vega_tool.write_snapshot_state(res.fail_height, out_file):
+                print(f"snapshot failure restore block: {res.restore_height}, fell out of consensus on: {res.fail_height}")
+                print("snapshot state diff:")
+                print(get_diff(out_file, res.state_file))
+            continue
+
+        if res.fail_mode == FailureMode.CHECKPOINT_STATE_MISMATCH:
+            # get the good snapshot state for the height we fell out of consensus
+            out_file = None
+            if vega_tool.write_checkpoint_state(res.fail_height, out_file):
+                print(f"snapshot failure restore block: {res.restore_height}, fell out of consensus on: {res.fail_height}")
+                print("checkpoint state diff:")
+                print(get_diff(out_file, res.state_file))
+            continue
+
+        print(f"unexpected failure mode {res.fail_mode} for block height {res.restore_height}")
+
+    print_summary(visual, failing_blocks)
+
 
 
 def main():
@@ -193,69 +566,48 @@ def main():
     parser = argparse.ArgumentParser(description='Restore node from all existing snapshots')
     parser.add_argument('--replay', '-r', dest='replay', action='store_true', help="Simply replay the chain with no snapshot reloading")
     parser.add_argument('--block', '-b', dest='block', type=str, help="reload from a specific snapshot at a particular height")
-    parser.add_argument('--vega-home', dest='vghome', type=str, required=True, help="the home path of the vega node we will use to replay")
-    parser.add_argument('--tm-home', dest='tmhome', type=str, required=True, help="the home path of the tm node we will use to replay")
+    parser.add_argument('--vega-home', dest='vghome', type=str, help="the home path of the vega node we will use to replay")
+    parser.add_argument('--tm-home', dest='tmhome', type=str, help="the home path of the tm node we will use to replay")
     parser.add_argument('--vega-binary', type=str, default='vega', help='path to vega binary that is being used to replay the blocks')
     args = parser.parse_args()
-    #vghome = "/Users/wwestgarth/Downloads/testnet/vega/node2"
-    #tmhome = "/Users/wwestgarth/Downloads/testnet/tendermint/node2"
-    vghome = args.vghome
-    tmhome = args.tmhome
+
+    # setup the crew
+    vega = Vega(args.vghome, args.tmhome, args.vega_binary)
+    vega_tool = VegaTool(args.vghome, args.vega_binary)
+    watcher = ReplayWatcher(vega, vega_tool)
+
 
     if args.replay:
-        print("replaying chain for snapshot generation")
-        if not restore_from_snapshot(vghome, tmhome, 0, args.vega_binary):
-            print(f"Could not restore from snapshot on block height 0")
-            sys.exit(1)
-        return
+        print("Replaying chain for initial snapshot generation...")
+        res = watcher.replay(0)
+
+        if res.success:
+            print("Replay finished.")
+            return
+        
+        res.diagnose(vega_tool)
+        print("Replay failed.")
+        print(res.fail_reason)
+        sys.exit(1)
 
     if args.block:
-        print("restoring from block", args.block)
-        if not restore_from_snapshot(vghome, tmhome, int(args.block), args.vega_binary):
-            print(f"Could not restore from snapshot on block height {args.block}")
-            sys.exit(1)
-        return
+        print("Restoring node from block:", args.block)
+        res = watcher.replay(args.block)
 
-    # replay the whole chain
-    #if not restore_from_snapshot(vghome, tmhome, 0):
-    #    print("failed to replay the chain")
-    #    return
-
-    print("Looking for snapshots in local store...")
-    res = subprocess.check_output([args.vega_binary, 'tools', 'snapshot', '--output', 'json', '--db-path', os.path.join(vghome, "state", "node", "snapshots")])
-    snapshots = json.loads(res)["snapshots"]
-    print(f"found {len(snapshots)} snapshots")
-
-    # collect snapshot heights
-    heights = []
-    for snapshot in snapshots:
-        heights.append(snapshot["height"])
-    heights.sort()
-
-    # we restore from snapshots at the highest blocks first because if a snapshot restore goes wrong, we may invalidate later ones
-    worked = 0
-    visual = []
-    failing_blocks = []
-
-    try:
-        for h in heights[::-1]:
-            if restore_from_snapshot(vghome, tmhome, h, args.vega_binary):
-                print(f"Restoring from height {h} successful.")
-                worked += 1
-                visual.append(".")
-            else:
-                print(f"Restoring from height {h} unsuccessful.")
-                visual.append("F")
-                failing_blocks.append(h)
-    except KeyboardInterrupt:
-        pass
-
-    print(f"percentage of working snapshots: {worked/len(visual) * 100}% ({worked}/{len(visual)})")
-    print(failing_blocks)
-    print("".join(visual))
-
-    if len(failing_blocks) != 0:
+        if res.success:
+            print("Restore finished.")
+            return
+        
+        print("Restore failed.")
+        res.diagnose()
+        print(res.fail_reason)
         sys.exit(1)
+
+
+    if not run_soak_test(watcher, vega_tool):
+        sys.exit(1)
+   
+
 
 if __name__ == "__main__":
     main()
