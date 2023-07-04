@@ -53,7 +53,7 @@ def call() {
             }
             stage('prerequisities') {
                 steps {
-                    sh 'pg_isready -d ${POSTGRES_DB} -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER}'
+                    sh 'which psql'
                     dir('performance') {
                         sh '''
                             bash -ex prerequisites.sh --skip-clone
