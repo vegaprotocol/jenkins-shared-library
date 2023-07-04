@@ -92,12 +92,14 @@ void call(Map paramsOverrides=[:]) {
                             script {
                                 sh '''PGPASSWORD=vega \
                                     psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
-                                         --command "delete from stake_linking where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';"
+                                         --command "delete from stake_linking where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
+                                    2>/dev/null
                                 '''
 
                                 sh '''PGPASSWORD=vega \
                                     psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
-                                         --command "delete from stake_linking_current where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';"
+                                         --command "delete from stake_linking_current where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
+                                    2>/dev/null
                                 '''
                             }
                         }
