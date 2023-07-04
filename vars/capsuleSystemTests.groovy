@@ -439,6 +439,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     try {
                       sh 'make test'
                     } catch(err) {
+                      print("FAILURE AFTER make test")
                       // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
                       currentBuild.result = 'FAILURE'
                       if (!config.fastFail) {
@@ -557,7 +558,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
 
             print('Run snapshot checks')
-            sleep '30'
+            sleep '5'
             sh '''
               mkdir -p ./snapshot-tmp;
               rsync -av ''' + testNetworkDir + '''/testnet/vega/node1/state/node/snapshots/ ./snapshot-tmp;
