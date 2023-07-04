@@ -6,17 +6,17 @@ void call(Map paramsOverrides=[:]) {
       'api2.vega.community',
     ]
 
-      node('s-4vcpu-8gb') {
-              Boolean isMainnetVersionScenario = paramsOverrides.get("mainnetVersionScenario", false)
-              if (isMainnetVersionScenario) {
-                Map<String, ?> nodeStatistics = vegautils.networkStatistics(nodesList: mainnetApiServers)
-                // When we have the mainnet scenario we target the vega version which is
-                // runnin in the current mainnet. We overrides version collected from the
-                // /statistics endpoint of the mainnet API server.
+    node {
+        Boolean isMainnetVersionScenario = paramsOverrides.get("mainnetVersionScenario", false)
+        if (isMainnetVersionScenario) {
+        Map<String, ?> nodeStatistics = vegautils.networkStatistics(nodesList: mainnetApiServers)
+        // When we have the mainnet scenario we target the vega version which is
+        // runnin in the current mainnet. We overrides version collected from the
+        // /statistics endpoint of the mainnet API server.
 
-                paramsOverrides.put('VEGA_BRANCH', nodeStatistics['statistics']['appVersion'])
-                print('This is pipeline targeting the mainnet version. Running with vega_branch = ' + nodeStatistics['statistics']['appVersion'])
-              }
+        paramsOverrides.put('VEGA_BRANCH', nodeStatistics['statistics']['appVersion'])
+        print('This is pipeline targeting the mainnet version. Running with vega_branch = ' + nodeStatistics['statistics']['appVersion'])
+        }
     }
 
 
