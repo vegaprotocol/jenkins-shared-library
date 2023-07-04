@@ -392,6 +392,18 @@ def lnlSystemTestsparams(Map args=[:]) {
     }
 }
 
+def mainnetSnapshotParams(Map args=[:]) {
+    return {
+        stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+    }
+}
+
+
+
 def approbationParams(def config=[:]) {
     return {
         if (config.type == 'core') {
@@ -1124,6 +1136,17 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 3 * * *',
+    ],
+    [
+        name: 'common/system-tests-mainnet-snapshot',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleMainnetSnapshot()'),
+        parameters: mainnetSnapshotParams(
+            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 2 * * *',
     ],
     [
         name: 'common/system-tests',
