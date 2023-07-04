@@ -415,22 +415,22 @@ def approbationParams(def config=[:]) {
             stringParam('SPECS_ARG', '{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
+            stringParam('SPECS_ARG', '/workspace/specs/user-interface/**/*.md', '--specs argument value')
         }
 
         if (config.type == 'core') {
             stringParam('CATEGORIES_ARG', '/workspace/specs/protocol/categories.json', '--categories argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value for the categories run')
-            stringParam('APPS_ARG', 'specs/user-interface/apps.json', '--categories argument value for the apps run')
+            stringParam('CATEGORIES_ARG', '/workspace/specs/user-interface/categories.json', '--categories argument value for the categories run')
+            stringParam('APPS_ARG', '/workspace/specs/user-interface/apps.json', '--categories argument value for the apps run')
         }
 
         if (config.type == 'core') {
             stringParam('TESTS_ARG',  '{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam('TESTS_ARG', '{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
