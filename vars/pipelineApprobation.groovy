@@ -196,24 +196,35 @@ void call(def config=[:]) {
             }
             stage('Run Approbation: Categories') {
                 steps {
-                    sh label: 'approbation', script: """#!/bin/bash -e
-                        npx --yes --silent github:vegaprotocol/approbation check-references \
-                            --specs="${params.SPECS_ARG}" \
-                            --tests="${params.TESTS_ARG}" \
-                            --categories="${params.CATEGORIES_ARG}" \
-                            ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
-                    """
+                    withDockerRegistry([
+                        credentialsId: vegautils.getVegaCiBotCredentials(),
+                        url: 'https://ghcr.io'
+                    ]) {
+                        sh label: 'approbation', script: """#!/bin/bash -e
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:main check-references \
+                                --specs="${params.SPECS_ARG}" \
+                                --tests="${params.TESTS_ARG}" \
+                                --categories="${params.CATEGORIES_ARG}" \
+                                ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
+                        """
+                    }
                 }
             }
             stage('Run Approbation: Apps') {
-                    when {
-                        expression {
-                            config.type == 'frontend'
-                        }
+                when {
+                    expression {
+                        config.type == 'frontend'
                     }
-                    steps {
+                }
+                steps {
+                    withDockerRegistry([
+                        credentialsId: vegautils.getVegaCiBotCredentials(),
+                        url: 'https://ghcr.io'
+                    ]) {
                         sh label: 'approbation', script: """#!/bin/bash -e
-                            npx --yes --silent github:vegaprotocol/approbation check-references \
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:main check-references \
                                 --specs="${params.SPECS_ARG}" \
                                 --tests="${params.TESTS_ARG}" \
                                 --categories="${params.APPS_ARG}" \
@@ -221,6 +232,7 @@ void call(def config=[:]) {
                         """
                     }
                 }
+            }
         }
         post {
             always {

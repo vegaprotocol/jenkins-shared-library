@@ -412,29 +412,29 @@ def approbationParams(def config=[:]) {
         stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
 
         if (config.type == 'core') {
-            stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
+            stringParam('SPECS_ARG', '{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
+            stringParam('SPECS_ARG', '/workspace/specs/user-interface/**/*.md', '--specs argument value')
         }
 
         if (config.type == 'core') {
-            stringParam('CATEGORIES_ARG', './specs/protocol/categories.json', '--categories argument value')
+            stringParam('CATEGORIES_ARG', '/workspace/specs/protocol/categories.json', '--categories argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value for the categories run')
-            stringParam('APPS_ARG', 'specs/user-interface/apps.json', '--categories argument value for the apps run')
+            stringParam('CATEGORIES_ARG', '/workspace/specs/user-interface/categories.json', '--categories argument value for the categories run')
+            stringParam('APPS_ARG', '/workspace/specs/user-interface/apps.json', '--categories argument value for the apps run')
         }
 
         if (config.type == 'core') {
-            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js,./Vega_Token_V2/test/*.js,./Staking_Bridge/test/*.js}', '--tests argument value')
+            stringParam('TESTS_ARG',  '{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam('TESTS_ARG', '{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
-            stringParam('IGNORE_ARG','{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
+            stringParam('IGNORE_ARG','{/workspace/spec-internal/protocol/0060*,/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
         }
 
         if (config.type == 'core') {
@@ -445,7 +445,7 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', config.get('NODE_LABEL', 's-8vcpu-16gb'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', config.get('NODE_LABEL', 's-2vcpu-4gb'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
