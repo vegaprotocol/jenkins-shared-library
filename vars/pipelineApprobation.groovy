@@ -201,7 +201,8 @@ void call(def config=[:]) {
                         url: 'https://ghcr.io'
                     ]) {
                         sh label: 'approbation', script: """#!/bin/bash -e
-                            docker run -v ${env.WORKSPACE}:/workspace ghcr.io/vegaprotocol/approbation:main check-references \
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:main check-references \
                                 --specs="${params.SPECS_ARG}" \
                                 --tests="${params.TESTS_ARG}" \
                                 --categories="${params.CATEGORIES_ARG}" \
@@ -222,7 +223,8 @@ void call(def config=[:]) {
                         url: 'https://ghcr.io'
                     ]) {
                         sh label: 'approbation', script: """#!/bin/bash -e
-                            docker run -v ${env.WORKSPACE}:/workspace ghcr.io/vegaprotocol/approbation:main check-references \
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:main check-references \
                                 --specs="${params.SPECS_ARG}" \
                                 --tests="${params.TESTS_ARG}" \
                                 --categories="${params.APPS_ARG}" \
