@@ -6,7 +6,7 @@ void call(Map paramsOverrides=[:]) {
       'api2.vega.community',
     ]
 
-    node {
+    node(params.NODE_LABEL ?: '') {
         Boolean isMainnetVersionScenario = paramsOverrides.get("mainnetVersionScenario", false)
         if (isMainnetVersionScenario) {
         Map<String, ?> nodeStatistics = vegautils.networkStatistics(nodesList: mainnetApiServers)
