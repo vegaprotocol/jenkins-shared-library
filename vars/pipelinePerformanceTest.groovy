@@ -7,6 +7,11 @@ def call() {
             GOBIN = "${env.PWD}/bin"
             PERFHOME = "${env.WORKSPACE}/performance"
             PATH = "${env.PATH}:${env.PERFHOME}/bin:${env.GOBIN}"
+            POSTGRES_HOST = "jenkins-performance-do-user-11836577-0.b.db.ondigitalocean.com"
+            POSTGRES_PORT = "25060"
+            POSTGRES_USER = "doadmin"
+            POSTGRES_PASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
+            POSTGRES_DB = "defaultdb"
         }
         stages {
             stage('get source codes') {
