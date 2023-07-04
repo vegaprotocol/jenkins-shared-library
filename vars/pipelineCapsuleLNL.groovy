@@ -105,9 +105,6 @@ void call(Map paramsOverrides=[:]) {
                   dir('system-tests/scripts') {
                     sh 'TEST_FUNCTION=test_extended_lnl make test'
                     }
-                },
-                'sleep': {
-                    sleep 7200
                 }
             ],
             postPipeline: [
