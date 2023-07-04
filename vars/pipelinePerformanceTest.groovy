@@ -53,7 +53,7 @@ def call() {
             }
             stage('prerequisities') {
                 steps {
-                    sh 'whoami; sudo apt-get install -y postgres-client'
+                    sh 'whoami; sudo apt-get install -y postgresql-client'
                     dir('performance') {
                         sh '''
                             bash -ex prerequisites.sh --skip-clone
