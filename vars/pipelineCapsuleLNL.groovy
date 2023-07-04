@@ -23,7 +23,6 @@ void call(Map paramsOverrides=[:]) {
     capsuleSystemTests([
         agentLabel: params.NODE_LABEL ?: '',
         vegacapsuleConfig: 'mainnet_config.hcl',
-        systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
             'MAINNET_TEST_CASE': 'true',
         ],
