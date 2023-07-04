@@ -206,7 +206,12 @@ class Vega:
         Stop the vega process if it is running
         """
         self._p.terminate()
-        self._p.wait(30)
+
+        try:
+            self._p.wait(30)
+        except subprocess.TimeoutExpired:
+            print("WARNING: process could not be stopped, killing process")
+            self._p.kill()
 
         if self.out_to is not None:
             self.out_to.close()
@@ -228,7 +233,7 @@ class Vega:
 
 
 
-    def wait_until_ready(self, wait=2):
+    def wait_until_ready(self, wait=10):
         """
         Wait the given time until the node is up and running by pingin the statistics endpoint. Returns False
         if it never starts.
@@ -320,7 +325,7 @@ class RestoreResult:
                     break
 
         # set the reason to be the stderr output
-        self.fail_reason = "/n".join(full_lines)
+        self.fail_reason = "".join(full_lines)
 
     def diagnose(self, vega_tool):
         """
@@ -442,12 +447,20 @@ class ReplayWatcher:
 
         self._reset()
 
-        started = self._start_vega(restore_from)
+        ok = self._start_vega(restore_from)
+
+        if not ok:
+            # a bit hacky but there are some legit reasons why this loop of stopping/starting vega
+            # can cause some weirdness
+            print("WARNING: process did not start for unknown reasons, attempting 1 retry")
+            ok = self._start_vega(restore_from)
+
 
         out, err = self.vega.get_log_files()
-        res = RestoreResult(started, restore_from, out, err)
+        res = RestoreResult(ok, restore_from, out, err)
         
-        if not started:
+        if not ok:
+            self.vega.stop() # just in case to make sure we've cleared up
             return res
         
         self.last_change_time = time.time()
@@ -503,8 +516,8 @@ def run_soak_test(watcher, vega_tool):
                 visual.append(".")
 
                 # remove the logs files for the working ones
-                os.remove(res.outlog)
-                os.remove(res.errlog)
+                #os.remove(res.outlog)
+                #os.remove(res.errlog)
 
             else:
                 print(f"Restoring from height {h} failed\n")
@@ -592,14 +605,14 @@ def main():
 
     if args.block:
         print("Restoring node from block:", args.block)
-        res = watcher.replay(args.block)
+        res = watcher.replay(int(args.block))
 
         if res.success:
             print("Restore finished.")
             return
         
         print("Restore failed.")
-        res.diagnose()
+        res.diagnose(vega_tool)
         print(res.fail_reason)
         sys.exit(1)
 
