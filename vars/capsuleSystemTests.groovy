@@ -252,6 +252,35 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
       }
 
+      stage('prepare upgrade binary') {
+        when {
+          expression {
+            params.VEGA_BRANCH_UPGRADE != null && params.VEGA_BRANCH_UPGRADE != ''
+          }
+        }
+        steps {
+          script {
+            // when a different branch specified for upgrade version, clone vega repository again, switch to the
+            // `VEGA_BRANCH_UPGRADE` commit, and build a binary for a protocol upgrade
+            gitClone([
+              url: 'git@github.com:vegaprotocol/vega.git',
+              branch: params.VEGA_BRANCH_UPGRADE,
+              directory: 'vega-upgrade',
+              credentialsId: 'vega-ci-bot',
+              timeout: 2,
+            ])
+
+            dir('vega-upgrade') {
+              sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="v99.99.0+dev"/' version/version.go'''
+            }
+            sh 'rm -f ' + testNetworkDir + '/vega-v99.99.0+dev || echo "OK"'
+            vegautils.buildGoBinary('vega-upgrade',  testNetworkDir + '/vega-v99.99.0+dev', './cmd/vega')
+
+            sh testNetworkDir + '/vega-v99.99.0+dev version'
+          }
+        }
+      }
+
       stage('start nomad') {
         steps {
           script {
