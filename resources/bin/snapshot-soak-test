@@ -177,6 +177,12 @@ class Vega:
 
         self._set_configs()
 
+    def show_version(self):
+        """
+        Print the version of the vega binary
+        """
+        print("Binary:", subprocess.check_output([self.vega_bin, "version"]).decode('ascii'))
+
     def get_log_files(self):
         """
         Return the file names that the process is writing stdout and stderr to.
@@ -588,6 +594,9 @@ def main():
     vega = Vega(args.vghome, args.tmhome, args.vega_binary)
     vega_tool = VegaTool(args.vghome, args.vega_binary)
     watcher = ReplayWatcher(vega, vega_tool)
+
+
+    vega.show_version()
 
 
     if args.replay:
