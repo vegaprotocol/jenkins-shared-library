@@ -1138,7 +1138,7 @@ def jobs = [
         cron: 'H 3 * * *',
     ],
     [
-        name: 'common/system-tests-mainnet-snapshot',
+        name: 'common/system-tests-snapshot-compatibility',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleMainnetSnapshot()'),
         parameters: mainnetSnapshotParams(
