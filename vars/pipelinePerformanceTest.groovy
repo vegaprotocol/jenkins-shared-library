@@ -57,6 +57,7 @@ def call() {
                         sh '''
                             bash -ex prerequisites.sh --skip-clone
                         '''
+                        sh 'sudo apt-get update && sudo apt-get install -y postgresql-client-14'
                     }
                 }
             }
