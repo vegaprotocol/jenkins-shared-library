@@ -10,8 +10,8 @@ def call() {
             POSTGRES_HOST = "jenkins-performance-do-user-11836577-0.b.db.ondigitalocean.com"
             POSTGRES_PORT = "25060"
             POSTGRES_USER = "doadmin"
-            POSTGRES_PASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
             POSTGRES_DB = "defaultdb"
+            PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
         }
         stages {
             stage('get source codes') {
@@ -57,6 +57,7 @@ def call() {
                         sh '''
                             bash -ex prerequisites.sh --skip-clone
                         '''
+                        sh 'sudo apt-get update && sudo apt-get install -y postgresql-client-14'
                     }
                 }
             }
@@ -73,10 +74,12 @@ def call() {
         post {
             always {
                 archiveArtifacts(
-                    artifacts: 'performance/results.sql'
+                    artifacts: 'performance/results.sql',
+                    allowEmptyArchive: true
                 )
                 archiveArtifacts(
-                    artifacts: 'performance/logs/**'
+                    artifacts: 'performance/logs/**',
+                     allowEmptyArchive: true
                 )
                 cleanWs()
             }
