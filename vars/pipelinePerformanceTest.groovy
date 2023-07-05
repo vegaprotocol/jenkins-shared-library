@@ -74,10 +74,12 @@ def call() {
         post {
             always {
                 archiveArtifacts(
-                    artifacts: 'performance/results.sql'
+                    artifacts: 'performance/results.sql',
+                    allowEmptyArchive: true
                 )
                 archiveArtifacts(
-                    artifacts: 'performance/logs/**'
+                    artifacts: 'performance/logs/**',
+                     allowEmptyArchive: true
                 )
                 cleanWs()
             }
