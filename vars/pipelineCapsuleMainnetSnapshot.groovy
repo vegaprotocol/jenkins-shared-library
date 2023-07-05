@@ -8,7 +8,6 @@ void call(Map paramsOverrides=[:]) {
 
     capsuleSystemTests([
         agentLabel: params.NODE_LABEL ?: '',
-        vegacapsuleConfig: 'capsule_config_mainnet_snapshot.hcl',
         systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
             'MAINNET_TEST_CASE': 'true',
@@ -16,9 +15,30 @@ void call(Map paramsOverrides=[:]) {
         fastFail: false,
         slackTitle: 'LNL Mainnet System Tests',
         hooks: [
+            postStartNomad: [
+                'Download mainnet genesis': {
+                    sh '''
+                        rm -f "''' + WORKSPACE + '''/system-tests/vegacapsule/net_configs/mainnet_snapshot/genesis.json" \
+                            || echo "old genesis does not exists";
+                        
+                        wget https://raw.githubusercontent.com/vegaprotocol/networks/master/mainnet1/genesis.json \
+                        --tries 3 \
+                        --output-document "''' + WORKSPACE + '''/system-tests/vegacapsule/net_configs/mainnet_snapshot/genesis.json";
+                    '''
+                }
+            ],
             postNetworkGenerate: [
                 'Download core snapshot from mainnet API': {
-                    // TBD
+                    script {
+                        // sh '''rsync \
+                        //     --archive \
+                        //     --verbose \
+                        //     --compress \
+                        //     -e 'ssh -i $KEY -o StrictHostKeyChecking=no' \
+                        //     $USER@'''+ mainnerServer + ''':/home/vega/vega_home/state/node/snapshots \
+                        //     ./api-snapshots
+                        // '''
+                    }
                 }
             ],
             runTests: [
@@ -33,5 +53,7 @@ void call(Map paramsOverrides=[:]) {
                
             ]
         ],
-    ], paramsOverrides)
+    ], [
+        CAPSULE_CONFIG: 'capsule_config_mainnet_snapshot.hcl',
+    ])
 }
