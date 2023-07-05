@@ -10,8 +10,8 @@ def call() {
             POSTGRES_HOST = "jenkins-performance-do-user-11836577-0.b.db.ondigitalocean.com"
             POSTGRES_PORT = "25060"
             POSTGRES_USER = "doadmin"
-            POSTGRES_PASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
             POSTGRES_DB = "defaultdb"
+            PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
         }
         stages {
             stage('get source codes') {
