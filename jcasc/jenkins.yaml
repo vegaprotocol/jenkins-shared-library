@@ -49,7 +49,7 @@ x-aws-template: &aws-template
 x-do-template: &do-template
   idleTerminationInMinutes: 10
   # jcasc job will print IDs of image if you run it
-  imageId: "135562071"
+  imageId: "135872375"
   initScript: |
     curl -L -o /tmp/j-init.sh https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/scripts/init.sh
     bash /tmp/j-init.sh
