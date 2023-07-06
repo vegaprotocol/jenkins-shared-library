@@ -202,7 +202,7 @@ void call(def config=[:]) {
                             gitClone(
                                 directory: 'console-test',
                                 vegaUrl: 'console-test',
-                                branch: params.CONSOLE_TEST,
+                                branch: params.CONSOLE_TEST_BRANCH ?: 'main',
                                 extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
                             )
                             sh "rm -rf console-test@tmp"
