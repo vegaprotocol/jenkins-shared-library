@@ -192,6 +192,22 @@ void call(def config=[:]) {
                             sh "rm -rf vegawallet-browser@tmp"
                         }
                     }
+                    stage('console-test') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'console-test',
+                                vegaUrl: 'console-test',
+                                branch: params.CONSOLE_TEST_BRANCH ?: 'main',
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf console-test@tmp"
+                        }
+                    }
                 }
             }
             stage('Run Approbation: Categories') {
