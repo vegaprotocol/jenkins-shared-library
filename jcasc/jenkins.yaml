@@ -124,10 +124,6 @@ jenkins:
         sshKeyId: 35449484
         templates:
           - <<: *do-template
-            labelString: "system-test-capsule-python-3-11-testing-only"
-            sizeId: "s-8vcpu-16gb"
-            imageId: "135114985"
-          - <<: *do-template
             labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
             sizeId: "g-8vcpu-32gb"
           - <<: *do-template
@@ -137,6 +133,19 @@ jenkins:
             labelString: "s-4vcpu-8gb generic-4vcpu-8gb"
             sizeId: "s-4vcpu-8gb"
             labellessJobsAllowed: true
+          - <<: *do-template
+            labelString: "g-8vcpu-32gb-python-3.8 generic-8vcpu-32gb-python-3.8"
+            sizeId: "g-8vcpu-32gb"
+            imageId: "135562071"
+          - <<: *do-template
+            labelString: "s-8vcpu-16gb-python-3.8 generic-8vcpu-16gb-python-3.8"
+            sizeId: "s-8vcpu-16gb"
+            imageId: "135562071"
+          - <<: *do-template
+            labelString: "s-4vcpu-8gb-python-3.8 generic-4vcpu-8gb-python-3.8"
+            sizeId: "s-4vcpu-8gb"
+            labellessJobsAllowed: true
+            imageId: "135562071"
           - <<: *do-template
             labelString: "s-2vcpu-4gb generic-2vcpu-4gb"
             sizeId: "s-2vcpu-4gb"
