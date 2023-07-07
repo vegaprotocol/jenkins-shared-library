@@ -152,6 +152,18 @@ void call() {
                             '''
                         }
                     }
+                    stage('Capsule Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            sh label: 'Vega Capsule Test', script: '''
+                                scripts/run-capsule-test.sh ${NUM_CAPSULE_STEPS}
+                            '''
+                        }
+                    }
                     stage('Fuzz Tests') {
                         when {
                             expression {
