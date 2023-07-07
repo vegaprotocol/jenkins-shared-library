@@ -66,7 +66,9 @@ void call() {
                                 ]
                             ]]
                         )
+                        sh "go build -o ../../vega_sim/bin/ ./..."
                     }
+                    
                 }
             }
             stage('Clone vegacapsule'){
