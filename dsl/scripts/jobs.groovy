@@ -418,9 +418,11 @@ def approbationParams(def config=[:]) {
             stringParam('FRONTEND_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
             stringParam('VEGAWALLET_DESKTOP_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
             stringParam('VEGAWALLET_UI_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
-            stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
             stringParam('CONSOLE_TEST_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/console-test repository')
             
+        }
+        else if(config.type == 'browserWallet') {
+            stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
         }
 
         stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
@@ -431,6 +433,9 @@ def approbationParams(def config=[:]) {
         else if (config.type == 'frontend') {
             stringParam('SPECS_ARG', '/workspace/specs/user-interface/**/*.md', '--specs argument value')
         }
+        else if (config.type == 'browserWallet') {
+            stringParam('SPECS_ARG', '/workspace/vegawallet-browser/specs/**/*.md', '--specs argument value')
+        }
 
         if (config.type == 'core') {
             stringParam('CATEGORIES_ARG', '/workspace/specs/protocol/categories.json', '--categories argument value')
@@ -439,12 +444,19 @@ def approbationParams(def config=[:]) {
             stringParam('CATEGORIES_ARG', '/workspace/specs/user-interface/categories.json', '--categories argument value for the categories run')
             stringParam('APPS_ARG', '/workspace/specs/user-interface/apps.json', '--categories argument value for the apps run')
         }
+        else if (config.type == 'browserWallet') {
+            stringParam('CATEGORIES_ARG', '/workspace/vegawallet-browser/specs/categories.json', '--categories argument value for the categories run')
+            stringParam('APPS_ARG', '/workspace/vegawallet-browser/specs/apps.json', '--categories argument value for the apps run')
+        }
 
         if (config.type == 'core') {
             stringParam('TESTS_ARG',  '{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}', '--tests argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}', '--tests argument value')
+            stringParam('TESTS_ARG', '{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}', '--tests argument value')
+        }
+        else if (config.type == 'browserWallet') {
+            stringParam('TESTS_ARG', '/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}', '--tests argument value')
         }
 
         if (config.type == 'core' ) {
@@ -454,7 +466,7 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core') {
             stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
         }
-        else if (config.type == 'frontend') {
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
             stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv', 'Other arguments')
         }
 
