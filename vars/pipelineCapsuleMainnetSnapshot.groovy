@@ -1,11 +1,5 @@
-/* groovylint-disable LineLength */
+/* groovylint-disable DuplicateStringLiteral, LineLength */
 void call(Map paramsOverrides=[:]) {
-    List mainnetApiServers = [
-      'api0.vega.community',
-      'api1.vega.community',
-      'api2.vega.community',
-    ]
-
     capsuleSystemTests([
         agentLabel: params.NODE_LABEL ?: '',
         systemTestsBranch: 'lnl-pipeline',
@@ -15,45 +9,76 @@ void call(Map paramsOverrides=[:]) {
         fastFail: false,
         slackTitle: 'LNL Mainnet System Tests',
         hooks: [
-            postStartNomad: [
-                'Download mainnet genesis': {
-                    sh '''
-                        rm -f "''' + WORKSPACE + '''/system-tests/vegacapsule/net_configs/mainnet_snapshot/genesis.json" \
-                            || echo "old genesis does not exists";
-                        
-                        wget https://raw.githubusercontent.com/vegaprotocol/networks/master/mainnet1/genesis.json \
-                        --tries 3 \
-                        --output-document "''' + WORKSPACE + '''/system-tests/vegacapsule/net_configs/mainnet_snapshot/genesis.json";
+            postNetworkGenerate: [
+                'Download core snapshot from mainnet API': {
+                    List mainnetApiServers = [
+                    'api0.vega.community',
+                    'api1.vega.community',
+                    'api2.vega.community',
+                    ]
+
+                    Random rnd = new Random()
+                    String selectedMainnetApiServer = mainnetApiServers[rnd.nextInt(mainnetApiServers.size)]
+
+                    def sshCredentials = sshUserPrivateKey(
+                        credentialsId: 'ssh-vega-network',
+                        keyFileVariable: 'PSSH_KEYFILE',
+                        usernameVariable: 'PSSH_USER'
+                    )
+                    String networkDir
+                    dir (pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
+                        networkDir = vegautils.escapePath(pwd())
+                    }
+
+                    withCredentials([sshCredentials]) {
+                        print('Random server for snapshot source: ' + selectedMainnetApiServer)
+                        sh label: 'Prepare mainnet genesis', script: '''
+                            devopstools snapshot-compatibility load-snapshot \
+                                --snapshot-remote-location "/home/vega/vega_home/state/node/snapshots" \
+                                --snapshot-server "''' + selectedMainnetApiServer + '''" \
+                                --snapshot-server-key-file "''' + PSSH_KEYFILE + '''" \
+                                --snapshot-server-user "''' + PSSH_USER + '''" \
+                                --vegacapsule-binary "vegacapsule" \
+                                --vega-binary "vega" \
+                                --vegacapsule-home "''' + networkDir + '''/testnet"
+                        '''
+                    }
+
+                    sh label: 'Convert downloaded snapshot to JSON', script: '''
+                        devopstools snapshot-compatibility collect-snapshot \
+                            --snapshot-json-output snapshot-before.json \
+                            --vegacapsule-binary "vegacapsule" \
+                            --vega-binary "vega" \
+                            --vegacapsule-home "''' + networkDir + '''/testnet"
                     '''
                 }
             ],
-            postNetworkGenerate: [
-                'Download core snapshot from mainnet API': {
-                    script {
-                        // sh '''rsync \
-                        //     --archive \
-                        //     --verbose \
-                        //     --compress \
-                        //     -e 'ssh -i $KEY -o StrictHostKeyChecking=no' \
-                        //     $USER@'''+ mainnerServer + ''':/home/vega/vega_home/state/node/snapshots \
-                        //     ./api-snapshots
-                        // '''
+            postNetworkStart: [
+                'Move the network forward and produce a new snapshot': {
+                    String networkDir
+                    dir (pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
+                        networkDir = vegautils.escapePath(pwd())
                     }
+                    sh label: 'Produce snapshot', script: '''
+                        devopstools snapshot-compatibility produce-new-snapshot
+                            --vegacapsule-binary "vegacapsule" \
+                            --vegacapsule-home "''' + networkDir + '''/testnet"
+                    '''
+
+                    sh label: 'Convert the new snapshot to JSON', script: '''
+                        devopstools snapshot-compatibility collect-snapshot \
+                            --snapshot-json-output snapshot-after.json \
+                            --vegacapsule-binary "vegacapsule" \
+                            --vega-binary "vega" \
+                            --vegacapsule-home "''' + networkDir + '''/testnet"
+                    '''
                 }
-            ],
-            runTests: [
-                'Copy snapshot snapshot produced by local network': {
-                   
-                }
-            ],
-            postRunTests: [
-              
-            ],
-            postPipeline: [
-               
             ]
         ],
     ], [
         CAPSULE_CONFIG: 'capsule_config_mainnet_snapshot.hcl',
+        DEVOPSTOOLS_BRANCH: 'add-snapshot-compatibility-helpers',
+        SKIP_RUN_TESTS: true,
+        SKIP_MULTISIGN_SETUP: true,
     ])
 }
