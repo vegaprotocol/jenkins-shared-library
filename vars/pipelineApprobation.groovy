@@ -179,7 +179,7 @@ void call(def config=[:]) {
                     stage('vegawallet-browser') {
                         when {
                             expression {
-                                config.type == 'frontend'
+                                config.type == 'browserWallet'
                             }
                         }
                         steps {
@@ -230,7 +230,7 @@ void call(def config=[:]) {
             stage('Run Approbation: Apps') {
                 when {
                     expression {
-                        config.type == 'frontend'
+                        config.type == 'frontend' || config.type == 'browserWallet'
                     }
                 }
                 steps {

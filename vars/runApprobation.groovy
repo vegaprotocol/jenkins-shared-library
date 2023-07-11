@@ -5,6 +5,9 @@ void call(Map config = [:]) {
     if (config.type == 'frontend') {
         approbationJob += '-frontend'
     }
+    if (config.type == 'browserWallet') {
+        approbationJob += '-browser-wallet'
+    }
     Boolean ignoreFailure = config.ignoreFailure ? "${config.ignoreFailure}".toBoolean() : false
     List buildParameters = []
     // overrides for default values from upstream pipelines
