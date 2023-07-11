@@ -1413,7 +1413,7 @@ def jobs = [
         numToKeep: 100,
         useScmDefinition: false,
         definition: libDefinition('pipelineApprobation(type: "browserWallet")'),
-        parameters: approbationParams(type: 'frontend'),
+        parameters: approbationParams(type: 'browserWallet'),
         copyArtifacts: true,
     ],
     // just wrapper for runApprobation.groovy
