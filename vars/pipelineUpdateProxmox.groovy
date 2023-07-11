@@ -6,10 +6,9 @@ def call() {
         SLAVES = [params.NODE]
     }
     pipeline {
-        agent none
+        agent any
         stages {
             stage('checkout') {
-                agent any
                 steps {
                     checkout scm
                 }
@@ -28,6 +27,7 @@ def call() {
                             (name): {
                                 node(name) {
                                     checkout scm
+                                    sh 'ls -al'
                                     sh 'ansible-playbook playbooks/proxmox-playbook-jenkins-agent.yaml'
                                 }
                             }
