@@ -27,7 +27,9 @@ def call() {
                             (name): {
                                 node(name) {
                                     checkout scm
-                                    sh 'ansible-playbook playbooks/proxmox.yaml'
+                                    sshagent(credentials: ['vega-ci-bot']) {
+                                        sh 'ansible-playbook playbooks/proxmox.yaml'
+                                    }
                                 }
                             }
                         ]}
