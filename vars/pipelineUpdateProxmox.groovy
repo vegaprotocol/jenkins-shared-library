@@ -23,14 +23,16 @@ def call() {
                     }
                 }
                 steps {
-                    parallel SLAVES.collectEntries { name -> [
-                        (name): {
-                            node(name) {
-                                checkout scm
-                                sh 'ansible-playbook playbooks/proxmox-playbook-jenkins-agent.yaml'
+                    script {
+                        parallel SLAVES.collectEntries { name -> [
+                            (name): {
+                                node(name) {
+                                    checkout scm
+                                    sh 'ansible-playbook playbooks/proxmox-playbook-jenkins-agent.yaml'
+                                }
                             }
-                        }
-                    ]}
+                        ]}
+                    }
                 }
             }
         }
