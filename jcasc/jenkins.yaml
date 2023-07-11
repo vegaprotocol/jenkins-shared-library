@@ -68,7 +68,7 @@ jenkins:
         remoteFS: "/jenkins"
         retentionStrategy: "always"
     - permanent:
-        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb"
+        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb"
         launcher:
           inbound:
             webSocket: true

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+agent=""
+secret=""
+
+apt-get update
+apt-get install -y \
+    curl \
+    openjdk-17-jdk \
+    openjdk-17-jre \
+    python3 \
+    sudo \
+    software-properties-common \
+    ca-certificates \
+    apt-transport-https
+apt-add-repository -y ppa:ansible/ansible
+apt-get update
+apt-get install -y ansible
+apt-get install -f
+apt-get upgrade -y
+
+adduser --disabled-password --gecos "" ubuntu
+cat > /etc/sudoers.d/ubuntu-user <<EOF
+ubuntu ALL=(ALL) NOPASSWD:ALL
+EOF
+
+mkdir /jenkins
+curl -L -o /jenkins/agent.jar https://jenkins.ops.vega.xyz/jnlpJars/agent.jar
+
+chown -R ubuntu:ubuntu /jenkins
+
+cat > /etc/systemd/system/jenkins-agent.service <<EOF
+[Unit]
+Description=Jenkins Agent service
+After=network.target
+StartLimitIntervalSec=0[Service]
+Type=simple
+
+[Service]
+Restart=always
+RestartSec=1
+User=ubuntu
+ExecStart=java -jar /jenkins/agent.jar -jnlpUrl https://jenkins.ops.vega.xyz/computer/${agent}/jenkins-agent.jnlp -secret ${secret} -workDir /jenkins
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl start jenkins-agent
