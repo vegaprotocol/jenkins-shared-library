@@ -5,7 +5,7 @@ import jenkins.model.GlobalConfiguration;
 // https://jenkins.ops.vega.xyz/configuration-as-code/schema
 pipeline {
     agent {
-        label 's-4vcpu-8gb'
+        label 'generic-4vcpu-8gb'
     }
     options {
         timestamps()
