@@ -72,6 +72,10 @@ void call() {
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
+      'fuzz': [
+        pytestDirectory: "tests/fuzz*",
+        mark: 'fuzz',
+      ],
     ]
   ][params.SCENARIO]
 
