@@ -1408,6 +1408,14 @@ def jobs = [
         parameters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
+     [
+        name: 'common/approbation-browser-wallet',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "browserWallet")'),
+        parameters: approbationParams(type: 'frontend'),
+        copyArtifacts: true,
+    ],
     // just wrapper for runApprobation.groovy
     [
         name: 'common/frontend-monorepo',
