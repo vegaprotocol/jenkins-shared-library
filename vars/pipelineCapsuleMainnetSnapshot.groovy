@@ -60,7 +60,7 @@ void call(Map paramsOverrides=[:]) {
                         networkDir = vegautils.escapePath(pwd())
                     }
                     sh label: 'Produce snapshot', script: '''
-                        devopstools snapshot-compatibility produce-new-snapshot
+                        devopstools snapshot-compatibility produce-new-snapshot \
                             --vegacapsule-binary "vegacapsule" \
                             --vegacapsule-home "''' + networkDir + '''/testnet"
                     '''
