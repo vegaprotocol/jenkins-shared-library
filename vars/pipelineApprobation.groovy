@@ -261,7 +261,7 @@ void call(def config=[:]) {
                         script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
                         returnStdout: true,
                     ).trim()
-                    sendSlackMessage(scriptSlackMsg, config.type == 'frontend' ? '#coverage-notify-frontend' : '#coverage-notify')
+                    sendSlackMessage(scriptSlackMsg, config.type == 'frontend' || config.type == 'browserWallet' ? '#coverage-notify-frontend' : '#coverage-notify')
                 }
                 cleanWs()
             }
