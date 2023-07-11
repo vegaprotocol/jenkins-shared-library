@@ -7,12 +7,12 @@ def call() {
     }
     pipeline {
         agent any
-        stages {
-            stage('checkout') {
-                steps {
-                    checkout scm
-                }
+        post {
+            always {
+                cleanWs()
             }
+        }
+        stages {
             stage('trigger provisioner') {
                 when {
                     anyOf {
@@ -26,6 +26,7 @@ def call() {
                         parallel SLAVES.collectEntries { name -> [
                             (name): {
                                 node(name) {
+                                    cleanWs()
                                     checkout scm
                                     sshagent(credentials: ['vega-ci-bot']) {
                                         sh 'ansible-playbook playbooks/proxmox.yaml'
