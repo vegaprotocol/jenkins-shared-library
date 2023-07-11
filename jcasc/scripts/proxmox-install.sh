@@ -12,7 +12,8 @@ apt-get install -y \
     sudo \
     software-properties-common \
     ca-certificates \
-    apt-transport-https
+    apt-transport-https \
+    git
 apt-add-repository -y ppa:ansible/ansible
 apt-get update
 apt-get install -y ansible
