@@ -17,7 +17,7 @@ def call() {
                 when {
                     anyOf {
                         changeset "roles/jenkins-agent/**"
-                        changeset "playbooks/proxmox-playbook-jenkins-agent.yaml"
+                        changeset "playbooks/proxmox.yaml"
                         triggeredBy 'UserIdCause'
                     }
                 }
@@ -27,11 +27,7 @@ def call() {
                             (name): {
                                 node(name) {
                                     checkout scm
-                                    sh '''
-                                        ls -al
-                                        ls -al playbooks/proxmox-playbook-jenkins-agent.yaml
-                                    '''
-                                    sh 'ansible-playbook playbooks/proxmox-playbook-jenkins-agent.yaml'
+                                    sh 'ansible-playbook playbooks/proxmox.yaml'
                                 }
                             }
                         ]}
