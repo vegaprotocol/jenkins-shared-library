@@ -27,7 +27,10 @@ def call() {
                             (name): {
                                 node(name) {
                                     checkout scm
-                                    sh 'ls -al'
+                                    sh '''
+                                        ls -al
+                                        ls -al playbooks/proxmox-playbook-jenkins-agent.yaml
+                                    '''
                                     sh 'ansible-playbook playbooks/proxmox-playbook-jenkins-agent.yaml'
                                 }
                             }
