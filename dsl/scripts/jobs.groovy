@@ -420,7 +420,7 @@ def approbationParams(def config=[:]) {
             stringParam('VEGAWALLET_DESKTOP_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
             stringParam('VEGAWALLET_UI_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
             stringParam('CONSOLE_TEST_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/console-test repository')
-            
+
         }
         else if(config.type == 'browserWallet') {
             stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
@@ -508,6 +508,18 @@ def jobs = [
         jenkinsfile: 'jcasc/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/proxmox-provisioner',
+        numToKeep: 50,
+        repo: 'ansible',
+        description: h('This job is used to auto apply changes done to the jenkins-agent role'),
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'master',
+        disableConcurrentBuilds: true,
+        parameters: {
+            stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used')
+        }
     ],
     [
         name: 'private/Deployments/Publish-vega-dev-releases',
