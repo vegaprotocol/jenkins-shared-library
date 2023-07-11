@@ -115,6 +115,8 @@ def call() {
                                 sh """
                                     ls -al tendermint
                                     ls -al vega
+                                    ls -al ../
+                                    ls -al ../../
                                     . ${env.WORKSPACE}/venv/bin/activate
                                     ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}' --replay
                                     ${env.WORKSPACE}/snapshot-soak-test --tm-home='${tmHome}' --vega-home='${vegaHome}' --vega-binary='${vegaBinary}'
