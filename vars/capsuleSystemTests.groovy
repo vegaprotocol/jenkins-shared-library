@@ -25,7 +25,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   params.DEVOPSTOOLS_BRANCH = params.DEVOPSTOOLS_BRANCH ?: 'main'
   params.BUILD_PROTOCOL_UPGRADE_VERSION = params.BUILD_PROTOCOL_UPGRADE_VERSION ?: false
   params.CAPSULE_CONFIG = params.CAPSULE_CONFIG ?: 'capsule_config.hcl'
-  params.ARCHIVE_VEGA_BINARY = false
+  params.ARCHIVE_VEGA_BINARY = params.ARCHIVE_VEGA_BINARY ?: false
   params.SKIP_RUN_TESTS = params.SKIP_RUN_TESTS ?: false
   params.SKIP_MULTISIGN_SETUP = params.SKIP_MULTISIGN_SETUP ?: false
   params.SYSTEM_TESTS_TEST_FUNCTION = params.SYSTEM_TESTS_TEST_FUNCTION ?: ''
