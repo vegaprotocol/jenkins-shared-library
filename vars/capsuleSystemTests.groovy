@@ -15,25 +15,25 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   params = params + parametersOverride
 
   // Set default values for the parameters in case some job does not have this param defined
-  params.TIMEOUT = params.TIMEOUT ?: 60
-  params.ORIGIN_REPO = params.ORIGIN_REPO ?: 'vegaprotocol/vega'
-  params.VEGA_BRANCH = params.VEGA_BRANCH ?: 'develop'
-  params.SYSTEM_TESTS_BRANCH = params.SYSTEM_TESTS_BRANCH ?: 'develop'
-  params.VEGACAPSULE_BRANCH = params.VEGACAPSULE_BRANCH ?: 'main'
-  params.VEGATOOLS_BRANCH = params.VEGATOOLS_BRANCH ?: 'develop'
-  params.DEVOPSSCRIPTS_BRANCH = params.DEVOPSSCRIPTS_BRANCH ?: 'main'
-  params.DEVOPSTOOLS_BRANCH = params.DEVOPSTOOLS_BRANCH ?: 'main'
-  params.BUILD_PROTOCOL_UPGRADE_VERSION = params.BUILD_PROTOCOL_UPGRADE_VERSION ?: false
-  params.CAPSULE_CONFIG = params.CAPSULE_CONFIG ?: 'capsule_config.hcl'
-  params.ARCHIVE_VEGA_BINARY = params.ARCHIVE_VEGA_BINARY ?: false
-  params.SKIP_RUN_TESTS = params.SKIP_RUN_TESTS ?: false
-  params.SKIP_MULTISIGN_SETUP = params.SKIP_MULTISIGN_SETUP ?: false
-  params.SYSTEM_TESTS_TEST_FUNCTION = params.SYSTEM_TESTS_TEST_FUNCTION ?: ''
-  params.SYSTEM_TESTS_TEST_MARK = params.SYSTEM_TESTS_TEST_MARK ?: 'smoke'
-  params.SYSTEM_TESTS_TEST_DIRECTORY = params.SYSTEM_TESTS_TEST_DIRECTORY ?: ''
-  params.SYSTEM_TESTS_DEBUG = params.SYSTEM_TESTS_DEBUG ?: false
-  params.RUN_PROTOCOL_UPGRADE_PROPOSAL = params.RUN_PROTOCOL_UPGRADE_PROPOSAL ?: false
-  params.TEST_EXTRA_PYTEST_ARGS = params.TEST_EXTRA_PYTEST_ARGS ?: ''
+  // params.TIMEOUT = params.TIMEOUT ?: 60
+  // params.ORIGIN_REPO = params.ORIGIN_REPO ?: 'vegaprotocol/vega'
+  // params.VEGA_BRANCH = params.VEGA_BRANCH ?: 'develop'
+  // params.SYSTEM_TESTS_BRANCH = params.SYSTEM_TESTS_BRANCH ?: 'develop'
+  // params.VEGACAPSULE_BRANCH = params.VEGACAPSULE_BRANCH ?: 'main'
+  // params.VEGATOOLS_BRANCH = params.VEGATOOLS_BRANCH ?: 'develop'
+  // params.DEVOPSSCRIPTS_BRANCH = params.DEVOPSSCRIPTS_BRANCH ?: 'main'
+  // params.DEVOPSTOOLS_BRANCH = params.DEVOPSTOOLS_BRANCH ?: 'main'
+  // params.BUILD_PROTOCOL_UPGRADE_VERSION = params.BUILD_PROTOCOL_UPGRADE_VERSION ?: false
+  // params.CAPSULE_CONFIG = params.CAPSULE_CONFIG ?: 'capsule_config.hcl'
+  // params.ARCHIVE_VEGA_BINARY = params.ARCHIVE_VEGA_BINARY ?: false
+  // params.SKIP_RUN_TESTS = params.SKIP_RUN_TESTS ?: false
+  // params.SKIP_MULTISIGN_SETUP = params.SKIP_MULTISIGN_SETUP ?: false
+  // params.SYSTEM_TESTS_TEST_FUNCTION = params.SYSTEM_TESTS_TEST_FUNCTION ?: ''
+  // params.SYSTEM_TESTS_TEST_MARK = params.SYSTEM_TESTS_TEST_MARK ?: 'smoke'
+  // params.SYSTEM_TESTS_TEST_DIRECTORY = params.SYSTEM_TESTS_TEST_DIRECTORY ?: ''
+  // params.SYSTEM_TESTS_DEBUG = params.SYSTEM_TESTS_DEBUG ?: false
+  // params.RUN_PROTOCOL_UPGRADE_PROPOSAL = params.RUN_PROTOCOL_UPGRADE_PROPOSAL ?: false
+  // params.TEST_EXTRA_PYTEST_ARGS = params.TEST_EXTRA_PYTEST_ARGS ?: ''
 
   String agentLabel = params.NODE_LABEL ?: 'g-8vcpu-32gb'
 
