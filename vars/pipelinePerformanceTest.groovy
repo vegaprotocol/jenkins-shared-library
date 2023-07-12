@@ -4,7 +4,7 @@ def call() {
             label params.NODE_LABEL
         }
         environment {
-            GOBIN = "${env.PWD}/bin"
+            GOBIN = "${env.WORKSPACE}/bin"
             PERFHOME = "${env.WORKSPACE}/performance"
             PATH = "${env.PATH}:${env.PERFHOME}/bin:${env.GOBIN}"
             POSTGRES_HOST = "jenkins-performance-do-user-11836577-0.b.db.ondigitalocean.com"
@@ -16,7 +16,6 @@ def call() {
         stages {
             stage('get source codes') {
                 steps {
-                    echo "${env.PWD}"
                     sh 'mkdir -p bin'
                     script {
                         def repositories = [
