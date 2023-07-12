@@ -16,6 +16,7 @@ def call() {
         stages {
             stage('get source codes') {
                 steps {
+                    echo "${env.PWD}"
                     sh 'mkdir -p bin'
                     script {
                         def repositories = [
