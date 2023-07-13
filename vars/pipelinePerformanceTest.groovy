@@ -54,14 +54,12 @@ def call() {
             stage('prerequisities') {
                 steps {
                     sh '''
-                        if ! which pg_isready; then sudo apt-get install -y postgresql-client; fi
                         pg_isready -d ${POSTGRES_DB} -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER}
                     '''
                     dir('performance') {
                         sh '''
                             bash -ex prerequisites.sh --skip-clone
                         '''
-                        sh 'sudo apt-get update && sudo apt-get install -y postgresql-client-14'
                     }
                 }
             }
