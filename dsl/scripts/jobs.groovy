@@ -1491,7 +1491,7 @@ def jobs = [
         name: 'common/performance-tests',
         useScmDefinition: false,
         numToKeep: 30,
-        cron: 'H/0 0 * * *',
+        cron: '0 0 * * *',
         definition: libDefinition('pipelinePerformanceTest()'),
         parameters: {
             stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
