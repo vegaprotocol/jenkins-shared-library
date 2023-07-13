@@ -55,7 +55,7 @@ jenkins:
         - "USER:Overall/Read:anonymous"
   nodes:
     - permanent:
-        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb"
+        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb generic"
         launcher:
           inbound:
             webSocket: true
@@ -68,7 +68,7 @@ jenkins:
         remoteFS: "/jenkins"
         retentionStrategy: "always"
     - permanent:
-        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb"
+        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic"
         launcher:
           inbound:
             webSocket: true
@@ -96,7 +96,7 @@ jenkins:
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
-            labelString: "s-4vcpu-8gb generic-4vcpu-8gb"
+            labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic"
             sizeId: "s-4vcpu-8gb"
             labellessJobsAllowed: true
           - <<: *do-template
@@ -113,7 +113,7 @@ jenkins:
             labellessJobsAllowed: true
             imageId: "135562071"
           - <<: *do-template
-            labelString: "s-2vcpu-4gb generic-2vcpu-4gb"
+            labelString: "s-2vcpu-4gb generic-2vcpu-4gb generic"
             sizeId: "s-2vcpu-4gb"
             labellessJobsAllowed: true
           - <<: *do-template
