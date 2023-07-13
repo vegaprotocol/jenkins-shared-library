@@ -1491,6 +1491,7 @@ def jobs = [
         name: 'common/performance-tests',
         useScmDefinition: false,
         numToKeep: 30,
+        cron: 'H/0 0 * * *',
         definition: libDefinition('pipelinePerformanceTest()'),
         parameters: {
             stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
@@ -1498,7 +1499,7 @@ def jobs = [
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'c-16', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'proxmox-12vcpu-14gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
 
