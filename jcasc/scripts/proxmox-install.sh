@@ -48,4 +48,5 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
+systemctl enable jenkins-agent
 systemctl start jenkins-agent
