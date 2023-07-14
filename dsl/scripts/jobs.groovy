@@ -573,7 +573,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            NODE_LABEL: 'proxmox-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -712,7 +712,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -854,7 +854,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -956,7 +956,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1023,7 +1023,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1039,7 +1039,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1071,7 +1071,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnetapi',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1088,7 +1088,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
-            NODE_LABEL: 's-4vcpu-8gb',
+            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
     ],
