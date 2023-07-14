@@ -345,7 +345,14 @@ class RestoreResult:
 
         # try to work out what happened
         print(f"Diagnosing snapshot restore failure at height {self.restore_height}")
-        self._parse_error()
+
+        try:
+            self._parse_error()
+        except Exception as e:
+            print("WARNING: unable to parse log files")
+            self.fail_mode = self.fail_mode =FailureMode.SCRIPT_FAILURE
+            self.fail_reason = e
+            return
 
         if "block.AppHash" not in self.fail_reason:
             self.fail_mode =FailureMode.OTHER
@@ -466,6 +473,7 @@ class ReplayWatcher:
         res = RestoreResult(ok, restore_from, out, err)
         
         if not ok:
+            res.diagnose(self.vega_tools)
             self.vega.stop() # just in case to make sure we've cleared up
             return res
         
@@ -539,6 +547,7 @@ def run_soak_test(watcher, vega_tool):
         return True
     
 
+    print("\nReplaying chain to help further diagnose...")
     res = watcher.replay(0)
     if not res.success:
         print("WARNING: unable to replay chain again to diagnose failures")
@@ -551,7 +560,10 @@ def run_soak_test(watcher, vega_tool):
         if res.success:
             continue
 
-        if res.fail_mode in {FailureMode.GENERAL_STATE_MISMATCH, FailureMode.OTHER}:
+        if res.fail_mode in {FailureMode.GENERAL_STATE_MISMATCH, FailureMode.OTHER, FailureMode.SCRIPT_FAILURE}:
+            print(f"snapshot failure restore block: {res.restore_height}, general failure when restoring")
+            print(f"stderr output:")
+            print(res.fail_reason)
             # can't get any more information
             continue
 
