@@ -359,6 +359,8 @@ class RestoreResult:
         if "block.AppHash" not in self.fail_reason:
             self.fail_mode =FailureMode.OTHER
             print("restore failed due to general panic")
+            if self.fail_reason is None or len(self.fail_reason) == 0:
+                return
             print(self.fail_reason.splitlines()[0])
             return
 
