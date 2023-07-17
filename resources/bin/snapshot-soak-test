@@ -183,6 +183,13 @@ class Vega:
         """
         print("Binary:", subprocess.check_output([self.vega_bin, "version"]).decode('ascii'))
 
+    def unsafe_reset_all(self):
+        """
+        Print the version of the vega binary
+        """
+        print("calling vega unsafe_reset_all...")
+        subprocess.check_call([self.vega_bin, "unsafe_reset_all", "--home", self.vghome], stdout=subprocess.DEVNULL)
+
     def get_log_files(self):
         """
         Return the file names that the process is writing stdout and stderr to.
@@ -196,7 +203,6 @@ class Vega:
 
         cmd = [self.vega_bin, 'node', "--home="+self.vghome, "--tendermint-home="+self.tmhome]
         cmd.append("--snapshot.load-from-block-height="+str(restore_from))
-
         # write to logs files named after the block height we are restoring from
         self.outlog = f"node-{str(restore_from)}.log"
         self.errlog = f"err-node-{str(restore_from)}.log"
@@ -342,13 +348,26 @@ class RestoreResult:
 
         if self.success:
             return
+        
+        
 
         # try to work out what happened
-        print(f"Diagnosing snapshot restore failure at height {self.restore_height}")
-        self._parse_error()
+        print(f"Diagnosing snapshot restore failure at height {self.restore_height}...")
+
+        try:
+            self._parse_error()
+        except Exception as e:
+            print("WARNING: unable to parse log files")
+            self.fail_mode = self.fail_mode =FailureMode.SCRIPT_FAILURE
+            self.fail_reason = e
+            return
 
         if "block.AppHash" not in self.fail_reason:
             self.fail_mode =FailureMode.OTHER
+            print("restore failed due to general panic")
+            if self.fail_reason is None or len(self.fail_reason) == 0:
+                return
+            print(self.fail_reason.splitlines()[0])
             return
 
         # do we have a snapshot at this height
@@ -422,10 +441,11 @@ class ReplayWatcher:
 
         self.current_block_height = self.vega.get_height()
         if self.current_block_height == -1:
+            print(f"Stopped: node unable to start.")
             return False
-
+        
         if restore_from != 0 and self.current_block_height > restore_from + REPLAY_LENGTH:
-            print(f"restore from {restore_from} has reached height {self.current_block_height} > {restore_from + REPLAY_LENGTH}")
+            print(f"Finished: replay from height {restore_from} has reached height {self.current_block_height} > {restore_from + REPLAY_LENGTH}.")
             self.finished = True
             return True
 
@@ -438,13 +458,14 @@ class ReplayWatcher:
 
         if self.current_block_height == 0:
             if now > self.last_change_time + MAX_WAIT_TO_START:
-                print(f"node stuck at block height 0 for {MAX_WAIT_TO_START} seconds")
+                print(f"Stopping: node stuck at block height 0 for {MAX_WAIT_TO_START} seconds.")
                 return False
             # Continue waiting for initial load.
             return True
 
         self.last_block_height = self.current_block_height
         if now > self.last_change_time + 1:
+            print(f"Finished: replay from height {restore_from} has reached the end of the chain.")
             self.finished = True
         
         return True
@@ -453,8 +474,10 @@ class ReplayWatcher:
 
         self._reset()
 
-        ok = self._start_vega(restore_from)
+        if restore_from == 0:
+            self.vega.unsafe_reset_all()
 
+        ok = self._start_vega(restore_from)
         if not ok:
             # a bit hacky but there are some legit reasons why this loop of stopping/starting vega
             # can cause some weirdness
@@ -466,6 +489,7 @@ class ReplayWatcher:
         res = RestoreResult(ok, restore_from, out, err)
         
         if not ok:
+            res.diagnose(self.vega_tools)
             self.vega.stop() # just in case to make sure we've cleared up
             return res
         
@@ -538,7 +562,7 @@ def run_soak_test(watcher, vega_tool):
         print_summary(visual, failing_blocks)
         return True
     
-
+    print("\nReplaying chain to help further diagnose...")
     res = watcher.replay(0)
     if not res.success:
         print("WARNING: unable to replay chain again to diagnose failures")
@@ -551,7 +575,9 @@ def run_soak_test(watcher, vega_tool):
         if res.success:
             continue
 
-        if res.fail_mode in {FailureMode.GENERAL_STATE_MISMATCH, FailureMode.OTHER}:
+        if res.fail_mode in {FailureMode.GENERAL_STATE_MISMATCH, FailureMode.OTHER, FailureMode.SCRIPT_FAILURE}:
+            print(f"snapshot general failure restore block: {res.restore_height}")
+            print(res.fail_reason)
             # can't get any more information
             continue
 
