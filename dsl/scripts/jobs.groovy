@@ -393,13 +393,11 @@ def lnlSystemTestsparams(Map args=[:]) {
 }
 
 def snapshotCompatibilityParams(Map args=[:]) {
-    return {
-        stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+    return systemTestsParamsGeneric(args) << {
+        stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+        stringParam('SYSTEM_TESTS_TEST_MARK', '', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+        stringParam('SYSTEM_TESTS_TEST_DIRECTORY', 'tests/snapshot_compatibility', 'Run tests from files in this directory and all sub-directories')
+        stringParam('CAPSULE_CONFIG', 'capsule_config_mainnet_snapshot.hcl', 'Run tests using the given vegacapsule config file')
     }
 }
 
@@ -1167,7 +1165,7 @@ def jobs = [
     [
         name: 'common/system-tests-snapshot-compatibility',
         useScmDefinition: false,
-        definition: libDefinition('pipelineCapsuleMainnetSnapshot()'),
+        definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
         parameters: snapshotCompatibilityParams(
             NODE_LABEL: 's-4vcpu-8gb',
         ),
