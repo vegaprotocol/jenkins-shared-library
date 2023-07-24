@@ -1,20 +1,22 @@
+/* groovylint-disable NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
+/* groovylint-disable-next-line MethodSize */
 void call() {
-  if (currentBuild.upstreamBuilds) {
-    RunWrapper upBuild = currentBuild.upstreamBuilds[0]
-    currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
-  }
-  println('pipelineCapsuleSystemTests params: ' + params)
-  // this is default scenario for smoke test, but it will require changing for other types
-  scenario = [
+    if (currentBuild.upstreamBuilds) {
+        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
+        currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
+    }
+    println('pipelineCapsuleSystemTests params: ' + params)
+    // this is default scenario for smoke test, but it will require changing for other types
+    scenario = [
     'PR': [
       'smoke a-g': [
-        pytestDirectory: "tests/[a-gA-G]*",
+        pytestDirectory: 'tests/[a-gA-G]*',
         mark: 'smoke'
       ],
       'smoke h-m': [
-        pytestDirectory: "tests/[h-mH-M]*",
+        pytestDirectory: 'tests/[h-mH-M]*',
         mark: 'smoke'
       ],
       'smoke n-z': [
@@ -28,19 +30,19 @@ void call() {
     ],
     'NIGHTLY': [
       'full a-f': [
-        pytestDirectory: "tests/[a-fA-F]*",
+        pytestDirectory: 'tests/[a-fA-F]*',
         mark: 'full',
       ],
       'full g-n': [
-        pytestDirectory: "tests/[g-nG-N]*",
+        pytestDirectory: 'tests/[g-nG-N]*',
         mark: 'full',
       ],
       'full o-r': [
-        pytestDirectory: "tests/[o-rO-R]*",
+        pytestDirectory: 'tests/[o-rO-R]*',
         mark: 'full',
       ],
       'full s': [
-        pytestDirectory: "tests/[sS]*",
+        pytestDirectory: 'tests/[sS]*',
         mark: 'full',
       ],
       'full t-z': [
@@ -48,12 +50,12 @@ void call() {
         mark: 'full',
       ],
       'network_infra a-o': [
-        pytestDirectory: "tests/[a-oA-O]*",
+        pytestDirectory: 'tests/[a-oA-O]*',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra p without validators': [
-        pytestDirectory: "tests/[pP]*",
+        pytestDirectory: 'tests/[pP]*',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
@@ -63,51 +65,52 @@ void call() {
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators a-p': [
-        pytestDirectory: "tests/validators/[a-pA-P]*",
+        pytestDirectory: 'tests/validators/[a-pA-P]*',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators r-z': [
-        pytestDirectory: "tests/validators/[r-zR-Z]*",
+        pytestDirectory: 'tests/validators/[r-zR-Z]*',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'fuzz': [
-        pytestDirectory: "tests/fuzz*",
+        pytestDirectory: 'tests/fuzz*',
         mark: 'fuzz',
       ],
     ]
   ][params.SCENARIO]
 
-  pipeline {
-    agent none
-    options {
-      timestamps()
-      ansiColor('xterm')
-      timeout(time: 270, unit: 'MINUTES')
-      skipDefaultCheckout()
-    }
-    stages {
-      stage('config') {
-        steps {
-          echo "params=${params.inspect()}"
+    pipeline {
+        agent none
+        options {
+            timestamps()
+            ansiColor('xterm')
+            timeout(time: 270, unit: 'MINUTES')
+            skipDefaultCheckout()
         }
-      }
-      stage('Call tests') {
-        steps {
-          script {
-            if (scenario == null) {
-              error('Invalid scenario. Please update the "SCENARIO" parameter. Selected the ' + params.SCENARIO)
+        stages {
+            stage('config') {
+                steps {
+                    echo "params=${params.inspect()}"
+                }
             }
-            def downstreamBuildName = 'common/system-tests-wrapper'
-            def downstreamSoakBuildName = 'common/snapshot-soak-tests'
-            if (env.DOWNSTREAM_SUBDIR) {
-              downstreamBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamBuildName
-              downstreamSoakBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamSoakBuildName
-            }
+            stage('Call tests') {
+                steps {
+                    script {
+                        if (scenario == null) {
+                            /* groovylint-disable-next-line LineLength */
+                            error('Invalid scenario. Please update the "SCENARIO" parameter. Selected the ' + params.SCENARIO)
+                        }
+                        String downstreamBuildName = 'common/system-tests-wrapper'
+                        String downstreamSoakBuildName = 'common/snapshot-soak-tests'
+                        if (env.DOWNSTREAM_SUBDIR) {
+                            downstreamBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamBuildName
+                            downstreamSoakBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamSoakBuildName
+                        }
 
-            parallel scenario.collectEntries { name, testSpec ->
-              [
+                        parallel scenario.collectEntries { name, testSpec ->
+                            [
                 (name): {
                   childParams = collectParams()
                   // Collect pytest args, which may be specified in parent, and/or used to collect parallel subjobs
@@ -119,7 +122,7 @@ void call() {
                     pytestArgs += params.TEST_EXTRA_PYTEST_ARGS
                   }
                   if (pytestArgs.size() > 0) {
-                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: pytestArgs.join(" "))]
+                    childParams += [string(name: 'TEST_EXTRA_PYTEST_ARGS', value: pytestArgs.join(' '))]
                   }
                   if (testSpec.pytestDirectory) {
                     childParams += [string(name: 'SYSTEM_TESTS_TEST_DIRECTORY', value: testSpec.pytestDirectory)]
@@ -134,7 +137,11 @@ void call() {
                     childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
                   }
                   if (params.SCENARIO == 'NIGHTLY' && params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES == '') {
-                    childParams += [stringParam(name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', value: '{"network.markPriceUpdateMaximumFrequency":"5s"}')]
+                    childParams += [stringParam(
+                      name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', 
+                      value: '{"network.markPriceUpdateMaximumFrequency":"5s"}'
+                      )
+                    ]
                   }
                   RunWrapper downstreamBuild = build(
                     job: downstreamBuildName,
@@ -143,10 +150,11 @@ void call() {
                     wait: true,
                   )
                   if (params.SCENARIO == 'NIGHTLY') {
-                    build (
+                    build(
                       job: downstreamSoakBuildName,
                       parameters: [
                         string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
+                        /* groovylint-disable-next-line UnnecessaryGetter */
                         string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
                         string(name: 'SUIT_NAME', value: name),
                         string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
@@ -159,12 +167,12 @@ void call() {
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node(params.NODE_LABEL) {
                     sh 'printenv'
-                    def targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
+                    String targetDir = 'system-tests-' + name.replaceAll('[^A-Za-z0-9\\._]', '-')
                     // Copy all artifacts
                     copyArtifacts(
                         projectName: downstreamBuildName,
                         selector: specific("${downstreamBuild.number}"),
-                        filter: "build/**",
+                        filter: 'build/**',
                         fingerprintArtifacts: true,
                         target: targetDir
                     )
@@ -191,10 +199,10 @@ void call() {
                   }
                 }
               ]
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
 }
