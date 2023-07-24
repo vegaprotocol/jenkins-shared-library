@@ -149,7 +149,8 @@ void call() {
                     propagate: false,  // don't fail yet
                     wait: true,
                   )
-                  if (params.SCENARIO == 'NIGHTLY') {
+                  // We run SOAK everywhere due to https://github.com/vegaprotocol/jenkins-shared-library/issues/548
+                  // if (params.SCENARIO == 'NIGHTLY') {
                     build(
                       job: downstreamSoakBuildName,
                       parameters: [
@@ -163,7 +164,7 @@ void call() {
                       propagate: true,
                       wait: true,
                     )
-                  }
+                  // }
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node(params.NODE_LABEL) {
                     sh 'printenv'
