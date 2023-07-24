@@ -4,7 +4,7 @@ void call(Map paramsOverrides=[:]) {
         agentLabel: params.NODE_LABEL ?: '',
         systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
-            'MAINNET_TEST_CASE': 'true',
+            'NO_DATA_NODE_TEST_CASE': 'true'
         ],
         fastFail: false,
         slackTitle: 'LNL Mainnet System Tests',
@@ -46,7 +46,7 @@ void call(Map paramsOverrides=[:]) {
 
                     sh label: 'Convert downloaded snapshot to JSON', script: '''
                         devopstools snapshot-compatibility collect-snapshot \
-                            --snapshot-json-output snapshot-before.json \
+                            --snapshot-json-output system-tests/tests/snapshot_compatibility/snapshot-before.json \
                             --vegacapsule-binary "vegacapsule" \
                             --vega-binary "vega" \
                             --vegacapsule-home "''' + networkDir + '''/testnet"
@@ -67,7 +67,7 @@ void call(Map paramsOverrides=[:]) {
 
                     sh label: 'Convert the new snapshot to JSON', script: '''
                         devopstools snapshot-compatibility collect-snapshot \
-                            --snapshot-json-output snapshot-after.json \
+                            --snapshot-json-output system-tests/tests/snapshot_compatibility/snapshot-after.json \
                             --vegacapsule-binary "vegacapsule" \
                             --vega-binary "vega" \
                             --vegacapsule-home "''' + networkDir + '''/testnet"
@@ -76,9 +76,6 @@ void call(Map paramsOverrides=[:]) {
             ]
         ],
     ], [
-        CAPSULE_CONFIG: 'capsule_config_mainnet_snapshot.hcl',
-        DEVOPSTOOLS_BRANCH: 'add-snapshot-compatibility-helpers',
-        SKIP_RUN_TESTS: true,
         SKIP_MULTISIGN_SETUP: true,
     ])
 }
