@@ -634,6 +634,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           script {
             // Find an index for the data-node
             String dataNodeIndex = vegautils.shellOutput('''vegacapsule nodes ls \
+                --home-path ''' + testNetworkDir + '''/testnet \
               | jq -r '.[] | select(.Mode | contains("full")) | .Index';
             ''')
             String nodeName = 'node' + dataNodeIndex
@@ -648,21 +649,31 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               systemTestsPath = vegautils.shellOutput('pwd')
             }
 
+            // Ensure network is stopped
+            dir(testNetworkDir) {
+              sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
+            }
+            
             // Run in separated folder because script produces a lot of logs and We want 
             // to avoid having them in the system-tests dir.
             dir("soak-test") {
-                sh """
-                    python '""" + systemTestsPath + """/tests/soak-test/run.py' \
-                      --tm-home='""" + tmHome + """' \
-                      --vega-home='""" + vegaHome + """' \
-                      --vega-binary='""" + vegaBinary + """' \
+                String cwd = vegautils.shellOutput('pwd')
+                sh '''
+                    cd ''' + systemTestsPath + ''';
+                    . $(poetry env info --path)/bin/activate
+                    cd ''' + cwd + ''';
+
+                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                      --tm-home="''' + tmHome + '''" \
+                      --vega-home="''' + vegaHome + '''" \
+                      --vega-binary="''' + vegaBinary + '''" \
                       --replay
 
-                    python '""" + systemTestsPath + """/tests/soak-test/run.py' \
-                      --tm-home='""" + tmHome + """' \
-                      --vega-home='""" + vegaHome + """' \
-                      --vega-binary='""" + vegaBinary + """'
-                """
+                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                      --tm-home="''' + tmHome + '''" \
+                      --vega-home="''' + vegaHome + '''" \
+                      --vega-binary="''' + vegaBinary + '''"
+                '''
             }
           }
         }
