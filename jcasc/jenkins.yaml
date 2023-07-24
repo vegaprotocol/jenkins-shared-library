@@ -19,11 +19,19 @@ x-do-template: &do-template
 
 jenkins:
   securityRealm:
-    local:
-      allowsSignup: false
-      users:
-        - id: jenkins-admin
-          password: 08rSvDmExarvhp56r5e2
+    github:
+      clientID: "91757c530663c2ef60e9"
+      # encrypted with master key from the file system and stored in base64
+      clientSecret: "{AQAAABAAAAAwN1QhgV1rgMAngL7+jDT8kndJ10DEVq/NUQm9A6Dg3Gpk1v2fMXFuphs6qVPNmQiTFIvcd6k1pQxGFs+kmM1teQ==}"
+      githubApiUri: "https://api.github.com"
+      githubWebUri: "https://github.com"
+      oauthScopes: "read:org,user:email,repo"
+  # restore if local action needed
+  #   local:
+  #     allowsSignup: false
+  #     users:
+  #       - id: jenkins-admin
+  #         password: 08rSvDmExarvhp56r5e2
   authorizationStrategy:
     projectMatrix:
       permissions:
@@ -47,7 +55,7 @@ jenkins:
         - "USER:Run/Replay:vega-paul"
         - "USER:Run/Update:vega-paul"
 
-        - "USER:Overall/Administer:jenkins-admin"
+        # - "USER:Overall/Administer:jenkins-admin"
 
         - "GROUP:Overall/Administer:vegaprotocol*Ops"
         - "GROUP:Overall/Administer:vegaprotocol*core"
