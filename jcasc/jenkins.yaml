@@ -18,6 +18,12 @@ x-do-template: &do-template
   workspacePath: "/jenkins/"
 
 jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: jenkins-admin
+          password: 08rSvDmExarvhp56r5e2
   authorizationStrategy:
     projectMatrix:
       permissions:
@@ -41,6 +47,7 @@ jenkins:
         - "USER:Run/Replay:vega-paul"
         - "USER:Run/Update:vega-paul"
 
+        - "USER:Overall/Administer:jenkins-admin"
 
         - "GROUP:Overall/Administer:vegaprotocol*Ops"
         - "GROUP:Overall/Administer:vegaprotocol*core"
