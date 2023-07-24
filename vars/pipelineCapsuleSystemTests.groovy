@@ -103,10 +103,8 @@ void call() {
                             error('Invalid scenario. Please update the "SCENARIO" parameter. Selected the ' + params.SCENARIO)
                         }
                         String downstreamBuildName = 'common/system-tests-wrapper'
-                        String downstreamSoakBuildName = 'common/snapshot-soak-tests'
                         if (env.DOWNSTREAM_SUBDIR) {
                             downstreamBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamBuildName
-                            downstreamSoakBuildName = env.DOWNSTREAM_SUBDIR + '/' + downstreamSoakBuildName
                         }
 
                         parallel scenario.collectEntries { name, testSpec ->
@@ -149,22 +147,8 @@ void call() {
                     propagate: false,  // don't fail yet
                     wait: true,
                   )
-                  // We run SOAK everywhere due to https://github.com/vegaprotocol/jenkins-shared-library/issues/548
-                  // if (params.SCENARIO == 'NIGHTLY') {
-                    build(
-                      job: downstreamSoakBuildName,
-                      parameters: [
-                        string(name: 'SYSTEM_TEST_JOB_NAME', value: downstreamBuildName),
-                        /* groovylint-disable-next-line UnnecessaryGetter */
-                        string(name: 'SYSTEM_TEST_BUILD_NUMBER', value: downstreamBuild.getNumber() as String),
-                        string(name: 'SUIT_NAME', value: name),
-                        string(name: 'JENKINS_SHARED_LIB_BRANCH', value: params.JENKINS_SHARED_LIB_BRANCH),
-                        string(name: 'NODE_LABEL', value: (params.NODE_LABEL ?: ''))
-                      ],
-                      propagate: true,
-                      wait: true,
-                    )
-                  // }
+                  
+                  
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node(params.NODE_LABEL) {
                     sh 'printenv'

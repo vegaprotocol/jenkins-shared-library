@@ -1469,22 +1469,6 @@ def jobs = [
             CHANGE_BRANCH: 'main',
         ],
     ],
-    // Primary pipeline
-    [
-        name: 'common/snapshot-soak-tests',
-        useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
-        parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
-        }
-    ],
     [
         name: 'common/performance-tests',
         useScmDefinition: false,
@@ -1498,23 +1482,6 @@ def jobs = [
             stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 'proxmox-12vcpu-14gb', 'Jenkins label for running pipeline (empty means any node)')
-        }
-    ],
-
-    // Secondary pipeline
-    [
-        name: 'private/common/snapshot-soak-tests',
-        useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
-        parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'private/common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // ethereum events
