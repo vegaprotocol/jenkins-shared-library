@@ -650,7 +650,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
             // Run in separated folder because script produces a lot of logs and We want 
             // to avoid having them in the system-tests dir.
-            dir("soak-test")
+            dir("soak-test") {
                 sh """
                     python '""" + systemTestsPath + """/tests/soak-test/run.py' \
                       --tm-home='""" + tmHome + """' \
