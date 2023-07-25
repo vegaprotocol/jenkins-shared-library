@@ -158,7 +158,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Market Behaviour Plots', script: '''
-                                scripts/run-docker-plot-gen.sh
+                                scripts/run-plot-gen.sh
                             '''
                         }
                         post {
