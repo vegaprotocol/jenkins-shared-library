@@ -362,6 +362,7 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
+        booleanParam('RUN_SOAK_TEST', true, 'Determines if the SOAK test is going to run after the system-tests')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
@@ -1469,22 +1470,6 @@ def jobs = [
             CHANGE_BRANCH: 'main',
         ],
     ],
-    // Primary pipeline
-    [
-        name: 'common/snapshot-soak-tests',
-        useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
-        parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
-        }
-    ],
     [
         name: 'common/performance-tests',
         useScmDefinition: false,
@@ -1498,23 +1483,6 @@ def jobs = [
             stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 'proxmox-12vcpu-14gb', 'Jenkins label for running pipeline (empty means any node)')
-        }
-    ],
-
-    // Secondary pipeline
-    [
-        name: 'private/common/snapshot-soak-tests',
-        useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
-        parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'private/common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // ethereum events

@@ -616,6 +616,68 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
       }
+
+      stage("SOAK Test") {
+        when {
+          expression {
+            params.RUN_SOAK_TEST || true
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+        options {
+          timeout(time: 5, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            // Find an index for the data-node
+            String dataNodeIndex = vegautils.shellOutput('''vegacapsule nodes ls \
+                --home-path ''' + testNetworkDir + '''/testnet \
+              | jq -r '.[] | select(.Mode | contains("full")) | .Index';
+            ''')
+            String nodeName = 'node' + dataNodeIndex
+            String tmHome = testNetworkDir + '/testnet/tendermint/' + nodeName
+            String vegaHome = testNetworkDir + '/testnet/vega/' + nodeName
+            String vegaBinary = 'vega' // comes from PATH
+
+            sh vegaBinary + ' version'
+
+            String systemTestsPath = ""
+            dir('system-tests') {
+              systemTestsPath = vegautils.shellOutput('pwd')
+            }
+
+            // Ensure network is stopped
+            dir(testNetworkDir) {
+              sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
+            }
+            
+            // Run in separated folder because script produces a lot of logs and We want 
+            // to avoid having them in the system-tests dir.
+            dir("soak-test") {
+                String cwd = vegautils.shellOutput('pwd')
+                sh '''
+                    cd ''' + systemTestsPath + ''';
+                    . $(poetry env info --path)/bin/activate
+                    cd ''' + cwd + ''';
+
+                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                      --tm-home="''' + tmHome + '''" \
+                      --vega-home="''' + vegaHome + '''" \
+                      --vega-binary="''' + vegaBinary + '''" \
+                      --replay
+
+                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                      --tm-home="''' + tmHome + '''" \
+                      --vega-home="''' + vegaHome + '''" \
+                      --vega-binary="''' + vegaBinary + '''"
+                '''
+            }
+          }
+        }
+      }
     }
 
     post {
@@ -647,6 +709,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               allowEmptyArchive: true
             )
           }
+        }
+
+        catchError {
+          archiveArtifacts(
+              artifacts: "soak-test/**/**/node-**.log",
+              allowEmptyArchive: true,
+          )
+          archiveArtifacts(
+              artifacts: "soak-test/**/**/err-node-**.log",
+              allowEmptyArchive: true,
+          )
         }
 
         dir(testNetworkDir) {
