@@ -57,7 +57,7 @@ void call() {
                     }
                 }
             }
-            stage('Build Docker Image') {
+            stage('Build Binaries') {
                 options { retry(3) }
                 when {
                     expression {
@@ -66,7 +66,7 @@ void call() {
                 }
                 steps {
                     sh label: 'Build docker image', script: '''
-                        scripts/build-docker-test.sh
+                        make build_deps
                     '''
                 }
             }
@@ -93,7 +93,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Run Integration Tests', script: '''
-                                scripts/run-docker-integration-test.sh ${BUILD_NUMBER}
+                                scripts/run-integration-test.sh ${BUILD_NUMBER}
                             '''
                         }
                         post {
@@ -141,7 +141,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Fuzz Test', script: '''
-                                scripts/run-docker-fuzz-test.sh ${NUM_FUZZ_STEPS}
+                                scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
                             '''
                         }
                         post {
