@@ -4,12 +4,16 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    fastFail: true,
+    fastFail: false,
     protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
     slackTitle: 'System Tests Capsule',
     slackChannel: '#qa-notify',
   ]
+
+  // Helper variable to disable some steps when system-test variable
+  // failed when the fastFail config is set to false
+  boolean systmeTestFailed = false 
 
   Map config = defaultConfig + additionalConfig
   params = params + parametersOverride
@@ -480,6 +484,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     try {
                       sh 'make test'
                     } catch(err) {
+                      systmeTestFailed = true
                       print("FAILURE AFTER make test")
                       // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
                       currentBuild.result = 'FAILURE'
@@ -620,7 +625,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       stage("SOAK Test") {
         when {
           expression {
-            params.RUN_SOAK_TEST || true
+            params.RUN_SOAK_TEST
           }
         }
         environment {
