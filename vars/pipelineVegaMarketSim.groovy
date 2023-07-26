@@ -65,7 +65,7 @@ void call() {
                     }
                 }
                 steps {
-                    sh label: 'Build docker image', script: '''
+                    sh label: 'Build binaries', script: '''
                         make build_deps
                     '''
                 }
