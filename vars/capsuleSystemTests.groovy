@@ -481,18 +481,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    try {
+                    if (config.fastFail) {
+                      // Just execute and fail immediately when something return an error
                       sh 'make test'
-                    } catch(err) {
-                      systmeTestFailed = true
-                      print("FAILURE AFTER make test")
-                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
-                      currentBuild.result = 'FAILURE'
-                      if (!config.fastFail) {
-                        print(err)
-                      } else {
-                        throw err
+                    } else {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), 
+                      // but we still want to report failure for overall build and the stage itself
+                      catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'make test'
                       }
+                      
+                      systmeTestFailed = true
                     }
                   }
                 }
