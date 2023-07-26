@@ -74,6 +74,16 @@ void call(Map paramsOverrides=[:]) {
                     '''
                 }
             ],
+            postPipeline: [
+                'Archive snapshots': {
+                    dir('system-tests') {
+                        archiveArtifacts(
+                            artifacts: 'tests/snapshot_compatibility/snapshot-*.json',
+                            allowEmptyArchive: true
+                        )
+                    }
+                }
+            ],
         ],
     ], [
         SKIP_MULTISIGN_SETUP: true,
