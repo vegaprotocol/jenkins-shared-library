@@ -59,6 +59,7 @@ void call(Map paramsOverrides=[:]) {
                     dir (pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
                         networkDir = vegautils.escapePath(pwd())
                     }
+                    sleep 30; // todo: move it to golang...
                     sh label: 'Produce snapshot', script: '''
                         devopstools snapshot-compatibility produce-new-snapshot \
                             --vegacapsule-binary "vegacapsule" \
@@ -73,9 +74,15 @@ void call(Map paramsOverrides=[:]) {
                             --vegacapsule-home "''' + networkDir + '''/testnet"
                     '''
                 }
+            ],
+            preNetworkStop: [
+                'Sleep': {
+                    sleep 7200
+                }
             ]
         ],
     ], [
         SKIP_MULTISIGN_SETUP: true,
+        RUN_SOAK_TEST: false, // We do not want to run SOAK for the null chain
     ])
 }
