@@ -57,7 +57,7 @@ void call() {
                     }
                 }
             }
-            stage('Build Docker Image') {
+            stage('Build Binaries') {
                 options { retry(3) }
                 when {
                     expression {
@@ -65,8 +65,8 @@ void call() {
                     }
                 }
                 steps {
-                    sh label: 'Build docker image', script: '''
-                        scripts/build-docker-test.sh
+                    sh label: 'Build binaries', script: '''
+                        make build_deps && poetry install
                     '''
                 }
             }
@@ -93,7 +93,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Run Integration Tests', script: '''
-                                scripts/run-docker-integration-test.sh ${BUILD_NUMBER}
+                                poetry run scripts/run-integration-test.sh ${BUILD_NUMBER}
                             '''
                         }
                         post {
@@ -141,7 +141,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Fuzz Test', script: '''
-                                scripts/run-docker-fuzz-test.sh ${NUM_FUZZ_STEPS}
+                                poetry run scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
                             '''
                         }
                         post {
@@ -158,7 +158,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Market Behaviour Plots', script: '''
-                                scripts/run-docker-plot-gen.sh
+                                poetry run scripts/run-plot-gen.sh
                             '''
                         }
                         post {
