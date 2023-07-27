@@ -66,7 +66,7 @@ void call() {
                 }
                 steps {
                     sh label: 'Build binaries', script: '''
-                        make build_deps && poetry install
+                        make build_deps && poetry install -E learning
                     '''
                 }
             }
