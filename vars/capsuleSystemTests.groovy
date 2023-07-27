@@ -716,14 +716,18 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
 
         catchError {
-          archiveArtifacts(
-              artifacts: "soak-test/**/**/node-**.log",
-              allowEmptyArchive: true,
-          )
-          archiveArtifacts(
-              artifacts: "soak-test/**/**/err-node-**.log",
-              allowEmptyArchive: true,
-          )
+          script {
+            if (params.RUN_SOAK_TEST) {
+              archiveArtifacts(
+                  artifacts: "soak-test/**/**/node-*.log",
+                  allowEmptyArchive: true,
+              )
+              archiveArtifacts(
+                  artifacts: "soak-test/**/**/err-node-*.log",
+                  allowEmptyArchive: true,
+              )
+            }
+          }
         }
 
         dir(testNetworkDir) {

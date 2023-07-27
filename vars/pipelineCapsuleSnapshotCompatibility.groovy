@@ -73,9 +73,22 @@ void call(Map paramsOverrides=[:]) {
                             --vegacapsule-home "''' + networkDir + '''/testnet"
                     '''
                 }
-            ]
+            ],
+            postPipeline: [
+                'Archive snapshots': {
+                    dir('system-tests') {
+                        archiveArtifacts(
+                            artifacts: 'tests/snapshot_compatibility/snapshot-*.json',
+                            allowEmptyArchive: true
+                        )
+                    }
+                }
+            ],
         ],
     ], [
         SKIP_MULTISIGN_SETUP: true,
+        // We do not want to run SOAK for the null chain
+        RUN_PROTOCOL_UPGRADE_PROPOSAL: false,
+        RUN_SOAK_TEST: false,
     ])
 }
