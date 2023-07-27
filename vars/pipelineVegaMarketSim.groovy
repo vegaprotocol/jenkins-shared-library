@@ -93,7 +93,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Run Integration Tests', script: '''
-                                scripts/run-integration-test.sh ${BUILD_NUMBER}
+                                poetry run scripts/run-integration-test.sh ${BUILD_NUMBER}
                             '''
                         }
                         post {
@@ -141,7 +141,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Fuzz Test', script: '''
-                                scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
+                                poetry run scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
                             '''
                         }
                         post {
@@ -158,7 +158,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Market Behaviour Plots', script: '''
-                                scripts/run-plot-gen.sh
+                                poetry run scripts/run-plot-gen.sh
                             '''
                         }
                         post {
