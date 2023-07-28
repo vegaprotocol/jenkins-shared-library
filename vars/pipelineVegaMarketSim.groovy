@@ -1,9 +1,14 @@
+/* groovylint-disable DuplicateNumberLiteral, DuplicateStringLiteral, NestedBlockDepth */
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
 void call() {
     if (currentBuild.upstreamBuilds) {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
+    int parallelWorkers = params.PARALLEL_WORKERS as int ?: 5
+    String testFunction = params.TEST_FUNCTION ?: ''
+
     pipeline {
         agent {
             label params.NODE_LABEL
@@ -18,11 +23,13 @@ void call() {
             CGO_ENABLED = 0
             GO111MODULE = 'on'
             DOCKER_IMAGE_NAME_LOCAL = 'vega_sim_test:latest'
+            PARALLEL_WORKERS = "${parallelWorkers}"
+            TEST_FUNCTION = "${testFunction}"
         }
         stages {
             stage('CI Config') {
                 steps {
-                    sh "printenv"
+                    sh 'printenv'
                     echo "params=${params.inspect()}"
                 }
             }
@@ -31,7 +38,12 @@ void call() {
                 steps {
                     checkout(
                         [$class: 'GitSCM', branches: [[name: "${params.VEGA_MARKET_SIM_BRANCH}" ]],
-                        userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: 'git@github.com:vegaprotocol/vega-market-sim.git']]]
+                        userRemoteConfigs: [
+                            [
+                                credentialsId: 'vega-ci-bot', 
+                                url: 'git@github.com:vegaprotocol/vega-market-sim.git'
+                            ]
+                        ]]
                     )
                 }
             }
@@ -41,7 +53,12 @@ void call() {
                     dir('extern/vega') {
                         checkout(
                             [$class: 'GitSCM', branches: [[name: "${params.VEGA_VERSION}" ]],
-                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: "git@github.com:${params.ORIGIN_REPO}.git"]]]
+                            userRemoteConfigs: [
+                                [
+                                    credentialsId: 'vega-ci-bot',
+                                    url: "git@github.com:${params.ORIGIN_REPO}.git"
+                                ]
+                            ]]
                         )
                     }
                 }
@@ -52,7 +69,12 @@ void call() {
                     dir('extern/vegacapsule') {
                         checkout(
                             [$class: 'GitSCM', branches: [[name: "${params.VEGACAPSULE_VERSION}" ]],
-                            userRemoteConfigs: [[credentialsId: 'vega-ci-bot', url: "git@github.com:vegaprotocol/vegacapsule.git"]]]
+                            userRemoteConfigs: [
+                                [
+                                    credentialsId: 'vega-ci-bot',
+                                    url: 'git@github.com:vegaprotocol/vegacapsule.git'
+                                ]
+                            ]]
                         )
                     }
                 }
@@ -66,7 +88,12 @@ void call() {
                 }
                 steps {
                     sh label: 'Build binaries', script: '''
-                        make build_deps && poetry install -E learning
+                        sudo apt-get update \
+                            && sudo apt-get install -y nvidia-cuda-toolkit nvidia-cuda-toolkit-gcc
+
+                        make build_deps \
+                            && poetry install -E learning \
+                            && poetry run python -m pip install "transformers[torch]" 
                     '''
                 }
             }
@@ -92,6 +119,7 @@ void call() {
                             }
                         }
                         steps {
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Run Integration Tests', script: '''
                                 poetry run scripts/run-integration-test.sh ${BUILD_NUMBER}
                             '''
@@ -99,7 +127,7 @@ void call() {
                         post {
                             always {
                                 junit checksName: 'Integration Tests results',
-                                    testResults: "test_logs/*-integration/integration-test-results.xml"
+                                    testResults: 'test_logs/*-integration/integration-test-results.xml'
                             }
                         }
                     }
@@ -117,7 +145,7 @@ void call() {
                         post {
                             always {
                                 junit checksName: 'Notebook Tests results',
-                                    testResults: "test_logs/*-notebook/notebook-test-results.xml"
+                                    testResults: 'test_logs/*-notebook/notebook-test-results.xml'
                             }
                         }
                     }
@@ -140,6 +168,7 @@ void call() {
                             }
                         }
                         steps {
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Fuzz Test', script: '''
                                 poetry run scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
                             '''
@@ -168,15 +197,17 @@ void call() {
                         }
                     }
                 }
-                post {
-                    unsuccessful {
-                        archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
-                    }
-                }
             }
         } // end: stages
         post {
             always {
+                archiveArtifacts artifacts: [
+                    '/tmp/vega-sim-*/**/*.out',
+                    '/tmp/vega-sim-*/**/*.err',
+                    '/tmp/vega-sim-*/**/replay',
+                ].join(',')
+                archiveArtifacts artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true
+
                 sendSlackMessage()
                 retry(3) {
                     cleanWs()
@@ -185,7 +216,6 @@ void call() {
         }
     } // end: pipeline
 } // end: call
-
 
 void sendSlackMessage() {
     String slackChannel = '#vega-market-sim-notify'
