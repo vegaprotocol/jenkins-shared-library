@@ -170,6 +170,10 @@ void call() {
                 }
                 post {
                     unsuccessful {
+                        script {
+                            sh 'pwd';
+                            sleep 24 * 7200
+                        }
                         archiveArtifacts artifacts: 'test_logs/**/*.out, test_logs/**/*.err, test_logs/**/replay'
                     }
                 }
