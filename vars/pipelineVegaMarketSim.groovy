@@ -59,27 +59,9 @@ void call() {
             }
             stage('Build Binaries') {
                 options { retry(3) }
-                when {
-                    expression {
-                        params.RUN_LEARNING == false
-                    }
-                }
                 steps {
                     sh label: 'Build binaries', script: '''
                         make build_deps && poetry install -E learning
-                    '''
-                }
-            }
-            stage('Build Learning Image') {
-                options { retry(3) }
-                when {
-                    expression {
-                        params.RUN_LEARNING == true
-                    }
-                }
-                steps {
-                    sh label: 'Build docker image', script: '''
-                        scripts/build-docker-learning.sh
                     '''
                 }
             }
@@ -111,7 +93,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Example Notebook Tests', script: '''
-                                scripts/run-docker-example-notebook-test.sh
+                                poetry run scripts/run-example-notebook-test.sh
                             '''
                         }
                         post {
@@ -129,7 +111,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Reinforcement Learning Test', script: '''
-                                scripts/run-docker-learning.sh ${NUM_RL_ITERATIONS}
+                                poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
                             '''
                         }
                     }
