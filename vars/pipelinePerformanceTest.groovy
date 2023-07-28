@@ -72,6 +72,13 @@ def call() {
                     }
                 }
             }
+            stage('print created files') {
+                steps {
+                    dir('performance') {
+                        sh 'find . -type f'
+                    }
+                }
+            }
         }
         post {
             always {
