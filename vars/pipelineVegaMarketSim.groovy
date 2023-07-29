@@ -63,7 +63,7 @@ void call() {
                     }
                 }
             }
-            stage('Clone vegacapsule'){    
+            stage('Clone vegacapsule'){
                 options { retry(3) }
                 steps {
                     dir('extern/vegacapsule') {
@@ -197,6 +197,9 @@ void call() {
                         }
                     }
                 }
+                // TODO: Print logs files from the /test-logs/*.test.log in case of failure
+                //       This is required because by default logs are not printed when the
+                //       pytests are running in parallel(ref: pytest -n, pytest-xdist)
             }
         } // end: stages
         post {

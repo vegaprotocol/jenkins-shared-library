@@ -1246,12 +1246,8 @@ def jobs = [
             stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
             stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')
             stringParam('TEST_FUNCTION', '', 'Defines specified functions to run(specifies value for the pytest -k param)')
-<<<<<<< HEAD
             stringParam('PARALLEL_WORKERS', '10', 'Defines number of parallel tests (specifies value for the pytest -n param)')
             stringParam('LOG_LEVEL', 'INFO', 'Log level for the pytest (INFO,DEBUG,WARN,ERROR)')
-=======
-            stringParam('PARALLEL_WORKERS', 10, 'Defines number of parallel tests (specifies value for the pytest -n param)')
->>>>>>> 95a23a0 (fix: archive step in market-sim)
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
