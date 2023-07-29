@@ -211,12 +211,16 @@ void call() {
         } // end: stages
         post {
             always {
-                archiveArtifacts(artifacts: [
-                    '/tmp/vega-sim-*/**/*.out',
-                    '/tmp/vega-sim-*/**/*.err',
-                    '/tmp/vega-sim-*/**/replay',
-                ].join(','), allowEmptyArchive: true)
-                archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
+                catchError {
+                    archiveArtifacts(artifacts: [
+                        '/tmp/vega-sim-*/**/*.out',
+                        '/tmp/vega-sim-*/**/*.err',
+                        '/tmp/vega-sim-*/**/replay',
+                    ].join(','), allowEmptyArchive: true)
+                }
+                catchError {
+                    archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
+                }
 
                 sendSlackMessage()
                 retry(3) {
