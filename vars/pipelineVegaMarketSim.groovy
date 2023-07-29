@@ -8,7 +8,7 @@ void call() {
     }
     int parallelWorkers = params.PARALLEL_WORKERS as int ?: 5
     String testFunction = params.TEST_FUNCTION ?: ''
-
+    String logLevel = params.LOG_LEVEL ?: 'INFO'
     pipeline {
         agent {
             label params.NODE_LABEL
@@ -25,6 +25,7 @@ void call() {
             DOCKER_IMAGE_NAME_LOCAL = 'vega_sim_test:latest'
             PARALLEL_WORKERS = "${parallelWorkers}"
             TEST_FUNCTION = "${testFunction}"
+            LOG_LEVEL = "${logLevel}"
         }
         stages {
             stage('CI Config') {
