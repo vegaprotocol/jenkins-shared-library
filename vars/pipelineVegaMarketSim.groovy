@@ -211,12 +211,12 @@ void call() {
         } // end: stages
         post {
             always {
-                archiveArtifacts artifacts: [
+                archiveArtifacts(artifacts: [
                     '/tmp/vega-sim-*/**/*.out',
                     '/tmp/vega-sim-*/**/*.err',
                     '/tmp/vega-sim-*/**/replay',
-                ].join(',')
-                archiveArtifacts artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true
+                ].join(','), allowEmptyArchive: true)
+                archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
 
                 sendSlackMessage()
                 retry(3) {
