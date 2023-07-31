@@ -72,22 +72,23 @@ def call() {
                     }
                 }
             }
-            stage('print created files') {
-                steps {
-                    sh 'find ~/.vegacapsule -type f'
-                }
-            }
         }
         post {
             always {
                 archiveArtifacts(
+                    artifacts: '~/.vegacapsule',
+                    allowEmptyArchive: true,
+                )
+                archiveArtifacts(
                     artifacts: 'performance/results.sql',
-                    allowEmptyArchive: true
+                    allowEmptyArchive: true,
                 )
                 archiveArtifacts(
                     artifacts: 'performance/logs/**',
-                     allowEmptyArchive: true
+                     allowEmptyArchive: true,
                 )
+                // sleep for 12 hours
+                sh 'sleep 43200'
                 cleanWs()
             }
         }
