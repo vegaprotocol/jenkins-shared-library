@@ -259,6 +259,7 @@ void call(Map config=[:]) {
                                 sh label: 'set vega config',
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
+                                        ./dasel put string -f vega_config/config/node/config.toml Broker.Socket.DialTimeout "4h"
                                         cat vega_config/config/node/config.toml
                                     """
                             },
@@ -272,6 +273,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
+                                        ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
