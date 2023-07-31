@@ -238,7 +238,7 @@ void call(Map config=[:]) {
                                         ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${SNAPSHOT_HEIGHT}
                                         ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                         ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
-                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
+                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "60s"
                                         ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
                                         ./dasel put string -f tm_config/config/config.toml p2p.dial_timeout "10s"
                                         ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
@@ -357,7 +357,7 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(params.TIMEOUT) {
-                                    sleep(time: '120', unit:'SECONDS')
+                                    sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
                                     int runEveryMs = runEverySec * 1000
