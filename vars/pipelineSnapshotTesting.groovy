@@ -240,6 +240,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
                                         ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
                                         ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
+                                        ./dasel put string -f tm_config/config/config.toml p2p.dial_timeout "10s"
                                         ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
                                         ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                         ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
