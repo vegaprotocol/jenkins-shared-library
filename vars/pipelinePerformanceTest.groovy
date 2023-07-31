@@ -76,7 +76,7 @@ def call() {
         post {
             always {
                 archiveArtifacts(
-                    artifacts: '~/.vegacapsule',
+                    artifacts: 'performance/pprofs/**',
                     allowEmptyArchive: true,
                 )
                 archiveArtifacts(
@@ -85,10 +85,8 @@ def call() {
                 )
                 archiveArtifacts(
                     artifacts: 'performance/logs/**',
-                     allowEmptyArchive: true,
+                    allowEmptyArchive: true,
                 )
-                // sleep for 12 hours
-                sh 'sleep 43200'
                 cleanWs()
             }
         }
