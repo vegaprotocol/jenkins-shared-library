@@ -67,7 +67,7 @@ def call() {
                 steps {
                     dir('performance') {
                         sh '''
-                            bash -ex runtests.sh
+                            bash -ex runtests.sh --pprof-collection
                         '''
                     }
                 }
