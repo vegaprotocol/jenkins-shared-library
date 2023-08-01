@@ -13,6 +13,9 @@ def call() {
             POSTGRES_DB = "defaultdb"
             PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
         }
+        options {
+              timeout(time: 6, unit: 'HOURS')
+        }
         stages {
             stage('get source codes') {
                 steps {
