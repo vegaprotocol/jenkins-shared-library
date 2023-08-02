@@ -95,6 +95,19 @@ jenkins:
         mode: EXCLUSIVE
         remoteFS: "/jenkins"
         retentionStrategy: "always"
+    - permanent:
+        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic office-system-tests"
+        launcher:
+          inbound:
+            webSocket: true
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+        name: "jenkins03"
+        mode: EXCLUSIVE
+        remoteFS: "/jenkins"
+        retentionStrategy: "always"
   clouds:
     - digitalOcean:
         authTokenCredentialId: "digitalocean-token"
