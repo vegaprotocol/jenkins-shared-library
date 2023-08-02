@@ -102,7 +102,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
               [ name: 'vegaprotocol/devopstools', branch: params.DEVOPSTOOLS_BRANCH ],
             ]
-            def reposSteps = repositories.collectEntries{value -> [
+            def reposSteps = [failFast: true] + repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
@@ -114,7 +114,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   ])
                 }
             ]}
-            repoSteps.failFast = true
             parallel reposSteps
           }
         }
