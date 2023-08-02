@@ -82,11 +82,6 @@ void call() {
             }
             stage('Build Binaries') {
                 options { retry(3) }
-                when {
-                    expression {
-                        params.RUN_LEARNING == false
-                    }
-                }
                 steps {
                     // We have to install cuda toolkit for some scenarios in the vega-market-sim
                     // transformers[torch] - must be installed because poetry does not install it 
@@ -101,19 +96,6 @@ void call() {
                         make build_deps \
                             && poetry install -E learning \
                             && poetry run python -m pip install "transformers[torch]"
-                    '''
-                }
-            }
-            stage('Build Learning Image') {
-                options { retry(3) }
-                when {
-                    expression {
-                        params.RUN_LEARNING == true
-                    }
-                }
-                steps {
-                    sh label: 'Build docker image', script: '''
-                        scripts/build-docker-learning.sh
                     '''
                 }
             }
@@ -164,7 +146,7 @@ void call() {
                         }
                         steps {
                             sh label: 'Reinforcement Learning Test', script: '''
-                                scripts/run-docker-learning.sh ${NUM_RL_ITERATIONS}
+                                poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
                             '''
                         }
                     }
@@ -182,7 +164,7 @@ void call() {
                         }
                         post {
                             success {
-                                archiveArtifacts artifacts: '*.jpg, *.html, *.csv'
+                                archiveArtifacts artifacts: 'fuzz_plots/*.jpg, fuzz_plots/*.html, fuzz_plots/*.csv'
                             }
                         }
                     }
