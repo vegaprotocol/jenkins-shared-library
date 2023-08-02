@@ -137,3 +137,95 @@ def dockerCleanup() {
       docker volume prune --force
   '''
 }
+
+
+
+/*
+Example usage: 
+
+print(generateJUnitReport([
+    [
+        name: "Some suite",
+        testCases: [
+            [
+                name: "Test1",
+                className: "class.One",
+                time: 1.5,
+            ],
+            [
+                name: "Test2",
+                className: "class.Two",
+                time: 2.5,
+                error: [name: "Some Error", type: "SomeType", description: "dsadasfdasasdas"]
+            ],
+        ]
+    ],
+    [
+        name: "Some suite 2",
+        testCases: [
+            [
+                name: "Test1",
+                className: "class.One",
+                time: 3.5,
+                failure: [name: "Some Failure", type: "SomeType", description: "dsadasfdasasdas"]
+            ],
+            [
+                name: "Test2",
+                className: "class.Two",
+                time: 5.5,
+            ],
+        ]
+    ]
+]))
+*/
+String generateJUnitReport(List testSuites) {
+  // Compute tests times
+  
+  String defaultTestName = 'unknown test'
+  String defaultClassName = 'unknown.class'
+  String defaultErrorMessage = 'unknown message'
+  String defaultErrorType = 'UnknownType'
+  
+  List suitesTime = testSuites.collect { suite -> suite.testCases.collect { test -> return test["time"] ?: 0.0 }.sum() }
+  float totalTime = suitesTime.sum()
+  List suitesErrors = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("error") ? 1 : 0 }.sum() }
+  int totalErrors = suitesErrors.sum()
+  List suitesFailures = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("failure") ? 1 : 0 }.sum() }
+  int totalFailures = suitesFailures.sum()
+  int totalTests = testSuites.collect { suite -> return suite.testCases.size() }.sum()
+  
+  
+  List<String> result = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<testsuites time="' + totalTime + ' tests="' + totalTests + '" failures="' + totalFailures + '" errors="' + totalErrors + '">',
+  ]
+  
+  for (int idx=0; idx<testSuites.size(); idx++) {
+      result << '  <testsuite name="' + testSuites[idx].name + '" time="' + suitesTime[idx] + '" tests="' +  testSuites[idx].testCases.size() + '" failures="' + suitesFailures[idx] + '" errors="' + suitesErrors[idx] + '">'
+      
+      for (testCase in testSuites[idx].testCases) {
+          if (testCase.containsKey("error") || testCase.containsKey("failure")) {
+            result << '    <testcase name="' + (testCase.name ?: defaultTestName) + '" classname="' + (testCase.className ?: defaultClassName) + '" time="' + (testCase.time ?: 0.0) + '">'
+            if (testCase.containsKey("error")) {
+                result << '      <error message="' + (testCase.error.description ?: defaultErrorMessage) + '" type="' + (testCase.error.type ?: defaultErrorType) + '">'
+                result << '        ' +  (testCase.error.description ?: 'No description')
+                result << '      </error>'
+            }
+            
+            if (testCase.containsKey("failure")) {
+                result << '      <failure message="' + (testCase.failure.description ?: defaultErrorMessage) + '" type="' + (testCase.failure.type ?: defaultErrorType) + '">'
+                result << '        ' +  (testCase.failure.description ?: 'No description')
+                result << '      </failure>'
+            }
+            
+            result << '    </testcase>'
+          } else {
+              result << '    <testcase name="' + (testCase.name ?: defaultTestName) + '" classname="' + (testCase.className ?: defaultClassName) + '" time="' + (testCase.time ?: 0.0) + '" />'
+          }
+      }
+      result << '  </testsuite>'
+  }
+  result << '</testsuites>'
+    
+  return result.join('\n')
+}
