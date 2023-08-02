@@ -13,7 +13,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   // Helper variable to disable some steps when system-test variable
   // failed when the fastFail config is set to false
-  boolean systmeTestFailed = false 
+  boolean systmeTestFailed = false
 
   Map config = defaultConfig + additionalConfig
   params = params + parametersOverride
@@ -122,6 +122,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         steps {
           dir('system-tests/scripts') {
+            sh 'echo $PATH'
             sh 'make check'
           }
         }
@@ -485,12 +486,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                       // Just execute and fail immediately when something return an error
                       sh 'make test'
                     } else {
-                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), 
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
                       // but we still want to report failure for overall build and the stage itself
                       catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh 'make test'
                       }
-                      
+
                       systmeTestFailed = true
                     }
                   }
@@ -657,8 +658,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             dir(testNetworkDir) {
               sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
             }
-            
-            // Run in separated folder because script produces a lot of logs and We want 
+
+            // Run in separated folder because script produces a lot of logs and We want
             // to avoid having them in the system-tests dir.
             dir("soak-test") {
                 String cwd = vegautils.shellOutput('pwd')
