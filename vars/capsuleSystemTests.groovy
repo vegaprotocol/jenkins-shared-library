@@ -60,7 +60,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       label agentLabel
     }
     environment {
-      PATH = "${env.PATH}:/home/ubuntu/.local/bin"
+      PATH = "${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin"
     }
 
     options {
