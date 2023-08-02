@@ -59,6 +59,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
     agent {
       label agentLabel
     }
+    environment {
+      PATH = "${env.PATH}:/home/ubuntu/.local/bin"
+    }
 
     options {
       ansiColor('xterm')
