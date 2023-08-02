@@ -134,7 +134,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
       stage('prepare environment') {
         parallel {
-          failFase true
+          failFast true
           stage('build devopsscripts') {
             options {
               timeout(time: 5, unit: 'MINUTES')
