@@ -663,27 +663,61 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
             }
 
-            // Run in separated folder because script produces a lot of logs and We want
-            // to avoid having them in the system-tests dir.
-            dir("soak-test") {
-                String cwd = vegautils.shellOutput('pwd')
-                sh '''
-                    cd ''' + systemTestsPath + ''';
-                    . $(poetry env info --path)/bin/activate
-                    cd ''' + cwd + ''';
+            boolean soakFailed = false
+            groovy.time.TimeDuration duration
+            String soakError = ""
+            try {
+                duration = vegautils.elapsedTime {
+                  // Run in separated folder because script produces a lot of logs and We want
+                  // to avoid having them in the system-tests dir.
+                  dir("soak-test") {
+                      String cwd = vegautils.shellOutput('pwd')
+                      sh '''
+                          cd ''' + systemTestsPath + ''';
+                          . $(poetry env info --path)/bin/activate
+                          cd ''' + cwd + ''';
 
-                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
-                      --tm-home="''' + tmHome + '''" \
-                      --vega-home="''' + vegaHome + '''" \
-                      --vega-binary="''' + vegaBinary + '''" \
-                      --replay
+                          python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                            --tm-home="''' + tmHome + '''" \
+                            --vega-home="''' + vegaHome + '''" \
+                            --vega-binary="''' + vegaBinary + '''" \
+                            --replay
 
-                    python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
-                      --tm-home="''' + tmHome + '''" \
-                      --vega-home="''' + vegaHome + '''" \
-                      --vega-binary="''' + vegaBinary + '''"
-                '''
-            }
+                          python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                            --tm-home="''' + tmHome + '''" \
+                            --vega-home="''' + vegaHome + '''" \
+                            --vega-binary="''' + vegaBinary + '''"
+                      '''
+                  }
+                } // elapsedTime
+            } catch (err) {
+              soakFailed = true
+              soakError = err.getMessage()
+              throw err
+            } finally {
+              Map failureObj = null
+              if (soakFailed) {
+                failureObj = [name: "Soak test failed", type: "Exception", description: soakError ]
+              }
+              List jUnitReport = [
+                [
+                  name: "Soak Test",
+                  testCases: [
+                    [
+                        name: "Soak test",
+                        className: "run",
+                        time: duration,
+                        failure: failureObj,
+                    ],
+                  ],
+                ]
+              ]
+
+              dir('system-tests') {
+                writeFile text: vegautils.generateJUnitReport(jUnitReport), file: 'build/test-reports/soak-test.xml'
+              }
+            } // finally
+
           }
         }
       }
@@ -786,7 +820,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           catchError {
             junit(
               checksName: 'System Tests',
-              testResults: 'build/test-reports/system-test-results.xml',
+              testResults: 'build/test-reports/*.xml',
               skipMarkingBuildUnstable: false,
               skipPublishingChecks: false,
             )
