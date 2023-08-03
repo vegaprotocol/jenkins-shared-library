@@ -715,7 +715,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     [
                         name: "Soak test",
                         className: "run",
-                        time: duration,
+                        time: duration.getSeconds(),
                         failure: failureObj,
                     ],
                   ],
