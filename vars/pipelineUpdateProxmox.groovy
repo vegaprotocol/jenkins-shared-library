@@ -23,6 +23,7 @@ def call() {
                 }
                 steps {
                     script {
+                        // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
                         parallel SLAVES.collectEntries { name -> [
                             (name): {
                                 node(name) {
