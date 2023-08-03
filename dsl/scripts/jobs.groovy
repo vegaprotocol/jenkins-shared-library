@@ -477,7 +477,7 @@ def approbationParams(def config=[:]) {
 
 def snapshotParams(args=[:]) {
     return {
-        stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
+        stringParam('TIMEOUT', args.get('TIMEOUT', '10'), 'Number of minutes after which the node will stop')
         booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         stringParam('NODE_LABEL', args.get('NODE_LABEL', 's-4vcpu-8gb'), 'Jenkins label for running pipeline (empty means any node)')
@@ -1332,10 +1332,10 @@ def jobs = [
             NET_NAME: 'fairground',
             HISTORY_KEY: 'NetworkHistory',
         ],
-        parameters: snapshotParams(),
+        parameters: snapshotParams([TIMEOUT: '15']),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
