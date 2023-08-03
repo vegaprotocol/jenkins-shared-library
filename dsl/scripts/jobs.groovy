@@ -425,6 +425,8 @@ def approbationParams(def config=[:]) {
             stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
         }
 
+        stringParam('APPROBATION_TAG', 'v4.5.0', 'Approbation image tag. latest or specific version with v prefix')
+
         stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
 
         if (config.type == 'core') {
@@ -444,6 +446,14 @@ def approbationParams(def config=[:]) {
             stringParam('CATEGORIES_ARG', '/workspace/specs/user-interface/categories.json', '--categories argument value for the categories run')
             stringParam('APPS_ARG', '/workspace/specs/user-interface/apps.json', '--categories argument value for the apps run')
         }
+
+        if (config.type == 'core') {
+            stringParam('FEATURES_ARG',  'specs/protocol/features.json', '--features argument value')
+        }
+        else if (config.type == 'frontend') {
+            stringParam('FEATURES_ARG',  '', '--features argument value')
+        }
+
         else if (config.type == 'browserWallet') {
             stringParam('CATEGORIES_ARG', '/workspace/vegawallet-browser/specs/categories.json', '--categories argument value for the categories run')
             stringParam('APPS_ARG', '/workspace/vegawallet-browser/specs/apps.json', '--categories argument value for the apps run')
