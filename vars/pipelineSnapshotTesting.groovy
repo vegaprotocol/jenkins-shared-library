@@ -137,6 +137,10 @@ void call(Map config=[:]) {
 
                         remoteServerDataNode = networkNodes[0]
                         remoteServerCometBFT = tendermintNodes[0]
+                        if (!remoteServerCometBFT.contains("http")) {
+                            remoteServerCometBFT = 'https://' + remoteServerCometBFT
+                        }
+
 
                         echo "Found available server: ${remoteServerDataNode} (${remoteServerCometBFT})"
                     }
@@ -213,7 +217,7 @@ void call(Map config=[:]) {
                                 println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
 
                                 // Check TM version
-                                def status_req = new URL("https://${remoteServerCometBFT}/status").openConnection()
+                                def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
                                 def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
                                 TM_VERSION = status.result.node_info.version
                                 println("TM_VERSION=${TM_VERSION}")
@@ -443,7 +447,7 @@ void call(Map config=[:]) {
                                 echo "http://${jenkinsAgentPublicIP}:3008/graphql/"
                                 echo "http://${jenkinsAgentPublicIP}:3008/api/v2/epoch"
                                 echo "https://${remoteServerDataNode}/statistics"
-                                echo "https://${remoteServerCometBFT}/net_info"
+                                echo "${remoteServerCometBFT}/net_info"
                             }
                         )
                     }
@@ -632,7 +636,7 @@ boolean checkServerListening(String serverHost, int serverPort) {
 }
 
 def getSeedsAndRPCServers(String cometURL) {
-  def net_info_req = new URL("https://${cometURL}/net_info").openConnection()
+  def net_info_req = new URL("${cometURL}/net_info").openConnection()
   def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
 
   RPC_SERVERS = []
