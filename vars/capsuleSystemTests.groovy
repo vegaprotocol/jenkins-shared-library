@@ -127,6 +127,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           dir('system-tests/scripts') {
             sh 'echo $PATH'
+            sh 'env'
             sh 'make check'
           }
         }
