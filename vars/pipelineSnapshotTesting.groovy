@@ -18,8 +18,6 @@ void call(Map config=[:]) {
     )
 
     String remoteServer
-    String remoteServerDataNode
-    String remoteServerCometBFT
     String jenkinsAgentPublicIP
 
     // api output placeholders
@@ -37,6 +35,14 @@ void call(Map config=[:]) {
     boolean caughtUp = false
     boolean blockHeightIncreased = false
     String networkVersion = null
+    String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'main'
+
+    Map<String, List<String>> healthyNodes = [:]
+    List<String> networkNodes = []
+    List<String> tendermintNodes = []
+
+    String remoteServerDataNode = ""
+    String remoteServerCometBFT = ""
 
     node(params.NODE_LABEL) {
         timestamps {
@@ -48,8 +54,16 @@ void call(Map config=[:]) {
             }
 
             try {
-                // give extra 5 minutes for setup
-                timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
+                // give extra 8 minutes for setup
+                timeout(time: params.TIMEOUT.toInteger() + 8, unit: 'MINUTES') {
+                    stage('Clone devopstools') {
+                        gitClone([
+                            url: 'git@github.com:vegaprotocol/devopstools.git',
+                            branch: devopsToolsBranch,
+                            credentialsId: 'vega-ci-bot',
+                            directory: 'devopstools'
+                        ])
+                    }
                     stage('CI config') {
                         // Printout all configuration variables
                         sh 'printenv'
@@ -75,53 +89,55 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                        def baseDomain = "${env.NET_NAME}.vega.xyz"
+                       
                         if (env.NET_NAME == "fairground") {
                             baseDomain = "testnet.vega.xyz"
                         }
-                        def networkServers = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${baseDomain}" }
-                        if (env.NET_NAME == "mainnet") {
-                            networkServers = [
-                                "api0.vega.community",
-                                "api1.vega.community",
-                                "api2.vega.community",
-                                "api3.vega.community",
-                                "api4.vega.community",
-                                "api5.vega.community",
-                                "api6.vega.community",
-                                "api7.vega.community",
-                            ]
+                        
+
+                        /** 
+                         * Return the following structure:
+                         * {
+                         *   "validators": [ .... ],
+                         *   "explorers": [ .... ],
+                         *   "data_nodes": [ .... ],
+                         *   "all": [ .... ]
+                         * }
+                         */
+                        String healthyNodesJSON = withDevopstools(
+                            command: 'network healthy-nodes',
+                            netName: env.NET_NAME,
+                            returnStdout: true,
+                        )
+
+                        print('Found healthy servers: \n' + healthyNodesJSON)
+
+                        healthyNodes = readJSON text: healthyNodesJSON
+                        if (healthyNodes["data_nodes"].size() < 1) {
+                            currentBuild.result = 'ABORTED'
+                            error("No healthy data nodes")
+                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
+                        }
+                        networkNodes = healthyNodes["data_nodes"]
+                        tendermintNodes = healthyNodes["tendermint_endpoints"]
+
+                        if (tendermintNodes.size() < 1) {
+                            currentBuild.result = 'ABORTED'
+                            error("No healthy tendermint nodes")
+                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
                         }
 
                         // exclude from checking servers that are in the denylist configured in DSL
                         if (env.NODES_DENYLIST) {
                             def denyList = (env.NODES_DENYLIST as String).split(',')
-                            networkServers = networkServers.findAll{ server -> !denyList.contains(server) }
+                            networkNodes = networkNodes.findAll{ server -> !denyList.contains(server) }
                         }
 
-                        Collections.shuffle(networkServers as List)
+                        Collections.shuffle(networkNodes)
 
-                        echo "Going to check servers: ${networkServers}"
-                        // Need to check Data Node endpoint
-                        if (env.NET_NAME == "mainnet") {
-                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy(serverName) }
-                        } else {
-                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy("api.${serverName}") }
-                        }
-                        if ( remoteServer == null ) {
-                            // No single machine online means that Vega Network is down
-                            // This is quite often for Devnet, when deployments happen all the time
-                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
-                            currentBuild.result = 'ABORTED'
-                            error("${env.NET_NAME} seems down")
-                        }
-                        if (env.NET_NAME == "mainnet") {
-                            remoteServerDataNode = remoteServer
-                            remoteServerCometBFT = "tm.${remoteServer}"
-                        } else {
-                            remoteServerDataNode = "api.${remoteServer}"
-                            remoteServerCometBFT = "tm.${remoteServer}"
-                        }
+                        remoteServerDataNode = networkNodes[0]
+                        remoteServerCometBFT = tendermintNodes[0]
+
                         echo "Found available server: ${remoteServerDataNode} (${remoteServerCometBFT})"
                     }
 
@@ -131,7 +147,7 @@ void call(Map config=[:]) {
                             'dasel & data node config': {
                                 sh label: 'download dasel to edit toml files',
                                     script: '''#!/bin/bash -e
-                                        wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
+                                        wget --no-verbose https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
                                             mv dasel_linux_amd64 dasel && \
                                             chmod +x dasel
                                     '''
@@ -165,9 +181,9 @@ void call(Map config=[:]) {
                                         script: """#!/bin/bash -e
                                             scp  -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
-                                    sh label: "print genesis.json", script: """#!/bin/bash -e
-                                        cat genesis.json
-                                    """
+                                    // sh label: "print genesis.json", script: """#!/bin/bash -e
+                                    //     cat genesis.json
+                                    // """
                                 }
                             }
                         ])
@@ -238,8 +254,9 @@ void call(Map config=[:]) {
                                         ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${SNAPSHOT_HEIGHT}
                                         ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                         ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
-                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
+                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "60s"
                                         ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
+                                        ./dasel put string -f tm_config/config/config.toml p2p.dial_timeout "10s"
                                         ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
                                         ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
                                         ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
@@ -259,6 +276,7 @@ void call(Map config=[:]) {
                                 sh label: 'set vega config',
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
+                                        ./dasel put string -f vega_config/config/node/config.toml Broker.Socket.DialTimeout "4h"
                                         cat vega_config/config/node/config.toml
                                     """
                             },
@@ -272,6 +290,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
+                                        ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
