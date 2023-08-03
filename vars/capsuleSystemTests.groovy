@@ -60,7 +60,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       label agentLabel
     }
     environment {
-      PATH = "${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:${env.WORKSPACE}/bin"
+      GOROOT = "/usr/local/go"
+      GOPATH = "/jenkins/GOPATH"
+      GOCACHE = "/jenkins/GOCACHE"
+      GO111MODULE = "on"
+      GOBIN="${env.GOPATH}/bin"
+      PATH = "${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:${env.WORKSPACE}/bin:${env.GOBIN}:/usr/local/go/bin"
     }
 
     options {

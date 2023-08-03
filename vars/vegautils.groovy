@@ -26,7 +26,7 @@ void buildGoBinary(String directory, String outputBinary, String packages) {
   timeout(time: 10, unit: 'MINUTES') {
     dir(directory) {
       // sh 'go mod vendor'
-      sh "go get -u ."
+      // sh "go get -u ."
       sh "go build -o ${outputBinary} ${packages}"
       sh "chmod +x ${outputBinary}"
     }
