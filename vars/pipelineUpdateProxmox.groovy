@@ -29,7 +29,7 @@ def call() {
                                     cleanWs()
                                     checkout scm
                                     sshagent(credentials: ['vega-ci-bot']) {
-                                        sh 'rm -rf /usr/local/go'
+                                        sh 'sudo rm -rf /usr/local/go'
                                         sh 'ansible-playbook playbooks/proxmox.yaml'
                                     }
                                 }
