@@ -705,7 +705,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   testCases: [
                     [
                         name: "Soak test",
-                        className: "tests/soak-test/run.py",
+                        className: "run",
                         time: duration,
                         failure: failureObj,
                     ],
