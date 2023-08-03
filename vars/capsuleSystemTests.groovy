@@ -653,7 +653,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             // Find an index for the data-node
             String dataNodeIndex = vegautils.shellOutput('''vegacapsule nodes ls \
                 --home-path ''' + testNetworkDir + '''/testnet \
-              | jq -r '.[] | select(.Mode | contains("full")) | .Index';
+              | jq -r '[.[] | select(.Mode | contains("full"))] | .[0] | .Index';
             ''')
             String nodeName = 'node' + dataNodeIndex
             String tmHome = testNetworkDir + '/testnet/tendermint/' + nodeName
@@ -715,7 +715,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     [
                         name: "Soak test",
                         className: "run",
-                        time: duration.getSeconds(),
+                        time: duration == null ? 0.0 : duration.getSeconds(),
                         failure: failureObj,
                     ],
                   ],
