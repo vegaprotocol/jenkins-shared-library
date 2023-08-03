@@ -60,7 +60,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       label agentLabel
     }
     environment {
-      PATH = "${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin"
+      PATH = "${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:${env.WORKSPACE}/bin"
     }
 
     options {
@@ -73,6 +73,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
@@ -353,6 +354,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         environment {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
+          // hack to install nomad into current workspace
+          GOBIN = "${env.WORKSPACE}/bin"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
         }
 
