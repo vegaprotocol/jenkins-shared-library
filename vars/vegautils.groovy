@@ -188,16 +188,16 @@ String generateJUnitReport(List testSuites) {
   
   List suitesTime = testSuites.collect { suite -> suite.testCases.collect { test -> return test["time"] ?: 0.0 }.sum() }
   float totalTime = suitesTime.sum()
-  List suitesErrors = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("error") ? 1 : 0 }.sum() }
+  List suitesErrors = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("error") && test.error != null ? 1 : 0 }.sum() }
   int totalErrors = suitesErrors.sum()
-  List suitesFailures = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("failure") ? 1 : 0 }.sum() }
+  List suitesFailures = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("failure") && test.failure != null ? 1 : 0 }.sum() }
   int totalFailures = suitesFailures.sum()
   int totalTests = testSuites.collect { suite -> return suite.testCases.size() }.sum()
   
   
   List<String> result = [
       '<?xml version="1.0" encoding="UTF-8"?>',
-      '<testsuites time="' + totalTime + ' tests="' + totalTests + '" failures="' + totalFailures + '" errors="' + totalErrors + '">',
+      '<testsuites time="' + totalTime + '" tests="' + totalTests + '" failures="' + totalFailures + '" errors="' + totalErrors + '">',
   ]
   
   for (int idx=0; idx<testSuites.size(); idx++) {
@@ -206,13 +206,14 @@ String generateJUnitReport(List testSuites) {
       for (testCase in testSuites[idx].testCases) {
           if (testCase.containsKey("error") || testCase.containsKey("failure")) {
             result << '    <testcase name="' + (testCase.name ?: defaultTestName) + '" classname="' + (testCase.className ?: defaultClassName) + '" time="' + (testCase.time ?: 0.0) + '">'
-            if (testCase.containsKey("error")) {
+            
+            if (testCase.containsKey("error") && testCase.error != null) {
                 result << '      <error message="' + (testCase.error.description ?: defaultErrorMessage) + '" type="' + (testCase.error.type ?: defaultErrorType) + '">'
                 result << '        ' +  (testCase.error.description ?: 'No description')
                 result << '      </error>'
             }
             
-            if (testCase.containsKey("failure")) {
+            if (testCase.containsKey("failure")  && testCase.failure != null) {
                 result << '      <failure message="' + (testCase.failure.description ?: defaultErrorMessage) + '" type="' + (testCase.failure.type ?: defaultErrorType) + '">'
                 result << '        ' +  (testCase.failure.description ?: 'No description')
                 result << '      </failure>'
@@ -228,4 +229,12 @@ String generateJUnitReport(List testSuites) {
   result << '</testsuites>'
     
   return result.join('\n')
+}
+
+// returns groovy.time.TimeDuration
+def elapsedTime(Closure closure){
+    def timeStart = new Date()
+    closure()
+    def timeStop = new Date()
+    groovy.time.TimeCategory.minus(timeStop, timeStart)
 }
