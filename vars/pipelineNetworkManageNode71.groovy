@@ -303,7 +303,7 @@ void call() {
                                     }
 
                                     if (!params.SKIP_INFRA_PROVISION) {
-                                        stage('Provision Infrastructure') {
+                                        stage('Non restart required changes') {
                                             sh label: "ansible playbooks/playbook-barenode71-non-restart-required.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
                                                     --diff \
