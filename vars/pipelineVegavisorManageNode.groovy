@@ -301,6 +301,20 @@ void call() {
                                                 playbooks/${env.ANSIBLE_PLAYBOOK}
                                         """
                                     }
+
+                                    if (!params.SKIP_INFRA_PROVISION) {
+                                        stage('Non restart required changes') {
+                                            sh label: "ansible playbooks/playbook-barenode-non-restart-required.yaml", script: """#!/bin/bash -e
+                                                ansible-playbook \
+                                                    --diff \
+                                                    -u "\${PSSH_USER}" \
+                                                    --private-key "\${PSSH_KEYFILE}" \
+                                                    --inventory inventories \
+                                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                                    playbooks/${env.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED}
+                                            """
+                                        }
+                                    }
                                 }
                             }
                         }

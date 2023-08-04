@@ -147,7 +147,7 @@ def libDefinition(methodName) {
 
 def vegavisorParamsBase(args=[:]) {
     return {
-        booleanParam('SKIP_INFRA_PROVISION', false, 'switch to true when you use `create-*` action and wish to ommit infrastrucutre provisioning like: accounts, grafana-agent, etc.')
+        booleanParam('SKIP_INFRA_PROVISION', true, 'switch to false when creating node, or you want to apply other changes along with retarting node. Otherwise you can use non-restart required pipeline.')
         booleanParam('UPDATE_SYSTEM_CONFIGURATION', args.get('UPDATE_CONFIGURATION', true), 'This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
         booleanParam('PERFORM_NETWORK_OPERATIONS', true, 'This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
@@ -560,6 +560,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             TOP_UP_BOTS: true,
@@ -579,6 +580,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
@@ -702,6 +704,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             NODE_LABEL: 's-4vcpu-8gb',
@@ -718,6 +721,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
@@ -842,8 +846,9 @@ def jobs = [
         env: [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             NODE_LABEL: 's-4vcpu-8gb',
@@ -855,11 +860,12 @@ def jobs = [
         numToKeep: 100,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
+        definition: libDefinition('pipelineNetworkManageNode71()'),
         env: [
             NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
@@ -945,6 +951,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
@@ -962,6 +969,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
@@ -1094,6 +1102,7 @@ def jobs = [
             NET_NAME: 'mainnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
