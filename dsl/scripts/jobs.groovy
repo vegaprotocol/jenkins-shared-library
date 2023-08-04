@@ -448,7 +448,7 @@ def approbationParams(def config=[:]) {
         }
 
         if (config.type == 'core') {
-            stringParam('FEATURES_ARG',  'specs/protocol/features.json', '--features argument value')
+            stringParam('FEATURES_ARG',  '/workspace/specs/protocol/features.json', '--features argument value')
         }
         else if (config.type == 'frontend') {
             stringParam('FEATURES_ARG',  '', '--features argument value')
