@@ -4,6 +4,10 @@ def call() {
             label params.NODE_LABEL
         }
         environment {
+            GOROOT = "/usr/local/go"
+            GOPATH = "/jenkins/GOPATH"
+            GOCACHE = "/jenkins/GOCACHE"
+            GO111MODULE = "on"
             GOBIN = "${env.WORKSPACE}/bin"
             PERFHOME = "${env.WORKSPACE}/performance"
             PATH = "${env.PATH}:${env.PERFHOME}/bin:${env.GOBIN}"
