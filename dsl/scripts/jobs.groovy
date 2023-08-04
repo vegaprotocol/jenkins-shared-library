@@ -147,7 +147,7 @@ def libDefinition(methodName) {
 
 def vegavisorParamsBase(args=[:]) {
     return {
-        booleanParam('SKIP_INFRA_PROVISION', false, 'switch to true when you use `create-*` action and wish to ommit infrastrucutre provisioning like: accounts, grafana-agent, etc.')
+        booleanParam('SKIP_INFRA_PROVISION', true, 'switch to false when creating node, or you want to apply other changes along with retarting node. Otherwise you can use non-restart required pipeline.')
         booleanParam('UPDATE_SYSTEM_CONFIGURATION', args.get('UPDATE_CONFIGURATION', true), 'This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
         booleanParam('PERFORM_NETWORK_OPERATIONS', true, 'This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
