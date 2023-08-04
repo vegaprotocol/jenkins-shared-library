@@ -425,7 +425,7 @@ def approbationParams(def config=[:]) {
             stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
         }
 
-        stringParam('APPROBATION_TAG', 'v4.5.0', 'Approbation image tag. latest or specific version with v prefix')
+        stringParam('APPROBATION_TAG', 'v4.5.1', 'Approbation image tag. latest or specific version with v prefix')
 
         stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
 
