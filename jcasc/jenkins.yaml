@@ -122,7 +122,7 @@ jenkins:
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
-            labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic"
+            labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic office-system-tests"
             sizeId: "s-4vcpu-8gb"
             labellessJobsAllowed: true
           - <<: *do-template
