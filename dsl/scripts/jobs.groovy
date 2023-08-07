@@ -527,7 +527,7 @@ def jobs = [
         branch: 'master',
         disableConcurrentBuilds: false,
         parameters: {
-            stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used')
+            stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
         }
     ],
     [
