@@ -96,7 +96,7 @@ jenkins:
         remoteFS: "/jenkins"
         retentionStrategy: "always"
     - permanent:
-        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic office-system-tests"
+        labelString: "generic office-system-tests"
         launcher:
           inbound:
             webSocket: true
