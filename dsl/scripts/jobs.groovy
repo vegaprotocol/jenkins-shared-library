@@ -525,7 +525,7 @@ def jobs = [
         description: h('This job is used to auto apply changes done to the jenkins-agent role'),
         jenkinsfile: 'Jenkinsfile',
         branch: 'master',
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         parameters: {
             stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used')
         }
