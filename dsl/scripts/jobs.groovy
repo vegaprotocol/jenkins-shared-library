@@ -433,7 +433,7 @@ def approbationParams(def config=[:]) {
             stringParam('SPECS_ARG', '{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('SPECS_ARG', '/workspace/specs/user-interface/**/*.md', '--specs argument value')
+            stringParam('SPECS_ARG', '/workspace/frontend-monorepo/specs/**/*.md', '--specs argument value')
         }
         else if (config.type == 'browserWallet') {
             stringParam('SPECS_ARG', '/workspace/vegawallet-browser/specs/**/*.md', '--specs argument value')
@@ -443,8 +443,8 @@ def approbationParams(def config=[:]) {
             stringParam('CATEGORIES_ARG', '/workspace/specs/protocol/categories.json', '--categories argument value')
         }
         else if (config.type == 'frontend') {
-            stringParam('CATEGORIES_ARG', '/workspace/specs/user-interface/categories.json', '--categories argument value for the categories run')
-            stringParam('APPS_ARG', '/workspace/specs/user-interface/apps.json', '--categories argument value for the apps run')
+            stringParam('CATEGORIES_ARG', '/workspace/frontend-monorepo/specs/categories.json', '--categories argument value for the categories run')
+            stringParam('APPS_ARG', '/workspace/frontend-monorepo/specs/apps.json', '--categories argument value for the apps run')
         }
 
         if (config.type == 'core') {
