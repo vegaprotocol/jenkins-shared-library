@@ -209,7 +209,7 @@ def vegavisorManageNodeParams(args=[:]) {
     ]
 
 
-    if (args.name == "devnet1") {
+    if (["devnet1", "stagnet1"].contains(args.name)) {
         nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
             "be.${args.name}.vega.rocks",
             "be02.${args.name}.vega.rocks",
@@ -306,7 +306,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
         "metabase01.${args.name}.vega.xyz",
     ]
 
-    if (args.name == "devnet1") {
+    if (["devnet1", "stagnet1"].contains(args.name)) {
         nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
             "be.${args.name}.vega.rocks",
             "be02.${args.name}.vega.rocks",
