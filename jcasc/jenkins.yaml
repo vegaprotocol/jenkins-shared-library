@@ -69,8 +69,8 @@ jenkins:
 
         - "USER:Overall/Read:anonymous"
   nodes:
-    - permanent:
-        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb generic"
+    - permanent: &office-agent
+        labelString: "proxmox-4vcpu-8gb generic-4vcpu-8gb generic office-system-tests"
         launcher:
           inbound:
             webSocket: true
@@ -83,31 +83,25 @@ jenkins:
         remoteFS: "/jenkins"
         retentionStrategy: "always"
     - permanent:
-        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic"
-        launcher:
-          inbound:
-            webSocket: true
-            workDirSettings:
-              disabled: false
-              failIfWorkDirIsMissing: false
-              internalDir: "remoting"
+        <<: *office-agent
+        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic office-system-tests"
         name: "jenkins02"
-        mode: EXCLUSIVE
-        remoteFS: "/jenkins"
-        retentionStrategy: "always"
     - permanent:
+        <<: *office-agent
         labelString: "generic office-system-tests"
-        launcher:
-          inbound:
-            webSocket: true
-            workDirSettings:
-              disabled: false
-              failIfWorkDirIsMissing: false
-              internalDir: "remoting"
         name: "jenkins03"
-        mode: EXCLUSIVE
-        remoteFS: "/jenkins"
-        retentionStrategy: "always"
+    - permanent:
+        <<: *office-agent
+        labelString: "generic office-system-tests"
+        name: "jenkins04"
+    - permanent:
+        <<: *office-agent
+        labelString: "generic office-system-tests"
+        name: "jenkins05"
+    - permanent:
+        <<: *office-agent
+        labelString: "generic office-system-tests"
+        name: "jenkins06"
   clouds:
     - digitalOcean:
         authTokenCredentialId: "digitalocean-token"
