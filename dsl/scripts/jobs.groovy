@@ -341,7 +341,7 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
-        booleanParam('RUN_SOAK_TEST', true, 'Determines if the SOAK test is going to run after the system-tests')
+        booleanParam('RUN_SOAK_TEST', args.get('RUN_SOAK_TEST', true), 'Determines if the SOAK test is going to run after the system-tests')
         if (args.get('SCENARIO', false)){
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
@@ -1156,6 +1156,7 @@ def jobs = [
         parameters: lnlSystemTestsparams(
             NODE_LABEL: 's-8vcpu-16gb',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
+            RUN_SOAK_TEST: false,
         ),
         copyArtifacts: true,
         daysToKeep: 10,
