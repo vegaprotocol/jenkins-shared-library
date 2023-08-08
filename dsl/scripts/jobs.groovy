@@ -346,7 +346,7 @@ def systemTestsParamsGeneric(args=[:]) {
             choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
         }
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'office-system-tests'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -1154,7 +1154,6 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 's-8vcpu-16gb',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
             RUN_SOAK_TEST: false,
         ),
@@ -1166,9 +1165,7 @@ def jobs = [
         name: 'common/system-tests-snapshot-compatibility',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
-        parameters: snapshotCompatibilityParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: snapshotCompatibilityParams(),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 2 * * *',
