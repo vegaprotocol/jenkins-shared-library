@@ -91,7 +91,7 @@ void call(Map config=[:]) {
                     stage('Find available remote server') {
                        
                         if (env.NET_NAME == "fairground") {
-                            baseDomain = "testnet.vega.xyz"
+                            baseDomain = "testnet.vega.rocks"
                         }
                         
 
@@ -268,7 +268,7 @@ void call(Map config=[:]) {
                                 if (env.NET_NAME == 'validators-testnet') {
                                     sh label: 'set Tendermint config (validators-testnet specific)',
                                         script: """#!/bin/bash -e
-                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn012.validators-testnet.vega.xyz:40127,sn011.validators-testnet.vega.xyz:40117"
+                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn012.validators-testnet.vega.rocks:40127,sn011.validators-testnet.vega.rocks:40117"
                                         """
                                 }
                                 sh label: 'print tendermint config',

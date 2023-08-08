@@ -199,30 +199,18 @@ def vegavisorManageNodeParams(args=[:]) {
         'stop-node': 'stop node',
     ]
 
-    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
-        "be.${args.name}.vega.xyz",
-        "be02.${args.name}.vega.xyz",
-        "metabase00.${args.name}.vega.xyz",
-        "metabase01.${args.name}.vega.xyz",
-        "metabase02.${args.name}.vega.xyz",
-        "m.${args.name}.vega.xyz",
+    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+        "metabase02.${args.name}.vega.rocks",
+        "m.${args.name}.vega.rocks",
     ]
-
-
-    if (["devnet1", "stagnet1"].contains(args.name)) {
-        nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-            "be.${args.name}.vega.rocks",
-            "be02.${args.name}.vega.rocks",
-            "metabase00.${args.name}.vega.rocks",
-            "metabase01.${args.name}.vega.rocks",
-            "metabase02.${args.name}.vega.rocks",
-            "m.${args.name}.vega.rocks",
-        ]
-    }
 
     if (args.sentryNodes) {
         nodesList += ((0..15).collect { nodeNumber ->
-            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
+            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.rocks" }
         }).flatten()
     }
 
@@ -299,21 +287,12 @@ def vegavisorTopupBotsParams(args=[:]) {
 
 def networkApplyNonRestartChangesParams(args=[:]) {
 
-    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
-        "be.${args.name}.vega.xyz",
-        "be02.${args.name}.vega.xyz",
-        "metabase00.${args.name}.vega.xyz",
-        "metabase01.${args.name}.vega.xyz",
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
     ]
-
-    if (["devnet1", "stagnet1"].contains(args.name)) {
-        nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-            "be.${args.name}.vega.rocks",
-            "be02.${args.name}.vega.rocks",
-            "metabase00.${args.name}.vega.rocks",
-            "metabase01.${args.name}.vega.rocks",
-        ]
-    }
 
     if (args.name == "mainnet") {
         nodesList = [
@@ -1365,7 +1344,7 @@ def jobs = [
         env: [
             NET_NAME: 'validators-testnet',
             HISTORY_KEY: 'NetworkHistory',
-            NODES_DENYLIST: 'n01.validators-testnet.vega.xyz'
+            NODES_DENYLIST: 'n01.validators-testnet.vega.rocks'
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,

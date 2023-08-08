@@ -4,7 +4,7 @@ import groovy.json.JsonBuilder
 //
 // Disable all alerts for a single machine or entire vega network.
 // Arguments:
-//  - node - node name to disable alerts for, e.g. `n00.devnet1.vega.xyz`
+//  - node - node name to disable alerts for, e.g. `n00.devnet1.vega.rocks`
 //  - environment - environment name to disable alerts for, e.g. `fairground`
 //  - duration (optional) - duration in minutes for how long the alerts will be disabled for, default: 20
 //
