@@ -894,7 +894,7 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet-mirror',
