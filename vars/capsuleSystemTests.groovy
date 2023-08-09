@@ -39,7 +39,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   // params.RUN_PROTOCOL_UPGRADE_PROPOSAL = params.RUN_PROTOCOL_UPGRADE_PROPOSAL ?: false
   // params.TEST_EXTRA_PYTEST_ARGS = params.TEST_EXTRA_PYTEST_ARGS ?: ''
 
-  String agentLabel = params.NODE_LABEL ?: 'g-8vcpu-32gb'
+  String agentLabel = params.NODE_LABEL ?: 'office-system-tests'
 
   Map pipelineHooks = [
       postStartNomad: [:],
