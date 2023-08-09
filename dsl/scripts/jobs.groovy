@@ -155,7 +155,7 @@ def vegavisorParamsBase(args=[:]) {
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'generic'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -545,7 +545,6 @@ def jobs = [
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -588,9 +587,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -624,52 +621,6 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     //
-    // Sandbox
-    //
-    // [
-    //     name: 'private/Deployments/sandbox/Manage-Network',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_LIMIT: 'sandbox',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/sandbox/Manage-Node',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'sandbox'),
-    //     disableConcurrentBuilds: false,
-    //     // restart a random node every 30min
-    //     // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    // ],
-    // [
-    //     name: 'private/Deployments/sandbox/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_LIMIT: 'sandbox',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    //
     // Stagnet 1
     //
     [
@@ -685,9 +636,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -719,9 +668,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -756,64 +703,6 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     //
-    // Stagnet 2
-    //
-    // [
-    //     name: 'private/Deployments/stagnet2/Manage-Network',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_LIMIT: 'stagnet2',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Manage-Node',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'stagnet2'),
-    //     disableConcurrentBuilds: false,
-    //     // restart a random node every 30min
-    //     //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_LIMIT: 'stagnet2',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Topup-Bots',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorTopupBots()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //     ],
-    //     parameters: vegavisorTopupBotsParams(),
-    //     // cron: 'H/30 * * * *',
-    //     disableConcurrentBuilds: true,
-    // ],
-    //
     // Stagnet 3
     //
     [
@@ -829,9 +718,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -911,9 +798,7 @@ def jobs = [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     //
@@ -934,7 +819,6 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -967,9 +851,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
