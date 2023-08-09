@@ -84,20 +84,20 @@ jenkins:
         retentionStrategy: "always"
     - permanent:
         <<: *office-agent
-        labelString: "proxmox-12vcpu-14gb generic-12vcpu-14gb generic office-system-tests"
+        labelString: "performance-tests generic office-system-tests"
         name: "jenkins02"
-    - permanent:
-        <<: *office-agent
-        labelString: "generic office-system-tests"
-        name: "jenkins03"
+    # - permanent:
+    #     <<: *office-agent
+    #     labelString: "generic office-system-tests"
+    #     name: "jenkins03"
     - permanent:
         <<: *office-agent
         labelString: "generic office-system-tests"
         name: "jenkins04"
-    - permanent:
-        <<: *office-agent
-        labelString: "generic office-system-tests"
-        name: "jenkins05"
+    # - permanent:
+    #     <<: *office-agent
+    #     labelString: "generic office-system-tests"
+    #     name: "jenkins05"
     - permanent:
         <<: *office-agent
         labelString: "generic office-system-tests"

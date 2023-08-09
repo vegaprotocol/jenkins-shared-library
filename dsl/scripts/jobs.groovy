@@ -1364,7 +1364,7 @@ def jobs = [
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'proxmox-12vcpu-14gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'performance-tests', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
     // ethereum events
