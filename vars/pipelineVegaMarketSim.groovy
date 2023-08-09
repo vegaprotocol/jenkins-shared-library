@@ -193,6 +193,9 @@ void call() {
         } // end: stages
         post {
             always {
+                script {
+                    sleep 7200
+                }
                 catchError {
                     archiveArtifacts(artifacts: [
                         '/tmp/vega-sim-*/**/*.out',
