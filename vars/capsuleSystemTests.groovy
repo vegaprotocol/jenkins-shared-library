@@ -143,7 +143,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         parallel {
           stage('build devopsscripts') {
             options {
-              timeout(time: 5, unit: 'MINUTES')
+              timeout(time: 15, unit: 'MINUTES')
               retry(3)
             }
             steps {
@@ -154,7 +154,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('build devopstools') {
             options {
-              timeout(time: 5, unit: 'MINUTES')
+              timeout(time: 15, unit: 'MINUTES')
               retry(3)
             }
             steps {
@@ -165,7 +165,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make vegacapsule'){
             options {
-              timeout(time: 15, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
+              timeout(time: 25, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
               retry(3)
             }
             environment {
@@ -181,7 +181,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make visor'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -195,7 +195,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make toxiproxy'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -209,7 +209,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make vega tools'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -223,7 +223,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make test proto'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -237,7 +237,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make core'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -253,7 +253,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
           stage('prepare system tests dependencies') {
             options {
-              timeout(time: 20, unit: 'MINUTES')
+              timeout(time: 30, unit: 'MINUTES')
               retry(3)
             }
             steps {
