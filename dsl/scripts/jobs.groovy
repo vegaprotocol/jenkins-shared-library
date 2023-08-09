@@ -338,7 +338,7 @@ def systemTestsParamsGeneric(args=[:]) {
         stringParam('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', '', 'Override network parameters at the beginning of the run.')
         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
         booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
-        stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
+        stringParam('TIMEOUT', '900', 'Timeout in minutes, after which the pipline is force stopped.')
         booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
         booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
         booleanParam('RUN_SOAK_TEST', args.get('RUN_SOAK_TEST', true), 'Determines if the SOAK test is going to run after the system-tests')
