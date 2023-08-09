@@ -117,6 +117,18 @@ void call() {
                             always {
                                 junit checksName: 'Integration Tests results',
                                     testResults: 'test_logs/*-integration/integration-test-results.xml'
+                
+                                catchError {
+                                    archiveArtifacts(artifacts: [
+                                        '/tmp/vega-sim-*/**/*.out',
+                                        '/tmp/vega-sim-*/**/*.err',
+                                        '/tmp/vega-sim-*/**/replay',
+                                    ].join(','), allowEmptyArchive: true)
+                                }
+                                catchError {
+                                    archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
+                                }
+
                             }
                         }
                     }
