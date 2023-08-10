@@ -200,9 +200,9 @@ void call() {
                         sh 'cp -r /tmp/vega-sim* ./network_home/'
                     }
                     archiveArtifacts(artifacts: [
-                        './network_home/vega-sim-*/**/*.out',
-                        './network_home/vega-sim-*/**/*.err',
-                        './network_home/vega-sim-*/**/replay',
+                        './network_home/vega-sim*/**/*.out',
+                        './network_home/vega-sim*/**/*.err',
+                        './network_home/vega-sim*/**/replay',
                     ].join(','), allowEmptyArchive: true)
                 }
                 catchError {
