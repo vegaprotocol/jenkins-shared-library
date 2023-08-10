@@ -196,7 +196,7 @@ void call() {
                 catchError {
                     // Jenkins does not allow to archive artifacts outside of the workspace
                     script {
-                        sh 'apt-get install -y tree'
+                        sh 'sudo apt-get install -y tree'
                         sh 'tree'
                         sh 'mkdir -p ./network_home'
                         sh 'cp -r /tmp/vega-sim* ./network_home/'
