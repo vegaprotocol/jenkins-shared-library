@@ -203,9 +203,9 @@ void call() {
                         sh 'tree ./network_home'
                     }
                     archiveArtifacts(artifacts: [
-                        './network_home/**/*.out',
-                        './network_home/**/*.err',
-                        './network_home/**/replay',
+                        'network_home/**/*.out',
+                        'network_home/**/*.err',
+                        'network_home/**/**/replay',
                     ].join(','), allowEmptyArchive: true)
                 }
                 catchError {
