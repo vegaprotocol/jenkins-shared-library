@@ -194,10 +194,15 @@ void call() {
         post {
             always {
                 catchError {
+                    // Jenkins does not allow to archive artifacts outside of the workspace
+                    script {
+                        sh 'mkdir -p ./network_home'
+                        sh 'cp -r /tmp/vega-sim* ./network_home/'
+                    }
                     archiveArtifacts(artifacts: [
-                        '/tmp/vega-sim-*/**/*.out',
-                        '/tmp/vega-sim-*/**/*.err',
-                        '/tmp/vega-sim-*/**/replay',
+                        'network_home/**/*.out',
+                        'network_home/**/*.err',
+                        'network_home/**/**/replay',
                     ].join(','), allowEmptyArchive: true)
                 }
                 catchError {
