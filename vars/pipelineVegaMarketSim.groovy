@@ -197,9 +197,10 @@ void call() {
                     // Jenkins does not allow to archive artifacts outside of the workspace
                     script {
                         sh 'sudo apt-get install -y tree'
-                        sh 'tree'
                         sh 'mkdir -p ./network_home'
                         sh 'cp -r /tmp/vega-sim* ./network_home/'
+                        
+                        sh 'tree ./network_home'
                     }
                     archiveArtifacts(artifacts: [
                         './network_home/**/*.out',
