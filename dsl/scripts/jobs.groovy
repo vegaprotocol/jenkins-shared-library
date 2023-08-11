@@ -1000,7 +1000,7 @@ def jobs = [
             stringParam('SERVER', '', 'Server where we are going to execute action')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         },
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         parameterizedCron: [
             // automatic backup every 6h
             'H */6 * * * %' + [
