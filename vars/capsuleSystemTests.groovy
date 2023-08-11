@@ -483,8 +483,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES ? params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES : ''}"
-
+          SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
+          // Slow things down due to: https://github.com/vegaprotocol/system-tests/issues/2458
+          PROPOSAL_BASE_TIME=7
         }
 
         steps {
