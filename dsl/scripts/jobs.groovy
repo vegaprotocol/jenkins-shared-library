@@ -301,6 +301,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
             "api0.vega.community",
             "api1.vega.community",
             "api2.vega.community",
+            "api3.vega.community",
             "api7.vega.community",
             "be0.vega.community",
             "be1.vega.community",
