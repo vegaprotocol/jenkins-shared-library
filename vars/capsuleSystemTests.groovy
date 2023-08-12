@@ -116,7 +116,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     branch: value.branch,
                     directory: value.directory ?: value.name.split('/')[1],
                     credentialsId: 'vega-ci-bot',
-                    timeout: 2,
+                    timeout: 3,
                   ])
                 }
             ]}
@@ -305,7 +305,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               branch: params.VEGA_BRANCH_UPGRADE,
               directory: 'vega-upgrade',
               credentialsId: 'vega-ci-bot',
-              timeout: 2,
+              timeout: 3,
             ])
 
             dir('vega-upgrade') {
