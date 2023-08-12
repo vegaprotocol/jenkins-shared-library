@@ -1007,7 +1007,7 @@ def jobs = [
         parameterizedCron: [
             // automatic backup every 6h
             'H */6 * * * %' + [
-                'SERVER=api7.vega.community',
+                'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),
     ],
