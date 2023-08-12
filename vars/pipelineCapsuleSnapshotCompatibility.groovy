@@ -14,7 +14,7 @@ void call(Map paramsOverrides=[:]) {
                     List mainnetApiServers = [
                     'api0.vega.community',
                     'api1.vega.community',
-                    'api2.vega.community',
+                    'api3.vega.community',
                     ]
 
                     Random rnd = new Random()
