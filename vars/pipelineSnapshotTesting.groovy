@@ -652,6 +652,9 @@ def getSeedsAndRPCServers(String cometURL) {
     if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
       continue
     }
+    if(addr.startsWith("be")) {  // remove Block Explorers - as not stable
+      continue
+    }
     if( ! checkServerListening(addr, port)) {
       continue
     }
