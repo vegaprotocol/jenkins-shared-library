@@ -224,6 +224,9 @@ void call() {
                 steps {
                     script {
                         currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        }
 
                         ALERT_SILENCE_ID = alert.disableAlerts(
                             node: NODE_NAME ?: params.NODE,

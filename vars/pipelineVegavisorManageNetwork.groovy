@@ -81,6 +81,9 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        }
                         (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
                 }
