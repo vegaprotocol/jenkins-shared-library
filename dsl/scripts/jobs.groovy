@@ -898,22 +898,6 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     [
-        name: 'private/Deployments/validators-testnet/Manage-Node-53',
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(
-            name: 'validators-testnet',
-            NODE_LABEL: 'generic',
-        ),
-        disableConcurrentBuilds: true,
-    ],
-    [
         name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
         numToKeep: 100,
         description: 'Apply changes not requiring restarting a node or network',
@@ -928,22 +912,6 @@ def jobs = [
             NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/mainnet/Manage-Node-53',
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'mainnetapi',
-            ANSIBLE_PLAYBOOK: 'playbook-mainnetapi.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-mainnetapi-common.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(
-            name: 'mainnetapi',
-            NODE_LABEL: 'generic',
-        ),
-        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/mainnet/Manage-Node-71',
