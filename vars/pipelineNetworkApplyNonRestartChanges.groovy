@@ -33,6 +33,9 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         currentBuild.description = "action: ${params.ACTION}, node: ${params.NODE}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        }
                         if (params.NODE?.toLowerCase() == 'all') {
                             ANSIBLE_LIMIT = env.NET_NAME
                         } else if (params.NODE?.trim()) {
