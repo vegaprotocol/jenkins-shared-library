@@ -167,6 +167,7 @@ def vegavisorRestartNetworkParams(args=[:]) {
     ]
     return vegavisorParamsBase(args) << {
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a network') + ul(choices))
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
         booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
@@ -244,6 +245,7 @@ def vegavisorManageNodeParams(args=[:]) {
     return vegavisorParamsBase(args) << {
         choiceParam('NODE', nodesList, 'Choose which node to restart')
         choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
         booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
         booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
         booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
