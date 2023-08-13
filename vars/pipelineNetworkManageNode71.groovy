@@ -276,6 +276,7 @@ void call() {
                                         stage('Provision Infrastructure') {
                                             sh label: "ansible playbooks/playbook-barenode71-common.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
+                                                    ${params.DRY_RUN ? '--check' : ''} \
                                                     --diff \
                                                     -u "\${PSSH_USER}" \
                                                     --private-key "\${PSSH_KEYFILE}" \
@@ -291,6 +292,7 @@ void call() {
                                         // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
                                         sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
                                             ansible-playbook \
+                                                ${params.DRY_RUN ? '--check' : ''} \
                                                 --diff \
                                                 -u "\${PSSH_USER}" \
                                                 --private-key "\${PSSH_KEYFILE}" \
@@ -306,6 +308,7 @@ void call() {
                                         stage('Non restart required changes') {
                                             sh label: "ansible playbooks/playbook-barenode71-non-restart-required.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
+                                                    ${params.DRY_RUN ? '--check' : ''} \
                                                     --diff \
                                                     -u "\${PSSH_USER}" \
                                                     --private-key "\${PSSH_KEYFILE}" \
