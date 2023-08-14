@@ -78,30 +78,30 @@ jenkins:
               disabled: false
               failIfWorkDirIsMissing: false
               internalDir: "remoting"
-        name: "jenkins01"
+        name: "jenkins01" # 8vCPU|16GB
         mode: EXCLUSIVE
         remoteFS: "/jenkins"
         retentionStrategy: "always"
     - permanent:
         <<: *office-agent
         labelString: "performance-tests generic office-system-tests"
-        name: "jenkins02"
+        name: "jenkins02" # 12vCPU|15GB
     - permanent:
         <<: *office-agent
         labelString: "generic office-system-tests"
-        name: "jenkins03"
+        name: "jenkins03" # 8vCPU|16GB
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests"
-        name: "jenkins04"
+        labelString: "generic office-system-tests core-build"
+        name: "jenkins04" # 6vCPU|8GB
     # - permanent:
     #     <<: *office-agent
     #     labelString: "generic office-system-tests"
     #     name: "jenkins05"
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests"
-        name: "jenkins06"
+        labelString: "generic office-system-tests core-build"
+        name: "jenkins06" # 6vCPU|8GB
   clouds:
     - digitalOcean:
         authTokenCredentialId: "digitalocean-token"
