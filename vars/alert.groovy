@@ -9,43 +9,43 @@ import groovy.json.JsonBuilder
 //  - duration (optional) - duration in minutes for how long the alerts will be disabled for, default: 20
 //
 String disableAlerts(Map args=[:]) {
-    String matcherName = ""
+    // Parse args
+    Boolean matcherIsRegex = false
     String matcherValue = ""
 
     if (args?.node) {
-        matcherName = "instance"
+        matcherIsRegex = false
         matcherValue = args.node
     } else if (args?.environment) {
-        matcherName = "environment"
-        matcherValue = args.environment
+        matcherIsRegex = true
+        matcherValue = ".*\\.${args.environment}\\.vega\\..*"
     } else {
         throw "disableAlerts error: need to provide 'node' or 'environment' argument. Provided: ${args}"
     }
 
     int duration = (args?.duration ?: "20") as int // in minutes
+
+    // Prepare
     def start = new Date()
     def end = new Date(start.getTime() + (duration * 60 * 1000))
-
     String strStart = start.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strResponse
 
-    withCredentials([
-        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
-    ]) {
-        strResponse = sh(label: "HTTP Prometheus API: create silence",
+    withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
+        strResponse = sh(label: "HTTP Grafana API: create silence: node='${matcherValue}', isRegex=${matcherIsRegex}",
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X POST \
-                    https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
+                    https://monitoring.vega.community/api/alertmanager/grafana/api/v2/silences \
                     -H 'Content-Type: application/json' \
-                    -u "\${PROM_LOGIN}:\${PROM_PASSWORD}" \
+                    -H "Authorization: Bearer \${GRAFANA_TOKEN}" \
                     -d '{
                         "matchers": [
                         {
-                            "name": "${matcherName}",
+                            "name": "node",
                             "value": "${matcherValue}",
-                            "isRegex": false,
+                            "isRegex": ${matcherIsRegex},
                             "isEqual": true
                         }
                         ],
@@ -59,13 +59,13 @@ String disableAlerts(Map args=[:]) {
         ).trim()
     }
 
-    print("disableAlerts response: ${strResponse}")
+    print("HTTP Grafana API response: ${strResponse}")
 
     def response = new groovy.json.JsonSlurperClassic().parseText(strResponse)
     def silenceID = response["silenceID"]
-    assert silenceID: "silenceID is missing in the response from Prometheus"
+    assert silenceID: "disableAlerts error: silenceID is missing in the response from Grafana API"
 
-    print("Disabled alerts for ${matcherName}=${matcherValue} for ${duration} minutes, until: ${strEnd} UTC. Prometheus Silence ID: ${silenceID}")
+    print("Silenced alerts for node='${matcherValue}' for ${duration} minutes, until: ${strEnd} UTC. Grafana Silence ID: ${silenceID}")
 
     return silenceID
 }
@@ -118,10 +118,8 @@ Object getDisabledAlerts(Map args=[:]) {
 
     String strResponse
 
-    withCredentials([
-        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
-    ]) {
-        strResponse = sh(label: "HTTP Prometheus API: get silence",
+    withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
+        strResponse = sh(label: "HTTP Grafana API: get silence",
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X GET \
