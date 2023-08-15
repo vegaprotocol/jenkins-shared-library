@@ -1095,7 +1095,7 @@ def jobs = [
             stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
-        daysToKeep: 10,
+        daysToKeep: 5,
     ],
     [
         name: 'common/vega-market-sim-reinforcement',
@@ -1116,7 +1116,29 @@ def jobs = [
             stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
-        daysToKeep: 10,
+        daysToKeep: 5,
+        cron: 'H 0 * * *',
+    ],
+    [
+        name: 'common/vega-market-sim-parallel',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network - parallel run for testing major changes',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaMarketSim()'),
+        parameters: {
+            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
+            stringParam('VEGA_VERSION', 'feature/integrate-sla-rebased-2', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGACAPSULE_VERSION', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            stringParam('VEGA_MARKET_SIM_BRANCH', 'parallel', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+            stringParam('TIMEOUT', '1440', 'Number of minutes after which the job will stop')
+            booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
+            booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
+            stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
+            stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+        },
+        copyArtifacts: true,
+        daysToKeep: 5,
         cron: 'H 0 * * *',
     ],
     //
