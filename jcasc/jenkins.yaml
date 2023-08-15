@@ -70,7 +70,7 @@ jenkins:
         - "USER:Overall/Read:anonymous"
   nodes:
     - permanent: &office-agent
-        labelString: "generic office-system-tests"
+        labelString: "generic office-system-tests core-build"
         launcher:
           inbound:
             webSocket: true
@@ -88,7 +88,7 @@ jenkins:
         name: "jenkins02" # 12vCPU|15GB
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests"
+        labelString: "generic office-system-tests core-build"
         name: "jenkins03" # 8vCPU|16GB
     - permanent:
         <<: *office-agent
@@ -122,7 +122,7 @@ jenkins:
             labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
             sizeId: "s-8vcpu-16gb"
           - <<: *do-template
-            labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic office-system-tests"
+            labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic office-system-tests core-build"
             sizeId: "s-4vcpu-8gb"
             labellessJobsAllowed: true
           - <<: *do-template
