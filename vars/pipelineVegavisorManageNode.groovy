@@ -54,11 +54,6 @@ void call() {
             ansiColor('xterm')
         }
         environment {
-            GOROOT = "/usr/local/go"
-            GOPATH = "/jenkins/GOPATH"
-            GOCACHE = "/jenkins/GOCACHE"
-            GO111MODULE = "on"
-            GOBIN="${env.GOPATH}/bin"
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
         }
         stages {
