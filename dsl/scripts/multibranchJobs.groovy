@@ -77,7 +77,7 @@ def createCommonMultibranchPipeline(Map args){
                         }
                     }
                 }
-                stragety {
+                strategy {
                     allBranchesSame {
 
                     }
