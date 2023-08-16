@@ -1349,10 +1349,10 @@ def jobs = [
         cron: '0 0 * * *',
         definition: libDefinition('pipelinePerformanceTest()'),
         parameters: {
-            stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+            stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            stringParam('PERFORMANCE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/performance repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 'performance-tests', 'Jenkins label for running pipeline (empty means any node)')
         }
