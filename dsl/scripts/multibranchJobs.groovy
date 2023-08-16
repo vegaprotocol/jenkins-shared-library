@@ -1,49 +1,94 @@
-// def createCommonMultibranchPipeline(Map args){
-//     return multibranchPipelineJob(args.name) {
-//         description(jobs.standardDescription())
-//         branchSources {
-//             branchSource {
-//                 source {
-//                     git {
-//                         remote("git@github.com:vegaprotocol/.git")
-//                         credentialsId('')
-//                         id(generateUUIDForString(args.name))
-//                         traits {
-//                             cloneOptionTrait {
-//                                 extension {
-//                                     noTags(false)
-//                                     shallow(false)
-//                                     reference('')
-//                                     timeout(10) //10 minutes for timeout of performing git clone
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//                 buildStrategies {
-//                     buildNamedBranches {
-//                         filters {
-//                             wildcards {
-//                                 includes("*")
-//                                 excludes("")
-//                                 caseSensitive(false)
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         // Fix from https://issues.jenkins-ci.org/browse/JENKINS-46202
-//         configure {
-//             def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
-//             traits << 'jenkins.plugins.git.traits.BranchDiscoveryTrait' {
-//                 strategyId(1)
-//             }
-//             traits << 'jenkins.plugins.git.traits.TagDiscoveryTrait' {}
-//         }
-//     }
-// }
+// https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html#path/multibranchPipelineJob
+def createCommonMultibranchPipeline(Map args){
+    return multibranchPipelineJob(args.name) {
+        description(jobs.standardDescription())
+        authorization {
+            permission("hudson.model.Item.Read","Anonymous")
+        }
+        orphanedItemStrategy {
+            discardOldItems {
+                daysToKeep(14)
+            }
+        }
+        triggers {
+            periodicFolderTrigger {
+                interval("10m")
+            }
+        }
+        factory {
+            workflowBranchProjectFactory {
+                scriptPath("Jenkinsfile")
+            }
+        }
+        branchSources {
+            branchSource {
+                source {
+                    github {
+                        repositoryUrl("https://github.com/vegaprotocol/${args.repoName ?: args.name}")
+                        credentialsId('Vega Jenkins')
+                        id(generateUUIDForString(args.name))
+                        traits {
+                            cloneOption {
+                                extension {
+                                    honorRefspec(true)
+                                    noTags(false)
+                                    timeout(3)
+                                }
+                            }
+                            cleanAfterCheckout {
+                                extension {
+                                    deleteUntrackedNestedRepositories(true)
+                                }
+                            }
+                            gitHubBranchDiscovery {
+                                // 1 Exclude branches that are also filed as PRs
+                                // 2 Only branches that are also filed as PRs
+                                // 3 All branches
+                                strategyId(3)
+                            }
+                            gitHubPullRequestDiscovery {
+                                // 1 Merging the pull request with the current target branch revision
+                                // 2 The current pull request revision
+                                // 3 Both the current pull request revision and the pull request merged with the current target branch revision
+                                strategyId(1)
+                            }
+                            gitTagDiscovery()
+                        }
+                    }
+                }
+                stragety {
+                    allBranchesSame {
 
-// def multibranchJobs = [
+                    }
+                }
+                buildStrategies {
+                    buildChangeRequests {
+                        ignoreTargetOnlyChanges(true)
+                        ignoreUntrustedChanges(true)
+                    }
+                    buildNamedBranches {
+                        filters {
+                            wildcards {
+                                includes("develop main master")
+                            }
+                        }
+                    }
+                    buildTags {
+                        atMostDays("3")
+                    }
+                }
+            }
+        }
+    }
+}
 
-// ]
+def multibranchJobs = [
+    [
+        name: 'vegacapsule-test',
+        repoName: 'vegacapsule',
+    ],
+]
+
+multibranchJobs.each {
+    createCommonMultibranchPipeline(it)
+}
