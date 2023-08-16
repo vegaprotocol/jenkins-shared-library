@@ -90,6 +90,12 @@ def createCommonPipeline(args){
             args.env.each { key, value ->
                 env(key.toUpperCase(), value)
             }
+            env("GOROOT", "/usr/local/go")
+            env("GOPATH", "/jenkins/GOPATH")
+            env("GOCACHE", "/jenkins/GOCACHE")
+            env("GO111MODULE", "on")
+            env("GOBIN", "/jenkins/GOPATH/bin")
+            env("PATH+EXTRA", "/jenkins/GOPATH/bin:/usr/local/go/bin")
         }
 
         if (args.get('useScmDefinition', true)) {
