@@ -91,6 +91,8 @@ def createCommonMultibranchPipeline(Map args){
                         filters {
                             wildcards {
                                 includes("develop main master")
+                                caseSensitive(false)
+                                excludes("")
                             }
                         }
                     }
