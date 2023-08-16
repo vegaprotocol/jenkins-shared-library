@@ -10,6 +10,9 @@ def standardDescription() {
     """, 5)
 }
 
+def generateUUIDForString(String name) {
+    return UUID.nameUUIDFromBytes(name.getBytes()).toString();
+}
 
 // https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html#path/multibranchPipelineJob
 def createCommonMultibranchPipeline(Map args){
