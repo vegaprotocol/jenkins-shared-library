@@ -19,7 +19,7 @@ def createCommonMultibranchPipeline(Map args){
     return multibranchPipelineJob(args.name) {
         description(standardDescription())
         authorization {
-            permission("hudson.model.Item.Read","Anonymous")
+            permission("hudson.model.Item.Read","USER:Anonymous")
         }
         orphanedItemStrategy {
             discardOldItems {
@@ -73,7 +73,7 @@ def createCommonMultibranchPipeline(Map args){
                                 // 3 Both the current pull request revision and the pull request merged with the current target branch revision
                                 strategyId(1)
                             }
-                            gitTagDiscovery()
+                            gitHubTagDiscovery()
                         }
                     }
                 }
@@ -81,6 +81,7 @@ def createCommonMultibranchPipeline(Map args){
                     allBranchesSame {}
                 }
                 buildStrategies {
+                    skipInitialBuildOnFirstBranchIndexing() 
                     buildChangeRequests {
                         ignoreTargetOnlyChanges(true)
                         ignoreUntrustedChanges(true)
