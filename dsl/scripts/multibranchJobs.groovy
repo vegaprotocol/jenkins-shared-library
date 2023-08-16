@@ -78,9 +78,7 @@ def createCommonMultibranchPipeline(Map args){
                     }
                 }
                 strategy {
-                    allBranchesSame {
-
-                    }
+                    allBranchesSame {}
                 }
                 buildStrategies {
                     buildChangeRequests {
@@ -97,6 +95,7 @@ def createCommonMultibranchPipeline(Map args){
                         }
                     }
                     buildTags {
+                        atLeastDays("")
                         atMostDays("3")
                     }
                 }
