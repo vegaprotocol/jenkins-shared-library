@@ -40,6 +40,9 @@ def createCommonMultibranchPipeline(Map args){
             branchSource {
                 source {
                     github {
+                        repoOwner("vegaprotocol")
+                        repository("${args.repoName ?: args.name}")
+                        configuredByUrl(true)
                         repositoryUrl("https://github.com/vegaprotocol/${args.repoName ?: args.name}")
                         credentialsId('Vega Jenkins')
                         id(generateUUIDForString(args.name))
