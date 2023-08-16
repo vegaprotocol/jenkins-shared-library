@@ -147,6 +147,9 @@ void call() {
             stage('Update vegawallet service') {
                 when {
                     expression { DOCKER_VERSION }
+                    expression {
+                        env.NET_NAME == 'fairground'
+                    }
                 }
                 steps {
                     script {

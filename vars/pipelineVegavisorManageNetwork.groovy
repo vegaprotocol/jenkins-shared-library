@@ -616,11 +616,13 @@ void call() {
                                 expression {
                                     params.ACTION != 'stop-network'
                                 }
+                                expression {
+                                    env.NET_NAME == 'fairground'
+                                }
                             }
                         }
                         steps {
                             script {
-                                // ['vegawallet', 'faucet'].each { app ->
                                 ['vegawallet'].each { app ->
                                     releaseKubernetesApp(
                                         networkName: env.NET_NAME,
