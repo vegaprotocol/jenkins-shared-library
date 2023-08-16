@@ -107,8 +107,7 @@ def createCommonMultibranchPipeline(Map args){
 
 def multibranchJobs = [
     [
-        name: 'vegacapsule-test',
-        repoName: 'vegacapsule',
+        name: 'vegacapsule',
     ],
 ]
 
