@@ -365,11 +365,13 @@ void call() {
             }
             stage('Disable Alerts') {
                 steps {
-                    script {
-                        ALERT_SILENCE_ID = alert.disableAlerts(
-                            environment: env.ANSIBLE_LIMIT,
-                            duration: 40, // minutes
-                        )
+                    catchError {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                environment: env.ANSIBLE_LIMIT,
+                                duration: 40, // minutes
+                            )
+                        }
                     }
                 }
             }

@@ -61,11 +61,13 @@ void call() {
             }
             stage('Disable Alerts') {
                 steps {
-                    script {
-                        ALERT_SILENCE_ID = alert.disableAlerts(
-                            node: params.NODE,
-                            duration: 5, // minutes
-                        )
+                    catchError {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                node: params.NODE,
+                                duration: 5, // minutes
+                            )
+                        }
                     }
                 }
             }

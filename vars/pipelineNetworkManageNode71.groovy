@@ -222,16 +222,18 @@ void call() {
             }
             stage('Disable Alerts') {
                 steps {
-                    script {
-                        currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
-                        if (params.DRY_RUN) {
-                            currentBuild.description += " [DRY RUN]"
-                        }
+                    catchError {
+                        script {
+                            currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
+                            if (params.DRY_RUN) {
+                                currentBuild.description += " [DRY RUN]"
+                            }
 
-                        ALERT_SILENCE_ID = alert.disableAlerts(
-                            node: NODE_NAME ?: params.NODE,
-                            duration: 10, // minutes
-                        )
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                node: NODE_NAME ?: params.NODE,
+                                duration: 10, // minutes
+                            )
+                        }
                     }
                 }
             }
