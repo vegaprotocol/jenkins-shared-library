@@ -102,12 +102,27 @@ def createCommonMultibranchPipeline(Map args){
                 }
             }
         }
+        // https://stackoverflow.com/questions/67871598/how-to-set-the-discovery-modes-for-multibranch-job-created-by-job-dsl
+        if (args.discoverForks) {
+            configure {
+                def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+                traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+                    strategyId(2)
+                    trust(class: 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustPermission')
+                }
+            }
+        }
     }
 }
 
 def multibranchJobs = [
     [
         name: 'vegacapsule',
+    ],
+    [
+        name: 'vega-test',
+        repoName: 'vega',
+        discoverForks: true,
     ],
 ]
 
