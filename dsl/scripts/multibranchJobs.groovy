@@ -1,7 +1,7 @@
 // https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html#path/multibranchPipelineJob
 def createCommonMultibranchPipeline(Map args){
     return multibranchPipelineJob(args.name) {
-        description(jobs.standardDescription())
+        description(standardDescription())
         authorization {
             permission("hudson.model.Item.Read","Anonymous")
         }
