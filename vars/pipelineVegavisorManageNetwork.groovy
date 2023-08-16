@@ -366,11 +366,13 @@ void call() {
             stage('Disable Alerts') {
                 steps {
                     catchError {
-                        script {
-                            ALERT_SILENCE_ID = alert.disableAlerts(
-                                environment: env.ANSIBLE_LIMIT,
-                                duration: 40, // minutes
-                            )
+                        retry(3) {
+                            script {
+                                ALERT_SILENCE_ID = alert.disableAlerts(
+                                    environment: env.ANSIBLE_LIMIT,
+                                    duration: 40, // minutes
+                                )
+                            }
                         }
                     }
                 }
@@ -398,7 +400,7 @@ void call() {
                             json: [
                                 release_version: RELEASE_VERSION,
                                 unsafe_reset_all: params.UNSAFE_RESET_ALL,
-                                perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
+                                    perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
                                 update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
                         )
@@ -460,8 +462,10 @@ void call() {
                 post {
                     success {
                         catchError {
-                            script {
-                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            retry(3) {
+                                script {
+                                    alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                                }
                             }
                         }
                         script {
@@ -475,8 +479,10 @@ void call() {
                     }
                     unsuccessful {
                         catchError {
-                            script {
-                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                            retry (3) {
+                                script {
+                                    alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                                }
                             }
                         }
                         script {

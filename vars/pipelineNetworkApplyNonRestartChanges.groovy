@@ -62,11 +62,13 @@ void call() {
             stage('Disable Alerts') {
                 steps {
                     catchError {
-                        script {
-                            ALERT_SILENCE_ID = alert.disableAlerts(
-                                node: params.NODE,
-                                duration: 5, // minutes
-                            )
+                        retry (3) {
+                            script {
+                                ALERT_SILENCE_ID = alert.disableAlerts(
+                                    node: params.NODE,
+                                    duration: 5, // minutes
+                                )
+                            }
                         }
                     }
                 }
@@ -103,15 +105,19 @@ void call() {
             }
             success {
                 catchError {
-                    script {
-                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
+                    retry (3) {
+                        script {
+                            alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
+                        }
                     }
                 }
             }
             unsuccessful {
                 catchError {
-                    script {
-                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                    retry (3) {
+                        script {
+                            alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                        }
                     }
                 }
             }
