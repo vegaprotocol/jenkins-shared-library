@@ -49,6 +49,8 @@ def createCommonMultibranchPipeline(Map args){
                                     honorRefspec(true)
                                     noTags(false)
                                     timeout(3)
+                                    shallow(false)
+                                    reference("")
                                 }
                             }
                             cleanAfterCheckout {
