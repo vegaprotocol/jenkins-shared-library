@@ -1,4 +1,8 @@
 
+def h(def text, def num=4) {
+    return "<h${num}>${text}</h${num}>"
+}
+
 def standardDescription() {
     def url = "https://github.com/vegaprotocol/jenkins-shared-library/tree/main/dsl"
     return h("""
