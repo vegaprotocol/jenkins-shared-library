@@ -19,7 +19,7 @@ def createCommonMultibranchPipeline(Map args){
     return multibranchPipelineJob(args.name) {
         description(standardDescription())
         authorization {
-            permission("hudson.model.Item.Read","USER:Anonymous")
+            permission("hudson.model.Item.Read", "anonymous")
         }
         orphanedItemStrategy {
             discardOldItems {
@@ -81,7 +81,7 @@ def createCommonMultibranchPipeline(Map args){
                     allBranchesSame {}
                 }
                 buildStrategies {
-                    skipInitialBuildOnFirstBranchIndexing() 
+                    skipInitialBuildOnFirstBranchIndexing()
                     buildChangeRequests {
                         ignoreTargetOnlyChanges(true)
                         ignoreUntrustedChanges(true)
