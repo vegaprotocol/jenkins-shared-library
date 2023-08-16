@@ -228,12 +228,10 @@ void call() {
                             if (params.DRY_RUN) {
                                 currentBuild.description += " [DRY RUN]"
                             }
-                            retry(3) {
-                                ALERT_SILENCE_ID = alert.disableAlerts(
-                                    node: NODE_NAME ?: params.NODE,
-                                    duration: 10, // minutes
-                                )
-                            }
+                            // ALERT_SILENCE_ID = alert.disableAlerts(
+                            //     node: NODE_NAME ?: params.NODE,
+                            //     duration: 10, // minutes
+                            // )
                         }
                     }
                 }
@@ -329,26 +327,22 @@ void call() {
                         }
                     }
                 }
-                post {
-                    success {
-                        catchError {
-                            retry(3) {
-                                script {
-                                    alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
-                                }
-                            }
-                        }
-                    }
-                    unsuccessful {
-                        catchError {
-                            retry(3) {
-                                script {
-                                    alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-                                }
-                            }
-                        }
-                    }
-                }
+                // post {
+                //     success {
+                //         catchError {
+                //             script {
+                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                //             }
+                //         }
+                //     }
+                //     unsuccessful {
+                //         catchError {
+                //             script {
+                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                //             }
+                //         }
+                //     }
+                // }
             }
             stage('Post configuration') {
                 when {
