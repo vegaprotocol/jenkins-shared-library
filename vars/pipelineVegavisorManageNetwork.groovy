@@ -358,20 +358,21 @@ void call() {
                     }
                 }
             }
-            // stage('Disable Alerts') {
-            //     steps {
-            //         catchError {
-            //             retry(3) {
-            //                 script {
-            //                     ALERT_SILENCE_ID = alert.disableAlerts(
-            //                         environment: env.ANSIBLE_LIMIT,
-            //                         duration: 40, // minutes
-            //                     )
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
+            stage('Disable Alerts') {
+                when {
+                    not { expression { params.DRY_RUN } }
+                }
+                steps {
+                    retry(3) {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                environment: env.ANSIBLE_LIMIT,
+                                duration: 40, // minutes
+                            )
+                        }
+                    }
+                }
+            }
             stage('Ansible') {
                 when {
                     expression { env.ANSIBLE_LIMIT }
@@ -456,12 +457,10 @@ void call() {
                 }
                 post {
                     success {
-                        // catchError {
-                        //     script {
-                        //         alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
-                        //     }
-                        // }
                         script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
                             if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS ) {
@@ -471,12 +470,10 @@ void call() {
                         }
                     }
                     unsuccessful {
-                        // catchError {
-                        //     script {
-                        //         alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-                        //     }
-                        // }
                         script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                            }
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
                             if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS) {

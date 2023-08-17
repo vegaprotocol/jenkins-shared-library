@@ -65,9 +65,7 @@ void call() {
             }
             stage('Disable Alerts') {
                 when {
-                    not {
-                        expression { params.DRY_RUN }
-                    }
+                    not { expression { params.DRY_RUN } }
                 }
                 steps {
                     retry (3) {

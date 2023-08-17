@@ -220,25 +220,23 @@ void call() {
                     }
                 }
             }
-            // stage('Disable Alerts') {
-            //     steps {
-            //         catchError {
-            //             script {
-            //                 currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
-            //                 if (params.DRY_RUN) {
-            //                     currentBuild.description += " [DRY RUN]"
-            //                 }
-            //                 retry(3) {
-            //                     ALERT_SILENCE_ID = alert.disableAlerts(
-            //                         node: NODE_NAME ?: params.NODE,
-            //                         duration: 10, // minutes
-            //                     )
-
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
+            stage('Disable Alerts') {
+                steps {
+                    script {
+                        currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        } else {
+                            retry(3) {
+                                ALERT_SILENCE_ID = alert.disableAlerts(
+                                    node: NODE_NAME ?: params.NODE,
+                                    duration: params.TIMEOUT, // minutes
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             stage('Ansible') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -330,22 +328,22 @@ void call() {
                         }
                     }
                 }
-                // post {
-                //     success {
-                //         catchError {
-                //             script {
-                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
-                //             }
-                //         }
-                //     }
-                //     unsuccessful {
-                //         catchError {
-                //             script {
-                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-                //             }
-                //         }
-                //     }
-                // }
+                post {
+                    success {
+                        script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
+                    }
+                    unsuccessful {
+                        script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                            }
+                        }
+                    }
+                }
             }
             stage('Post configuration') {
                 when {
