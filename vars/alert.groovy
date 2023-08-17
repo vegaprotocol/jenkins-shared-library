@@ -18,7 +18,7 @@ String disableAlerts(Map args=[:]) {
         matcherValue = args.node
     } else if (args?.environment) {
         matcherIsRegex = true
-        matcherValue = ".*\\.${args.environment}\\.vega\\..*"
+        matcherValue = ".*\\\\.${args.environment}\\\\.vega\\\\..*"
     } else {
         throw "disableAlerts error: need to provide 'node' or 'environment' argument. Provided: ${args}"
     }

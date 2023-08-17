@@ -65,15 +65,13 @@ void call() {
             }
             stage('Disable Alerts') {
                 steps {
-                    catchError {
-                        retry (3) {
-                            script {
-                                ALERT_SILENCE_ID = alert.disableAlerts(
-                                    environment: ALERT_DISABLE_ENV,
-                                    node: ALERT_DISABLE_NODE,
-                                    duration: 5, // minutes
-                                )
-                            }
+                    retry (3) {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                environment: ALERT_DISABLE_ENV,
+                                node: ALERT_DISABLE_NODE,
+                                duration: 5, // minutes
+                            )
                         }
                     }
                 }
@@ -109,15 +107,15 @@ void call() {
                 cleanWs()
             }
             success {
-                catchError {
-                    script {
+                script {
+                    if (ALERT_SILENCE_ID) {
                         alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
                     }
                 }
             }
             unsuccessful {
-                catchError {
-                    script {
+                script {
+                    if (ALERT_SILENCE_ID) {
                         alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
                     }
                 }
