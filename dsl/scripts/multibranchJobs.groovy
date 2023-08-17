@@ -127,13 +127,14 @@ def multibranchJobs = [
         name: 'vega',
         discoverForks: true,
         description: 'A Go implementation of the Vega Protocol, a protocol for creating and trading derivatives on a fully decentralised network.',
-        displayName: 'Vega Core'
+        displayName: 'Vega Core',
     ],
     [
-        name: 'private/system-tests'
+        name: 'private/system-tests',
+        repoName: 'system-tests',
     ],
     [
-        name: 'vega-market-sim'
+        name: 'vega-market-sim',
     ],
 ]
 
