@@ -32,9 +32,7 @@ String disableAlerts(Map args=[:]) {
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strResponse
 
-    print("Before 1")
     withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
-        print("Before 2")
         strResponse = sh(label: "HTTP Grafana API: create silence: node='${matcherValue}', isRegex=${matcherIsRegex}",
             returnStdout: true,
             script: """#!/bin/bash -e
@@ -59,9 +57,7 @@ String disableAlerts(Map args=[:]) {
                     }'
             """
         ).trim()
-        print("After 1")
     }
-    print("After 2")
 
     print("HTTP Grafana API response: ${strResponse}")
 
@@ -97,14 +93,12 @@ void enableAlerts(Map args=[:]) {
 
     String postData = new JsonBuilder(silenceConfig).toPrettyString()
 
-    withCredentials([
-        usernamePassword(credentialsId: 'prom-basic-auth', usernameVariable:'PROM_LOGIN', passwordVariable: 'PROM_PASSWORD')
-    ]) {
+    withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
         sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
             curl -X POST \
                 https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
                 -H 'Content-Type: application/json' \
-                -u "\${PROM_LOGIN}:\${PROM_PASSWORD}" \
+                -H "Authorization: Bearer \${GRAFANA_TOKEN}" \
                 -d '${postData}'
         """
     }
@@ -128,7 +122,7 @@ Object getDisabledAlerts(Map args=[:]) {
             script: """#!/bin/bash -e
                 curl -X GET \
                     https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID} \
-                    -u "\${PROM_LOGIN}:\${PROM_PASSWORD}"
+                    -H "Authorization: Bearer \${GRAFANA_TOKEN}"
             """
         ).trim()
     }
