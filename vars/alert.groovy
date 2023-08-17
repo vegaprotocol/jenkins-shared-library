@@ -96,7 +96,7 @@ void enableAlerts(Map args=[:]) {
     withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
         sh label: 'HTTP Prometheus API: delete silence', script: """#!/bin/bash -e
             curl -X POST \
-                https://prom.ops.vega.xyz/alertmanager/api/v2/silences \
+                https://monitoring.vega.community/api/alertmanager/grafana/api/v2/silences \
                 -H 'Content-Type: application/json' \
                 -H "Authorization: Bearer \${GRAFANA_TOKEN}" \
                 -d '${postData}'
@@ -121,7 +121,7 @@ Object getDisabledAlerts(Map args=[:]) {
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X GET \
-                    https://prom.ops.vega.xyz/alertmanager/api/v2/silence/${args.silenceID} \
+                    https://monitoring.vega.community/api/alertmanager/grafana/api/v2/silence/${args.silenceID} \
                     -H "Authorization: Bearer \${GRAFANA_TOKEN}"
             """
         ).trim()

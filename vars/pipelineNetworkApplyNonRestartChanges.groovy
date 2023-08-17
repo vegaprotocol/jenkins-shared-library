@@ -34,7 +34,7 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
-                        currentBuild.description = "action: ${params.ACTION}, node: ${params.NODE}"
+                        currentBuild.description = "node: ${params.NODE}"
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
                         }
