@@ -129,6 +129,12 @@ def multibranchJobs = [
         description: 'A Go implementation of the Vega Protocol, a protocol for creating and trading derivatives on a fully decentralised network.',
         displayName: 'Vega Core'
     ],
+    [
+        name: 'private/system-tests'
+    ],
+    [
+        name: 'vega-market-sim'
+    ],
 ]
 
 multibranchJobs.each {
