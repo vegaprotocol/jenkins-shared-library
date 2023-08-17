@@ -32,7 +32,7 @@ Map dv = [
     vegaCoreLogLevel: 'Info',
     vegaCoreDLV: false,
 
-    agent: 'g-8vcpu-32gb',
+    agent: 'office-system-tests',
     timeout: '200'
 ]
 
@@ -65,7 +65,7 @@ Map capsuleSystemTests = [
     systemTestsRunTimeout: '300',
     systemTestsNetworkDir: 'networkdata',
     printNetworkLogsInJenkinsPipeline: false,
-    nodeLabel: 'g-8vcpu-32gb'
+    nodeLabel: 'office-system-tests'
 ]
 
 // System Tests LNL pipeline
