@@ -32,7 +32,9 @@ String disableAlerts(Map args=[:]) {
     String strEnd = end.format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
     String strResponse
 
+    print("Before 1")
     withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
+        print("Before 2")
         strResponse = sh(label: "HTTP Grafana API: create silence: node='${matcherValue}', isRegex=${matcherIsRegex}",
             returnStdout: true,
             script: """#!/bin/bash -e
@@ -57,7 +59,9 @@ String disableAlerts(Map args=[:]) {
                     }'
             """
         ).trim()
+        print("After 1")
     }
+    print("After 2")
 
     print("HTTP Grafana API response: ${strResponse}")
 
