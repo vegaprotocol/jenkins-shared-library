@@ -64,13 +64,18 @@ void call() {
                 }
             }
             stage('Disable Alerts') {
+                when {
+                    not {
+                        expression { params.DRY_RUN }
+                    }
+                }
                 steps {
                     retry (3) {
                         script {
                             ALERT_SILENCE_ID = alert.disableAlerts(
                                 environment: ALERT_DISABLE_ENV,
                                 node: ALERT_DISABLE_NODE,
-                                duration: 5, // minutes
+                                duration: params.TIMEOUT, // minutes
                             )
                         }
                     }
