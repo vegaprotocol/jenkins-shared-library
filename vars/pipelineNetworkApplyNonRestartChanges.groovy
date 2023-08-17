@@ -59,20 +59,20 @@ void call() {
                     }
                 }
             }
-            // stage('Disable Alerts') {
-            //     steps {
-            //         catchError {
-            //             retry (3) {
-            //                 script {
-            //                     ALERT_SILENCE_ID = alert.disableAlerts(
-            //                         node: params.NODE,
-            //                         duration: 5, // minutes
-            //                     )
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
+            stage('Disable Alerts') {
+                steps {
+                    catchError {
+                        retry (3) {
+                            script {
+                                ALERT_SILENCE_ID = alert.disableAlerts(
+                                    node: params.NODE,
+                                    duration: 5, // minutes
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             stage('Apply Changes') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
