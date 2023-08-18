@@ -261,12 +261,18 @@ void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
     attemptsLeft = 3
   }
 
+  if (delayBetweenAttepmts < 1) {
+    delayBetweenAttepmts = 1
+  }
+
   while (attemptsLeft >= 0) {
     attemptsLeft--
     responseCode = HTTPResponseCode(url)
     if (responseCode >= 200 && responseCode < 300) {
       return
     }
+
+    sleep delayBetweenAttepmts
   }
 
   error('Could not wait for valid response code on the url: ' + url)
