@@ -222,16 +222,15 @@ void call() {
             }
             stage('Disable Alerts') {
                 steps {
-                    catchError {
-                        script {
-                            currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
-                            if (params.DRY_RUN) {
-                                currentBuild.description += " [DRY RUN]"
-                            }
-                            // ALERT_SILENCE_ID = alert.disableAlerts(
-                            //     node: NODE_NAME ?: params.NODE,
-                            //     duration: 10, // minutes
-                            // )
+                    script {
+                        currentBuild.description += ", node: ${NODE_NAME ?: params.NODE}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        } else {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                node: NODE_NAME ?: params.NODE,
+                                duration: params.TIMEOUT, // minutes
+                            )
                         }
                     }
                 }
@@ -327,22 +326,22 @@ void call() {
                         }
                     }
                 }
-                // post {
-                //     success {
-                //         catchError {
-                //             script {
-                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
-                //             }
-                //         }
-                //     }
-                //     unsuccessful {
-                //         catchError {
-                //             script {
-                //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-                //             }
-                //         }
-                //     }
-                // }
+                post {
+                    success {
+                        script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
+                            }
+                        }
+                    }
+                    unsuccessful {
+                        script {
+                            if (ALERT_SILENCE_ID) {
+                                alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                            }
+                        }
+                    }
+                }
             }
             stage('Post configuration') {
                 when {

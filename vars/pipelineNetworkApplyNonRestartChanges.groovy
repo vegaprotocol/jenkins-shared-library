@@ -9,6 +9,8 @@ void call() {
 
     ANSIBLE_LIMIT = 'non-existing'
 
+    ALERT_DISABLE_ENV = null
+    ALERT_DISABLE_NODE = null
     ALERT_SILENCE_ID = ''
 
     pipeline {
@@ -32,14 +34,16 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
-                        currentBuild.description = "action: ${params.ACTION}, node: ${params.NODE}"
+                        currentBuild.description = "node: ${params.NODE}"
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
                         }
                         if (params.NODE?.toLowerCase() == 'all') {
                             ANSIBLE_LIMIT = env.NET_NAME
+                            ALERT_DISABLE_ENV = ANSIBLE_LIMIT
                         } else if (params.NODE?.trim()) {
                             ANSIBLE_LIMIT = params.NODE.trim()
+                            ALERT_DISABLE_NODE = ANSIBLE_LIMIT
                         } else {
                             error "cannot run ansible: NODE parameter is not set"
                         }
@@ -59,20 +63,22 @@ void call() {
                     }
                 }
             }
-            // stage('Disable Alerts') {
-            //     steps {
-            //         catchError {
-            //             retry (3) {
-            //                 script {
-            //                     ALERT_SILENCE_ID = alert.disableAlerts(
-            //                         node: params.NODE,
-            //                         duration: 5, // minutes
-            //                     )
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
+            stage('Disable Alerts') {
+                when {
+                    not { expression { params.DRY_RUN } }
+                }
+                steps {
+                    retry (3) {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                environment: ALERT_DISABLE_ENV,
+                                node: ALERT_DISABLE_NODE,
+                                duration: params.TIMEOUT, // minutes
+                            )
+                        }
+                    }
+                }
+            }
             stage('Apply Changes') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -99,24 +105,24 @@ void call() {
                 }
             }
         }
-        // post {
-        //     always {
-        //         cleanWs()
-        //     }
-        //     success {
-        //         catchError {
-        //             script {
-        //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
-        //             }
-        //         }
-        //     }
-        //     unsuccessful {
-        //         catchError {
-        //             script {
-        //                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-        //             }
-        //         }
-        //     }
-        // }
+        post {
+            always {
+                cleanWs()
+            }
+            success {
+                script {
+                    if (ALERT_SILENCE_ID) {
+                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
+                    }
+                }
+            }
+            unsuccessful {
+                script {
+                    if (ALERT_SILENCE_ID) {
+                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
+                    }
+                }
+            }
+        }
     }
 }
