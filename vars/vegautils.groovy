@@ -239,3 +239,35 @@ def elapsedTime(Closure closure){
     def timeStop = new Date()
     groovy.time.TimeCategory.minus(timeStop, timeStart)
 }
+
+int HTTPResponseCode(String url) {
+  try {
+    return shellOutput('''curl \
+      -I \
+      -X GET \
+      -L \
+      -s \
+      -o /dev/null \
+      -w "%{http_code}" \
+      ''' + url)
+  } catch {
+    return 500
+  }
+}
+
+void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
+  int attemptsLeft = attempts
+  if (attemptsLeft < 1) {
+    attemptsLeft = 3
+  }
+
+  while (attemptsLeft >= 0) {
+    attemptsLeft--
+    responseCode = HTTPResponseCode(url)
+    if (responseCode >= 200 && responseCode < 300) {
+      return
+    }
+  }
+
+  error('Could not wait for valid response code on the url: ' + url)
+}
