@@ -330,7 +330,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only '''
             }
 
-            vegautils.waitForValidHTTPCode("http://localhost:4646", 20, 1)
+            vegautils.waitForValidHTTPCode('http://localhost:4646', 20, 1)
             sleep 3 // Additional sleep
           }
         }

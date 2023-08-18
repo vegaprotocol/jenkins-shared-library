@@ -249,8 +249,8 @@ int HTTPResponseCode(String url) {
       -s \
       -o /dev/null \
       -w "%{http_code}" \
-      ''' + url)
-  } catch {
+      ''' + url) as int
+  } catch(e) {
     return 500
   }
 }
