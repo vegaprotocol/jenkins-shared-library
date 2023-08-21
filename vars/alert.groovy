@@ -33,7 +33,7 @@ String disableAlerts(Map args=[:]) {
     String strResponse
 
     withCredentials([string(credentialsId: 'grafana-vega-ops', variable: 'GRAFANA_TOKEN')]) {
-        strResponse = sh(label: "HTTP Grafana API: create silence: node='${matcherValue}', isRegex=${matcherIsRegex}",
+        strResponse = sh(label: "HTTP Grafana API: create silence: instance='${matcherValue}', isRegex=${matcherIsRegex}",
             returnStdout: true,
             script: """#!/bin/bash -e
                 curl -X POST \
@@ -43,7 +43,7 @@ String disableAlerts(Map args=[:]) {
                     -d '{
                         "matchers": [
                         {
-                            "name": "node",
+                            "name": "instance",
                             "value": "${matcherValue}",
                             "isRegex": ${matcherIsRegex},
                             "isEqual": true
@@ -65,7 +65,7 @@ String disableAlerts(Map args=[:]) {
     def silenceID = response["silenceID"]
     assert silenceID: "disableAlerts error: silenceID is missing in the response from Grafana API"
 
-    print("Silenced alerts for node='${matcherValue}' for ${duration} minutes, until: ${strEnd} UTC. Grafana Silence ID: ${silenceID}")
+    print("Silenced alerts for instance='${matcherValue}' for ${duration} minutes, until: ${strEnd} UTC. Grafana Silence ID: ${silenceID}")
 
     return silenceID
 }
