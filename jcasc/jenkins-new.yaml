@@ -113,120 +113,115 @@ jenkins:
         workspacePath: "/jenkins/"
       timeoutMinutes: 10
       usePrivateNetworking: false
-#   crumbIssuer:
-#     standard:
-#       excludeClientIPFromCrumb: false
-#   disableRememberMe: false
-#   disabledAdministrativeMonitors:
-#   - "hudson.node_monitors.MonitorMarkedNodeOffline"
-#   - "org.jenkinsci.plugins.matrixauth.AmbiguityMonitor"
-#   - "jenkins.security.QueueItemAuthenticatorMonitor"
-#   globalNodeProperties:
-#   - envInject:
-#       unsetSystemVariables: false
-#   labelString: "jenkins-controller"
-#   log:
-#     recorders:
-#     - loggers:
-#       - level: "ALL"
-#         name: "hudson.plugins.ec2"
-#       - level: "ALL"
-#       name: "hudson.plugins.ec2"
-#     - loggers:
-#       - level: "ALL"
-#         name: "com.dubture.jenkins.digitalocean"
-#       name: "digitalocean"
-#   markupFormatter:
-#     rawHtml:
-#       disableSyntaxHighlighting: false
-#   mode: EXCLUSIVE
-#   myViewsTabBar: "standard"
-#   nodes:
-#   - permanent:
-#       labelString: "generic office-system-tests core-build"
-#       launcher:
-#         inbound:
-#           webSocket: true
-#           workDirSettings:
-#             disabled: false
-#             failIfWorkDirIsMissing: false
-#             internalDir: "remoting"
-#       mode: EXCLUSIVE
-#       name: "jenkins01"
-#       remoteFS: "/jenkins"
-#       retentionStrategy: "always"
-#   - permanent:
-#       labelString: "performance-tests generic office-system-tests"
-#       launcher:
-#         inbound:
-#           webSocket: true
-#           workDirSettings:
-#             disabled: false
-#             failIfWorkDirIsMissing: false
-#             internalDir: "remoting"
-#       mode: EXCLUSIVE
-#       name: "jenkins02"
-#       remoteFS: "/jenkins"
-#       retentionStrategy: "always"
-#   - permanent:
-#       labelString: "generic office-system-tests core-build"
-#       launcher:
-#         inbound:
-#           webSocket: true
-#           workDirSettings:
-#             disabled: false
-#             failIfWorkDirIsMissing: false
-#             internalDir: "remoting"
-#       mode: EXCLUSIVE
-#       name: "jenkins03"
-#       remoteFS: "/jenkins"
-#       retentionStrategy: "always"
-#   - permanent:
-#       labelString: "generic office-system-tests core-build"
-#       launcher:
-#         inbound:
-#           webSocket: true
-#           workDirSettings:
-#             disabled: false
-#             failIfWorkDirIsMissing: false
-#             internalDir: "remoting"
-#       mode: EXCLUSIVE
-#       name: "jenkins04"
-#       remoteFS: "/jenkins"
-#       retentionStrategy: "always"
-#   - permanent:
-#       labelString: "generic office-system-tests core-build"
-#       launcher:
-#         inbound:
-#           webSocket: true
-#           workDirSettings:
-#             disabled: false
-#             failIfWorkDirIsMissing: false
-#             internalDir: "remoting"
-#       mode: EXCLUSIVE
-#       name: "jenkins06"
-#       remoteFS: "/jenkins"
-#       retentionStrategy: "always"
-#   numExecutors: 0
-#   primaryView:
-#     all:
-#       name: "all"
-#   projectNamingStrategy:
-#     pattern:
-#       description: "No whitespaces - solves a lot of problems "
-#       forceExistingJobs: false
-#       namePattern: "^[\\w\\-_]+$"
-#   quietPeriod: 5
-#   remotingSecurity:
-#     enabled: true
-#   scmCheckoutRetryCount: 0
-#   securityRealm:
-#     github:
-#       clientID: "91757c530663c2ef60e9"
-#       clientSecret: "{AQAAABAAAAAwkhTqRlE3mU5W4467Z1IaqHt1kUBmVfIvTJz4rmu7U1OXw8CFKpU9VoUZV83oul4bLy7+Kiqek4sqyulZFqvccw==}"
-#       githubApiUri: "https://api.github.com"
-#       githubWebUri: "https://github.com"
-#       oauthScopes: "read:org,user:email,repo"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  disabledAdministrativeMonitors:
+  - "hudson.node_monitors.MonitorMarkedNodeOffline"
+  - "org.jenkinsci.plugins.matrixauth.AmbiguityMonitor"
+  - "jenkins.security.QueueItemAuthenticatorMonitor"
+  globalNodeProperties:
+  - envInject:
+      unsetSystemVariables: false
+  labelString: "jenkins-controller"
+  log:
+    recorders:
+    - loggers:
+      - level: "ALL"
+        name: "com.dubture.jenkins.digitalocean"
+      name: "digitalocean"
+  markupFormatter:
+    rawHtml:
+      disableSyntaxHighlighting: false
+  mode: EXCLUSIVE
+  myViewsTabBar: "standard"
+  nodes:
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins01"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "performance-tests generic office-system-tests"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins02"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins03"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins04"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins06"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  numExecutors: 0
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy:
+    pattern:
+      description: "No whitespaces - solves a lot of problems "
+      forceExistingJobs: false
+      namePattern: "^[\\w\\-_]+$"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    github:
+      clientID: "91757c530663c2ef60e9"
+      clientSecret: "{AQAAABAAAAAwkhTqRlE3mU5W4467Z1IaqHt1kUBmVfIvTJz4rmu7U1OXw8CFKpU9VoUZV83oul4bLy7+Kiqek4sqyulZFqvccw==}"
+      githubApiUri: "https://api.github.com"
+      githubWebUri: "https://github.com"
+      oauthScopes: "read:org,user:email,repo"
 #   slaveAgentPort: -1
 #   systemMessage: "Welcome to Vegaprotocol Jenkins Instance :)!"
 #   updateCenter:
