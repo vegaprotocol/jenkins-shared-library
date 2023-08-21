@@ -81,8 +81,16 @@ def createCommonMultibranchPipeline(Map args){
                         }
                     }
                 }
+                // https://stackoverflow.com/questions/55173365/how-to-disable-triggers-from-branch-indexing-but-still-allow-scm-triggering-in-m
                 strategy {
-                    allBranchesSame {}
+                    allBranchesSame {
+                        props {
+                            suppressAutomaticTriggering {
+                                strategy('INDEXING')
+                                triggeredBranchesRegex('.*')
+                            }
+                        }
+                    }
                 }
                 buildStrategies {
                     skipInitialBuildOnFirstBranchIndexing()
