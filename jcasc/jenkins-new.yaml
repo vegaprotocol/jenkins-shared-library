@@ -484,21 +484,21 @@ unclassified:
                   strategyId: 1
               - gitHubPullRequestDiscovery:
                   strategyId: 1
-#   globalTimeOutConfiguration:
-#     operations:
-#     - writeDescriptionOperation:
-#         description: "Build finished after global timeout 300 minutes"
-#     - "failOperation"
-#     overwriteable: true
-#     strategy:
-#       absoluteTimeOutStrategy:
-#         timeoutMinutes: "300"
-#   hashicorpVault:
-#     configuration:
-#       engineVersion: 2
-#       timeout: 60
-#       vaultCredentialId: "a0bf1c59-8e45-40e1-a209-78de07e70acd"
-#       vaultUrl: "https://vault.ops.vega.xyz"
+  globalTimeOutConfiguration:
+    operations:
+    - writeDescriptionOperation:
+        description: "Build finished after global timeout 300 minutes"
+    - "failOperation"
+    overwriteable: true
+    strategy:
+      absoluteTimeOutStrategy:
+        timeoutMinutes: "300"
+  hashicorpVault:
+    configuration:
+      engineVersion: 2
+      timeout: 60
+      vaultCredentialId: "a0bf1c59-8e45-40e1-a209-78de07e70acd"
+      vaultUrl: "https://vault.ops.vega.xyz"
 #   injectionConfig:
 #     allowUntrusted: false
 #     checkForBuildAgentErrors: false
@@ -506,58 +506,58 @@ unclassified:
 #     enforceUrl: false
 #     injectCcudExtension: false
 #     injectMavenExtension: false
-#   jobConfigHistory:
-#     excludePattern: "queue\\.xml|nodeMonitors\\.xml|UpdateCenter\\.xml|global-build-stats|LockableResourcesManager\\\
-#       .xml|MilestoneStep\\.xml|cloudbees-disk-usage-simple\\.xml"
-#     saveModuleConfiguration: false
-#     showBuildBadges: "always"
-#     showChangeReasonCommentWindow: true
-#     skipDuplicateHistory: true
-#   junitTestResultStorage:
-#     storage: "file"
-#   location:
-#     adminAddress: "address not configured yet <nobody@nowhere>"
-#     url: "https://jenkins.vega.rocks/"
-#   mailer:
-#     charset: "UTF-8"
-#     useSsl: false
-#     useTls: false
-#   pollSCM:
-#     pollingThreadCount: 10
-#   scmGit:
-#     addGitTagAction: false
-#     allowSecondFetch: false
-#     createAccountBasedOnEmail: false
-#     disableGitToolChooser: false
-#     hideCredentials: false
-#     showEntireCommitSummaryInChanges: false
-#     useExistingAccountWithSameEmail: false
-#   separator:
-#     globalSectionHeaderStyle: "font-weight: bold;"
-#   shell:
-#     shell: "/bin/bash"
-#   simple-theme-plugin:
-#     elements:
-#     - faviconUrl:
-#         url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/vega/vega-favicon.png"
-#     - jsUrl:
-#         url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/theme.js"
-#     - cssUrl:
-#         url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/theme.css"
-#   slackNotifier:
-#     botUser: false
-#     sendAsText: false
-#     teamDomain: "vegaprotocol"
-#     tokenCredentialId: "slack-token"
-#   timestamper:
-#     allPipelines: false
-#     elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
-#     systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
-#   upstream:
-#     globalUpstreamFilterStrategy: UseOldest
-# tool:
-#   git:
-#     installations:
-#     - home: "git"
-#       name: "Default"
+  jobConfigHistory:
+    excludePattern: "queue\\.xml|nodeMonitors\\.xml|UpdateCenter\\.xml|global-build-stats|LockableResourcesManager\\\
+      .xml|MilestoneStep\\.xml|cloudbees-disk-usage-simple\\.xml"
+    saveModuleConfiguration: false
+    showBuildBadges: "always"
+    showChangeReasonCommentWindow: true
+    skipDuplicateHistory: true
+  junitTestResultStorage:
+    storage: "file"
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+    url: "https://jenkins.vega.rocks/"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  separator:
+    globalSectionHeaderStyle: "font-weight: bold;"
+  shell:
+    shell: "/bin/bash"
+  simple-theme-plugin:
+    elements:
+    - faviconUrl:
+        url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/vega/vega-favicon.png"
+    - jsUrl:
+        url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/theme.js"
+    - cssUrl:
+        url: "https://vegaprotocol.github.io/jenkins-shared-library/theme/theme.css"
+  slackNotifier:
+    botUser: false
+    sendAsText: false
+    teamDomain: "vegaprotocol"
+    tokenCredentialId: "slack-token"
+  timestamper:
+    allPipelines: false
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+  upstream:
+    globalUpstreamFilterStrategy: UseOldest
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
 
