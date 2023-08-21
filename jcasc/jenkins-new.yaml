@@ -349,141 +349,141 @@ security:
     - "staticMethod jenkins.model.GlobalConfiguration all"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods findAll java.lang.Object"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods inspect java.lang.Object"
-# unclassified:
-#   ansiColorBuildWrapper:
-#     colorMaps:
-#     - black: "#000000"
-#       blackB: "#4C4C4C"
-#       blue: "#1E90FF"
-#       blueB: "#4682B4"
-#       cyan: "#00CDCD"
-#       cyanB: "#00FFFF"
-#       green: "#00CD00"
-#       greenB: "#00FF00"
-#       magenta: "#CD00CD"
-#       magentaB: "#FF00FF"
-#       name: "xterm"
-#       red: "#CD0000"
-#       redB: "#FF0000"
-#       white: "#E5E5E5"
-#       whiteB: "#FFFFFF"
-#       yellow: "#CDCD00"
-#       yellowB: "#FFFF00"
-#     - black: "#000000"
-#       blackB: "#555555"
-#       blue: "#0000AA"
-#       blueB: "#5555FF"
-#       cyan: "#00AAAA"
-#       cyanB: "#55FFFF"
-#       defaultBackground: 0
-#       defaultForeground: 7
-#       green: "#00AA00"
-#       greenB: "#55FF55"
-#       magenta: "#AA00AA"
-#       magentaB: "#FF55FF"
-#       name: "vga"
-#       red: "#AA0000"
-#       redB: "#FF5555"
-#       white: "#AAAAAA"
-#       whiteB: "#FFFFFF"
-#       yellow: "#AA5500"
-#       yellowB: "#FFFF55"
-#     - black: "black"
-#       blackB: "black"
-#       blue: "blue"
-#       blueB: "blue"
-#       cyan: "cyan"
-#       cyanB: "cyan"
-#       green: "green"
-#       greenB: "green"
-#       magenta: "magenta"
-#       magentaB: "magenta"
-#       name: "css"
-#       red: "red"
-#       redB: "red"
-#       white: "white"
-#       whiteB: "white"
-#       yellow: "yellow"
-#       yellowB: "yellow"
-#     - black: "#2E3436"
-#       blackB: "#2E3436"
-#       blue: "#3465A4"
-#       blueB: "#3465A4"
-#       cyan: "#06989A"
-#       cyanB: "#06989A"
-#       defaultBackground: 0
-#       defaultForeground: 7
-#       green: "#4E9A06"
-#       greenB: "#4E9A06"
-#       magenta: "#75507B"
-#       magentaB: "#75507B"
-#       name: "gnome-terminal"
-#       red: "#CC0000"
-#       redB: "#CC0000"
-#       white: "#D3D7CF"
-#       whiteB: "#D3D7CF"
-#       yellow: "#C4A000"
-#       yellowB: "#C4A000"
-#   buildDiscarders:
-#     configuredBuildDiscarders:
-#     - "jobBuildDiscarder"
-#   buildStepOperation:
-#     enabled: false
-#   casCGlobalConfig:
-#     configurationPath: "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml"
-#   email-ext:
-#     adminRequiredForTemplateTesting: false
-#     allowUnregisteredEnabled: false
-#     charset: "UTF-8"
-#     debugMode: false
-#     defaultBody: |-
-#       $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+unclassified:
+  ansiColorBuildWrapper:
+    colorMaps:
+    - black: "#000000"
+      blackB: "#4C4C4C"
+      blue: "#1E90FF"
+      blueB: "#4682B4"
+      cyan: "#00CDCD"
+      cyanB: "#00FFFF"
+      green: "#00CD00"
+      greenB: "#00FF00"
+      magenta: "#CD00CD"
+      magentaB: "#FF00FF"
+      name: "xterm"
+      red: "#CD0000"
+      redB: "#FF0000"
+      white: "#E5E5E5"
+      whiteB: "#FFFFFF"
+      yellow: "#CDCD00"
+      yellowB: "#FFFF00"
+    - black: "#000000"
+      blackB: "#555555"
+      blue: "#0000AA"
+      blueB: "#5555FF"
+      cyan: "#00AAAA"
+      cyanB: "#55FFFF"
+      defaultBackground: 0
+      defaultForeground: 7
+      green: "#00AA00"
+      greenB: "#55FF55"
+      magenta: "#AA00AA"
+      magentaB: "#FF55FF"
+      name: "vga"
+      red: "#AA0000"
+      redB: "#FF5555"
+      white: "#AAAAAA"
+      whiteB: "#FFFFFF"
+      yellow: "#AA5500"
+      yellowB: "#FFFF55"
+    - black: "black"
+      blackB: "black"
+      blue: "blue"
+      blueB: "blue"
+      cyan: "cyan"
+      cyanB: "cyan"
+      green: "green"
+      greenB: "green"
+      magenta: "magenta"
+      magentaB: "magenta"
+      name: "css"
+      red: "red"
+      redB: "red"
+      white: "white"
+      whiteB: "white"
+      yellow: "yellow"
+      yellowB: "yellow"
+    - black: "#2E3436"
+      blackB: "#2E3436"
+      blue: "#3465A4"
+      blueB: "#3465A4"
+      cyan: "#06989A"
+      cyanB: "#06989A"
+      defaultBackground: 0
+      defaultForeground: 7
+      green: "#4E9A06"
+      greenB: "#4E9A06"
+      magenta: "#75507B"
+      magentaB: "#75507B"
+      name: "gnome-terminal"
+      red: "#CC0000"
+      redB: "#CC0000"
+      white: "#D3D7CF"
+      whiteB: "#D3D7CF"
+      yellow: "#C4A000"
+      yellowB: "#C4A000"
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  buildStepOperation:
+    enabled: false
+  casCGlobalConfig:
+    configurationPath: "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml"
+  email-ext:
+    adminRequiredForTemplateTesting: false
+    allowUnregisteredEnabled: false
+    charset: "UTF-8"
+    debugMode: false
+    defaultBody: |-
+      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
 
-#       Check console output at $BUILD_URL to view the results.
-#     defaultContentType: "text/plain"
-#     defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
-#     defaultTriggerIds:
-#     - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
-#     maxAttachmentSize: -1
-#     maxAttachmentSizeMb: -1
-#     precedenceBulk: false
-#     watchingEnabled: false
+      Check console output at $BUILD_URL to view the results.
+    defaultContentType: "text/plain"
+    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+    defaultTriggerIds:
+    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+    maxAttachmentSize: -1
+    maxAttachmentSizeMb: -1
+    precedenceBulk: false
+    watchingEnabled: false
 #   enrichedSummaryConfig:
 #     enrichedSummaryEnabled: false
 #     httpClientDelayBetweenRetriesInSeconds: 1
 #     httpClientMaxRetries: 3
 #     httpClientTimeoutInSeconds: 1
-#   fingerprints:
-#     fingerprintCleanupDisabled: false
-#     storage: "file"
-#   gitHubConfiguration:
-#     apiRateLimitChecker: ThrottleForNormalize
-#   gitHubPluginConfig:
-#     hookSecretConfigs:
-#     - credentialsId: "jenkins-webhook-secret"
-#     hookUrl: "https://jenkins.vega.rocks/github-webhook/"
-#   globalDefaultFlowDurabilityLevel:
-#     durabilityHint: PERFORMANCE_OPTIMIZED
-#   globalLibraries:
-#     libraries:
-#     - defaultVersion: "main"
-#       name: "vega-shared-library"
-#       retriever:
-#         modernSCM:
-#           libraryPath: "."
-#           scm:
-#             github:
-#               configuredByUrl: true
-#               credentialsId: "Vega Jenkins"
-#               id: "626236a1-2f6f-4d28-b307-c79fe881e167"
-#               repoOwner: "vegaprotocol"
-#               repository: "jenkins-shared-library"
-#               repositoryUrl: "https://github.com/vegaprotocol/jenkins-shared-library"
-#               traits:
-#               - gitHubBranchDiscovery:
-#                   strategyId: 1
-#               - gitHubPullRequestDiscovery:
-#                   strategyId: 1
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    hookSecretConfigs:
+    - credentialsId: "jenkins-webhook-secret"
+    hookUrl: "https://jenkins.vega.rocks/github-webhook/"
+  globalDefaultFlowDurabilityLevel:
+    durabilityHint: PERFORMANCE_OPTIMIZED
+  globalLibraries:
+    libraries:
+    - defaultVersion: "main"
+      name: "vega-shared-library"
+      retriever:
+        modernSCM:
+          libraryPath: "."
+          scm:
+            github:
+              configuredByUrl: true
+              credentialsId: "Vega Jenkins"
+              id: "626236a1-2f6f-4d28-b307-c79fe881e167"
+              repoOwner: "vegaprotocol"
+              repository: "jenkins-shared-library"
+              repositoryUrl: "https://github.com/vegaprotocol/jenkins-shared-library"
+              traits:
+              - gitHubBranchDiscovery:
+                  strategyId: 1
+              - gitHubPullRequestDiscovery:
+                  strategyId: 1
 #   globalTimeOutConfiguration:
 #     operations:
 #     - writeDescriptionOperation:
