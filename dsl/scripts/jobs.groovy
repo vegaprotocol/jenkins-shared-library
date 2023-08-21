@@ -245,6 +245,7 @@ def vegavisorManageNodeParams(args=[:]) {
             "m2.vega.community",
             "m3.vega.community",
             "metabase.vega.community",
+            "test.vega.community",
         ]
     }
 
@@ -309,6 +310,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
             "m2.vega.community",
             "m3.vega.community",
             "metabase.vega.community",
+            "test.vega.community",
         ]
     }
 
