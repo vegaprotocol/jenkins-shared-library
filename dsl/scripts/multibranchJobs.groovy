@@ -32,7 +32,7 @@ def createCommonMultibranchPipeline(Map args){
         }
         triggers {
             periodicFolderTrigger {
-                interval("10m")
+                interval("1h")
             }
         }
         factory {
