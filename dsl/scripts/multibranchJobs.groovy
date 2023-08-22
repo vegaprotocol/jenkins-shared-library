@@ -15,9 +15,12 @@ def generateUUIDForString(String name) {
     return UUID.nameUUIDFromBytes(name.getBytes()).toString();
 }
 
+isNewJenkins = getBinding().getVariables().JENKINS_URL.contains('jenkins.vega.rocks')
+
 // https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html#path/multibranchPipelineJob
 def createCommonMultibranchPipeline(Map args){
     return multibranchPipelineJob(args.name) {
+        disabled(args.get('disabled', isNewJenkins))
         if (args.displayName) {
             displayName(args.displayName)
         }
@@ -48,7 +51,7 @@ def createCommonMultibranchPipeline(Map args){
                         repository("${args.repoName ?: args.name}")
                         configuredByUrl(true)
                         repositoryUrl("https://github.com/vegaprotocol/${args.repoName ?: args.name}")
-                        credentialsId('Vega Jenkins')
+                        credentialsId(isNewJenkins ? 'vega-jenkins-mkii' : 'Vega Jenkins')
                         id(generateUUIDForString(args.name))
                         traits {
                             cloneOption {
