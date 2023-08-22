@@ -138,14 +138,11 @@ void _removeBinary(String binName) {
     try {
       binaryPath = shellOutput("which " + binName)
       if (binaryPath == "") {
-        print("vega not found 1")
         return
       } else {
         sh 'sudo rm -f ' + binaryPath
       }
     } catch(e) {
-
-        print("vega not found 2" + e)
       return
     }
   }

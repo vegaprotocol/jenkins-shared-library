@@ -84,8 +84,7 @@ jenkins:
         retentionStrategy: "always"
     - permanent:
         <<: *office-agent
-        # labelString: "performance-tests generic office-system-tests"
-        labelString: "exclusive-debug-daniel"
+        labelString: "performance-tests generic office-system-tests"
         name: "jenkins02" # 12vCPU|15GB
     - permanent:
         <<: *office-agent
