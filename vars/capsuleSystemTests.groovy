@@ -497,23 +497,19 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             script {
               Map runStages = [
                 'run system-tests': {
-                  dir('vega') {
-                    sh 'go install ./...'
-                    sh 'ls -als ' + env.WORKSPACE + '/gobin'
-                  }
                   dir('system-tests/scripts') {
-                    // if (config.fastFail) {
-                    //   // Just execute and fail immediately when something return an error
-                    //   sh 'make test'
-                    // } else {
-                    //   // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
-                    //   // but we still want to report failure for overall build and the stage itself
-                    //   catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    //     sh 'make test'
-                    //   }
+                    if (config.fastFail) {
+                      // Just execute and fail immediately when something return an error
+                      sh 'make test'
+                    } else {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
+                      // but we still want to report failure for overall build and the stage itself
+                      catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'make test'
+                      }
 
-                    //   systmeTestFailed = true
-                    // }
+                      systmeTestFailed = true
+                    }
                   }
                 }
               ]

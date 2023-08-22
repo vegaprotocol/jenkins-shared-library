@@ -4,14 +4,14 @@ def call() {
             label params.NODE_LABEL
         }
         environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
             PERFHOME = "${env.WORKSPACE}/performance"
-            PATH = "${env.PATH}:${env.PERFHOME}/bin"
+            PATH = "${env.WORKSPACE}/gobin:${env.PATH}:${env.PERFHOME}/bin"
             POSTGRES_HOST = "jenkins-performance-do-user-11836577-0.b.db.ondigitalocean.com"
             POSTGRES_PORT = "25060"
             POSTGRES_USER = "doadmin"
             POSTGRES_DB = "defaultdb"
             PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
-            GOBIN = "${env.WORKSPACE}/gobin"
         }
         options {
               timeout(time: 6, unit: 'HOURS')
