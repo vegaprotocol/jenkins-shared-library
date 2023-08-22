@@ -219,17 +219,17 @@ jenkins:
   scmCheckoutRetryCount: 0
   securityRealm:
     # restore if local action needed
-    local:
-      allowsSignup: false
-      users:
-        - id: jenkins-admin
-          password: 08rSvDmExarvhp56r5e2
-    # github:
-    #   clientID: "91757c530663c2ef60e9"
-    #   clientSecret: "{AQAAABAAAAAwkhTqRlE3mU5W4467Z1IaqHt1kUBmVfIvTJz4rmu7U1OXw8CFKpU9VoUZV83oul4bLy7+Kiqek4sqyulZFqvccw==}"
-    #   githubApiUri: "https://api.github.com"
-    #   githubWebUri: "https://github.com"
-    #   oauthScopes: "read:org,user:email,repo"
+    # local:
+    #   allowsSignup: false
+    #   users:
+    #     - id: jenkins-admin
+    #       password: 08rSvDmExarvhp56r5e2
+    github:
+      clientID: "Iv1.f5ded4485794f069"
+      clientSecret: "{AQAAABAAAAAwdxxN1tpH50RI46R2FoHlahNri1/AgXJtQ09F00GSx8N1p2D0TDwi8FZRSrddQeBc5oROSFSfPMTdJh/fXj13jw==}"
+      githubApiUri: "https://api.github.com"
+      githubWebUri: "https://github.com"
+      oauthScopes: "read:org,user:email,repo"
   slaveAgentPort: -1
   systemMessage: "Welcome to Vegaprotocol Jenkins Instance :)!"
   updateCenter:
