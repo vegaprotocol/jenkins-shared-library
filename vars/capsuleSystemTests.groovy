@@ -496,19 +496,18 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    sh 'vega version'
-                    // if (config.fastFail) {
-                    //   // Just execute and fail immediately when something return an error
-                    //   sh 'make test'
-                    // } else {
-                    //   // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
-                    //   // but we still want to report failure for overall build and the stage itself
-                    //   catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    //     sh 'make test'
-                    //   }
+                    if (config.fastFail) {
+                      // Just execute and fail immediately when something return an error
+                      sh 'make test'
+                    } else {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
+                      // but we still want to report failure for overall build and the stage itself
+                      catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'make test'
+                      }
 
-                    //   systmeTestFailed = true
-                    // }
+                      systmeTestFailed = true
+                    }
                   }
                 }
               ]
