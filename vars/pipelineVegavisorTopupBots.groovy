@@ -10,8 +10,17 @@ def call() {
         }
         environment {
             CREDENTIALS_ID = 'ssh-vega-network'
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
+            stage('Prepare') {
+                steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
+                }
+            }
             stage('Checkout') {
                 steps {
                     sh 'printenv'

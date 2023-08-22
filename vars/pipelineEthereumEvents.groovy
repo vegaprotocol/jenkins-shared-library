@@ -16,7 +16,18 @@ def call() {
             ansiColor('xterm')
             lock(resource: env.NET_NAME)
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         stages {
+            stage('Prepare') {
+                steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
+                }
+            }
             stage('Checkout') {
                 steps {
                     gitClone(

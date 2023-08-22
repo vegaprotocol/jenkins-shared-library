@@ -7,12 +7,23 @@ def call() {
     }
     pipeline {
         agent any
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         post {
             always {
                 cleanWs()
             }
         }
         stages {
+            stage('prepare') {
+                steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
+                }
+            }
             stage('trigger provisioner') {
                 when {
                     anyOf {

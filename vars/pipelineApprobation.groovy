@@ -26,10 +26,15 @@ void call(def config=[:]) {
             timestamps()
             timeout(time: 35, unit: 'MINUTES')
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         stages {
             stage('CI Config') {
                 steps {
                     script {
+                        vegautils.commonCleanup()
                         sh 'printenv'
                     }
                     echo "params=${params.inspect()}"

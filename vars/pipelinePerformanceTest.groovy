@@ -11,6 +11,7 @@ def call() {
             POSTGRES_USER = "doadmin"
             POSTGRES_DB = "defaultdb"
             PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         options {
               timeout(time: 6, unit: 'HOURS')
@@ -20,6 +21,7 @@ def call() {
                 steps {
                     sh 'mkdir -p bin'
                     script {
+                        vegautils.commonCleanup()
                         def repositories = [
                             [ name: 'vegaprotocol/vega', branch: params.VEGA_BRANCH, install: true ],
                             [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH, install: true ],

@@ -54,10 +54,15 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
             stage('CI Config') {
                 steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
                     sh "printenv"
                     echo "params=${params.inspect()}"
                 }

@@ -28,6 +28,9 @@ void call() {
             timestamps()
             timeout(time: 60, unit: 'MINUTES')
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
 
         stages {
             stage('Init') {
@@ -38,6 +41,7 @@ void call() {
                     echo "isPRBuild=${isPRBuild()}"
 
                     script {
+                        vegautils.commonCleanup()
                         if (params.CREATE_RELEASE && params.VEGA_BRANCH.length() < 1) {
                             error('params.VEGA_BRANCH cannot be empty when params.CREATE_RELEASE is true')
                         }
