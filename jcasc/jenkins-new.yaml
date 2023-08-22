@@ -1,6 +1,6 @@
 # https://github.com/jenkinsci/job-dsl-plugin/blob/master/docs/JCasC.md
-jobs:
-  - url: https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/configure-dsl-job.groovy
+# jobs:
+#   - url: https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/configure-dsl-job.groovy
 jenkins:
   agentProtocols:
   - "JNLP4-connect"
