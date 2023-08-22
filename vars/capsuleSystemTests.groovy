@@ -73,6 +73,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            vegautils.commonCleanup()
             currentBuild.description = "${params.SYSTEM_TESTS_TEST_MARK}, ${params.SYSTEM_TESTS_TEST_DIRECTORY} [${env.NODE_NAME}]"
             sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
