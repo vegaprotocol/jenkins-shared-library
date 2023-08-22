@@ -30,6 +30,7 @@ void call() {
         }
         environment {
             GOBIN = "${env.WORKSPACE}/gobin"
+            PATH = "${env.WORKSPACE}/gobin:${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin"
         }
 
         stages {
