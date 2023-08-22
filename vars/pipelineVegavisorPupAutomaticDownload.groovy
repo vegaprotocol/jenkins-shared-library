@@ -131,6 +131,7 @@ void call() {
                                 branch: value.branch,
                                 directory: value.name.split('/')[1],
                                 credentialsId: 'vega-ci-bot',
+                                extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true]],
                                 timeout: 2,
                             ])
                             }
