@@ -1,3 +1,6 @@
+# https://github.com/jenkinsci/job-dsl-plugin/blob/master/docs/JCasC.md
+jobs:
+  - url: https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/configure-dsl-job.groovy
 jenkins:
   agentProtocols:
   - "JNLP4-connect"
@@ -29,7 +32,7 @@ jenkins:
       - "USER:Overall/Administer:karlem"
       - "USER:Overall/Administer:tommcl"
     #   - "USER:Overall/Administer:admin"
-      - "USER:Overall/Administer:jenkins-admin"
+      # - "USER:Overall/Administer:jenkins-admin"
       - "USER:Overall/Read:anonymous"
       - "USER:Overall/Read:vega-paul"
       - "USER:Run/Replay:vega-paul"

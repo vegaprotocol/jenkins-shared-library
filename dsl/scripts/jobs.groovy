@@ -69,7 +69,7 @@ def createCommonPipeline(args){
 
     return pipelineJob(args.name) {
 
-        disabled(args.get('disabled', false))
+        disabled(args.get('disabled', getBinding().getVariables().JENKINS_URL.contains('jenkins.vega.rocks')))
 
         description(des)
 
