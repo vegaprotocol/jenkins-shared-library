@@ -70,7 +70,7 @@ jenkins:
         - "USER:Overall/Read:anonymous"
   nodes:
     - permanent: &office-agent
-        labelString: "generic office-system-tests core-build"
+        labelString: "generic office-system-tests core-build jenkins01"
         launcher:
           inbound:
             webSocket: true
@@ -84,15 +84,15 @@ jenkins:
         retentionStrategy: "always"
     - permanent:
         <<: *office-agent
-        labelString: "performance-tests generic office-system-tests"
+        labelString: "performance-tests generic office-system-tests jenkins02"
         name: "jenkins02" # 12vCPU|15GB
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests core-build"
+        labelString: "generic office-system-tests core-build jenkins03"
         name: "jenkins03" # 8vCPU|16GB
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests core-build"
+        labelString: "generic office-system-tests core-build jenkins04"
         name: "jenkins04" # 6vCPU|8GB
     # - permanent:
     #     <<: *office-agent
@@ -100,7 +100,7 @@ jenkins:
     #     name: "jenkins05"
     - permanent:
         <<: *office-agent
-        labelString: "generic office-system-tests core-build"
+        labelString: "generic office-system-tests core-build jenkins06"
         name: "jenkins06" # 6vCPU|8GB
   clouds:
     - digitalOcean:
