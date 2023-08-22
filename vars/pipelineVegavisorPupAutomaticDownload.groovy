@@ -238,6 +238,10 @@ void call() {
                                 -p ''' + networkDataPath + '''/vegacapsule_nomad.pid \
                                 ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only'''
                         }
+
+
+                        vegautils.waitForValidHTTPCode('http://localhost:4646', 20, 1)
+                        sleep 3 // Additional sleep
                     }
                 }
             }
