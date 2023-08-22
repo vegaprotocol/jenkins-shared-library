@@ -89,7 +89,7 @@ def createCommonMultibranchPipeline(Map args){
                         props {
                             suppressAutomaticTriggering {
                                 strategy('INDEXING')
-                                triggeredBranchesRegex(isNewJenkins ? '^$' : '.*')
+                                triggeredBranchesRegex(isNewJenkins ? '^$' : 'develop main master')
                             }
                         }
                     }
