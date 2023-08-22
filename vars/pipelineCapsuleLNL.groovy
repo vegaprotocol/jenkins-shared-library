@@ -126,7 +126,7 @@ void call(Map paramsOverrides=[:]) {
 
                     checkpointPath = vegautils.escapePath(rawPath)
                     sh label: 'Copy found checkpoint',
-                    script: '''vegatools checkpoint \
+                    script: '''vega tools checkpoint \
                         --file "''' + checkpointPath + '''" \
                         --out system-tests/tests/LNL/after_checkpoint_load.json \
                         1> /dev/null
