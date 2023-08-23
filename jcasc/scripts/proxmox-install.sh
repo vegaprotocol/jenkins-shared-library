@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# detailed instructions -> https://github.com/vegaprotocol/devops-infra/issues/2023
 agent=""
 secret=""
 
