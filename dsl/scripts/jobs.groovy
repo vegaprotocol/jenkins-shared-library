@@ -70,7 +70,7 @@ def createCommonPipeline(args){
 
     return pipelineJob(isNewJenkins ? args.name.replaceAll(' ', '-') : args.name) {
         if (isNewJenkins) {
-            displayName(args.name)
+            displayName(args.name.split('/')[-1])
         }
 
         disabled(args.get('disabled', isNewJenkins))
