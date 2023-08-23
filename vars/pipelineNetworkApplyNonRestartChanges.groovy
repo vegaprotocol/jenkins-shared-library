@@ -27,6 +27,7 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         stages {
             stage('CI Config') {
@@ -34,6 +35,7 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        vegautils.commonCleanup()
                         currentBuild.description = "node: ${params.NODE}"
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"

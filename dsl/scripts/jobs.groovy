@@ -1074,7 +1074,7 @@ def jobs = [
             stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
             booleanParam('CREATE_RELEASE', true, 'If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'office-system-tests', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 14,

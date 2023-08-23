@@ -131,12 +131,47 @@ String getVegaCiBotCredentials() {
   return credentialNames.first()
 }
 
-def dockerCleanup() {
+// Remove all binaries found in PATH
+void _removeBinary(String binName) {
+  print("Removing all existing binaries of " + binName)
+  while (true) {
+    try {
+      binaryPath = shellOutput("which " + binName)
+      if (binaryPath == "") {
+        return
+      } else {
+        sh 'sudo rm -f ' + binaryPath
+      }
+    } catch(e) {
+      return
+    }
+  }
+}
+
+void _dockerCleanup() {
   sh label: 'docker volume prune',
   returnStatus: true,  // ignore exit code
   script: '''#!/bin/bash -e
       docker volume prune --force
   '''
+}
+
+/**
+ * We have a long live runners, in case there may be some trash left on the boxt after
+ * previous runs, we should clean it up. 
+ **/
+def commonCleanup() {
+  _dockerCleanup()
+
+  // Each pipeline MUST build the following binaries in the pipeline
+  _removeBinary('vega')
+  _removeBinary('data-node')
+  _removeBinary('vegavisor')
+  _removeBinary('vegawallet')
+  _removeBinary('visor')
+  _removeBinary('vegatools')
+  _removeBinary('vegacapsule')
+  _removeBinary('blockexplorer')
 }
 
 

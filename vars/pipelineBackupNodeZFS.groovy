@@ -23,11 +23,13 @@ def call() {
             GOOS = 'linux'
             GOARCH = 'amd64'
             CGO_ENABLED = '0'
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         stages {
             stage('Prepare') {
                 steps {
                     script {
+                        vegautils.commonCleanup()
                         if (server == "") {
                             error("Backup server cannot be empty")
                         }

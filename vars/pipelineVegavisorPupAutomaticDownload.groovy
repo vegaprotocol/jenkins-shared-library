@@ -28,6 +28,10 @@ void call() {
             timestamps()
             timeout(time: 60, unit: 'MINUTES')
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+            PATH = "${env.WORKSPACE}/gobin:${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin"
+        }
 
         stages {
             stage('Init') {
@@ -38,6 +42,7 @@ void call() {
                     echo "isPRBuild=${isPRBuild()}"
 
                     script {
+                        vegautils.commonCleanup()
                         if (params.CREATE_RELEASE && params.VEGA_BRANCH.length() < 1) {
                             error('params.VEGA_BRANCH cannot be empty when params.CREATE_RELEASE is true')
                         }
@@ -126,6 +131,7 @@ void call() {
                                 branch: value.branch,
                                 directory: value.name.split('/')[1],
                                 credentialsId: 'vega-ci-bot',
+                                extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true]],
                                 timeout: 2,
                             ])
                             }
@@ -234,6 +240,10 @@ void call() {
                                 -p ''' + networkDataPath + '''/vegacapsule_nomad.pid \
                                 ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only'''
                         }
+
+
+                        vegautils.waitForValidHTTPCode('http://localhost:4646', 20, 1)
+                        sleep 3 // Additional sleep
                     }
                 }
             }

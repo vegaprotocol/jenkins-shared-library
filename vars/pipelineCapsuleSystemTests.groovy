@@ -89,9 +89,16 @@ void call() {
             timeout(time: 270, unit: 'MINUTES')
             skipDefaultCheckout()
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         stages {
             stage('config') {
                 steps {
+                    script {
+                      vegautils.commonCleanup()
+                    }
                     echo "params=${params.inspect()}"
                 }
             }

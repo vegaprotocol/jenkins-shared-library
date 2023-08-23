@@ -26,10 +26,15 @@ void call() {
             PARALLEL_WORKERS = "${parallelWorkers}"
             TEST_FUNCTION = "${testFunction}"
             LOG_LEVEL = "${logLevel}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
             stage('CI Config') {
                 steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
                     sh 'printenv'
                     echo "params=${params.inspect()}"
                 }

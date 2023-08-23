@@ -9,7 +9,18 @@ void call() {
             timestamps()
             timeout(time: 120, unit: 'MINUTES')
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         stages {
+            stage('Prepare') {
+                steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
+                }
+            }
             stage('Get devopstools code') {
                 steps {
                     script {
