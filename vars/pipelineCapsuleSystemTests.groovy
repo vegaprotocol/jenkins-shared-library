@@ -96,9 +96,6 @@ void call() {
         stages {
             stage('config') {
                 steps {
-                    script {
-                      vegautils.commonCleanup()
-                    }
                     echo "params=${params.inspect()}"
                 }
             }
