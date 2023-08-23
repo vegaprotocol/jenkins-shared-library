@@ -995,16 +995,6 @@ def jobs = [
         daysToKeep: 10,
         numToKeep: 3500,
     ],
-    // Secondary pipeline
-    [
-        name: 'private/common/system-tests-wrapper',
-        useScmDefinition: false,
-        definition: libDefinition('capsuleSystemTests()'),
-        parameters: systemTestsParamsWrapper(),
-        copyArtifacts: true,
-        daysToKeep: 10,
-        numToKeep: 3500,
-    ],
     [
         name: 'common/system-tests-lnl-mainnet',
         useScmDefinition: false,
@@ -1046,20 +1036,6 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 0 * * *',
-    ],
-    // Secondary pipeline
-    [
-        name: 'private/common/system-tests-nightly',
-        description: 'This job is executed every 24h to ensure stability of the system',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineCapsuleSystemTests()'),
-        env: [
-            DOWNSTREAM_SUBDIR: 'private',
-        ],
-        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY'),
-        copyArtifacts: true,
-        daysToKeep: 10,
-        //cron: 'H 0 * * *',
     ],
     //
     // Vegavisor automatic download and PUP
