@@ -19,7 +19,7 @@ isNewJenkins = getBinding().getVariables().JENKINS_URL.contains('jenkins.vega.ro
 
 // https://jenkins.ops.vega.xyz/plugin/job-dsl/api-viewer/index.html#path/multibranchPipelineJob
 def createCommonMultibranchPipeline(Map args){
-    return multibranchPipelineJob(args.name) {
+    return multibranchPipelineJob(isNewJenkins ? args.name.replaceAll(' ', '-') : args.name) {
         if (args.displayName) {
             displayName(args.displayName)
         }

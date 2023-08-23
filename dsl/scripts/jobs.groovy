@@ -59,6 +59,7 @@ def standardDescription() {
     """, 5)
 }
 
+isNewJenkins = getBinding().getVariables().JENKINS_URL.contains('jenkins.vega.rocks')
 
 def createCommonPipeline(args){
     args.repoName = "vegaprotocol/${args.repo}"
@@ -67,9 +68,12 @@ def createCommonPipeline(args){
     def des = args.get('description', '')
     des += "${des ? '<br/>' : ''} ${standardDescription()}"
 
-    return pipelineJob(args.name) {
+    return pipelineJob(isNewJenkins ? args.name.replaceAll(' ', '-') : args.name) {
+        if (isNewJenkins) {
+            displayName(args.name)
+        }
 
-        disabled(args.get('disabled', getBinding().getVariables().JENKINS_URL.contains('jenkins.vega.rocks')))
+        disabled(args.get('disabled', isNewJenkins))
 
         description(des)
 
