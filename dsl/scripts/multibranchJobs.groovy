@@ -53,7 +53,7 @@ def createCommonMultibranchPipeline(Map args){
                         repository("${args.repoName ?: args.name}")
                         configuredByUrl(true)
                         repositoryUrl("https://github.com/vegaprotocol/${args.repoName ?: args.name}")
-                        credentialsId(isNewJenkins ? 'vega-jenkins-mkii' : 'Vega Jenkins')
+                        credentialsId(isNewJenkins ? 'github-app-jenkins-mkii' : 'Vega Jenkins')
                         id(generateUUIDForString(args.name))
                         traits {
                             cloneOption {
