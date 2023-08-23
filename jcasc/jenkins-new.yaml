@@ -439,23 +439,23 @@ unclassified:
     enabled: false
   casCGlobalConfig:
     configurationPath: "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml"
-  email-ext:
-    adminRequiredForTemplateTesting: false
-    allowUnregisteredEnabled: false
-    charset: "UTF-8"
-    debugMode: false
-    defaultBody: |-
-      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+  # email-ext:
+  #   adminRequiredForTemplateTesting: false
+  #   allowUnregisteredEnabled: false
+  #   charset: "UTF-8"
+  #   debugMode: false
+  #   defaultBody: |-
+  #     $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
 
-      Check console output at $BUILD_URL to view the results.
-    defaultContentType: "text/plain"
-    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
-    defaultTriggerIds:
-    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
-    maxAttachmentSize: -1
-    maxAttachmentSizeMb: -1
-    precedenceBulk: false
-    watchingEnabled: false
+  #     Check console output at $BUILD_URL to view the results.
+  #   defaultContentType: "text/plain"
+  #   defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+  #   defaultTriggerIds:
+  #   - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+  #   maxAttachmentSize: -1
+  #   maxAttachmentSizeMb: -1
+  #   precedenceBulk: false
+  #   watchingEnabled: false
 #   enrichedSummaryConfig:
 #     enrichedSummaryEnabled: false
 #     httpClientDelayBetweenRetriesInSeconds: 1
@@ -501,12 +501,12 @@ unclassified:
     strategy:
       absoluteTimeOutStrategy:
         timeoutMinutes: "300"
-  hashicorpVault:
-    configuration:
-      engineVersion: 2
-      timeout: 60
-      vaultCredentialId: "a0bf1c59-8e45-40e1-a209-78de07e70acd"
-      vaultUrl: "https://vault.ops.vega.xyz"
+  # hashicorpVault:
+  #   configuration:
+  #     engineVersion: 2
+  #     timeout: 60
+  #     vaultCredentialId: "a0bf1c59-8e45-40e1-a209-78de07e70acd"
+  #     vaultUrl: "https://vault.ops.vega.xyz"
 #   injectionConfig:
 #     allowUntrusted: false
 #     checkForBuildAgentErrors: false
