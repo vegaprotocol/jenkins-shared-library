@@ -903,6 +903,7 @@ def jobs = [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
