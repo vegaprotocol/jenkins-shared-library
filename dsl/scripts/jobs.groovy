@@ -333,9 +333,9 @@ def networkApplyNonRestartChangesParams(args=[:]) {
 def systemTestsParamsGeneric(args=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
-        stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
+        stringParam('VEGA_BRANCH', args.get('VEGA_BRANCH', 'develop'), 'Git branch, tag or hash of the vegaprotocol/vega repository')
         stringParam('VEGA_BRANCH_UPGRADE', '', 'Git branch, tag or hash of the vegaprotocol/vega repository to build the upgrade binary. If empty upgrade binary is created from the VEGA_BRANCH')
-        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+        stringParam('SYSTEM_TESTS_BRANCH', args.get('SYSTEM_TESTS_BRANCH', 'develop'), 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
         stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
         stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
         stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
@@ -1011,6 +1011,22 @@ def jobs = [
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 3 * * *',
+    ],
+    [
+        name: 'common/system-tests-lnl-mainnet-v0.72',
+        disabled: false,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleLNL()'),
+        parameters: lnlSystemTestsparams(
+            NODE_LABEL: 's-8vcpu-16gb',
+            RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
+            RUN_SOAK_TEST: false,
+            VEGA_BRANCH: 'release/v0.72.x',
+            SYSTEM_TESTS_BRANCH: 'release/v0.72',
+        ),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 2 * * *',
     ],
     [
         name: 'common/system-tests-snapshot-compatibility',
