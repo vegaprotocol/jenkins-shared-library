@@ -648,7 +648,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
         }
         options {
-          timeout(time: 20, unit: 'MINUTES')
+          timeout(time: 40, unit: 'MINUTES')
         }
 
         steps {
