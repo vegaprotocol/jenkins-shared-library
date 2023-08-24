@@ -201,7 +201,33 @@ jenkins:
             failIfWorkDirIsMissing: false
             internalDir: "remoting"
       mode: EXCLUSIVE
+      name: "jenkins05"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
       name: "jenkins06"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  - permanent:
+      labelString: "generic office-system-tests core-build"
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins07"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   numExecutors: 0
