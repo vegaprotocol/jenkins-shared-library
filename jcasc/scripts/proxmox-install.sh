@@ -2,6 +2,7 @@
 # detailed instructions -> https://github.com/vegaprotocol/devops-infra/issues/2023
 agent=""
 secret=""
+jenkins_url="jenkins.vega.rocks"
 
 apt-get update
 apt-get install -y \
@@ -26,7 +27,7 @@ ubuntu ALL=(ALL) NOPASSWD:ALL
 EOF
 
 mkdir /jenkins
-curl -L -o /jenkins/agent.jar https://jenkins.ops.vega.xyz/jnlpJars/agent.jar
+curl -L -o /jenkins/agent.jar https://${jenkins_url}/jnlpJars/agent.jar
 
 chown -R ubuntu:ubuntu /jenkins
 
@@ -41,7 +42,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ubuntu
-ExecStart=java -jar /jenkins/agent.jar -jnlpUrl https://jenkins.ops.vega.xyz/computer/${agent}/jenkins-agent.jnlp -secret ${secret} -workDir /jenkins
+ExecStart=java -jar /jenkins/agent.jar -jnlpUrl https://${jenkins_url}/computer/${agent}/jenkins-agent.jnlp -secret ${secret} -workDir /jenkins
 
 [Install]
 WantedBy=multi-user.target
