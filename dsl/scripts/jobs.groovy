@@ -73,7 +73,7 @@ def createCommonPipeline(args){
             displayName(args.name.split('/')[-1])
         }
 
-        disabled(args.get('disabled', isNewJenkins))
+        disabled(!isNewJenkins)
 
         description(des)
 
