@@ -490,6 +490,7 @@ def jobs = [
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
+        disabled: false,
         check: 'DSL Job',
     ],
     // Jenkins Configuration As Code
@@ -1332,6 +1333,7 @@ def jobs = [
     ],
     [
         name: 'common/performance-tests',
+        disabled: false,
         useScmDefinition: false,
         numToKeep: 30,
         cron: '0 0 * * *',
