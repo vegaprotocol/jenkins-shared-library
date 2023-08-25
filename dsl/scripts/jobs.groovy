@@ -432,16 +432,16 @@ def approbationParams(def config=[:]) {
             stringParam('APPS_ARG', '/workspace/frontend-monorepo/specs/apps.json', '--categories argument value for the apps run')
         }
 
-        if (config.type == 'core') {
-            stringParam('FEATURES_ARG',  '/workspace/specs/protocol/features.json', '--features argument value')
-        }
-        else if (config.type == 'frontend') {
-            stringParam('FEATURES_ARG',  '', '--features argument value')
-        }
-
         else if (config.type == 'browserWallet') {
             stringParam('CATEGORIES_ARG', '/workspace/vegawallet-browser/specs/categories.json', '--categories argument value for the categories run')
             stringParam('APPS_ARG', '/workspace/vegawallet-browser/specs/apps.json', '--categories argument value for the apps run')
+        }
+
+        if (config.type == 'core') {
+            stringParam('FEATURES_ARG',  '/workspace/specs/protocol/features.json', '--features argument value')
+        }
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
+            stringParam('FEATURES_ARG',  '', '--features argument value')
         }
 
         if (config.type == 'core') {
