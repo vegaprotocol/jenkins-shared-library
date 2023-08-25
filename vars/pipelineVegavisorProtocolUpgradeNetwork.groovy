@@ -34,7 +34,6 @@ void call() {
             GOBIN = "${env.WORKSPACE}/gobin"
         }
 
-        }
         stages {
             stage('CI Config') {
                 steps {
