@@ -73,7 +73,7 @@ def createCommonPipeline(args){
             displayName(args.name.split('/')[-1])
         }
 
-        disabled(!isNewJenkins)
+        disabled(args.get('disabled', !isNewJenkins))
 
         description(des)
 
@@ -490,7 +490,7 @@ def jobs = [
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
-        disabled: false,
+
         check: 'DSL Job',
     ],
     // Jenkins Configuration As Code
@@ -991,7 +991,7 @@ def jobs = [
     // Primary pipeline
     [
         name: 'common/system-tests-wrapper',
-        disabled: false,
+
         useScmDefinition: false,
         definition: libDefinition('capsuleSystemTests()'),
         parameters: systemTestsParamsWrapper(),
@@ -1001,7 +1001,7 @@ def jobs = [
     ],
     [
         name: 'common/system-tests-lnl-mainnet',
-        disabled: false,
+
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
@@ -1024,7 +1024,7 @@ def jobs = [
     ],
     [
         name: 'common/system-tests',
-        disabled: false,
+
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
@@ -1048,7 +1048,7 @@ def jobs = [
     //
     [
         name: 'common/visor-autoinstall-and-pup',
-        disabled: false,
+
         description: 'Job starts the network, perform protocol upgrade and waits until new binaries are automatically downloaded and network is upgraded',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
@@ -1333,7 +1333,7 @@ def jobs = [
     ],
     [
         name: 'common/performance-tests',
-        disabled: false,
+
         useScmDefinition: false,
         numToKeep: 30,
         cron: '0 0 * * *',
