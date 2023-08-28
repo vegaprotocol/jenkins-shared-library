@@ -449,7 +449,7 @@ void call(Map config=[:]) {
 
                                             if (!caughtUp) {
                                                 println("A")
-                                                if (isDataNodeHealthy('localhost:3008', false, true)) {
+                                                if (isDataNodeHealthy('127.0.0.1:3008', false, true)) {
                                                     println("A 1")
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
@@ -459,7 +459,7 @@ void call(Map config=[:]) {
                                                 }
                                             } else {
                                                 println("B")
-                                                if (!isDataNodeHealthy('localhost:3008', false, true)) {
+                                                if (!isDataNodeHealthy('127.0.0.1:3008', false, true)) {
                                                     println("B 1")
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
