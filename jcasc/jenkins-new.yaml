@@ -140,7 +140,7 @@ jenkins:
   myViewsTabBar: "standard"
   nodes:
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -153,7 +153,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "performance-tests generic office-system-tests"
+      labelString: "performance-tests generic office-system-tests office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -166,7 +166,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
