@@ -568,7 +568,9 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
-        parameters: vegavisorManageNodeParams(),
+        parameters: vegavisorManageNodeParams(
+            name: 'devnet1',
+        ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // restart a random node every 1 hour
