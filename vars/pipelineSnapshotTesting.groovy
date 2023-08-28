@@ -34,6 +34,7 @@ void call(Map config=[:]) {
     boolean chainStatusConnected = false
     boolean caughtUp = false
     boolean blockHeightIncreased = false
+    int notHealthyAgainCount = 0
     String networkVersion = null
     String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'main'
 
@@ -51,6 +52,10 @@ void call(Map config=[:]) {
                 skipDefaultCheckout()
                 cleanWs()
                 sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
+                script {
+                    vegautils.commonCleanup()
+                    currentBuild.description = " [${env.NODE_NAME}]"
+                }
             }
 
             try {
@@ -222,6 +227,7 @@ void call(Map config=[:]) {
                                 SNAPSHOT_HASH = snapshotInfo['blockHash']
                                 println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
                                 println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
+                                currentBuild.description = "block: ${SNAPSHOT_HEIGHT} [${env.NODE_NAME}]"
 
                                 // Check TM version
                                 def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
@@ -406,10 +412,10 @@ void call(Map config=[:]) {
                                         println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
                                         Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
                                         String localServerStats = sh(
-                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics || echo '{}'",
+                                                script: "curl --max-time 5 http://127.0.0.1:3008/statistics || echo '{}'",
                                                 returnStdout: true,
                                             ).trim()
-                                        println("http://127.0.0.1:3003/statistics\n${localServerStats}")
+                                        println("http://127.0.0.1:3008/statistics\n${localServerStats}")
                                         Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
 
                                         if (networkVersion == null || networkVersion.length() < 1) {
@@ -420,7 +426,7 @@ void call(Map config=[:]) {
                                             if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
                                                 chainStatusConnected = true
                                                 currTime = currentBuild.durationString - ' and counting'
-                                                println("Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime})")
+                                                println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime}) <<<<====")
                                             }
                                         }
                                         if (chainStatusConnected) {
@@ -434,15 +440,22 @@ void call(Map config=[:]) {
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
                                                         currTime = currentBuild.durationString - ' and counting'
-                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime})")
+                                                        println("====>>> Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime}) <<<<====")
                                                     }
                                                 }
                                             }
 
-                                            if (!caughtUp && remoteHeight != 0 && (remoteHeight - localHeight < 10)) {
-                                                caughtUp = true
-                                                catchupTime = currentBuild.durationString - ' and counting'
-                                                println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
+                                            if (!caughtUp) {
+                                                if (isDataNodeHealthy('localhost:3008', false)) {
+                                                    caughtUp = true
+                                                    catchupTime = currentBuild.durationString - ' and counting'
+                                                    println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
+                                                }
+                                            } else {
+                                                if (!isDataNodeHealthy('localhost:3008', false)) {
+                                                    notHealthyAgainCount += 1
+                                                    println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                }
                                             }
                                         }
                                     }
@@ -453,6 +466,7 @@ void call(Map config=[:]) {
                                 echo "http://${jenkinsAgentIP}:3003/statistics"
                                 echo "http://${jenkinsAgentIP}:3008/graphql/"
                                 echo "http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                                echo "http://${jenkinsAgentIP}:3008/statistics"
                                 echo "https://${remoteServerDataNode}/statistics"
                                 echo "${remoteServerCometBFT}/net_info"
                             }
@@ -460,18 +474,26 @@ void call(Map config=[:]) {
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
+                            currentBuild.description = "no CHAIN_STATUS_CONNECTED [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
+                            currentBuild.description = "block did not increase [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
                         echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
+                            currentBuild.description = "did not catch up [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
+                        }
+                        if (notHealthyAgainCount > 0) {
+                            currentBuild.description = "became unhealthy (${notHealthyAgainCount}) [${env.NODE_NAME}]"
+                            extraMsg = extraMsg ?: "became unhealthy ${notHealthyAgainCount} times."
+                            error("Non-validator became unhealthy ${notHealthyAgainCount} times.")
                         }
                         echo "Caught up: ${caughtUp}"
                         println("All checks passed.")
@@ -558,9 +580,9 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isDataNodeHealthy(String serverURL) {
+boolean isDataNodeHealthy(String serverURL, boolean tls = true) {
     try {
-        def conn = new URL("https://${serverURL}/statistics").openConnection()
+        def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
           return false
