@@ -449,7 +449,7 @@ void call(Map config=[:]) {
 
                                             if (!caughtUp) {
                                                 println("A")
-                                                if (isDataNodeHealthy('127.0.0.1:3008', false, true)) {
+                                                if (isDataNodeHealthy('[::1]:3008', false, true)) {
                                                     println("A 1")
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
@@ -459,7 +459,7 @@ void call(Map config=[:]) {
                                                 }
                                             } else {
                                                 println("B")
-                                                if (!isDataNodeHealthy('127.0.0.1:3008', false, true)) {
+                                                if (!isDataNodeHealthy('[::1]:3008', false, true)) {
                                                     println("B 1")
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
@@ -595,7 +595,6 @@ boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = 
         String url = "http${tls ? 's' : ''}://${serverURL}/statistics"
         println("url=${url}")
         def conn = new URL(url).openConnection()
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             if (debug) {
