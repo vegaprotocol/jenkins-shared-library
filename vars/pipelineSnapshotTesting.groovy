@@ -446,13 +446,13 @@ void call(Map config=[:]) {
                                             }
 
                                             if (!caughtUp) {
-                                                if (isDataNodeHealthy('localhost:3008', false)) {
+                                                if (isDataNodeHealthy('localhost:3008', false, true)) {
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
                                                     println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
                                                 }
                                             } else {
-                                                if (!isDataNodeHealthy('localhost:3008', false)) {
+                                                if (!isDataNodeHealthy('localhost:3008', false, true)) {
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
                                                 }
@@ -580,26 +580,38 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isDataNodeHealthy(String serverURL, boolean tls = true) {
+boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = false) {
     try {
         def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: response code ${conn.getResponseCode()} not 200 for ${serverURL}")
+            }
+            return false
         }
         int datanode_height = (conn.getHeaderField("x-block-height") ?: "-1") as int
         if (datanode_height < 0) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for ${serverURL}")
+            }
+            return false
         }
         def stats = new groovy.json.JsonSlurperClassic().parseText(conn.getInputStream().getText())
         int core_height = stats.statistics.blockHeight as int
         if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for ${serverURL}")
+            }
             return false
         }
         Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
         if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${vega_time}) is more than 10 seconds behind now (${current_time}) for ${serverURL}")
+            }
+            return false
         }
         return true
     } catch (IOException e) {
