@@ -61,7 +61,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "do-snapshot tiny generic office-system-tests core-build"
+        labelString: "snapshot tiny generic office-system-tests core-build"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
@@ -155,7 +155,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build"
+      labelString: "generic office-system-tests tiny core-build snapshot"
       launcher:
         inbound:
           webSocket: true
@@ -169,7 +169,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build"
+      labelString: "generic office-system-tests tiny core-build snapshot"
       launcher:
         inbound:
           webSocket: true
@@ -183,7 +183,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build"
+      labelString: "generic office-system-tests tiny core-build snapshot"
       launcher:
         inbound:
           webSocket: true
@@ -197,7 +197,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build"
+      labelString: "generic office-system-tests tiny core-build snapshot"
       launcher:
         inbound:
           webSocket: true

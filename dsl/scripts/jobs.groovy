@@ -475,7 +475,7 @@ def snapshotParams(args=[:]) {
         stringParam('TIMEOUT', args.get('TIMEOUT', '10'), 'Number of minutes after which the node will stop')
         booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'do-snapshot'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'snapshot'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 

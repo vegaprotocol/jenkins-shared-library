@@ -18,7 +18,7 @@ void call(Map config=[:]) {
     )
 
     String remoteServer
-    String jenkinsAgentPublicIP
+    String jenkinsAgentIP
 
     // api output placeholders
     def TM_VERSION
@@ -66,26 +66,33 @@ void call(Map config=[:]) {
                     }
                     stage('CI config') {
                         // Printout all configuration variables
-                        sh 'printenv'
-                        echo "params=${params.inspect()}"
-                        // digitalocean
-                        if (params.NODE_LABEL == "do-snapshot") {
-                            jenkinsAgentPublicIP = sh(
-                                script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
-                                returnStdout: true,
-                            ).trim()
-                        }
-                        // aws
-                        else {
-                            jenkinsAgentPublicIP = sh(
-                                script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
-                                returnStdout: true,
-                            ).trim()
-                        }
-                        echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
-                        if (!jenkinsAgentPublicIP) {
-                            error("Couldn't resolve jenkinsAgentPublicIP")
-                        }
+                        // sh 'printenv'
+                        // echo "params=${params.inspect()}"
+                        // // digitalocean
+                        // if (params.NODE_LABEL == "do-snapshot") {
+                        //     jenkinsAgentIP = sh(
+                        //         script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
+                        //         returnStdout: true,
+                        //     ).trim()
+                        // }
+                        // // aws
+                        // else {
+                        //     jenkinsAgentIP = sh(
+                        //         script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
+                        //         returnStdout: true,
+                        //     ).trim()
+                        // }
+                        // echo "jenkinsAgentIP=${jenkinsAgentIP}"
+                        // if (!jenkinsAgentIP) {
+                        //     error("Couldn't resolve jenkinsAgentIP")
+                        // }
+                        // it's private ip but should work
+                        jenkinsAgentIP = sh (
+                            'script': '''
+                                hostname -I | awk '{print $1}'
+                            ''',
+                            returnStdout: true,
+                        ).trim()
                     }
 
                     stage('Find available remote server') {
@@ -262,7 +269,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
                                         ./dasel put string -f tm_config/config/config.toml p2p.dial_timeout "10s"
                                         ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
-                                        ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                        ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentIP}:26656"
                                         ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                     """
                                 if (env.NET_NAME == 'validators-testnet') {
@@ -442,10 +449,10 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Info': {
-                                echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
-                                echo "http://${jenkinsAgentPublicIP}:3003/statistics"
-                                echo "http://${jenkinsAgentPublicIP}:3008/graphql/"
-                                echo "http://${jenkinsAgentPublicIP}:3008/api/v2/epoch"
+                                echo "Jenkins Agent Public IP: ${jenkinsAgentIP}. Some useful links:"
+                                echo "http://${jenkinsAgentIP}:3003/statistics"
+                                echo "http://${jenkinsAgentIP}:3008/graphql/"
+                                echo "http://${jenkinsAgentIP}:3008/api/v2/epoch"
                                 echo "https://${remoteServerDataNode}/statistics"
                                 echo "${remoteServerCometBFT}/net_info"
                             }
