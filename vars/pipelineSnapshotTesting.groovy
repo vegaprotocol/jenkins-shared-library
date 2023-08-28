@@ -595,6 +595,7 @@ boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = 
         String url = "http${tls ? 's' : ''}://${serverURL}/statistics"
         println("url=${url}")
         def conn = new URL(url).openConnection()
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             if (debug) {
