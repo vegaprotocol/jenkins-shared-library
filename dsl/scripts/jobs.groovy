@@ -1005,7 +1005,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 's-8vcpu-16gb',
+            NODE_LABEL: 'office-system-tests-lnl',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
             RUN_SOAK_TEST: false,
         ),

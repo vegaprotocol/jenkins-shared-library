@@ -141,7 +141,7 @@ jenkins:
   nodes:
   # bluesky005 8CPU - 16GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -155,7 +155,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky003 12 CPU - 15GB
   - permanent:
-      labelString: "performance-tests generic office-system-tests"
+      labelString: "performance-tests generic office-system-tests office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -169,7 +169,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky005 8CPU - 16GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
