@@ -445,16 +445,26 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
+                                            println("caughtUp = ${caughtUp}")
+
                                             if (!caughtUp) {
+                                                println("A")
                                                 if (isDataNodeHealthy('localhost:3008', false, true)) {
+                                                    println("A 1")
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
                                                     println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
+                                                } else {
+                                                    println("A 2")
                                                 }
                                             } else {
+                                                println("B")
                                                 if (!isDataNodeHealthy('localhost:3008', false, true)) {
+                                                    println("B 1")
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                } else {
+                                                    println("B 2")
                                                 }
                                             }
                                         }
@@ -615,6 +625,7 @@ boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = 
         }
         return true
     } catch (IOException e) {
+        println("IOException=${e}")
         return false
     }
 }
