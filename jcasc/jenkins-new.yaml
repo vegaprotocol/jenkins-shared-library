@@ -103,7 +103,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "s-2vcpu-4gb generic-2vcpu-4gb generic"
+        labelString: "s-2vcpu-4gb generic-2vcpu-4gb generic backup-node"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
@@ -140,7 +140,7 @@ jenkins:
   myViewsTabBar: "standard"
   nodes:
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -153,7 +153,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "performance-tests generic office-system-tests"
+      labelString: "performance-tests generic office-system-tests backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -166,7 +166,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -179,7 +179,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -192,7 +192,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -205,7 +205,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
@@ -218,7 +218,7 @@ jenkins:
       remoteFS: "/jenkins"
       retentionStrategy: "always"
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests core-build backup-node"
       launcher:
         inbound:
           webSocket: true
