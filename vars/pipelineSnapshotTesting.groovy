@@ -69,7 +69,7 @@ void call(Map config=[:]) {
                         sh 'printenv'
                         echo "params=${params.inspect()}"
                         // digitalocean
-                        if (params.NODE_LABEL == "s-4vcpu-8gb") {
+                        if (params.NODE_LABEL == "do-snapshot") {
                             jenkinsAgentPublicIP = sh(
                                 script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
                                 returnStdout: true,
@@ -89,13 +89,13 @@ void call(Map config=[:]) {
                     }
 
                     stage('Find available remote server') {
-                       
+
                         if (env.NET_NAME == "fairground") {
                             baseDomain = "testnet.vega.rocks"
                         }
-                        
 
-                        /** 
+
+                        /**
                          * Return the following structure:
                          * {
                          *   "validators": [ .... ],
