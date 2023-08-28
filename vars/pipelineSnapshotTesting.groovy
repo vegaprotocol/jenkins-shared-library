@@ -445,26 +445,16 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
-                                            println("caughtUp = ${caughtUp}")
-
                                             if (!caughtUp) {
-                                                println("A")
                                                 if (isDataNodeHealthy("${jenkinsAgentIP}:3008", false, true)) {
-                                                    println("A 1")
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
                                                     println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
-                                                } else {
-                                                    println("A 2")
                                                 }
                                             } else {
-                                                println("B")
                                                 if (!isDataNodeHealthy("${jenkinsAgentIP}:3008", false, true)) {
-                                                    println("B 1")
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
-                                                } else {
-                                                    println("B 2")
                                                 }
                                             }
                                         }
@@ -592,9 +582,7 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
 
 boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = false) {
     try {
-        String url = "http${tls ? 's' : ''}://${serverURL}/statistics"
-        println("url=${url}")
-        def conn = new URL(url).openConnection()
+        def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             if (debug) {
