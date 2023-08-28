@@ -11,7 +11,7 @@ jenkins:
       - "GROUP:Job/Cancel:vegaprotocol"
       - "GROUP:Job/Read:vegaprotocol"
       - "GROUP:Job/Workspace:vegaprotocol"
-      - "GROUP:Overall/Administer:vegaprotocol*Ops"
+      - "GROUP:Overall/Administer:vegaprotocol*ops"
       - "GROUP:Overall/Administer:vegaprotocol*core"
       - "GROUP:Overall/Read:vegaprotocol"
       - "GROUP:Run/Replay:vegaprotocol"
