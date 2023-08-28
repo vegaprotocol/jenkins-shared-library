@@ -971,7 +971,7 @@ def jobs = [
         definition: libDefinition('pipelineBackupNodeZFS()'),
         env: [],
         parameters: {
-            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
+            stringParam('NODE_LABEL', 'backup-node', 'The node label pipeline is going to run on')
             stringParam('TIMEOUT', '120', 'Global timeout in minutes')
             choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
             stringParam('SERVER', '', 'Server where we are going to execute action')
