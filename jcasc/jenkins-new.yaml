@@ -47,21 +47,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "test-node"
-        labellessJobsAllowed: false
-        name: "ubuntu"
-        numExecutors: 1
-        regionId: "fra1"
-        setupPrivateNetworking: false
-        sizeId: "s-8vcpu-16gb"
-        sshPort: 22
-        username: "ubuntu"
-        workspacePath: "/jenkins/"
-      - idleTerminationInMinutes: 10
-        imageId: "137757582"
-        installMonitoring: false
-        instanceCap: 120
-        labelString: "g-8vcpu-32gb generic-8vcpu-32gb"
+        labelString: "vega-market-sim"
         labellessJobsAllowed: false
         name: "ubuntu"
         numExecutors: 1
@@ -75,21 +61,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "s-8vcpu-16gb generic-8vcpu-16gb"
-        labellessJobsAllowed: false
-        name: "ubuntu"
-        numExecutors: 1
-        regionId: "fra1"
-        setupPrivateNetworking: false
-        sizeId: "s-8vcpu-16gb"
-        sshPort: 22
-        username: "ubuntu"
-        workspacePath: "/jenkins/"
-      - idleTerminationInMinutes: 10
-        imageId: "137757582"
-        installMonitoring: false
-        instanceCap: 120
-        labelString: "s-4vcpu-8gb generic-4vcpu-8gb generic office-system-tests core-build"
+        labelString: "do-snapshot tiny generic office-system-tests core-build"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
@@ -103,7 +75,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "s-2vcpu-4gb generic-2vcpu-4gb generic"
+        labelString: "tiny"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
@@ -183,7 +155,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests tiny core-build"
       launcher:
         inbound:
           webSocket: true
@@ -197,7 +169,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests tiny core-build"
       launcher:
         inbound:
           webSocket: true
@@ -211,7 +183,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests tiny core-build"
       launcher:
         inbound:
           webSocket: true
@@ -225,7 +197,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
-      labelString: "generic office-system-tests core-build"
+      labelString: "generic office-system-tests tiny core-build"
       launcher:
         inbound:
           webSocket: true

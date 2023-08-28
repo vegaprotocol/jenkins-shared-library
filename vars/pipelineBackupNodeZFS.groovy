@@ -1,6 +1,6 @@
 /* groovylint-disable DuplicateStringLiteral, NestedBlockDepth */
 def call() {
-    String nodeLabel = params.NODE_LABEL ?: 's-2vcpu-4gb'
+    String nodeLabel = params.NODE_LABEL ?: 'tiny'
     int pipelineTimeout = params.TIMEOUT ? params.TIMEOUT as int : 120
     String pipelineAction = params.ACTION ?: 'BACKUP'
     String stateRepository = 'vega-backups-state'

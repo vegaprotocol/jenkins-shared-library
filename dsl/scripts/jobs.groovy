@@ -165,7 +165,7 @@ def vegavisorParamsBase(args=[:]) {
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'generic'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -288,7 +288,7 @@ def vegavisorTopupBotsParams(args=[:]) {
         stringParam('ADDITIONAL_TRADER_BOTS_IDS', args.get('additionalTraderbotsIds', []).join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -326,7 +326,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -466,7 +466,7 @@ def approbationParams(def config=[:]) {
         }
 
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', config.get('NODE_LABEL', 's-2vcpu-4gb'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', config.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -475,7 +475,7 @@ def snapshotParams(args=[:]) {
         stringParam('TIMEOUT', args.get('TIMEOUT', '10'), 'Number of minutes after which the node will stop')
         booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 's-4vcpu-8gb'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'do-snapshot'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -528,7 +528,7 @@ def jobs = [
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('RELEASE_VERSION_OVERRIDE', '', 'Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
     ],
@@ -568,10 +568,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
-        parameters: vegavisorManageNodeParams(
-            name: 'devnet1',
-            NODE_LABEL: 'generic',
-        ),
+        parameters: vegavisorManageNodeParams(),
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // restart a random node every 1 hour
@@ -606,9 +603,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -624,7 +619,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'devnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -661,7 +655,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
-            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -687,10 +680,7 @@ def jobs = [
         env: [
             NET_NAME: 'stagnet1',
         ],
-        // parameters: vegavisorTopupBotsParams(["2","3","4","5", "6", "7"]),
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -706,7 +696,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'stagnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -743,30 +732,11 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_LIMIT: 'mainnet-mirror',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(
-    //         NODE_LABEL: 's-4vcpu-8gb',
-    //     ),
-    //     // everyday 2AM UTC, jenkins prefred minute
-    //     // parameterizedCron: 'H 2 * * * %' + [
-    //     //     'RELEASE_VERSION=latest',
-    //     // ].join(';'),
-    //     disableConcurrentBuilds: true,
-    // ],
     [
         name: 'private/Deployments/mainnet-mirror/Topup-Bots',
         numToKeep: 100,
@@ -775,9 +745,7 @@ def jobs = [
         env: [
             NET_NAME: 'mainnet-mirror',
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H */6 * * *',
         disableConcurrentBuilds: true,
     ],
@@ -793,7 +761,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -844,7 +811,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
-            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -870,9 +836,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H/30 * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -888,7 +852,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -910,7 +873,6 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
-            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -926,7 +888,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'validators-testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -944,7 +905,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
-            NODE_LABEL: 'generic',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -960,7 +920,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -971,7 +930,7 @@ def jobs = [
         definition: libDefinition('pipelineBackupNodeZFS()'),
         env: [],
         parameters: {
-            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
+            stringParam('NODE_LABEL', 'tiny', 'The node label pipeline is going to run on')
             stringParam('TIMEOUT', '120', 'Global timeout in minutes')
             choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
             stringParam('SERVER', '', 'Server where we are going to execute action')
@@ -1087,7 +1046,7 @@ def jobs = [
             booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'vega-market-sim', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 5,
@@ -1108,7 +1067,7 @@ def jobs = [
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
             stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'vega-market-sim', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 5,
@@ -1130,7 +1089,7 @@ def jobs = [
             stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
             stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'vega-market-sim', 'Jenkins label for running pipeline (empty means any node)')
         },
         copyArtifacts: true,
         daysToKeep: 5,
@@ -1237,7 +1196,7 @@ def jobs = [
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
@@ -1256,7 +1215,7 @@ def jobs = [
             stringParam('DURATION', '15m30s', 'Duration of stress-test')
             stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',
@@ -1361,7 +1320,7 @@ def jobs = [
     //         stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
     //         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
     //         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    //         stringParam('NODE_LABEL', 'g-8vcpu-32gb', 'Jenkins label for running pipeline (empty means any node)')
+    //         stringParam('NODE_LABEL', 'vega-market-sim', 'Jenkins label for running pipeline (empty means any node)')
     //     },
     // ],
 ]
