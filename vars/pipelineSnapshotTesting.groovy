@@ -592,7 +592,9 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
 
 boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = false) {
     try {
-        def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
+        String url = "http${tls ? 's' : ''}://${serverURL}/statistics"
+        println("url=${url}")
+        def conn = new URL(url).openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             if (debug) {
@@ -625,7 +627,9 @@ boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = 
         }
         return true
     } catch (IOException e) {
-        println("IOException=${e}")
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for ${serverURL}")
+        }
         return false
     }
 }
