@@ -403,37 +403,38 @@ void call(Map config=[:]) {
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                        if (!blockHeightIncreased) {
+                                            String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
 
-                                        String remoteServerStats = sh(
-                                                script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
-                                        Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
-                                        String localServerStats = sh(
-                                                script: "curl --max-time 5 http://127.0.0.1:3008/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("http://127.0.0.1:3008/statistics\n${localServerStats}")
-                                        Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
+                                            String remoteServerStats = sh(
+                                                    script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
+                                            Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
+                                            String localServerStats = sh(
+                                                    script: "curl --max-time 5 http://127.0.0.1:3008/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("http://127.0.0.1:3008/statistics\n${localServerStats}")
+                                            Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
 
-                                        if (networkVersion == null || networkVersion.length() < 1) {
-                                            networkVersion = localStats?.statistics?.appVersion
-                                        }
-
-                                        if (!chainStatusConnected) {
-                                            if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
-                                                chainStatusConnected = true
-                                                currTime = currentBuild.durationString - ' and counting'
-                                                println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime}) <<<<====")
+                                            if (networkVersion == null || networkVersion.length() < 1) {
+                                                networkVersion = localStats?.statistics?.appVersion
                                             }
-                                        }
-                                        if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
-                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
 
-                                            if (!blockHeightIncreased) {
+                                            if (!chainStatusConnected) {
+                                                if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
+                                                    chainStatusConnected = true
+                                                    currTime = currentBuild.durationString - ' and counting'
+                                                    println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime}) <<<<====")
+                                                }
+                                            }
+
+                                            // don't use else, to run next test in the same iteration
+                                            if (chainStatusConnected) {
+                                                int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
+                                                int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
                                                 if (localHeight > 0) {
                                                     if (previousLocalHeight < 0) {
                                                         previousLocalHeight = localHeight
@@ -444,19 +445,20 @@ void call(Map config=[:]) {
                                                     }
                                                 }
                                             }
+                                        }
 
-                                            if (blockHeightIncreased) {
-                                                if (!caughtUp) {
-                                                    if ( isLocalDataNodeHealthy(true) ) {
-                                                        caughtUp = true
-                                                        catchupTime = currentBuild.durationString - ' and counting'
-                                                        println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
-                                                    }
-                                                } else {
-                                                    if ( !isLocalDataNodeHealthy(true) ) {
-                                                        notHealthyAgainCount += 1
-                                                        println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
-                                                    }
+                                        // don't use else, to run next test in the same iteration
+                                        if (blockHeightIncreased) {
+                                            if (!caughtUp) {
+                                                if ( isLocalDataNodeHealthy(true) ) {
+                                                    caughtUp = true
+                                                    catchupTime = currentBuild.durationString - ' and counting'
+                                                    println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
+                                                }
+                                            } else {
+                                                if ( !isLocalDataNodeHealthy(true) ) {
+                                                    notHealthyAgainCount += 1
+                                                    println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
                                                 }
                                             }
                                         }
@@ -632,11 +634,17 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
             ).trim()
         def respParts = localServerStatsResponse.split("\n\n")
         if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: malformed response (${respParts.size()}) for ${serverURL}:\n${localServerStatsResponse}")
+            }
             return false
         }
         String localServerStatsBody = respParts[1]
         respParts = respParts[0].split("\n", 2)
         if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing response code (${respParts.size()}) for ${serverURL}:\n${localServerStatsResponse}")
+            }
             return false
         }
         String localServerStatsCode = respParts[0]
