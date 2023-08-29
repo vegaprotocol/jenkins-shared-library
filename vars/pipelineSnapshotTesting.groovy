@@ -389,7 +389,7 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Checks': {
-                                nicelyStopAfter(params.TIMEOUT) {
+                                nicelyStopAfter(params.TIMEOUT.toInteger() - 1) {
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 30
