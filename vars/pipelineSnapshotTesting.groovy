@@ -459,7 +459,7 @@ void call(Map config=[:]) {
                                                     catchupTime = "${timeSinceStartSec} sec"
                                                     println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
                                                     runEveryMs *= 2
-                                                    println("Increasing delay between checks to ${runEverySec} seconds")
+                                                    println("Increasing delay between checks to ${runEveryMs/1000} seconds")
                                                 }
                                             } else {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
