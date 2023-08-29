@@ -634,11 +634,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
                 encoding: 'UTF-8',
             ).trim()
         localServerStatsResponse = localServerStatsResponse.replaceAll("\r", "")
-        def parts = localServerStatsResponse.split("\n")
-        for(part in parts) {
-            println("part=${part} (${part.size()})")
-        }
-        def respParts = localServerStatsResponse.split(System.getProperty("line.separator") + System.getProperty("line.separator"))
+        def respParts = localServerStatsResponse.split("\n\n")
         if (respParts.size() != 2) {
             if (debug) {
                 println("Data Node healthcheck failed: malformed response (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
@@ -646,7 +642,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
             return false
         }
         String localServerStatsBody = respParts[1]
-        respParts = respParts[0].split(System.getProperty("line.separator"), 2)
+        respParts = respParts[0].split("\n", 2)
         if (respParts.size() != 2) {
             if (debug) {
                 println("Data Node healthcheck failed: missing response code (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
@@ -661,7 +657,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
             }
             return false
         }
-        def headerMatcher = (headers =~ /(?i)X-Block-Height: (.*)\n/)
+        def headerMatcher = (localServerStatsHeaders =~ /(?i)X-Block-Height: (.*)\n/)
         if (!headerMatcher.find()) {
             if (debug) {
                 println("Data Node healthcheck failed: missing x-block-height response header for local data-node")
