@@ -99,7 +99,7 @@ def createCommonPipeline(args){
             env("GOCACHE", "/jenkins/GOCACHE")
             env("GO111MODULE", "on")
             env("GOBIN", "/jenkins/GOPATH/bin")
-            env("PATH+EXTRA", "/jenkins/GOPATH/bin:/usr/local/go/bin")
+            env("PATH+EXTRA", "/jenkins/GOPATH/bin:/usr/local/go/bin:/home/ubuntu/.local/bin")
         }
 
         if (args.get('useScmDefinition', true)) {
