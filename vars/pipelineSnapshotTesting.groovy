@@ -632,7 +632,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
                 script: "curl --max-time 5 -i http://127.0.0.1:3008/statistics || echo '{}'",
                 returnStdout: true,
             ).trim()
-        def respParts = localServerStatsResponse.split("\n\n")
+        def respParts = localServerStatsResponse.split(System.getProperty("line.separator") + System.getProperty("line.separator"))
         if (respParts.size() != 2) {
             if (debug) {
                 println("Data Node healthcheck failed: malformed response (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
@@ -640,7 +640,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
             return false
         }
         String localServerStatsBody = respParts[1]
-        respParts = respParts[0].split("\n", 2)
+        respParts = respParts[0].split(System.getProperty("line.separator"), 2)
         if (respParts.size() != 2) {
             if (debug) {
                 println("Data Node healthcheck failed: missing response code (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
