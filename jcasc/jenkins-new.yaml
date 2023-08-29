@@ -223,6 +223,34 @@ jenkins:
       name: "jenkins08"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
+  # bluesky006 - 6vcpu 12gb - overprovisioned cpu
+  - permanent:
+      labelString: ""
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins09"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+  # bluesky005 - 4vcpu 8gb - overprovisioned cpu
+  - permanent:
+      labelString: ""
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins10"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
   numExecutors: 0
   primaryView:
     all:
