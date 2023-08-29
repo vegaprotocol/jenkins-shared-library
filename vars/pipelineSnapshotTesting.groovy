@@ -631,8 +631,8 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         String localServerStatsResponse = sh(
                 script: "curl --max-time 5 -i http://127.0.0.1:3008/statistics || echo '{}'",
                 returnStdout: true,
+                encoding: 'UTF-8',
             ).trim()
-
         def parts = localServerStatsResponse.split("\n")
         for(part in parts) {
             println("part=${part} (${part.size()})")
