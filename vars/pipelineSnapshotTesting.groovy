@@ -397,6 +397,7 @@ void call(Map config=[:]) {
                                     int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
                                     String currTime = currentBuild.durationString - ' and counting'
+                                    String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                     println("Checks are run every ${runEverySec} seconds (${currTime})")
                                     while (true) {
                                         // wait until next 20 or 50 sec past full minute since start
@@ -404,7 +405,6 @@ void call(Map config=[:]) {
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
                                         if (!blockHeightIncreased) {
-                                            String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
 
                                             String remoteServerStats = sh(
                                                     script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
@@ -426,8 +426,9 @@ void call(Map config=[:]) {
                                             if (!chainStatusConnected) {
                                                 if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
                                                     chainStatusConnected = true
-                                                    currTime = currentBuild.durationString - ' and counting'
-                                                    println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime}) <<<<====")
+                                                    // currTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${timeSinceStartSec} sec) <<<<====")
                                                 }
                                             }
 
@@ -440,8 +441,9 @@ void call(Map config=[:]) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
-                                                        currTime = currentBuild.durationString - ' and counting'
-                                                        println("====>>> Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime}) <<<<====")
+                                                        // currTime = currentBuild.durationString - ' and counting'
+                                                        timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                        println("====>>> Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${timeSinceStartSec} sec) <<<<====")
                                                     }
                                                 }
                                             }
@@ -452,8 +454,9 @@ void call(Map config=[:]) {
                                             if (!caughtUp) {
                                                 if ( isLocalDataNodeHealthy(true) ) {
                                                     caughtUp = true
-                                                    catchupTime = currentBuild.durationString - ' and counting'
-                                                    println("====>>> Data Node has caught up with the vega network !! (${catchupTime}) <<<<====")
+                                                    // catchupTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
                                                 }
                                             } else {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
