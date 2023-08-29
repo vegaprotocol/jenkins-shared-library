@@ -25,6 +25,7 @@ jenkins:
       - "USER:Overall/Administer:ValentinTrinque"
       - "USER:Overall/Administer:guoguojin"
       - "USER:Overall/Administer:jeremyletang"
+      - "USER:Overall/Administer:daniel1302"
       - "USER:Overall/Administer:jgsbennett"
       - "USER:Overall/Administer:karlem"
       - "USER:Overall/Administer:tommcl"
