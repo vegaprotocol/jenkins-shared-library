@@ -396,9 +396,9 @@ void call(Map config=[:]) {
                                     int runEveryMs = runEverySec * 1000
                                     int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
-                                    String currTime = currentBuild.durationString - ' and counting'
+                                    // String currTime = currentBuild.durationString - ' and counting'
                                     String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
-                                    println("Checks are run every ${runEverySec} seconds (${currTime})")
+                                    println("Checks are run every ${runEverySec} seconds")
                                     while (true) {
                                         // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
@@ -456,6 +456,7 @@ void call(Map config=[:]) {
                                                     caughtUp = true
                                                     // catchupTime = currentBuild.durationString - ' and counting'
                                                     timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    catchupTime = "${timeSinceStartSec} sec"
                                                     println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
                                                 }
                                             } else {
