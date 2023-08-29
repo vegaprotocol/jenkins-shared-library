@@ -34,6 +34,7 @@ void call(Map config=[:]) {
     boolean chainStatusConnected = false
     boolean caughtUp = false
     boolean blockHeightIncreased = false
+    int notHealthyAgainCount = 0
     String networkVersion = null
     String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'main'
 
@@ -51,6 +52,10 @@ void call(Map config=[:]) {
                 skipDefaultCheckout()
                 cleanWs()
                 sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
+                script {
+                    vegautils.commonCleanup()
+                    currentBuild.description = " [${env.NODE_NAME}]"
+                }
             }
 
             try {
@@ -222,6 +227,7 @@ void call(Map config=[:]) {
                                 SNAPSHOT_HASH = snapshotInfo['blockHash']
                                 println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
                                 println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
+                                currentBuild.description = "block: ${SNAPSHOT_HEIGHT} [${env.NODE_NAME}]"
 
                                 // Check TM version
                                 def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
@@ -383,66 +389,83 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Checks': {
-                                nicelyStopAfter(params.TIMEOUT) {
+                                nicelyStopAfter(Integer.toString(params.TIMEOUT.toInteger() - 1)) {
+                                    int startAt = currentBuild.duration
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
-                                    int runEverySec = 30
+                                    int runEverySec = 15
                                     int runEveryMs = runEverySec * 1000
-                                    int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
-                                    String currTime = currentBuild.durationString - ' and counting'
-                                    println("Checks are run every ${runEverySec} seconds (${currTime})")
+                                    // String currTime = currentBuild.durationString - ' and counting'
+                                    String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                    println("Checks are run every ${runEverySec} seconds")
                                     while (true) {
                                         // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                        if (!blockHeightIncreased) {
 
-                                        String remoteServerStats = sh(
-                                                script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
-                                        Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
-                                        String localServerStats = sh(
-                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("http://127.0.0.1:3003/statistics\n${localServerStats}")
-                                        Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
+                                            String remoteServerStats = sh(
+                                                    script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
+                                            Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
+                                            String localServerStats = sh(
+                                                    script: "curl --max-time 5 http://127.0.0.1:3008/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("http://127.0.0.1:3008/statistics\n${localServerStats}")
+                                            Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
 
-                                        if (networkVersion == null || networkVersion.length() < 1) {
-                                            networkVersion = localStats?.statistics?.appVersion
-                                        }
-
-                                        if (!chainStatusConnected) {
-                                            if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
-                                                chainStatusConnected = true
-                                                currTime = currentBuild.durationString - ' and counting'
-                                                println("Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime})")
+                                            if (networkVersion == null || networkVersion.length() < 1) {
+                                                networkVersion = localStats?.statistics?.appVersion
                                             }
-                                        }
-                                        if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
-                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
 
-                                            if (!blockHeightIncreased) {
+                                            if (!chainStatusConnected) {
+                                                if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
+                                                    chainStatusConnected = true
+                                                    // currTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${timeSinceStartSec} sec) <<<<====")
+                                                }
+                                            }
+
+                                            // don't use else, to run next test in the same iteration
+                                            if (chainStatusConnected) {
+                                                int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
+                                                int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
                                                 if (localHeight > 0) {
                                                     if (previousLocalHeight < 0) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
-                                                        currTime = currentBuild.durationString - ' and counting'
-                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime})")
+                                                        // currTime = currentBuild.durationString - ' and counting'
+                                                        timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                        println("====>>> Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${timeSinceStartSec} sec) <<<<====")
                                                     }
                                                 }
                                             }
+                                        }
 
-                                            if (!caughtUp && remoteHeight != 0 && (remoteHeight - localHeight < 10)) {
-                                                caughtUp = true
-                                                catchupTime = currentBuild.durationString - ' and counting'
-                                                println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
+                                        // don't use else, to run next test in the same iteration
+                                        if (blockHeightIncreased) {
+                                            if (!caughtUp) {
+                                                if ( isLocalDataNodeHealthy(true) ) {
+                                                    caughtUp = true
+                                                    // catchupTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    catchupTime = "${timeSinceStartSec} sec"
+                                                    println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
+                                                    runEveryMs *= 2
+                                                    println("Increasing delay between checks to ${runEveryMs/1000} seconds")
+                                                }
+                                            } else {
+                                                if ( !isLocalDataNodeHealthy(true) ) {
+                                                    notHealthyAgainCount += 1
+                                                    println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                }
                                             }
                                         }
                                     }
@@ -453,6 +476,7 @@ void call(Map config=[:]) {
                                 echo "http://${jenkinsAgentIP}:3003/statistics"
                                 echo "http://${jenkinsAgentIP}:3008/graphql/"
                                 echo "http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                                echo "http://${jenkinsAgentIP}:3008/statistics"
                                 echo "https://${remoteServerDataNode}/statistics"
                                 echo "${remoteServerCometBFT}/net_info"
                             }
@@ -460,18 +484,26 @@ void call(Map config=[:]) {
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
+                            currentBuild.description = "no CHAIN_STATUS_CONNECTED [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
+                            currentBuild.description = "block did not increase [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
                         echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
+                            currentBuild.description = "did not catch up [${env.NODE_NAME}]"
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
+                        }
+                        if (notHealthyAgainCount > 0) {
+                            currentBuild.description = "became unhealthy (${notHealthyAgainCount}) [${env.NODE_NAME}]"
+                            extraMsg = extraMsg ?: "became unhealthy ${notHealthyAgainCount} times."
+                            error("Non-validator became unhealthy ${notHealthyAgainCount} times.")
                         }
                         echo "Caught up: ${caughtUp}"
                         println("All checks passed.")
@@ -558,31 +590,111 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isDataNodeHealthy(String serverURL) {
+boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = false) {
     try {
-        def conn = new URL("https://${serverURL}/statistics").openConnection()
+        def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: response code ${conn.getResponseCode()} not 200 for ${serverURL}")
+            }
+            return false
         }
         int datanode_height = (conn.getHeaderField("x-block-height") ?: "-1") as int
         if (datanode_height < 0) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for ${serverURL}")
+            }
+            return false
         }
         def stats = new groovy.json.JsonSlurperClassic().parseText(conn.getInputStream().getText())
         int core_height = stats.statistics.blockHeight as int
         if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for ${serverURL}")
+            }
             return false
         }
         Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
         if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${vega_time}) is more than 10 seconds behind now (${current_time}) for ${serverURL}")
+            }
+            return false
         }
         return true
     } catch (IOException e) {
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for ${serverURL}")
+        }
         return false
     }
+}
+
+boolean isLocalDataNodeHealthy(boolean debug = false) {
+    try {
+        String localServerStatsResponse = sh(
+                script: "curl --max-time 5 -i http://127.0.0.1:3008/statistics || echo '{}'",
+                returnStdout: true,
+                encoding: 'UTF-8',
+            ).trim()
+        localServerStatsResponse = localServerStatsResponse.replaceAll("\r", "")
+        def respParts = localServerStatsResponse.split("\n\n")
+        if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: malformed response (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
+            }
+            return false
+        }
+        String localServerStatsBody = respParts[1]
+        respParts = respParts[0].split("\n", 2)
+        if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing response code (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
+            }
+            return false
+        }
+        String localServerStatsCode = respParts[0]
+        String localServerStatsHeaders = respParts[1]
+        if (!localServerStatsCode.contains("200")) {
+            if (debug) {
+                println("Data Node healthcheck failed: response code is not 200: ${localServerStatsCode} for local data-node")
+            }
+            return false
+        }
+        def headerMatcher = (localServerStatsHeaders =~ /(?i)X-Block-Height: (.*)\n/)
+        if (!headerMatcher.find()) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for local data-node")
+            }
+            return false
+        }
+        int datanode_height = headerMatcher[0][1] as int
+        def stats = new groovy.json.JsonSlurperClassic().parseText(localServerStatsBody)
+        int core_height = stats.statistics.blockHeight as int
+        if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for local data-node")
+            }
+            return false
+        }
+        Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
+        Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
+        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
+            if (debug) {
+                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for local data-node")
+            }
+            return false
+        }
+        return true
+    } catch (IOException e) {
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for local data-node")
+        }
+        return false
+    }
+
 }
 
 void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
