@@ -453,7 +453,7 @@ void call(Map config=[:]) {
                                                 if ( isLocalDataNodeHealthy(true) ) {
                                                     caughtUp = true
                                                     catchupTime = currentBuild.durationString - ' and counting'
-                                                    println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
+                                                    println("====>>> Data Node has caught up with the vega network !! (${catchupTime}) <<<<====")
                                                 }
                                             } else {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
