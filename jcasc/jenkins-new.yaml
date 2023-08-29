@@ -54,7 +54,7 @@ jenkins:
         numExecutors: 1
         regionId: "fra1"
         setupPrivateNetworking: false
-        sizeId: "g-8vcpu-32gb"
+        sizeId: "s-8vcpu-16gb"
         sshPort: 22
         username: "ubuntu"
         workspacePath: "/jenkins/"
@@ -112,9 +112,9 @@ jenkins:
   mode: EXCLUSIVE
   myViewsTabBar: "standard"
   nodes:
-  # bluesky005 8CPU - 16GB
+  # bluesky005 8CPU - 12GB
   - permanent:
-      labelString: "generic office-system-tests core-build office-system-tests-lnl"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl vega-market-sim"
       launcher:
         inbound:
           webSocket: true
@@ -128,7 +128,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky003 12 CPU - 15GB
   - permanent:
-      labelString: "performance-tests generic office-system-tests office-system-tests-lnl"
+      labelString: "performance-tests generic office-system-tests office-system-tests-lnl vega-market-sim"
       launcher:
         inbound:
           webSocket: true
@@ -140,9 +140,9 @@ jenkins:
       name: "jenkins02"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
-  # bluesky005 8CPU - 16GB
+  # bluesky005 8CPU - 12GB
   - permanent:
-      labelString: "generic office-system-tests core-build office-system-tests-lnl"
+      labelString: "generic office-system-tests core-build office-system-tests-lnl vega-market-sim"
       launcher:
         inbound:
           webSocket: true
