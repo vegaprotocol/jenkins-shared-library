@@ -635,7 +635,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         def respParts = localServerStatsResponse.split("\n\n")
         if (respParts.size() != 2) {
             if (debug) {
-                println("Data Node healthcheck failed: malformed response (${respParts.size()}) for ${serverURL}:\n${localServerStatsResponse}")
+                println("Data Node healthcheck failed: malformed response (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
             }
             return false
         }
@@ -643,7 +643,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         respParts = respParts[0].split("\n", 2)
         if (respParts.size() != 2) {
             if (debug) {
-                println("Data Node healthcheck failed: missing response code (${respParts.size()}) for ${serverURL}:\n${localServerStatsResponse}")
+                println("Data Node healthcheck failed: missing response code (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
             }
             return false
         }
@@ -651,14 +651,14 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         String localServerStatsHeaders = respParts[1]
         if (!localServerStatsCode.contains("200")) {
             if (debug) {
-                println("Data Node healthcheck failed: response code is not 200: ${localServerStatsCode} for ${serverURL}")
+                println("Data Node healthcheck failed: response code is not 200: ${localServerStatsCode} for local data-node")
             }
             return false
         }
         def headerMatcher = (headers =~ /(?i)X-Block-Height: (.*)\n/)
         if (!headerMatcher.find()) {
             if (debug) {
-                println("Data Node healthcheck failed: missing x-block-height response header for ${serverURL}")
+                println("Data Node healthcheck failed: missing x-block-height response header for local data-node")
             }
             return false
         }
@@ -667,7 +667,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         int core_height = stats.statistics.blockHeight as int
         if ((core_height - datanode_height).abs() > 10) {
             if (debug) {
-                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for ${serverURL}")
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for local data-node")
             }
             return false
         }
@@ -675,14 +675,14 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
         if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
             if (debug) {
-                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for ${serverURL}")
+                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for local data-node")
             }
             return false
         }
         return true
     } catch (IOException e) {
         if (debug) {
-            println("Data Node healthcheck failed: exception ${e} for ${serverURL}")
+            println("Data Node healthcheck failed: exception ${e} for local data-node")
         }
         return false
     }
