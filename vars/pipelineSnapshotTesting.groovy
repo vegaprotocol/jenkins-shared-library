@@ -392,7 +392,7 @@ void call(Map config=[:]) {
                                 nicelyStopAfter(Integer.toString(params.TIMEOUT.toInteger() - 1)) {
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
-                                    int runEverySec = 30
+                                    int runEverySec = 15
                                     int runEveryMs = runEverySec * 1000
                                     int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
@@ -458,6 +458,8 @@ void call(Map config=[:]) {
                                                     timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                                     catchupTime = "${timeSinceStartSec} sec"
                                                     println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
+                                                    runEveryMs *= 2
+                                                    println("Increasing delay between checks to ${runEverySec} seconds")
                                                 }
                                             } else {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
