@@ -390,11 +390,11 @@ void call(Map config=[:]) {
                             },
                             'Checks': {
                                 nicelyStopAfter(Integer.toString(params.TIMEOUT.toInteger() - 1)) {
+                                    int startAt = currentBuild.duration
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 15
                                     int runEveryMs = runEverySec * 1000
-                                    int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
                                     // String currTime = currentBuild.durationString - ' and counting'
                                     String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
