@@ -330,6 +330,24 @@ def networkApplyNonRestartChangesParams(args=[:]) {
     }
 }
 
+
+def fleetUpdateMachineParams(args=[:]) {
+    List machineList = [
+        "prometheus.vega.rocks",
+    ]
+
+    return {
+        choiceParam('MACHINE_NAME', machineList, 'Apply changes to specified machine.')
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+        booleanParam('UPDATE_ACCOUNTS', false, 'Update ssh accounts.')
+        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
+        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', 'tiny', 'Jenkins label for running pipeline (empty means any node)')
+    }
+}
+
+
 def systemTestsParamsGeneric(args=[:]) {
     return {
         stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
@@ -893,6 +911,9 @@ def jobs = [
         ),
         disableConcurrentBuilds: false,
     ],
+    //
+    // Mainnet
+    //
     [
         name: 'private/Deployments/mainnet/Manage-Node-71',
         numToKeep: 500,
@@ -945,6 +966,21 @@ def jobs = [
                 'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),
+    ],
+    //
+    // Fleet
+    //
+    [
+        name: 'private/Deployments/fleet/Update-Machine',
+        numToKeep: 100,
+        description: 'Apply changes from Ansible',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineFleet()'),
+        env: [
+            ANSIBLE_PLAYBOOK: 'playbook-fleet.yaml',
+        ],
+        parameters: fleetUpdateMachineParams(),
+        disableConcurrentBuilds: false,
     ],
     //
     // System-Tests
