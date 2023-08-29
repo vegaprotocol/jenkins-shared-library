@@ -633,6 +633,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
                 returnStdout: true,
                 encoding: 'UTF-8',
             ).trim()
+        localServerStatsResponse = localServerStatsResponse.replaceAll("\r", "")
         def parts = localServerStatsResponse.split("\n")
         for(part in parts) {
             println("part=${part} (${part.size()})")
