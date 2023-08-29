@@ -547,7 +547,7 @@ unclassified:
     overwriteable: true
     strategy:
       absoluteTimeOutStrategy:
-        timeoutMinutes: "300"
+        timeoutMinutes: "600"
   # hashicorpVault:
   #   configuration:
   #     engineVersion: 2
