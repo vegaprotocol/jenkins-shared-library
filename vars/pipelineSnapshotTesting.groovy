@@ -445,16 +445,18 @@ void call(Map config=[:]) {
                                                 }
                                             }
 
-                                            if (!caughtUp) {
-                                                if (isDataNodeHealthy("${jenkinsAgentIP}:3008", false, true)) {
-                                                    caughtUp = true
-                                                    catchupTime = currentBuild.durationString - ' and counting'
-                                                    println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
-                                                }
-                                            } else {
-                                                if (!isDataNodeHealthy("${jenkinsAgentIP}:3008", false, true)) {
-                                                    notHealthyAgainCount += 1
-                                                    println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                            if (blockHeightIncreased) {
+                                                if (!caughtUp) {
+                                                    if ( isLocalDataNodeHealthy(true) ) {
+                                                        caughtUp = true
+                                                        catchupTime = currentBuild.durationString - ' and counting'
+                                                        println("====>>> Data Node has caught up with the vega network !! (height: ${localHeight}) (${catchupTime}) <<<<====")
+                                                    }
+                                                } else {
+                                                    if ( !isLocalDataNodeHealthy(true) ) {
+                                                        notHealthyAgainCount += 1
+                                                        println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                    }
                                                 }
                                             }
                                         }
@@ -620,6 +622,63 @@ boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = 
         }
         return false
     }
+}
+
+boolean isLocalDataNodeHealthy(boolean debug = false) {
+    try {
+        String localServerStatsResponse = sh(
+                script: "curl --max-time 5 -i http://127.0.0.1:3008/statistics || echo '{}'",
+                returnStdout: true,
+            ).trim()
+        def respParts = localServerStatsResponse.split("\n\n")
+        if (respParts.size() != 2) {
+            return false
+        }
+        String localServerStatsBody = respParts[1]
+        respParts = respParts[0].split("\n", 2)
+        if (respParts.size() != 2) {
+            return false
+        }
+        String localServerStatsCode = respParts[0]
+        String localServerStatsHeaders = respParts[1]
+        if (!localServerStatsCode.contains("200")) {
+            if (debug) {
+                println("Data Node healthcheck failed: response code is not 200: ${localServerStatsCode} for ${serverURL}")
+            }
+            return false
+        }
+        def headerMatcher = (headers =~ /(?i)X-Block-Height: (.*)\n/)
+        if (!headerMatcher.find()) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for ${serverURL}")
+            }
+            return false
+        }
+        int datanode_height = headerMatcher[0][1] as int
+        def stats = new groovy.json.JsonSlurperClassic().parseText(localServerStatsBody)
+        int core_height = stats.statistics.blockHeight as int
+        if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for ${serverURL}")
+            }
+            return false
+        }
+        Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
+        Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
+        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
+            if (debug) {
+                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for ${serverURL}")
+            }
+            return false
+        }
+        return true
+    } catch (IOException e) {
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for ${serverURL}")
+        }
+        return false
+    }
+
 }
 
 void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
