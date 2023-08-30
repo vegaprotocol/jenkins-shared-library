@@ -99,7 +99,7 @@ jenkins:
   myViewsTabBar: "standard"
   nodes:
   # bluesky005 8CPU - 12GB
-  - permanent:
+  - permanent: &node-template
       labelString: "generic office-system-tests core-build office-system-tests-lnl office-machine"
       launcher:
         inbound:
@@ -114,186 +114,69 @@ jenkins:
       retentionStrategy: "always"
   # bluesky003 12 CPU - 15GB
   - permanent:
+      <<: *node-template
       labelString: "performance-tests generic office-system-tests office-system-tests-lnl office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins02"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky005 8CPU - 12GB
   - permanent:
+      <<: *node-template
       labelString: "generic office-system-tests core-build office-system-tests-lnl office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins03"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky004 6 cpu - 16GB
   - permanent:
+      <<: *node-template
       labelString: "generic office-system-tests tiny core-build snapshot vega-market-sim office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins04"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
+      <<: *node-template
       labelString: "generic office-system-tests tiny core-build snapshot office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins05"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky004 6 cpu - 16GB
   - permanent:
+      <<: *node-template
       labelString: "generic office-system-tests tiny core-build snapshot vega-market-sim office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins06"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky007 6cpu - 8GB
   - permanent:
+      <<: *node-template
       labelString: "generic office-system-tests tiny core-build snapshot office-machine"
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins07"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky001 - 4vcpu 8gb
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins08"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins09"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky005 - 4vcpu 8gb - overprovisioned cpu
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins10"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins11"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky007 - 6vcpu 16gb
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins12"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky007 - 6vcpu 16gb
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins13"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
   # bluesky007 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
+      <<: *node-template
       labelString: ""
-      launcher:
-        inbound:
-          webSocket: true
-          workDirSettings:
-            disabled: false
-            failIfWorkDirIsMissing: false
-            internalDir: "remoting"
-      mode: EXCLUSIVE
       name: "jenkins14"
-      remoteFS: "/jenkins"
-      retentionStrategy: "always"
 
   numExecutors: 0
   primaryView:
