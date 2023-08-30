@@ -312,3 +312,22 @@ void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
 
   error('Could not wait for valid response code on the url: ' + url)
 }
+
+void cleanExternalFile(String path) {
+  sh "echo '' > '" + path + "'"
+  sh "chmod 666 '" + path + "'"
+}
+
+void archiveExternalFile(String path) {
+  String randomString = ('a'..'z').shuffled().take(10).join()
+
+  dir ("tmp-" + randomString) {
+    sh "cp '" + path + "' ./"
+    archiveArtifacts(
+        artifacts: '*',
+        allowEmptyArchive: true
+    )
+    
+    sh 'rm -f ./*'
+  }
+}
