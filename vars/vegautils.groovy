@@ -314,8 +314,8 @@ void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
 }
 
 void cleanExternalFile(String path) {
-  sh "echo '' > '" + path + "'"
-  sh "chmod 666 '" + path + "'"
+  sh "echo '' | sudo tee '" + path + "'"
+  sh "sudo chmod 666 '" + path + "'"
 }
 
 void archiveExternalFile(String path) {
@@ -327,7 +327,7 @@ void archiveExternalFile(String path) {
         artifacts: '*',
         allowEmptyArchive: true
     )
-    
+
     sh 'rm -f ./*'
   }
 }
