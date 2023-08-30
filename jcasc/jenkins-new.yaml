@@ -145,7 +145,7 @@ jenkins:
   # bluesky002 - 3vcpu 6gb
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      labelString: "tiny snapshot"
       name: "jenkins08"
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
