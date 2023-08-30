@@ -48,27 +48,13 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "vega-market-sim"
-        labellessJobsAllowed: false
-        name: "ubuntu"
-        numExecutors: 1
-        regionId: "fra1"
-        setupPrivateNetworking: false
-        sizeId: "s-8vcpu-16gb"
-        sshPort: 22
-        username: "ubuntu"
-        workspacePath: "/jenkins/"
-      - idleTerminationInMinutes: 10
-        imageId: "137757582"
-        installMonitoring: false
-        instanceCap: 120
-        labelString: "snapshot tiny generic office-system-tests core-build"
+        labelString: "snapshot tiny generic office-system-tests core-build vega-market-sim"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
         regionId: "fra1"
         setupPrivateNetworking: false
-        sizeId: "s-4vcpu-8gb"
+        sizeId: "s-8vcpu-16gb-intel"
         sshPort: 22
         username: "ubuntu"
         workspacePath: "/jenkins/"
