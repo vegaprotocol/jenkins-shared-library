@@ -48,7 +48,7 @@ jenkins:
         imageId: "137757582"
         installMonitoring: false
         instanceCap: 120
-        labelString: "snapshot tiny generic office-system-tests core-build vega-market-sim"
+        labelString: "snapshot tiny generic office-system-tests core-build vega-market-sim cloud-machine"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
