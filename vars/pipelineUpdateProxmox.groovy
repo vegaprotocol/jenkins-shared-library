@@ -6,7 +6,9 @@ def call() {
         SLAVES = params.NODE.replaceAll(" ", "").split(",")
     }
     pipeline {
-        agent any
+        agent {
+            label 'tiny'
+        }
         environment {
             GOBIN = "${env.WORKSPACE}/gobin"
         }
