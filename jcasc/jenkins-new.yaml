@@ -142,7 +142,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 16GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build snapshot office-machine"
+      labelString: "generic office-system-tests tiny core-build snapshot vega-market-sim office-machine"
       launcher:
         inbound:
           webSocket: true
@@ -170,7 +170,7 @@ jenkins:
       retentionStrategy: "always"
   # bluesky004 6 cpu - 16GB
   - permanent:
-      labelString: "generic office-system-tests tiny core-build snapshot office-machine"
+      labelString: "generic office-system-tests tiny core-build snapshot vega-market-sim office-machine"
       launcher:
         inbound:
           webSocket: true
