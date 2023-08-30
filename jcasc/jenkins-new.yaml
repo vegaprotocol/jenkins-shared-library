@@ -140,7 +140,7 @@ jenkins:
       name: "jenkins03"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
-  # bluesky004 6 cpu - 8GB
+  # bluesky004 6 cpu - 16GB
   - permanent:
       labelString: "generic office-system-tests tiny core-build snapshot office-machine"
       launcher:
@@ -168,7 +168,7 @@ jenkins:
       name: "jenkins05"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
-  # bluesky004 6 cpu - 8GB
+  # bluesky004 6 cpu - 16GB
   - permanent:
       labelString: "generic office-system-tests tiny core-build snapshot office-machine"
       launcher:
@@ -238,6 +238,21 @@ jenkins:
       name: "jenkins10"
       remoteFS: "/jenkins"
       retentionStrategy: "always"
+  # bluesky004 - 6vcpu 16gb - overprovisioned cpu
+  - permanent:
+      labelString: ""
+      launcher:
+        inbound:
+          webSocket: true
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "jenkins11"
+      remoteFS: "/jenkins"
+      retentionStrategy: "always"
+
   numExecutors: 0
   primaryView:
     all:
