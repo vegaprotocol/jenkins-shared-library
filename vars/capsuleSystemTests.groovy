@@ -75,6 +75,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           cleanWs()
           script {
             vegautils.commonCleanup()
+            // Jenkins agent supports the /tmp/docker-ps.log
+            vegautils.cleanExternalFile("/tmp/docker-ps.log")
             currentBuild.description = "${params.SYSTEM_TESTS_TEST_MARK}, ${params.SYSTEM_TESTS_TEST_DIRECTORY} [${env.NODE_NAME}]"
             sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
@@ -827,6 +829,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   allowEmptyArchive: true
               )
             }
+          
+            vegautils.archiveExternalFile("/tmp/docker-ps.log")
           }
 
           catchError {
