@@ -498,6 +498,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
+                    sh 'make print-debug'
                     if (config.fastFail) {
                       // Just execute and fail immediately when something return an error
                       sh 'make test'
