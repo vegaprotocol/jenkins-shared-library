@@ -177,7 +177,11 @@ jenkins:
       <<: *node-template
       labelString: "generic tiny office-system-tests core-build office-machine snapshot vega-market-sim office-system-tests-lnl"
       name: "jenkins14"
-
+  # bluesky001 - 2vcpu 4gb
+  - permanent:
+    <<: *node-template
+    labelString: ""
+    name: "jenkins15"
   numExecutors: 0
   primaryView:
     all:
