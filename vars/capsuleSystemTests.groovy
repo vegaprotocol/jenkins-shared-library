@@ -258,12 +258,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             steps {
               dir('system-tests') {
                 sh label: 'Install python', script: '''
-                  pyenv versions
-                  pyenv install
-                  pyenv versions
+                  pyenv install --skip-existing
                 '''
 
                 sh label: 'Print versions', script: '''
+                  pyenv versions
                   python --version
                   poetry --version
                   poetry env info
@@ -272,7 +271,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 dir('scripts') {
                   sh label: 'Install poetry dependencies', script: '''
                     make poetry-install
-                    poetry env-info
                   '''
                 }
               }
