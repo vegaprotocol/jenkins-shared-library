@@ -179,9 +179,9 @@ jenkins:
       name: "jenkins14"
   # bluesky001 - 2vcpu 4gb
   - permanent:
-    <<: *node-template
-    labelString: ""
-    name: "jenkins15"
+      <<: *node-template
+      labelString: ""
+      name: "jenkins15"
   numExecutors: 0
   primaryView:
     all:
