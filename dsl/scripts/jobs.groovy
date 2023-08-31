@@ -1188,10 +1188,10 @@ def jobs = [
             NET_NAME: 'fairground',
             HISTORY_KEY: 'NetworkHistory',
         ],
-        parameters: snapshotParams([TIMEOUT: '15']),
+        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/20 * * * *",
+        cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
