@@ -265,12 +265,16 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   pyenv versions
                   python --version
                   poetry --version
-                  poetry env info
                 '''
 
                 dir('scripts') {
                   sh label: 'Install poetry dependencies', script: '''
+                    // delete existing virtualenv if exists
+                    if poetry env info -p; then
+                      rm -rf $(poetry env info -p)
+                    fi
                     make poetry-install
+                    poetry env info
                   '''
                 }
               }
