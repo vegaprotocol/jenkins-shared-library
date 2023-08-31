@@ -312,3 +312,30 @@ void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
 
   error('Could not wait for valid response code on the url: ' + url)
 }
+
+
+String randomString(int chars=10) {
+  List charsList = (('a'..'z') + ('a'..'z') + ('a'..'z')).collect()
+  
+  java.util.Collections.shuffle charsList
+  def password = charsList.take(chars).join()
+  
+  return password
+}
+
+void cleanExternalFile(String path) {
+  sh "echo '' | sudo tee '" + path + "'"
+  sh "sudo chmod 666 '" + path + "'"
+}
+
+void archiveExternalFile(String path) {
+  dir ("tmp-" + randomString(10)) {
+    sh "cp '" + path + "' ./"
+    archiveArtifacts(
+        artifacts: '*',
+        allowEmptyArchive: true
+    )
+
+    sh 'rm -f ./*'
+  }
+}
