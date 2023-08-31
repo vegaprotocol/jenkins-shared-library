@@ -60,7 +60,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       label agentLabel
     }
     environment {
-      PATH = "${env.WORKSPACE}/gobin:${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:${env.WORKSPACE}/bin"
+      PATH = "${env.WORKSPACE}/gobin:${env.PATH}:${env.WORKSPACE}/bin"
       GOBIN = "${env.WORKSPACE}/gobin"
     }
 
