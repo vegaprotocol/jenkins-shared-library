@@ -45,7 +45,7 @@ jenkins:
       sshKeyId: 35449484
       templates:
       - idleTerminationInMinutes: 10
-        imageId: "137757582"
+        imageId: "139551610"
         installMonitoring: false
         instanceCap: 120
         labelString: "snapshot tiny generic office-system-tests core-build vega-market-sim cloud-machine"
@@ -59,7 +59,7 @@ jenkins:
         username: "ubuntu"
         workspacePath: "/jenkins/"
       - idleTerminationInMinutes: 10
-        imageId: "137757582"
+        imageId: "139551610"
         installMonitoring: false
         instanceCap: 120
         labelString: "tiny"
