@@ -275,6 +275,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   // delete existing virtualenv if exists
                   sh label: 'Install poetry dependencies', script: '''
                     if poetry env info -p; then
+                      echo "removing old poetry virtualenv located at: $(poetry env info -p)"
                       rm -rf $(poetry env info -p)
                     fi
                     make poetry-install
