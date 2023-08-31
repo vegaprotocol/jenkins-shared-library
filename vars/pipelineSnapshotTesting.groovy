@@ -184,7 +184,11 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp vega core from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vegavisor_home/current/vega vega
+                                            time rsync -avz \
+                                                -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i '\${PSSH_KEYFILE}'" \
+                                                --progress \
+                                                \"\${PSSH_USER}\"@'${remoteServerDataNode}':/home/vega/vegavisor_home/current/vega \
+                                                ./vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
