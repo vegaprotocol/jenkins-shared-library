@@ -155,7 +155,7 @@ jenkins:
   # bluesky005 - 4vcpu 8gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
