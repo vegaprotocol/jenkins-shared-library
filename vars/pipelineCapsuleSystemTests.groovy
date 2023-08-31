@@ -86,7 +86,7 @@ void call() {
         options {
             timestamps()
             ansiColor('xterm')
-            timeout(time: 270, unit: 'MINUTES')
+            timeout(time: 480, unit: 'MINUTES')
             skipDefaultCheckout()
         }
         environment {
