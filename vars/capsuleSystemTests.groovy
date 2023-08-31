@@ -268,8 +268,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 '''
 
                 dir('scripts') {
+                  // delete existing virtualenv if exists
                   sh label: 'Install poetry dependencies', script: '''
-                    // delete existing virtualenv if exists
                     if poetry env info -p; then
                       rm -rf $(poetry env info -p)
                     fi
