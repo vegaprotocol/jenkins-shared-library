@@ -60,7 +60,7 @@ void call(Map config=[:]) {
 
             try {
                 // give extra 8 minutes for setup
-                timeout(time: params.TIMEOUT.toInteger() + 8, unit: 'MINUTES') {
+                timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
                     stage('Clone devopstools') {
                         gitClone([
                             url: 'git@github.com:vegaprotocol/devopstools.git',
@@ -182,7 +182,7 @@ void call(Map config=[:]) {
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp vega core from ${remoteServerDataNode}",
+                                    sh label: "rsync vega core from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
                                             time rsync -avz \
                                                 -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i '\${PSSH_KEYFILE}'" \
@@ -397,7 +397,7 @@ void call(Map config=[:]) {
                                     int startAt = currentBuild.duration
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
-                                    int runEverySec = 15
+                                    int runEverySec = 10
                                     int runEveryMs = runEverySec * 1000
                                     int previousLocalHeight = -1
                                     // String currTime = currentBuild.durationString - ' and counting'
@@ -462,8 +462,9 @@ void call(Map config=[:]) {
                                                     timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
                                                     catchupTime = "${timeSinceStartSec} sec"
                                                     println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
-                                                    runEveryMs *= 2
-                                                    println("Increasing delay between checks to ${runEveryMs/1000} seconds")
+                                                    // still take samples every 10sec, to investigate potential issue on Devnet
+                                                    // runEveryMs *= 2
+                                                    // println("Increasing delay between checks to ${runEveryMs/1000} seconds")
                                                 }
                                             } else {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
