@@ -257,19 +257,22 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests') {
-                // Use automatic pyenv resolution for installation & resolution
                 sh label: 'Install python', script: '''
-                  pyenv install --skip-existing
+                  pyenv versions
+                  pyenv install
+                  pyenv versions
                 '''
 
                 sh label: 'Print versions', script: '''
                   python --version
                   poetry --version
+                  poetry env info
                 '''
 
                 dir('scripts') {
                   sh label: 'Install poetry dependencies', script: '''
                     make poetry-install
+                    poetry env-info
                   '''
                 }
               }
