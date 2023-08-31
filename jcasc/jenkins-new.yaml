@@ -152,10 +152,10 @@ jenkins:
       <<: *node-template
       labelString: ""
       name: "jenkins09"
-  # bluesky005 - 4vcpu 8gb - overprovisioned cpu
+  # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      labelString: "generic tiny office-system-tests core-build office-machine snapshot"
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot vega-market-sim office-system-tests-lnl"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
