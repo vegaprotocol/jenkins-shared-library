@@ -150,17 +150,17 @@ jenkins:
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot office-system-tests-lnl"
       name: "jenkins09"
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      labelString: "generic tiny office-system-tests core-build office-machine snapshot vega-market-sim office-system-tests-lnl"
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot office-system-tests-lnl"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot vega-market-sim office-system-tests-lnl"
       name: "jenkins11"
   # bluesky007 - 6vcpu 16gb
   - permanent:
@@ -180,7 +180,7 @@ jenkins:
   # bluesky001 - 2vcpu 4gb
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "tiny"
       name: "jenkins15"
   numExecutors: 0
   primaryView:
