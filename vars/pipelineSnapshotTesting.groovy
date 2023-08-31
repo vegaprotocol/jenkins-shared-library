@@ -187,7 +187,7 @@ void call(Map config=[:]) {
                                             time rsync -avz \
                                                 -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i '\${PSSH_KEYFILE}'" \
                                                 --progress \
-                                                '\${PSSH_USER}'@'${remoteServerDataNode}':/home/vega/vegavisor_home/current/vega \
+                                                \"\${PSSH_USER}\"@'${remoteServerDataNode}':/home/vega/vegavisor_home/current/vega \
                                                 ./vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
