@@ -258,6 +258,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             steps {
               dir('system-tests') {
                 sh label: 'Install python', script: '''
+                  echo $PATH
+                  which pyenv
+                  which poetry
+                  which python
                   pyenv install --skip-existing
                 '''
 
