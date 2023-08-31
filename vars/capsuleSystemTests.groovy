@@ -60,7 +60,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       label agentLabel
     }
     environment {
-      PATH = "${env.WORKSPACE}/gobin:${env.PATH}:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:${env.WORKSPACE}/bin"
+      PATH = "${env.WORKSPACE}/gobin:${env.PATH}:${env.WORKSPACE}/bin"
       GOBIN = "${env.WORKSPACE}/gobin"
     }
 
@@ -257,19 +257,29 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests') {
-                // Use automatic pyenv resolution for installation & resolution
                 sh label: 'Install python', script: '''
+                  echo $PATH
+                  which pyenv
+                  which poetry
+                  which python
                   pyenv install --skip-existing
                 '''
 
                 sh label: 'Print versions', script: '''
+                  pyenv versions
                   python --version
                   poetry --version
                 '''
 
                 dir('scripts') {
+                  // delete existing virtualenv if exists
                   sh label: 'Install poetry dependencies', script: '''
+                    if poetry env info -p; then
+                      echo "removing old poetry virtualenv located at: $(poetry env info -p)"
+                      rm -rf $(poetry env info -p)
+                    fi
                     make poetry-install
+                    poetry env info
                   '''
                 }
               }
