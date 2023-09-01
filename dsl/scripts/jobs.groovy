@@ -232,6 +232,7 @@ def vegavisorManageNodeParams(args=[:]) {
             "api1.mainnet.vega.xyz",
             "api2.mainnet.vega.xyz",
             "api3.mainnet.vega.xyz",
+            "api4.mainnet.vega.xyz",
             "be0.mainnet.vega.xyz",
             "be1.mainnet.vega.xyz",
             "observer-01.mainnet.vega.xyz",
