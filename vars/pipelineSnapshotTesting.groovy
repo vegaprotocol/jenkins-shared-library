@@ -51,7 +51,6 @@ void call(Map config=[:]) {
             stage('init') {
                 skipDefaultCheckout()
                 cleanWs()
-                sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
                 script {
                     vegautils.commonCleanup()
                     currentBuild.description = " [${env.NODE_NAME}]"

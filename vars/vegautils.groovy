@@ -148,6 +148,13 @@ void _removeBinary(String binName) {
   }
 }
 
+void _killRunningContainers() {
+  sh (
+    label: 'remove any running docker containers',
+    script: 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
+  )
+}
+
 void _dockerCleanup() {
   sh label: 'docker volume prune',
   returnStatus: true,  // ignore exit code
@@ -158,9 +165,10 @@ void _dockerCleanup() {
 
 /**
  * We have a long live runners, in case there may be some trash left on the boxt after
- * previous runs, we should clean it up. 
+ * previous runs, we should clean it up.
  **/
 def commonCleanup() {
+  _killRunningContainers()
   _dockerCleanup()
 
   // Each pipeline MUST build the following binaries in the pipeline
@@ -177,7 +185,7 @@ def commonCleanup() {
 
 
 /*
-Example usage: 
+Example usage:
 
 print(generateJUnitReport([
     [
@@ -216,12 +224,12 @@ print(generateJUnitReport([
 */
 String generateJUnitReport(List testSuites) {
   // Compute tests times
-  
+
   String defaultTestName = 'unknown test'
   String defaultClassName = 'unknown.class'
   String defaultErrorMessage = 'unknown message'
   String defaultErrorType = 'UnknownType'
-  
+
   List suitesTime = testSuites.collect { suite -> suite.testCases.collect { test -> return test["time"] ?: 0.0 }.sum() }
   float totalTime = suitesTime.sum()
   List suitesErrors = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("error") && test.error != null ? 1 : 0 }.sum() }
@@ -229,32 +237,32 @@ String generateJUnitReport(List testSuites) {
   List suitesFailures = testSuites.collect { suite -> suite.testCases.collect { test -> return test.containsKey("failure") && test.failure != null ? 1 : 0 }.sum() }
   int totalFailures = suitesFailures.sum()
   int totalTests = testSuites.collect { suite -> return suite.testCases.size() }.sum()
-  
-  
+
+
   List<String> result = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<testsuites time="' + totalTime + '" tests="' + totalTests + '" failures="' + totalFailures + '" errors="' + totalErrors + '">',
   ]
-  
+
   for (int idx=0; idx<testSuites.size(); idx++) {
       result << '  <testsuite name="' + testSuites[idx].name + '" time="' + suitesTime[idx] + '" tests="' +  testSuites[idx].testCases.size() + '" failures="' + suitesFailures[idx] + '" errors="' + suitesErrors[idx] + '">'
-      
+
       for (testCase in testSuites[idx].testCases) {
           if (testCase.containsKey("error") || testCase.containsKey("failure")) {
             result << '    <testcase name="' + (testCase.name ?: defaultTestName) + '" classname="' + (testCase.className ?: defaultClassName) + '" time="' + (testCase.time ?: 0.0) + '">'
-            
+
             if (testCase.containsKey("error") && testCase.error != null) {
                 result << '      <error message="' + (testCase.error.description ?: defaultErrorMessage) + '" type="' + (testCase.error.type ?: defaultErrorType) + '">'
                 result << '        ' +  (testCase.error.description ?: 'No description')
                 result << '      </error>'
             }
-            
+
             if (testCase.containsKey("failure")  && testCase.failure != null) {
                 result << '      <failure message="' + (testCase.failure.description ?: defaultErrorMessage) + '" type="' + (testCase.failure.type ?: defaultErrorType) + '">'
                 result << '        ' +  (testCase.failure.description ?: 'No description')
                 result << '      </failure>'
             }
-            
+
             result << '    </testcase>'
           } else {
               result << '    <testcase name="' + (testCase.name ?: defaultTestName) + '" classname="' + (testCase.className ?: defaultClassName) + '" time="' + (testCase.time ?: 0.0) + '" />'
@@ -263,7 +271,7 @@ String generateJUnitReport(List testSuites) {
       result << '  </testsuite>'
   }
   result << '</testsuites>'
-    
+
   return result.join('\n')
 }
 
@@ -316,10 +324,10 @@ void waitForValidHTTPCode(String url, int attempts, int delayBetweenAttepmts) {
 
 String randomString(int chars=10) {
   List charsList = (('a'..'z') + ('a'..'z') + ('a'..'z')).collect()
-  
+
   java.util.Collections.shuffle charsList
   def password = charsList.take(chars).join()
-  
+
   return password
 }
 
