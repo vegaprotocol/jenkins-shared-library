@@ -56,6 +56,7 @@ void call() {
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
             GOBIN = "${env.WORKSPACE}/gobin"
+            ANSIBLE_PYTHON_INTERPRETER = "/home/ubuntu/.pyenv/shims/python"
         }
         stages {
             stage('CI Config') {
