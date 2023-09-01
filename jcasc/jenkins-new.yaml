@@ -155,7 +155,7 @@ jenkins:
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      # label removed out of rotation due to: 
+      # label removed out of rotation due to:
       labelString: ""
       # labelString: "generic tiny office-system-tests core-build office-machine snapshot office-system-tests-lnl"
       name: "jenkins10"
@@ -512,6 +512,24 @@ unclassified:
     useTls: false
   pollSCM:
     pollingThreadCount: 10
+  prometheusConfiguration:
+    appendParamLabel: true
+    appendStatusLabel: true
+    collectDiskUsage: true
+    collectNodeStatus: true
+    collectingMetricsPeriodInSeconds: 120
+    countAbortedBuilds: true
+    countFailedBuilds: true
+    countNotBuiltBuilds: true
+    countSuccessfulBuilds: true
+    countUnstableBuilds: true
+    defaultNamespace: "default"
+    fetchTestResults: true
+    jobAttributeName: "jenkins_job"
+    path: "prometheus"
+    perBuildMetrics: true
+    processingDisabledBuilds: false
+    useAuthenticatedEndpoint: false
   scmGit:
     addGitTagAction: false
     allowSecondFetch: false
