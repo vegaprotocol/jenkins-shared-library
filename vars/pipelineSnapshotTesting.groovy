@@ -59,7 +59,7 @@ void call(Map config=[:]) {
 
             try {
                 // give extra 8 minutes for setup
-                timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
+                timeout(time: params.TIMEOUT.toInteger() + 8, unit: 'MINUTES') {
                     stage('Clone devopstools') {
                         gitClone([
                             url: 'git@github.com:vegaprotocol/devopstools.git',
