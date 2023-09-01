@@ -155,9 +155,7 @@ jenkins:
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      # label removed out of rotation due to:
-      labelString: ""
-      # labelString: "generic tiny office-system-tests core-build office-machine snapshot office-system-tests-lnl"
+      labelString: "generic tiny office-system-tests core-build office-machine snapshot office-system-tests-lnl"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
