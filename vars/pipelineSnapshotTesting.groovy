@@ -703,6 +703,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
 
 void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
     String slackChannel = '#snapshot-notify'
+    String slackFailedChannel = '#snapshot-notify-failed'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
 
@@ -739,6 +740,14 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
         color: color,
         message: msg,
     )
+
+    if (currentResult != 'SUCCESS') {
+        slackSend(
+            channel: slackFailedChannel,
+            color: color,
+            message: msg,
+        )
+    }
 }
 
 boolean checkServerListening(String serverHost, int serverPort) {
