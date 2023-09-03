@@ -955,7 +955,7 @@ def jobs = [
         env: [],
         parameters: {
             stringParam('NODE_LABEL', 'tiny', 'The node label pipeline is going to run on')
-            stringParam('TIMEOUT', '120', 'Global timeout in minutes')
+            stringParam('TIMEOUT', '200', 'Global timeout in minutes')
             choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
             stringParam('SERVER', '', 'Server where we are going to execute action')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
