@@ -48,6 +48,20 @@ jenkins:
         imageId: "139551610"
         installMonitoring: false
         instanceCap: 120
+        labelString: "god-mode"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-8vcpu-32gb-640gb-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "139551610"
+        installMonitoring: false
+        instanceCap: 120
         labelString: "snapshot tiny generic office-system-tests core-build vega-market-sim cloud-machine"
         labellessJobsAllowed: true
         name: "ubuntu"
