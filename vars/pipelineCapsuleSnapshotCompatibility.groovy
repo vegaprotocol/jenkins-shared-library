@@ -12,9 +12,7 @@ void call(Map paramsOverrides=[:]) {
             postNetworkGenerate: [
                 'Download core snapshot from mainnet API': {
                     List mainnetApiServers = [
-                    'api0.vega.community',
-                    'api1.vega.community',
-                    'api3.vega.community',
+                    'api2.vega.community',
                     ]
 
                     Random rnd = new Random()
