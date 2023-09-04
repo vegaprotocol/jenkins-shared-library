@@ -182,6 +182,26 @@ jenkins:
       <<: *node-template
       labelString: "tiny"
       name: "jenkins15"
+  # bluesky008 - 6vcpu 16gb
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins16"
+  # bluesky008 - 6vcpu 16gb
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins17"
+  # bluesky008 - 6vcpu 16gb - overprovisioned CPU
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins18"
+  # bluesky008 - 6vcpu 16gb - overprovisioned CPU and memory
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins19"
   numExecutors: 0
   primaryView:
     all:
