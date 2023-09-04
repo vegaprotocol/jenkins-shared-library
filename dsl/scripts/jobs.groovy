@@ -241,6 +241,7 @@ def vegavisorManageNodeParams(args=[:]) {
         nodesList = [
             "api0.vega.community",
             "api1.vega.community",
+            "api2.vega.community",
             "api3.vega.community",
             "api4.vega.community",
             "api5.vega.community",
