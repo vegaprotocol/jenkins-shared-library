@@ -216,6 +216,11 @@ jenkins:
       <<: *node-template
       labelString: "generic tiny office-system-tests core-build office-machine snapshot vega-market-sim office-system-tests-lnl"
       name: "jenkins19"
+  # bluesky004 - 6vcpu 16gb - overprovisioned CPU and memory
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins20"
   numExecutors: 0
   primaryView:
     all:
