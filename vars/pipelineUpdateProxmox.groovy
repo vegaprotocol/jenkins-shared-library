@@ -1,11 +1,11 @@
 def call() {
     if (!params.NODE) {
-        SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }
+        SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(5)
     }
     else {
-        SLAVES = params.NODE.replaceAll(" ", "").split(",")
+        SLAVES = params.NODE.replaceAll(" ", "").split(",").collate(5)
     }
-    SLAVES = SLAVES.collate(5)
+    echo "${SLAVES}"
     pipeline {
         agent {
             label 'tiny'
