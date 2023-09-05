@@ -632,7 +632,7 @@ def jobs = [
             RESEARCH_BOT: true,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H/15 * * * *',
+        cron: '0 H/2 * * *',
         disableConcurrentBuilds: true,
     ],
     [
