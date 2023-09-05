@@ -500,7 +500,7 @@ def snapshotParams(args=[:]) {
         stringParam('TIMEOUT', args.get('TIMEOUT', '10'), 'Number of minutes after which the node will stop')
         booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'snapshot'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
     }
 }
 
@@ -553,7 +553,7 @@ def jobs = [
             booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
             stringParam('RELEASE_VERSION_OVERRIDE', '', 'Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'core-build', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
     ],
@@ -1242,7 +1242,7 @@ def jobs = [
             booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
             stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'tiny', 'Jenkins label for running pipeline (empty means any node)')
         },
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
@@ -1261,7 +1261,7 @@ def jobs = [
             stringParam('DURATION', '15m30s', 'Duration of stress-test')
             stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'generic', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam('NODE_LABEL', 'tiny', 'Jenkins label for running pipeline (empty means any node)')
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',

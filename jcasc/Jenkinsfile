@@ -5,7 +5,7 @@ import jenkins.model.GlobalConfiguration;
 // https://jenkins.ops.vega.xyz/configuration-as-code/schema
 pipeline {
     agent {
-        label 'generic'
+        label 'tiny'
     }
     options {
         timestamps()
