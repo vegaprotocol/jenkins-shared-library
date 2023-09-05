@@ -3,9 +3,7 @@ def call() {
         SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(5)
     }
     else {
-        SLAVES = params.NODE.replaceAll(" ", "").split(",")
-        echo "${SLAVES} ${SLAVES.class} ${SLAVES.toList()}"
-
+        SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(5)
     }
     pipeline {
         agent {
