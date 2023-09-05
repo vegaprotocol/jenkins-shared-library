@@ -254,7 +254,7 @@ jenkins:
   # bluesky007 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins27"
   # #
   # - permanent:
