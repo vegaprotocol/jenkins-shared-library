@@ -219,9 +219,9 @@ jenkins:
   # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: ""
+      labelString: "tiny"
       name: "jenkins20"
-  # 
+  #
   # - permanent:
   #     <<: *node-template
   #     labelString: ""
