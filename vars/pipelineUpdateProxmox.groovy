@@ -5,9 +5,10 @@ def call() {
     else {
         SLAVES = params.NODE.replaceAll(" ", "").split(",")
     }
+    SLAVES = SLAVES.collate(5)
     pipeline {
         agent {
-            label 'tiny-cloud'
+            label 'tiny'
         }
         environment {
             GOBIN = "${env.WORKSPACE}/gobin"
@@ -41,19 +42,22 @@ def call() {
                 steps {
                     script {
                         // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
-                        parallel SLAVES.collectEntries { name -> [
-                            (name): {
-                                node(name) {
-                                    cleanWs()
-                                    retry (3) {
-                                        checkout scm
-                                    }
-                                    sshagent(credentials: ['vega-ci-bot']) {
-                                        sh 'ansible-playbook playbooks/proxmox.yaml'
+                        SLAVES.each{ slavesBatch ->
+                            parallel slavesBatch.collectEntries { name -> [
+                                (name): {
+                                    node(name) {
+                                        cleanWs()
+                                        retry (3) {
+                                            checkout scm
+                                        }
+                                        sshagent(credentials: ['vega-ci-bot']) {
+                                            sh 'ansible-playbook playbooks/proxmox.yaml'
+                                        }
                                     }
                                 }
-                            }
-                        ]}
+                            ]}
+
+                        }
                     }
                 }
             }
