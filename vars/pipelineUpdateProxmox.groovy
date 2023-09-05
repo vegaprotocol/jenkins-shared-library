@@ -7,7 +7,7 @@ def call() {
     }
     pipeline {
         agent {
-            label 'tiny'
+            label 'tiny-cloud'
         }
         environment {
             GOBIN = "${env.WORKSPACE}/gobin"
