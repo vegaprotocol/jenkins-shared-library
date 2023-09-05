@@ -114,7 +114,7 @@ jenkins:
   nodes:
   # bluesky005 8CPU - 12GB
   - permanent: &node-template
-      labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -129,7 +129,7 @@ jenkins:
   # bluesky003 12 CPU - 15GB
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl performance-tests"
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl performance-tests"
       name: "jenkins02"
   # bluesky005 8CPU - 12GB
   - permanent:
@@ -139,22 +139,22 @@ jenkins:
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins04"
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine"
+      labelString: "office-system-tests core-build office-machine"
       name: "jenkins05"
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins06"
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine"
+      labelString: "office-system-tests core-build office-machine"
       name: "jenkins07"
   # bluesky002 - 3vcpu 6gb
   - permanent:
@@ -164,17 +164,17 @@ jenkins:
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
       name: "jenkins09"
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins11"
   # #
   # - permanent:
