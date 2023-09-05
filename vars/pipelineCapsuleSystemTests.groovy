@@ -114,7 +114,9 @@ void call() {
                         parallel scenario.collectEntries { name, testSpec ->
                             [
                 (name): {
-                  childParams = collectParams()
+                  childParams = collectParams([
+                    'SCENARIO'
+                  ])
                   // Collect pytest args, which may be specified in parent, and/or used to collect parallel subjobs
                   pytestArgs = []
                   if (testSpec.pytestArgs) {
@@ -140,7 +142,7 @@ void call() {
                   }
                   if (params.SCENARIO == 'NIGHTLY' && params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES == '') {
                     childParams += [stringParam(
-                      name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', 
+                      name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES',
                       value: '{"network.markPriceUpdateMaximumFrequency":"5s"}'
                       )
                     ]
@@ -151,8 +153,8 @@ void call() {
                     propagate: false,  // don't fail yet
                     wait: true,
                   )
-                  
-                  
+
+
                   echo "System-Tests pipeline: ${downstreamBuild.absoluteUrl}"
                   node(params.NODE_LABEL) {
                     sh 'printenv'
