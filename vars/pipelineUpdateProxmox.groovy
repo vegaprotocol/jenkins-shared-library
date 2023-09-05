@@ -12,7 +12,11 @@ def call() {
         environment {
             GOBIN = "${env.WORKSPACE}/gobin"
         }
-
+        options {
+            timestamps()
+            ansiColor('xterm')
+            timeout(time: 10, unit: 'MINUTES')
+        }
         post {
             always {
                 cleanWs()
