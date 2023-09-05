@@ -15,7 +15,7 @@ def call() {
         options {
             timestamps()
             ansiColor('xterm')
-            timeout(time: 10, unit: 'MINUTES')
+            timeout(time: 75, unit: 'MINUTES')
         }
         post {
             always {
