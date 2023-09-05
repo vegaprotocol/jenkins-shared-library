@@ -629,9 +629,10 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'devnet1',
+            RESEARCH_BOT: true,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H/15 * * * *',
+        cron: '0 H/2 * * *',
         disableConcurrentBuilds: true,
     ],
     [
