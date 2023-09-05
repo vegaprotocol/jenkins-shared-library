@@ -45,7 +45,9 @@ def call() {
                             (name): {
                                 node(name) {
                                     cleanWs()
-                                    checkout scm
+                                    retry (3) {
+                                        checkout scm
+                                    }
                                     sshagent(credentials: ['vega-ci-bot']) {
                                         sh 'ansible-playbook playbooks/proxmox.yaml'
                                     }
