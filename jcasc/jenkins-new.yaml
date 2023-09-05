@@ -216,11 +216,22 @@ jenkins:
       <<: *node-template
       labelString: "tiny office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins19"
-  # bluesky004 - 6vcpu 16gb - overprovisioned CPU and memory
+  # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
       labelString: ""
       name: "jenkins20"
+  # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins21"
+  # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
+  - permanent:
+      <<: *node-template
+      labelString: ""
+      name: "jenkins22"
+
   numExecutors: 0
   primaryView:
     all:
