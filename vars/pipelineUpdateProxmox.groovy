@@ -15,7 +15,6 @@ def call() {
         options {
             timestamps()
             ansiColor('xterm')
-            timeout(time: 75, unit: 'MINUTES')
         }
         post {
             always {
@@ -49,8 +48,10 @@ def call() {
                                         retry (3) {
                                             checkout scm
                                         }
-                                        sshagent(credentials: ['vega-ci-bot']) {
-                                            sh 'ansible-playbook playbooks/proxmox.yaml'
+                                        timeout(time: 75, unit: 'MINUTES') {
+                                            sshagent(credentials: ['vega-ci-bot']) {
+                                                sh 'ansible-playbook playbooks/proxmox.yaml'
+                                            }
                                         }
                                     }
                                 }
