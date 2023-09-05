@@ -76,7 +76,7 @@ jenkins:
         imageId: "139551610"
         installMonitoring: false
         instanceCap: 120
-        labelString: "tiny"
+        labelString: "tiny tiny-cloud"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
