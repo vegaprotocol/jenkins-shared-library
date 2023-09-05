@@ -221,11 +221,11 @@ jenkins:
       <<: *node-template
       labelString: ""
       name: "jenkins20"
-  # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
-  - permanent:
-      <<: *node-template
-      labelString: "tiny"
-      name: "jenkins21"
+  # 
+  # - permanent:
+  #     <<: *node-template
+  #     labelString: ""
+  #     name: "jenkins21"
   # # bluesky004
   # - permanent:
   #     <<: *node-template
