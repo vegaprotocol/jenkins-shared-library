@@ -120,7 +120,7 @@ def call() {
                             withGoogleSA('gcp-k8s') {
                                 sh "kubectl rollout restart statefulset research-bots-app -n ${env.NET_NAME}"
                             }
-                            sleep 20
+                            sleep 60
                             vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
                         } catch(err) {
                             print(err)
