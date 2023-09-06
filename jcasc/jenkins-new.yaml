@@ -139,7 +139,8 @@ jenkins:
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "ganache-debugging"
       name: "jenkins04"
   # bluesky007 6cpu - 8GB
   - permanent:
@@ -189,7 +190,8 @@ jenkins:
   # bluesky007 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "ganache-debugging"
       name: "jenkins14"
   # bluesky001 - 2vcpu 4gb
   - permanent:
