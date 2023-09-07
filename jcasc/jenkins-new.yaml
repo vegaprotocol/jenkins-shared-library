@@ -132,10 +132,10 @@ jenkins:
       labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl performance-tests"
       name: "jenkins02"
   # bluesky005 8CPU - 12GB
-  - permanent:
-      <<: *node-template
-      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
-      name: "jenkins03"
+  # - permanent:
+  #     <<: *node-template
+  #     labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+  #     name: "jenkins03"
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
