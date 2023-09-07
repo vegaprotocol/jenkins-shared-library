@@ -29,6 +29,9 @@ def call() {
                                         sh '''
                                             sudo rm -rf /jenkins/GOPATH/pkg/*
                                             sudo rm -rf /jenkins/GOCACHE/*
+                                            sudo apt-get update
+                                            sudo apt-get upgrade -y
+                                            sudo apt-get clean
                                             sudo find /jenkins/workspace -maxdepth 2 -type d -mtime +2 -exec rm -rf {} \\;
                                             docker system prune --all --force
 
