@@ -219,10 +219,10 @@ jenkins:
       labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins19"
   # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
-  - permanent:
-      <<: *node-template
-      labelString: "tiny"
-      name: "jenkins20"
+  # - permanent:
+  #     <<: *node-template
+  #     labelString: "tiny"
+  #     name: "jenkins20"
   # bluesky002 - 3 vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
