@@ -1353,6 +1353,13 @@ def jobs = [
             stringParam('NODE_LABEL', 'performance-tests', 'Jenkins label for running pipeline (empty means any node)')
         }
     ],
+    [
+        name: 'private/agents-cleanup',
+        useScmDefinition: false,
+        numToKeep: 20,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineCleanupAgents()'),
+    ]
     // ethereum events
     // [
     //     name: 'private/Automations/Ethereum-Events/Sandbox',
