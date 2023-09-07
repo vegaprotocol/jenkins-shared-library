@@ -45,12 +45,14 @@ def call() {
                                 (name): {
                                     node(name) {
                                         cleanWs()
-                                        retry (3) {
-                                            checkout scm
-                                        }
-                                        timeout(time: 75, unit: 'MINUTES') {
-                                            sshagent(credentials: ['vega-ci-bot']) {
-                                                sh 'ansible-playbook playbooks/proxmox.yaml'
+                                        catchError(buildResult: 'UNSTABLE') {
+                                            retry (3) {
+                                                checkout scm
+                                            }
+                                            timeout(time: 75, unit: 'MINUTES') {
+                                                sshagent(credentials: ['vega-ci-bot']) {
+                                                    sh 'ansible-playbook playbooks/proxmox.yaml'
+                                                }
                                             }
                                         }
                                     }
