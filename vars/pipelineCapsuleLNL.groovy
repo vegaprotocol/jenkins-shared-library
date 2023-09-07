@@ -74,18 +74,13 @@ void call(Map paramsOverrides=[:]) {
                 'Fix for duplicates - vegaprotocol/vega 8662': {
                     // We have to run this pipeline because when the network is started, data-node runs the migrations
                     // before any data is loaded into the network. It means We run the `DELETE FROM ...` queries when the
-                    // tables are empty. Then after protocol upgrade we do not run the same migration again because 
+                    // tables are empty. Then after protocol upgrade we do not run the same migration again because
                     // the database is already in latest version.
                     //
-                    // Because of how the LNL pipeline works(it alwasy tests agains the develop branch), We have to apply 
+                    // Because of how the LNL pipeline works(it alwasy tests agains the develop branch), We have to apply
                     // the fix from https://github.com/vegaprotocol/vega/pull/8662 again once data is in the database.
-                
-                    // This step MUST be removed once the vegaprotocol/vega#8662 is released to mainnet
 
-                    print("Applies fix for https://github.com/vegaprotocol/vega/pull/8662")
-                    script {
-                        sh 'sudo apt-get update && sudo apt-get install -y postgresql-client-14'
-                    }
+                    // This step MUST be removed once the vegaprotocol/vega#8662 is released to mainnet
 
                     for (int i=0; i<20; i++) {
                         script {
