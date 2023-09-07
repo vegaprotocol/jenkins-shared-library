@@ -46,7 +46,7 @@ void call() {
                         [$class: 'GitSCM', branches: [[name: "${params.VEGA_MARKET_SIM_BRANCH}" ]],
                         userRemoteConfigs: [
                             [
-                                credentialsId: 'vega-ci-bot', 
+                                credentialsId: 'vega-ci-bot',
                                 url: 'git@github.com:vegaprotocol/vega-market-sim.git'
                             ]
                         ]]
@@ -89,15 +89,12 @@ void call() {
                 options { retry(3) }
                 steps {
                     // We have to install cuda toolkit for some scenarios in the vega-market-sim
-                    // transformers[torch] - must be installed because poetry does not install it 
+                    // transformers[torch] - must be installed because poetry does not install it
                     // correctly for some reasons.
                     //
                     // cuda toolkit should be moved into the jenkins agent image and should be
                     // available before this pipeline
                     sh label: 'Build binaries', script: '''
-                        sudo apt-get update \
-                            && sudo apt-get install -y nvidia-cuda-toolkit nvidia-cuda-toolkit-gcc
-
                         make build_deps \
                             && poetry install -E learning \
                             && poetry run python -m pip install "transformers[torch]"
