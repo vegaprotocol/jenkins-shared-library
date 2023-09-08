@@ -4,6 +4,7 @@ List<String> dockerImages(){
         "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
         "vegaprotocol/grpc-plugins:latest",
         "vegaprotocol/clef:v2.2.1",
+        "vegaprotocol/ganache:v1.2.4"
         "golang:1.20-alpine3.18",
         "alpine:3.18",
     ]
