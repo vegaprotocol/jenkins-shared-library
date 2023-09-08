@@ -1359,6 +1359,9 @@ def jobs = [
         numToKeep: 20,
         cron: 'H 0 * * *',
         definition: libDefinition('pipelineCleanupAgents()'),
+        parameters: {
+            stringParam('NODE', '', 'Node name (e.g jenkins01) to run cleanup on')
+        }
     ]
     // ethereum events
     // [

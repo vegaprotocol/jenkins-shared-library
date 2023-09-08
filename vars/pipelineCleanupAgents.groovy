@@ -68,7 +68,9 @@ void _cacheGoBuild(Map<String, String> repositories) {
 }
 
 void call() {
-    if (!params.NODE) {
+    String nodeSelector = params.NODE ?: ''
+
+    if (nodeSelector.length() < 1) {
         SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(3)
     }
     else {
