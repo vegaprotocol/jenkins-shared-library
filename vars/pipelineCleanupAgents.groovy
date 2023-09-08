@@ -38,9 +38,9 @@ void _cleanWorkspaces() {
 
 void _cleanupDocker() {
     sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
-    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
+    sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
     sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q)'
-    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
+    sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
 }
 
 void _cacheDockerImages(List<String> images) {
