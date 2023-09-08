@@ -1,19 +1,23 @@
 
-List<String> images = [
-    "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
-    "vegaprotocol/grpc-plugins:latest",
-    "vegaprotocol/clef:v2.2.1",
-    "golang:1.20-alpine3.18",
-    "alpine:3.18",
-]
+List<String> dockerImages(){
+    return [
+        "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
+        "vegaprotocol/grpc-plugins:latest",
+        "vegaprotocol/clef:v2.2.1",
+        "golang:1.20-alpine3.18",
+        "alpine:3.18",
+    ]
+}
 
-Map<String, String> repositories = [
-    'vegaprotocol/vega': 'develop',
-    'vegaprotocol/vegacapsule': 'main',
-    'vegaprotocol/vegatools': 'develop',
-    'vegaprotocol/devopsscripts': 'main',
-    'vegaprotocol/devopstools': 'main',
-]
+Map<String, String> gitRepositories() {
+    return [
+        'vegaprotocol/vega': 'develop',
+        'vegaprotocol/vegacapsule': 'main',
+        'vegaprotocol/vegatools': 'develop',
+        'vegaprotocol/devopsscripts': 'main',
+        'vegaprotocol/devopstools': 'main',
+    ]
+}
 
 void _goClean() {
     sh label: 'Clean Golang cache', script: '''
@@ -37,10 +41,17 @@ void _cleanWorkspaces() {
 }
 
 void _cleanupDocker() {
-    sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
-    sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
-    sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q)'
-    sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
+    int runningContainers = vegautils.shellOutput('docker ps -q | wc -l') as int
+    int localImages = vegautils.shellOutput('docker images -a -q | wc -l') as int
+
+    if (runningContainers > 0) {
+        sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
+    }
+    if (localImages > 0) {
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
+        sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q) || echo "All images removed by prune"'
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
+    }
 }
 
 void _cacheDockerImages(List<String> images) {
@@ -55,7 +66,7 @@ void _cacheGoBuild(Map<String, String> repositories) {
 
         gitClone([
             url: 'git@github.com:' + repository + '.git',
-            branch: value.branch,
+            branch: branch,
             directory: directory,
             credentialsId: 'vega-ci-bot',
             timeout: 5,
@@ -82,11 +93,6 @@ void call() {
             timestamps()
             ansiColor('xterm')
         }
-        post {
-            always {
-                cleanWs()
-            }
-        }
         stages {
             stage('trigger provisioner') {
                 steps {
@@ -97,17 +103,27 @@ void call() {
                                 (name): {
                                     node(name) {
                                         catchError(buildResult: 'UNSTABLE') {
-                                            def labels = Jenkins.instance.computers.find{ "${it.name}" == name }.assignedLabels
+                                            def labels = Jenkins
+                                                .instance
+                                                .computers
+                                                .find{ "${it.name}" == name }
+                                                .getAssignedLabels()
+                                                .collect {it.toString()}
+                                            print('Labels for ' + name + ': ' + labels.join(', '))
+
                                             _goClean()
                                             _systemPackagesUpgrade()
                                             _cleanupDocker()
-                                            _cacheDockerImages(images)
+                                            _cacheDockerImages(dockerImages())
 
                                             // rebuild cache only for machines that do actual builds
                                             if (!labels.contains('tiny')) {
-                                                _cacheGoBuild(repositories)
+                                                _cacheGoBuild(gitRepositories())
                                             }
                                         }
+
+                                        _cleanWorkspaces()
+                                        cleanWs()
                                     }
                                 }
                             ]}
