@@ -540,6 +540,8 @@ def jobs = [
         parameters: {
             stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
             booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         }
     ],
     [
