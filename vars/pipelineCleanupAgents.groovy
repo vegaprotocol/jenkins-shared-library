@@ -1,4 +1,73 @@
-def call() {
+
+List<String> images = [
+    "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
+    "vegaprotocol/grpc-plugins:latest",
+    "vegaprotocol/clef:v2.2.1",
+    "golang:1.20-alpine3.18",
+    "alpine:3.18",
+]
+
+Map<String, String> repositories = [
+    'vegaprotocol/vega': 'develop',
+    'vegaprotocol/vegacapsule': 'main',
+    'vegaprotocol/vegatools': 'develop',
+    'vegaprotocol/devopsscripts': 'main',
+    'vegaprotocol/devopstools': 'main',
+]
+
+void _goClean() {
+    sh label: 'Clean Golang cache', script: '''
+        sudo rm -rf /jenkins/GOPATH/pkg/*
+        sudo rm -rf /jenkins/GOCACHE/*
+    '''
+}
+
+void _systemPackagesUpgrade() {
+    sh label: 'Upgrade system packages', script: '''
+        sudo apt-get update
+        sudo apt-get upgrade -y
+        sudo apt-get clean
+    '''
+}
+
+void _cleanWorkspaces() {
+    sh label: 'Clean workspaces', script: '''
+        sudo find /jenkins/workspace -maxdepth 2 -type d -mtime +2 -exec rm -rf {} \\;
+    '''
+}
+
+void _cleanupDocker() {
+    sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
+    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
+    sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q)'
+    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
+}
+
+void _cacheDockerImages(List<String> images) {
+    images.each { image ->
+        sh label: 'Pull docker image: ' + image, script: 'docker pull ' + image
+    }
+}
+
+void _cacheGoBuild(Map<String, String> repositories) {
+    repositories.each { repository, branch ->
+        String directory = repository.split('/')[-1]
+
+        gitClone([
+            url: 'git@github.com:' + repository + '.git',
+            branch: value.branch,
+            directory: directory,
+            credentialsId: 'vega-ci-bot',
+            timeout: 5,
+        ])
+
+        dir (directory) {
+            sh label: 'Build ' + directory, script: 'go build ./...'
+        }
+    }
+}
+
+void call() {
     if (!params.NODE) {
         SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(3)
     }
@@ -27,48 +96,14 @@ def call() {
                                     node(name) {
                                         catchError(buildResult: 'UNSTABLE') {
                                             def labels = Jenkins.instance.computers.find{ "${it.name}" == name }.assignedLabels
-                                            sh '''
-                                                sudo rm -rf /jenkins/GOPATH/pkg/*
-                                                sudo rm -rf /jenkins/GOCACHE/*
-                                                sudo apt-get update
-                                                sudo apt-get upgrade -y
-                                                sudo apt-get clean
-                                                sudo find /jenkins/workspace -maxdepth 2 -type d -mtime +2 -exec rm -rf {} \\;
-                                                docker system prune --all --force
+                                            _goClean()
+                                            _systemPackagesUpgrade()
+                                            _cleanupDocker()
+                                            _cacheDockerImages(images)
 
-                                            '''
                                             // rebuild cache only for machines that do actual builds
                                             if (!labels.contains('tiny')) {
-                                                def repositories = [
-                                                    [ name: 'vegaprotocol/vega', branch: 'develop' ],
-                                                    [ name: 'vegaprotocol/vegacapsule', branch: 'main' ],
-                                                    [ name: 'vegaprotocol/vegatools', branch: 'develop' ],
-                                                    [ name: 'vegaprotocol/devopsscripts', 'main' ],
-                                                    [ name: 'vegaprotocol/devopstools', 'main' ],
-                                                ]
-                                                def reposSteps = [failFast: true] + repositories.collectEntries{value -> [
-                                                    value.name,
-                                                    {
-                                                    gitClone([
-                                                        url: 'git@github.com:' + value.name + '.git',
-                                                        branch: value.branch,
-                                                        directory: value.directory ?: value.name.split('/')[1],
-                                                        credentialsId: 'vega-ci-bot',
-                                                        timeout: 3,
-                                                    ])
-                                                    }
-                                                ]}
-                                                parallel reposSteps
-                                                def buildSteps = [failFase: true] + repositories.collectEntries{ value -> [
-                                                    value.name,
-                                                    {
-                                                        retry(2) {
-                                                            timeout(time: 25, unit: 'MINUTES') {
-                                                                vegauitls.buildGoBinary(value.name.replaceAll('vegaprotocol/', ''), pwd() + value.name.replaceAll('vegaprotocol', '') + './')
-                                                            }
-                                                        }
-                                                    }
-                                                ]}
+                                                _cacheGoBuild(repositories)
                                             }
                                         }
                                     }
