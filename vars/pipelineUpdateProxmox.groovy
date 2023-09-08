@@ -51,7 +51,12 @@ def call() {
                                             }
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
-                                                    sh 'ansible-playbook playbooks/proxmox.yaml'
+                                                    sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                        ansible-playbook \
+                                                            ${params.DRY_RUN ? '--check' : ''} \
+                                                            --diff \
+                                                            playbooks/proxmox.yaml
+                                                    """
                                                 }
                                             }
                                         }

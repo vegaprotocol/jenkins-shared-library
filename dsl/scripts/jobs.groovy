@@ -539,6 +539,7 @@ def jobs = [
         disableConcurrentBuilds: false,
         parameters: {
             stringParam('NODE', '', 'define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
+            booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
         }
     ],
     [
