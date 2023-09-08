@@ -1361,6 +1361,8 @@ def jobs = [
         definition: libDefinition('pipelineCleanupAgents()'),
         parameters: {
             stringParam('NODE', '', 'Node name (e.g jenkins01) to run cleanup on')
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+
         }
     ]
     // ethereum events
