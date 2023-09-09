@@ -111,19 +111,37 @@ void call() {
                                                 .getAssignedLabels()
                                                 .collect {it.toString()}
                                             print('Labels for ' + name + ': ' + labels.join(', '))
+                                            
+                                            retry(count: 3) {
+                                                timeout(time: 10) {
+                                                    _goClean()
+                                                    _systemPackagesUpgrade()
+                                                    _cleanupDocker()
+                                                }
+                                            }
 
-                                            _goClean()
-                                            _systemPackagesUpgrade()
-                                            _cleanupDocker()
-                                            _cacheDockerImages(dockerImages())
+
+                                            retry(count: 3) {
+                                                timeout(time: 5) {
+                                                    _cacheDockerImages(dockerImages())
+                                                }
+                                            }
 
                                             // rebuild cache only for machines that do actual builds
                                             if (!labels.contains('tiny')) {
-                                                _cacheGoBuild(gitRepositories())
+                                                retry(count: 3) {
+                                                    timeout(time: 5) {
+                                                        _cacheGoBuild(gitRepositories())
+                                                    }
+                                                }
                                             }
                                         }
 
-                                        _cleanWorkspaces()
+                                        retry(count: 3) {
+                                            timeout(time: 5) {
+                                                _cleanWorkspaces()
+                                            }
+                                        }
                                         cleanWs()
                                     }
                                 }
