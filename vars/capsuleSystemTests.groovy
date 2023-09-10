@@ -232,7 +232,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make build-test-proto'
+                withDockerLogin('vegaprotocol-dockerhub', false) {
+                  sh 'make build-test-proto'
+                }
               }
             }
           }
@@ -336,7 +338,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             dir ('system-tests/scripts') {
               String makeAbsBinaryPath = vegautils.shellOutput('which make')
               String cwd = vegautils.shellOutput('pwd')
-
+              
               sh '''daemonize \
                 -o ''' + testNetworkDir + '''/nomad.log \
                 -e ''' + testNetworkDir + '''/nomad.log \
