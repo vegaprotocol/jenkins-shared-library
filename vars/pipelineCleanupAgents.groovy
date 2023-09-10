@@ -110,7 +110,8 @@ void call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        catchError(buildResult: 'UNSTABLE') {
+                                        // We can keep job as UNSTABLE when the cleanup is not finished
+                                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                                             def labels = Jenkins
                                                 .instance
                                                 .computers
@@ -126,8 +127,11 @@ void call() {
                                                     _systemPackagesUpgrade()
                                                 }
                                             }
+                                        }
 
-
+                                        // When the docker cache is not refreshed, it may cause further issues
+                                        // like timeouts for NOMAD, so we want to have this failures.
+                                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                             retry(count: 3) {
                                                 timeout(time: 5) {
                                                     withDockerLogin('vegaprotocol-dockerhub', true) {
@@ -135,7 +139,10 @@ void call() {
                                                     }
                                                 }
                                             }
+                                        }
 
+                                        // Not much issues when the golang cache is not refreshed.
+                                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                                             // rebuild cache only for machines that do actual builds
                                             if (!labels.contains('tiny')) {
                                                 retry(count: 3) {
@@ -144,6 +151,7 @@ void call() {
                                                     }
                                                 }
                                             }
+
                                         }
 
                                         retry(count: 3) {
