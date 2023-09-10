@@ -88,7 +88,7 @@ void call() {
             .computers
             .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() }
             .collect{ it.name }
-            .collate(3)
+            .collate(6)
     }
     else {
         SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
