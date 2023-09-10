@@ -114,7 +114,8 @@ jenkins:
   nodes:
   # bluesky005 8CPU - 12GB
   - permanent: &node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       launcher:
         inbound:
           webSocket: true
@@ -129,7 +130,8 @@ jenkins:
   # bluesky003 12 CPU - 15GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl performance-tests"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl performance-tests"
+      labelString: "disabled"
       name: "jenkins02"
   # bluesky005 8CPU - 12GB
   # - permanent:
@@ -145,37 +147,44 @@ jenkins:
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine"
+      # labelString: "office-system-tests core-build office-machine"
+      labelString: "disabled"
       name: "jenkins05"
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins06"
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine"
+      # labelString: "office-system-tests core-build office-machine"
+      labelString: "disabled"
       name: "jenkins07"
   # bluesky002 - 3vcpu 6gb
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins08"
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins09"
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins11"
   # bluesky001 - 2 vcpu 4gb - overprovisioned CPU and memory
   - permanent:
@@ -185,7 +194,8 @@ jenkins:
   # bluesky007 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins13"
   # bluesky007 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
@@ -196,27 +206,32 @@ jenkins:
   # bluesky001 - 2vcpu 4gb
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins15"
   # bluesky008 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins16"
   # bluesky008 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins17"
   # bluesky008 - 6vcpu 16gb - overprovisioned CPU
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins18"
   # bluesky008 - 6vcpu 16gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins19"
   # bluesky004 - 3vcpu 6gb - overprovisioned CPU and memory
   # - permanent:
@@ -226,12 +241,14 @@ jenkins:
   # bluesky002 - 3 vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins21"
   # bluesky007 - 3 vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins22"
   # - permanent:
   #     <<: *node-template
@@ -240,22 +257,26 @@ jenkins:
   # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins24"
   # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins25"
   # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      # labelString: "tiny"
+      labelString: "disabled"
       name: "jenkins26"
   # bluesky007 - 3vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      labelString: "disabled"
       name: "jenkins27"
   # #
   # - permanent:
