@@ -49,9 +49,9 @@ void _cleanupDocker() {
         sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
     }
     if (localImages > 0) {
-        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --volumes --force'
         sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q) || echo "All images removed by prune"'
-        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --force'
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --volumes --force'
     }
 }
 
