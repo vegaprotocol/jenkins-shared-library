@@ -96,6 +96,7 @@ void call() {
     pipeline {
         agent none
         options {
+            timeout(time: 120, unit: 'MINUTES')
             timestamps()
             ansiColor('xterm')
         }
