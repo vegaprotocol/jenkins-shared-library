@@ -83,7 +83,12 @@ void call() {
     String nodeSelector = params.NODE ?: ''
 
     if (nodeSelector.length() < 1) {
-        SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(3)
+        SLAVES = Jenkins
+            .instance
+            .computers
+            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() }
+            .collect{ it.name }
+            .collate(3)
     }
     else {
         SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
@@ -115,8 +120,8 @@ void call() {
                                             retry(count: 3) {
                                                 timeout(time: 10) {
                                                     _goClean()
-                                                    _systemPackagesUpgrade()
                                                     _cleanupDocker()
+                                                    _systemPackagesUpgrade()
                                                 }
                                             }
 
