@@ -97,6 +97,7 @@ void call() {
         agent none
         options {
             timeout(time: 120, unit: 'MINUTES')
+            disableConcurrentBuilds()
             timestamps()
             ansiColor('xterm')
         }
