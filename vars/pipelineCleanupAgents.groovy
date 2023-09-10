@@ -110,15 +110,17 @@ void call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
+                                        def labels = Jenkins
+                                            .instance
+                                            .computers
+                                            .find{ "${it.name}" == name }
+                                            .getAssignedLabels()
+                                            .collect {it.toString()}
+                                        print('Labels for ' + name + ': ' + labels.join(', '))
+                                        
+                                        
                                         // We can keep job as UNSTABLE when the cleanup is not finished
                                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                                            def labels = Jenkins
-                                                .instance
-                                                .computers
-                                                .find{ "${it.name}" == name }
-                                                .getAssignedLabels()
-                                                .collect {it.toString()}
-                                            print('Labels for ' + name + ': ' + labels.join(', '))
                                             
                                             retry(count: 3) {
                                                 timeout(time: 10) {
