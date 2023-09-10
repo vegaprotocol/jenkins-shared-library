@@ -1,4 +1,4 @@
-def call(String credentialsId, Closure body) {
+def call(String credentialsId, boolean logout, Closure body) {
     withCredentials([
         usernamePassword(credentialsId: credentialsId, passwordVariable: 'DOCKER_PASSWORD', usernameVariable:'DOCKER_USERNAME')
     ]) {
@@ -7,7 +7,9 @@ def call(String credentialsId, Closure body) {
         '''
 
         body()
-
-        sh label: 'docker logout from dockerhub', script: 'docker logout'
+        
+        if (logout) {
+            sh label: 'docker logout from dockerhub', script: 'docker logout'
+        }
     }
 }
