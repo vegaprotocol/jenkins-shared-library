@@ -232,7 +232,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make build-test-proto'
+                withDockerLogin('vegaprotocol-dockerhub') {
+                  sh 'make build-test-proto'
+                }
               }
             }
           }
