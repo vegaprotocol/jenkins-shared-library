@@ -128,7 +128,9 @@ void call() {
 
                                             retry(count: 3) {
                                                 timeout(time: 5) {
-                                                    _cacheDockerImages(dockerImages())
+                                                    withDockerLogin('vegaprotocol-dockerhub', true) {
+                                                        _cacheDockerImages(dockerImages())
+                                                    }
                                                 }
                                             }
 
