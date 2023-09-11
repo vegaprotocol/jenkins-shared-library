@@ -137,11 +137,11 @@ jenkins:
   #     labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
   #     name: "jenkins03"
   # bluesky004 6 cpu - 16GB
-  - permanent:
-      <<: *node-template
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
-      labelString: "ganache-debugging"
-      name: "jenkins04"
+  # - permanent:
+  #     <<: *node-template
+  #     # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+  #     labelString: "ganache-debugging"
+  #     name: "jenkins04"
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
