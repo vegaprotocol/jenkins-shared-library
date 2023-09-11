@@ -44,14 +44,20 @@ def call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        def tags = Jenkins
+                                        def labels = Jenkins
                                             .instance
                                             .computers
                                             .find{ "${it.name}" == name }
                                             .getAssignedLabels()
                                             .collect {it.toString()}
-                                            .join(",")
-
+                                        ANSIBLE_VARS = writeJSON(
+                                            returnText: true,
+                                            json: [
+                                                is_tiny: labels.contains('tiny'),
+                                                is_medium: labels.find{ ['snapshot', 'core-build'] } ? true : false,
+                                                is_big: labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests']}
+                                            ]
+                                        )
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
                                             gitClone(
@@ -64,7 +70,7 @@ def call() {
                                                     dir('ansible') {
                                                         sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                             ansible-playbook \
-                                                                --tag ${tags} \
+                                                                --extra-vars '${ANSIBLE_VARS}'
                                                                 ${params.DRY_RUN ? '--check' : ''} \
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
