@@ -96,7 +96,8 @@ void call() {
                                 create_local_zfs_snapshot: params.CREATE_LOCAL_ZFS_SNAPSHOT,
                                 local_zfs_snapshot_name: params.LOCAL_ZFS_SNAPSHOT_NAME,
                                 stop_services: params.STOP_SERVICES,
-                            ].findAll{ key, value -> value != null }
+                                destroy_local_zfs_snapshot_names: params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES,
+                            ].findAll{ key, value -> value != null && value != '' }
                         )
                     }
                     withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
