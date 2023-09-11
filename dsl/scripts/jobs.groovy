@@ -1365,8 +1365,19 @@ def jobs = [
         parameters: {
             stringParam('NODE', '', 'Node name (e.g jenkins01) to run cleanup on')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-
         }
+    ],
+    [
+        name: 'private/Automations/grafana-backup',
+        useScmDefinition: false,
+        numToKeep: 14,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineGrafanaBackup()'),
+        cron: 'H 0 * * *',
+        parameters: {
+            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        }
+
     ]
     // ethereum events
     // [
