@@ -46,12 +46,21 @@ def call() {
                                     node(name) {
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
-                                            retry (3) {
-                                                checkout scm
-                                            }
+                                            gitClone(
+                                                vegaUrl: 'ansible',
+                                                directory: 'ansible',
+                                                branch: params.ANSIBLE_BRANCH,
+                                            )
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
-                                                    sh 'ansible-playbook playbooks/proxmox.yaml'
+                                                    dir('ansible') {
+                                                        sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                            ansible-playbook \
+                                                                ${params.DRY_RUN ? '--check' : ''} \
+                                                                --diff \
+                                                                playbooks/proxmox.yaml
+                                                        """
+                                                    }
                                                 }
                                             }
                                         }
