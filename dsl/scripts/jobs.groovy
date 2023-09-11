@@ -508,7 +508,7 @@ def snapshotParams(args=[:]) {
 def jobs = [
     // DSL Job - the one that manages this file
     [
-        name: 'private/DSL Job',
+        name: 'private/jenkins/DSL Job',
         numToKeep: 50,
         repo: 'jenkins-shared-library',
         description: h('this job is used to generate other jobs'),
@@ -520,7 +520,7 @@ def jobs = [
     ],
     // Jenkins Configuration As Code
     [
-        name: 'private/Jenkins Configuration as Code Pipeline',
+        name: 'private/jenkins/Jenkins Configuration as Code Pipeline',
         numToKeep: 50,
         check: 'Jenkins Configuration as Code pipeline',
         repo: 'jenkins-shared-library',
@@ -530,7 +530,7 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/proxmox-provisioner',
+        name: 'private/jenkins/proxmox-provisioner',
         numToKeep: 50,
         repo: 'ansible',
         description: h('This job is used to auto apply changes done to the jenkins-agent role'),
@@ -1357,7 +1357,7 @@ def jobs = [
         }
     ],
     [
-        name: 'private/agents-cleanup',
+        name: 'private/jenkins/agents-cleanup',
         useScmDefinition: false,
         numToKeep: 20,
         cron: 'H 0 * * *',

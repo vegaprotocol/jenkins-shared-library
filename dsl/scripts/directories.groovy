@@ -60,6 +60,10 @@ def dirs = [
     //     display: 'Sandbox',
     // ],
     [
+        id :'private/jenkins',
+        display: 'Jenkins',
+    ],
+    [
         id: 'private/playgrounds',
         display: 'Playgrounds',
     ],
