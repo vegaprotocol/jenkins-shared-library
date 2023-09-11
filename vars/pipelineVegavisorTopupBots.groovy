@@ -1,5 +1,5 @@
 def call() {
-    boolean researchBots = true // (env.RESEARCH_BOT ?: false) as boolean
+    boolean researchBots = (env.RESEARCH_BOT ?: false) as boolean
 
     pipeline {
         agent {
