@@ -46,13 +46,11 @@ def call() {
                                     node(name) {
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
-                                            retry (3) {
-                                                gitClone(
-                                                    vegaUrl: 'ansible',
-                                                    directory: 'ansible',
-                                                    branch: params.ANSIBLE_BRANCH,
-                                                )
-                                            }
+                                            gitClone(
+                                                vegaUrl: 'ansible',
+                                                directory: 'ansible',
+                                                branch: params.ANSIBLE_BRANCH,
+                                            )
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
                                                     dir('ansible') {
