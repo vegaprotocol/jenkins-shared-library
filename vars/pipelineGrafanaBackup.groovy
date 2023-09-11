@@ -27,8 +27,6 @@ def call() {
                                 --config-dir ../ \
                                 --url https://monitoring.vega.community \
                                 --api-token $GRAFANA_API_TOKEN
-                            rm -rf dashboards alerts data-sources.json
-                            mv scripts/alerts scripts/dashboards scripts/data-sources.json ./
                         '''
                     }
                 }
