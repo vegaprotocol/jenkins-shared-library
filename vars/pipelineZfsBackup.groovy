@@ -39,16 +39,10 @@ void call() {
                         vegautils.commonCleanup()
                         currentBuild.description = "node: ${params.NODE}"
                         if (params.CREATE_LOCAL_ZFS_SNAPSHOT) {
-                            currentBuild.description += " create_local"
-                            if (params.LOCAL_ZFS_SNAPSHOT_NAME.trim()) {
-                                currentBuild.description += " ${params.LOCAL_ZFS_SNAPSHOT_NAME.trim()}"
-                            }
-                            if (params.STOP_SERVICES) {
-                                currentBuild.description += " stop_services"
-                            }
+                            currentBuild.description += " create_local( ${params.LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.STOP_SERVICES ? 'stop' : "don't stop"} )"
                         }
                         if (params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()) {
-                            currentBuild.description += " destroy_local ${params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()}"
+                            currentBuild.description += " destroy_local( ${params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()} )"
                         }
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
