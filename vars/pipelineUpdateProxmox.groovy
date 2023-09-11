@@ -50,13 +50,23 @@ def call() {
                                             .find{ "${it.name}" == name }
                                             .getAssignedLabels()
                                             .collect {it.toString()}
+                                        def jsonData = [
+                                            is_tiny: false,
+                                            is_medium: false,
+                                            is_big: false,
+                                        ]
+                                        if (labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests'].contains(it) }) {
+                                            jsonData['is_big'] = true
+                                        }
+                                        else if (labels.find{ ['snapshot', 'core-build'].contains(it) }) {
+                                            jsonData['is_medium'] = true
+                                        }
+                                        else if (labels.contains('tiny')) {
+                                            jsonData['is_tiny'] = true
+                                        }
                                         def ansibleVars = writeJSON(
                                             returnText: true,
-                                            json: [
-                                                is_tiny: labels.contains('tiny'),
-                                                is_medium: labels.find{ ['snapshot', 'core-build'].contains(it) } ? true : false,
-                                                is_big: labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests'].contains(it) } ? true : false,
-                                            ]
+                                            json: jsonData,
                                         )
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
