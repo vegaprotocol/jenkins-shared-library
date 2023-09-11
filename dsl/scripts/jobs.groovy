@@ -337,6 +337,45 @@ def networkApplyNonRestartChangesParams(args=[:]) {
     }
 }
 
+def zfsBackupParams(args=[:]) {
+
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
+
+    return {
+        choiceParam('NODE', nodesList, 'Apply changes to specified node.')
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+        booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
+        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
+        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
+    }
+}
 
 def fleetUpdateMachineParams(args=[:]) {
     List machineList = [
@@ -649,6 +688,20 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
+            name: 'devnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/devnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'devnet1',
+        ],
+        parameters: zfsBackupParams(
             name: 'devnet1',
         ),
         disableConcurrentBuilds: false,
