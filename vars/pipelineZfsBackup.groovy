@@ -95,6 +95,7 @@ void call() {
                             json: [
                                 create_local_zfs_snapshot: params.CREATE_LOCAL_ZFS_SNAPSHOT,
                                 local_zfs_snapshot_name: params.LOCAL_ZFS_SNAPSHOT_NAME,
+                                stop_services: params.STOP_SERVICES,
                             ].findAll{ key, value -> value != null }
                         )
                     }
