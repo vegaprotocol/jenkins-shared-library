@@ -9,6 +9,13 @@ def call(args){
             }
             // use pr & automated merge (--auto flag) to pass all required CI pipelines like linters if there's any on the repository to make sure we don't make errored automated commits
             dir(args.get('directory', '.')) {
+                if (args.get('skipIfNoChange', true)) {
+                    def changesToCommit = sh(script:'git diff --cached', returnStdout:true).trim()
+                    if (changesToCommit == '') {
+                        print('No changes to commit')
+                        return
+                    }
+                }
                 sh label: "sync configs to git", script: """
                     git config --global user.email "vega-ci-bot@vega.xyz"
                     git config --global user.name "vega-ci-bot"
