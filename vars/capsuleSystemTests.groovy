@@ -91,6 +91,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("Parameters")
               print("==========")
               print("${params}")
+
+              sh 'docker image ls --all > docker-image-ls.log'
               sh 'printenv'
             }
           }
@@ -808,7 +810,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             allowEmptyArchive: true
           )
           archiveArtifacts(
-            artifacts: 'nomad.log',
+            artifacts: [
+              'nomad.log',
+              'docker-image-ls.log'
+            ].join(', '),
             allowEmptyArchive: true
           )
           script {
