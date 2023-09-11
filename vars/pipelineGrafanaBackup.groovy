@@ -21,9 +21,10 @@ def call() {
                     GRAFANA_API_TOKEN = credentials('grafana-api-token')
                 }
                 steps {
-                    dir('grafana-backup') {
+                    dir('grafana-backup/scripts') {
                         sh '''
-                            go run scripts/main.go download-config \
+                            go run main.go download-config \
+                                --config-dir ../ \
                                 --url https://monitoring.vega.community \
                                 --api-token $GRAFANA_API_TOKEN
                             rm -rf dashboards alerts data-sources.json
