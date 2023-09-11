@@ -91,6 +91,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("Parameters")
               print("==========")
               print("${params}")
+
+              sh 'docker image ls --all > docker-image-ls.log'
               sh 'printenv'
             }
           }
