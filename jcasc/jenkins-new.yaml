@@ -196,7 +196,7 @@ jenkins:
   # bluesky001 - 2vcpu 4gb
   - permanent:
       <<: *node-template
-      labelString: "tiny"
+      labelString: ""
       name: "jenkins15"
   # bluesky008 - 6vcpu 16gb
   - permanent:
@@ -649,4 +649,3 @@ tool:
     installations:
     - home: "git"
       name: "Default"
-
