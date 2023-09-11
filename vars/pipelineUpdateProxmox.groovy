@@ -50,7 +50,7 @@ def call() {
                                             .find{ "${it.name}" == name }
                                             .getAssignedLabels()
                                             .collect {it.toString()}
-                                        ANSIBLE_VARS = writeJSON(
+                                        def ansibleVars = writeJSON(
                                             returnText: true,
                                             json: [
                                                 is_tiny: labels.contains('tiny'),
@@ -70,7 +70,7 @@ def call() {
                                                     dir('ansible') {
                                                         sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                             ansible-playbook \
-                                                                --extra-vars '${ANSIBLE_VARS}'
+                                                                --extra-vars '${ansibleVars}'
                                                                 ${params.DRY_RUN ? '--check' : ''} \
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
