@@ -54,8 +54,8 @@ def call() {
                                             returnText: true,
                                             json: [
                                                 is_tiny: labels.contains('tiny'),
-                                                is_medium: labels.find{ ['snapshot', 'core-build'] } ? true : false,
-                                                is_big: labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests']}
+                                                is_medium: labels.find{ ['snapshot', 'core-build'].contains(it) } ? true : false,
+                                                is_big: labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests'].contains(it) } ? true : false,
                                             ]
                                         )
                                         cleanWs()
