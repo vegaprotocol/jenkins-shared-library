@@ -44,6 +44,20 @@ def call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
+                                        def labels = Jenkins
+                                            .instance
+                                            .computers
+                                            .find{ "${it.name}" == name }
+                                            .getAssignedLabels()
+                                            .collect {it.toString()}
+                                        def ansibleVars = writeJSON(
+                                            returnText: true,
+                                            json: [
+                                                is_tiny: labels.contains('tiny'),
+                                                is_medium: labels.find{ ['snapshot', 'core-build'].contains(it) } ? true : false,
+                                                is_big: labels.find{ ['office-system-tests', 'vega-market-sim', 'office-system-tests-lnl', 'performance-tests'].contains(it) } ? true : false,
+                                            ]
+                                        )
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
                                             gitClone(
@@ -56,6 +70,7 @@ def call() {
                                                     dir('ansible') {
                                                         sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                             ansible-playbook \
+                                                                --extra-vars '${ansibleVars}'
                                                                 ${params.DRY_RUN ? '--check' : ''} \
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
@@ -67,7 +82,6 @@ def call() {
                                     }
                                 }
                             ]}
-
                         }
                     }
                 }
