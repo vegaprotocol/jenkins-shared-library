@@ -810,7 +810,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             allowEmptyArchive: true
           )
           archiveArtifacts(
-            artifacts: 'nomad.log',
+            artifacts: [
+              'nomad.log',
+              'docker-image-ls.log'
+            ].join(', '),
             allowEmptyArchive: true
           )
           script {
