@@ -1,19 +1,24 @@
 
-List<String> images = [
-    "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
-    "vegaprotocol/grpc-plugins:latest",
-    "vegaprotocol/clef:v2.2.1",
-    "golang:1.20-alpine3.18",
-    "alpine:3.18",
-]
+List<String> dockerImages(){
+    return [
+        "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
+        "vegaprotocol/grpc-plugins:latest",
+        "vegaprotocol/clef:v2.2.1",
+        "vegaprotocol/ganache:v1.2.4",
+        "golang:1.20-alpine3.18",
+        "alpine:3.18",
+    ]
+}
 
-Map<String, String> repositories = [
-    'vegaprotocol/vega': 'develop',
-    'vegaprotocol/vegacapsule': 'main',
-    'vegaprotocol/vegatools': 'develop',
-    'vegaprotocol/devopsscripts': 'main',
-    'vegaprotocol/devopstools': 'main',
-]
+Map<String, String> gitRepositories() {
+    return [
+        'vegaprotocol/vega': 'develop',
+        'vegaprotocol/vegacapsule': 'main',
+        'vegaprotocol/vegatools': 'develop',
+        'vegaprotocol/devopsscripts': 'main',
+        'vegaprotocol/devopstools': 'main',
+    ]
+}
 
 void _goClean() {
     sh label: 'Clean Golang cache', script: '''
@@ -37,10 +42,17 @@ void _cleanWorkspaces() {
 }
 
 void _cleanupDocker() {
-    sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
-    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
-    sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q)'
-    sh label: 'Prune all docker artifacts': script: 'docker system prune --all --force'
+    int runningContainers = vegautils.shellOutput('docker ps -q | wc -l') as int
+    int localImages = vegautils.shellOutput('docker images -a -q | wc -l') as int
+
+    if (runningContainers > 0) {
+        sh label: 'Kill all running docker containers', script: 'docker kill $(docker ps -q)'
+    }
+    if (localImages > 0) {
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --volumes --force'
+        sh label: 'Remove all docker images', script: 'docker rmi --force $(docker images -a -q) || echo "All images removed by prune"'
+        sh label: 'Prune all docker artifacts', script: 'docker system prune --all --volumes --force'
+    }
 }
 
 void _cacheDockerImages(List<String> images) {
@@ -55,7 +67,7 @@ void _cacheGoBuild(Map<String, String> repositories) {
 
         gitClone([
             url: 'git@github.com:' + repository + '.git',
-            branch: value.branch,
+            branch: branch,
             directory: directory,
             credentialsId: 'vega-ci-bot',
             timeout: 5,
@@ -71,7 +83,12 @@ void call() {
     String nodeSelector = params.NODE ?: ''
 
     if (nodeSelector.length() < 1) {
-        SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(3)
+        SLAVES = Jenkins
+            .instance
+            .computers
+            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() }
+            .collect{ it.name }
+            .collate(6)
     }
     else {
         SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
@@ -79,13 +96,10 @@ void call() {
     pipeline {
         agent none
         options {
+            timeout(time: 120, unit: 'MINUTES')
+            disableConcurrentBuilds()
             timestamps()
             ansiColor('xterm')
-        }
-        post {
-            always {
-                cleanWs()
-            }
         }
         stages {
             stage('trigger provisioner') {
@@ -96,18 +110,58 @@ void call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        catchError(buildResult: 'UNSTABLE') {
-                                            def labels = Jenkins.instance.computers.find{ "${it.name}" == name }.assignedLabels
-                                            _goClean()
-                                            _systemPackagesUpgrade()
-                                            _cleanupDocker()
-                                            _cacheDockerImages(images)
-
-                                            // rebuild cache only for machines that do actual builds
-                                            if (!labels.contains('tiny')) {
-                                                _cacheGoBuild(repositories)
+                                        def labels = Jenkins
+                                            .instance
+                                            .computers
+                                            .find{ "${it.name}" == name }
+                                            .getAssignedLabels()
+                                            .collect {it.toString()}
+                                        print('Labels for ' + name + ': ' + labels.join(', '))
+                                        
+                                        
+                                        // We can keep job as UNSTABLE when the cleanup is not finished
+                                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                                            
+                                            retry(count: 3) {
+                                                timeout(time: 10) {
+                                                    _goClean()
+                                                    _cleanupDocker()
+                                                    _systemPackagesUpgrade()
+                                                }
                                             }
                                         }
+
+                                        // When the docker cache is not refreshed, it may cause further issues
+                                        // like timeouts for NOMAD, so we want to have this failures.
+                                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                            retry(count: 3) {
+                                                timeout(time: 5) {
+                                                    withDockerLogin('vegaprotocol-dockerhub', true) {
+                                                        _cacheDockerImages(dockerImages())
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        // Not much issues when the golang cache is not refreshed.
+                                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                                            // rebuild cache only for machines that do actual builds
+                                            if (!labels.contains('tiny')) {
+                                                retry(count: 3) {
+                                                    timeout(time: 5) {
+                                                        _cacheGoBuild(gitRepositories())
+                                                    }
+                                                }
+                                            }
+
+                                        }
+
+                                        retry(count: 3) {
+                                            timeout(time: 5) {
+                                                _cleanWorkspaces()
+                                            }
+                                        }
+                                        cleanWs()
                                     }
                                 }
                             ]}
