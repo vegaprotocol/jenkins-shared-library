@@ -24,6 +24,7 @@ def call() {
                     dir('grafana-backup/scripts') {
                         sh '''
                             go run main.go download-config \
+                                --config-dir ../ \
                                 --url https://monitoring.vega.community \
                                 --api-token $GRAFANA_API_TOKEN
                         '''
