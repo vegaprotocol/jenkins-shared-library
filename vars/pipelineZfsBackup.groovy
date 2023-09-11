@@ -8,6 +8,7 @@ void call() {
     )
 
     ANSIBLE_LIMIT = 'non-existing'
+    ANSIBLE_VARS = ''
 
     ALERT_DISABLE_ENV = null
     ALERT_DISABLE_NODE = null
@@ -87,6 +88,14 @@ void call() {
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
                 }
                 steps {
+                    // create json with function instead of manual
+                    ANSIBLE_VARS = writeJSON(
+                        returnText: true,
+                        json: [
+                            create_local_zfs_snapshot: params.CREATE_LOCAL_ZFS_SNAPSHOT,
+                            local_zfs_snapshot_name: params.LOCAL_ZFS_SNAPSHOT_NAME,
+                        ].findAll{ key, value -> value != null }
+                    )
                     withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
                         withCredentials([sshCredentials]) {
                             dir('ansible') {
@@ -98,6 +107,7 @@ void call() {
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
                                         --limit "${ANSIBLE_LIMIT}" \
+                                        --extra-vars '${ANSIBLE_VARS}' \
                                         playbooks/playbook-zfs.yaml
                                 """
                             }

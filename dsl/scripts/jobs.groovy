@@ -369,6 +369,8 @@ def zfsBackupParams(args=[:]) {
     return {
         choiceParam('NODE', nodesList, 'Apply changes to specified node.')
         booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+        booleanParam('CREATE_LOCAL_ZFS_SNAPSHOT', false, 'Create zfs snapshot, but not publish it anywhere')
+        stringParam('LOCAL_ZFS_SNAPSHOT_NAME', '', 'Name of the local zfs snapshot. Leave empty to get default value with timestamp in it.')
         booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
