@@ -44,6 +44,14 @@ def call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
+                                        def tags = Jenkins
+                                            .instance
+                                            .computers
+                                            .find{ "${it.name}" == name }
+                                            .getAssignedLabels()
+                                            .collect {it.toString()}
+                                            .join(",")
+
                                         cleanWs()
                                         catchError(buildResult: 'UNSTABLE') {
                                             gitClone(
@@ -56,6 +64,7 @@ def call() {
                                                     dir('ansible') {
                                                         sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                             ansible-playbook \
+                                                                --tag ${tags} \
                                                                 ${params.DRY_RUN ? '--check' : ''} \
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
@@ -67,7 +76,6 @@ def call() {
                                     }
                                 }
                             ]}
-
                         }
                     }
                 }
