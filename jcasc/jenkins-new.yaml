@@ -242,16 +242,16 @@ jenkins:
       <<: *node-template
       labelString: "tiny"
       name: "jenkins24"
-  # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
-  - permanent:
-      <<: *node-template
-      labelString: "tiny"
-      name: "jenkins25"
-  # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
-  - permanent:
-      <<: *node-template
-      labelString: "tiny"
-      name: "jenkins26"
+  # # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
+  # - permanent:
+  #     <<: *node-template
+  #     labelString: "tiny"
+  #     name: "jenkins25"
+  # # bluesky006 - 3vcpu 6gb - overprovisioned CPU and memory
+  # - permanent:
+  #     <<: *node-template
+  #     labelString: "tiny"
+  #     name: "jenkins26"
   # bluesky007 - 3vcpu 6gb - overprovisioned CPU and memory
   # - permanent:
   #     <<: *node-template
