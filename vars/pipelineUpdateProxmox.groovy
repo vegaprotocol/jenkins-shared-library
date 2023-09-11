@@ -70,7 +70,7 @@ def call() {
                                                     dir('ansible') {
                                                         sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                             ansible-playbook \
-                                                                --extra-vars '${ansibleVars}'
+                                                                --extra-vars '${ansibleVars}' \
                                                                 ${params.DRY_RUN ? '--check' : ''} \
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
