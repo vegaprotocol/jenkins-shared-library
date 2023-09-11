@@ -4,7 +4,14 @@ def call() {
             label 'tiny'
         }
         options {
+            skipDefaultCheckout()
             timeout(unit: 'MINUTES', time: 30)
+            timestamps()
+            ansiColor('xterm')
+        }
+        environment {
+            PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         stages {
             stage('checkout') {
