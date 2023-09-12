@@ -27,6 +27,7 @@ void call() {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
+            ansiColor('xterm')
             lock(resource: env.NET_NAME)
         }
         environment {
