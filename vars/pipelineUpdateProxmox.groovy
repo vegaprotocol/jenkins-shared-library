@@ -44,7 +44,6 @@ def call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        env.ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                                         def labels = Jenkins
                                             .instance
                                             .computers
@@ -78,22 +77,24 @@ def call() {
                                             )
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
-                                                    dir('ansible') {
-                                                        sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
-                                                            ansible-playbook \
-                                                                --extra-vars '${ansibleVars}' \
-                                                                ${params.DRY_RUN ? '--check' : ''} \
-                                                                --diff \
-                                                                playbooks/proxmox.yaml
-                                                        """
-                                                        if (name == 'jenkins15') {
+                                                    withEnv(["ANSIBLE_VAULT_PASSWORD_FILE=credentials('ansible-vault-password')"]) {
+                                                        dir('ansible') {
                                                             sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                                 ansible-playbook \
-                                                                    --extra-vars '{"proxmox_exporter": true}' \
+                                                                    --extra-vars '${ansibleVars}' \
                                                                     ${params.DRY_RUN ? '--check' : ''} \
                                                                     --diff \
-                                                                    playbooks/playbook-exporters.yaml
+                                                                    playbooks/proxmox.yaml
                                                             """
+                                                            if (name == 'jenkins15') {
+                                                                sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                                    ansible-playbook \
+                                                                        --extra-vars '{"proxmox_exporter": true}' \
+                                                                        ${params.DRY_RUN ? '--check' : ''} \
+                                                                        --diff \
+                                                                        playbooks/playbook-exporters.yaml
+                                                                """
+                                                            }
                                                         }
                                                     }
                                                 }
