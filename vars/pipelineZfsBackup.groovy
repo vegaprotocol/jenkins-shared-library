@@ -44,6 +44,9 @@ void call() {
                         if (params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()) {
                             currentBuild.description += " destroy_local( ${params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()} )"
                         }
+                        if (params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()) {
+                            currentBuild.description += " rollback( ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.START_SERVICES ? 'stop' : "don't stop"} )"
+                        }
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
                         }
@@ -103,6 +106,8 @@ void call() {
                                 local_zfs_snapshot_name: params.LOCAL_ZFS_SNAPSHOT_NAME,
                                 stop_services: params.STOP_SERVICES,
                                 destroy_local_zfs_snapshot_names: params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES,
+                                rollback_local_zfs_snapshot_name: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME,
+                                start_services: params.START_SERVICES,
                             ].findAll{ key, value -> value != null && value != '' }
                         )
                     }
