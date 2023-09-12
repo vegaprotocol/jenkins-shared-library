@@ -85,6 +85,15 @@ def call() {
                                                                 --diff \
                                                                 playbooks/proxmox.yaml
                                                         """
+                                                        if (name == 'jenkins15') {
+                                                            sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                                ansible-playbook \
+                                                                    --extra-vars '{"proxmox_exporter": true}' \
+                                                                    ${params.DRY_RUN ? '--check' : ''} \
+                                                                    --diff \
+                                                                    playbooks/playbook-exporters.yaml
+                                                            """
+                                                        }
                                                     }
                                                 }
                                             }
