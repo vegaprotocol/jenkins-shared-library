@@ -372,7 +372,7 @@ def zfsBackupParams(args=[:]) {
         booleanParam('CREATE_LOCAL_ZFS_SNAPSHOT', false, 'Create zfs snapshot, but not publish it anywhere')
         stringParam('LOCAL_ZFS_SNAPSHOT_NAME', '', 'Name of the local zfs snapshot. Leave empty to get default value with timestamp in it.')
         booleanParam('STOP_SERVICES', true, 'Stop services before taking snapshot, start them right after.')
-        stringParam('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES', '', 'Comma separated list of snapshot names to destroy. Can be prefixes of snapshot names. Leave empty to not destroy anything.')
+        stringParam('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES', '', 'Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
         booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
@@ -783,6 +783,20 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
+            name: 'stagnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: zfsBackupParams(
             name: 'stagnet1',
         ),
         disableConcurrentBuilds: false,
