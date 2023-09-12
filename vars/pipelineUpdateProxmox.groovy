@@ -77,7 +77,7 @@ def call() {
                                             )
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
-                                                    withEnv(["ANSIBLE_VAULT_PASSWORD_FILE=credentials('ansible-vault-password')"]) {
+                                                    withCredentials([file(credentialsId: 'ANSIBLE_VAULT_PASSWORD_FILE', variable: 'ansible-vault-password')]) {
                                                         dir('ansible') {
                                                             sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
                                                                 ansible-playbook \
