@@ -37,6 +37,9 @@ def call() {
                         triggeredBy 'UserIdCause'
                     }
                 }
+                environment {
+                    ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
+                }
                 steps {
                     script {
                         // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
