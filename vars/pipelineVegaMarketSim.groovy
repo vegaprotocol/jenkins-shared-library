@@ -66,9 +66,7 @@ void call() {
                                 ]
                             ]]
                         )
-                        sh "go build -o ../../vega_sim/bin/ ./..."
                     }
-                    
                 }
             }
             stage('Clone vegacapsule'){
@@ -84,7 +82,6 @@ void call() {
                                 ]
                             ]]
                         )
-                        sh "go build -o ../../vega_sim/bin/ ./..."
                     }
                 }
             }
@@ -99,6 +96,7 @@ void call() {
                     // available before this pipeline
                     sh label: 'Build binaries', script: '''
                         make build_deps \
+                            make build_deps_capsule \
                             && poetry install -E learning \
                             && poetry run python -m pip install "transformers[torch]"
                     '''
