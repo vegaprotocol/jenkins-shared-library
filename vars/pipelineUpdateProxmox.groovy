@@ -37,9 +37,6 @@ def call() {
                         triggeredBy 'UserIdCause'
                     }
                 }
-                environment {
-                    ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
-                }
                 steps {
                     script {
                         // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
@@ -47,6 +44,7 @@ def call() {
                             parallel slavesBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
+                                        env.ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
                                         def labels = Jenkins
                                             .instance
                                             .computers
