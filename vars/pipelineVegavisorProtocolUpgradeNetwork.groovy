@@ -121,6 +121,7 @@ void call() {
                                 protocol_upgrade_version: RELEASE_VERSION,
                                 protocol_upgrade_block: protocolUpgradeBlock,
                                 protocol_upgrade_manual_install: params.MANUAL_INSTALL,
+                                protocol_upgrade_render_configs: params.RENDER_CONFIGS,
                                 perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
                                 update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
@@ -132,7 +133,7 @@ void call() {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                 //        are set by withCredentials wrapper
                                 sh label: 'ansible playbook run', script: """#!/bin/bash -e
-                                    ansible-playbook \
+                                    ansible-playbook ${params.DRY_RUN ? '--check' : ''} \
                                         --diff \
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
