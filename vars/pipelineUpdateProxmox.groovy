@@ -77,14 +77,25 @@ def call() {
                                             )
                                             timeout(time: 75, unit: 'MINUTES') {
                                                 sshagent(credentials: ['vega-ci-bot']) {
-                                                    dir('ansible') {
-                                                        sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
-                                                            ansible-playbook \
-                                                                --extra-vars '${ansibleVars}' \
-                                                                ${params.DRY_RUN ? '--check' : ''} \
-                                                                --diff \
-                                                                playbooks/proxmox.yaml
-                                                        """
+                                                    withCredentials([file(credentialsId: 'ansible-vault-password', variable: 'ANSIBLE_VAULT_PASSWORD_FILE')]) {
+                                                        dir('ansible') {
+                                                            sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                                ansible-playbook \
+                                                                    --extra-vars '${ansibleVars}' \
+                                                                    ${params.DRY_RUN ? '--check' : ''} \
+                                                                    --diff \
+                                                                    playbooks/proxmox.yaml
+                                                            """
+                                                            if (name == 'jenkins15') {
+                                                                sh label: "ansible playbooks/proxmox.yaml", script: """#!/bin/bash -e
+                                                                    ansible-playbook \
+                                                                        --extra-vars '{"proxmox_exporter": true}' \
+                                                                        ${params.DRY_RUN ? '--check' : ''} \
+                                                                        --diff \
+                                                                        playbooks/playbook-exporters.yaml
+                                                                """
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
