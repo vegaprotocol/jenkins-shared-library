@@ -96,6 +96,7 @@ void call() {
                     // available before this pipeline
                     sh label: 'Build binaries', script: '''
                         make build_deps \
+                            make build_deps_capsule \
                             && poetry install -E learning \
                             && poetry run python -m pip install "transformers[torch]"
                     '''
@@ -149,6 +150,18 @@ void call() {
                         steps {
                             sh label: 'Reinforcement Learning Test', script: '''
                                 poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
+                            '''
+                        }
+                    }
+                    stage('Capsule Tests') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            sh label: 'Vega Capsule Test', script: '''
+                                scripts/run-capsule-test.sh ${NUM_CAPSULE_STEPS}
                             '''
                         }
                     }
