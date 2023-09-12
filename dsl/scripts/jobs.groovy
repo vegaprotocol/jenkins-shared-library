@@ -281,7 +281,7 @@ def vegavisorProtocolUpgradeParams(args=[:]) {
         stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 400')
         stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
         booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
-        booleanParam('PERFORM_NETWORK_OPERATIONS', true, 'If true, new configs are rendered and updated on the servers')
+        booleanParam('RENDER_CONFIGS', true, 'If true, new configs are rendered and updated on the servers')
         booleanParam('DRY_RUN', true, 'If true, no action is taken on the network')
         stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
         stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
