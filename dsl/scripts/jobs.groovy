@@ -627,7 +627,6 @@ def jobs = [
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
-            DEVOPSTOOLS_BRANCH: 'sla-support',
         ),
         disableConcurrentBuilds: true,
     ],
