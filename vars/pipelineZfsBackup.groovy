@@ -39,13 +39,13 @@ void call() {
                         vegautils.commonCleanup()
                         currentBuild.description = "node: ${params.NODE}"
                         if (params.CREATE_LOCAL_ZFS_SNAPSHOT) {
-                            currentBuild.description += " create_local( ${params.LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.STOP_SERVICES ? 'stop' : "don't stop"} )"
+                            currentBuild.description += " create_local( ${params.CREATE_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES ? 'stop' : "don't stop"} )"
                         }
                         if (params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()) {
                             currentBuild.description += " destroy_local( ${params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()} )"
                         }
                         if (params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()) {
-                            currentBuild.description += " rollback( ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.START_SERVICES ? 'stop' : "don't stop"} )"
+                            currentBuild.description += " rollback( ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES ? 'stop' : "don't stop"} )"
                         }
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
@@ -103,11 +103,11 @@ void call() {
                             returnText: true,
                             json: [
                                 create_local_zfs_snapshot: params.CREATE_LOCAL_ZFS_SNAPSHOT,
-                                local_zfs_snapshot_name: params.LOCAL_ZFS_SNAPSHOT_NAME,
-                                stop_services: params.STOP_SERVICES,
+                                create_local_zfs_snapshot_name: params.CREATE_LOCAL_ZFS_SNAPSHOT_NAME,
+                                create_local_zfs_snapshot_stop_services: params.CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES,
                                 destroy_local_zfs_snapshot_names: params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES,
                                 rollback_local_zfs_snapshot_name: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME,
-                                start_services: params.START_SERVICES,
+                                rollback_local_zfs_snapshot_start_services: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES,
                             ].findAll{ key, value -> value != null && value != '' }
                         )
                     }
