@@ -6,7 +6,7 @@ void call() {
         RunWrapper upBuild = currentBuild.upstreamBuilds[0]
         currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
     }
-    int parallelWorkers = params.PARALLEL_WORKERS as int ?: 5
+    int parallelWorkers = params.PARALLEL_WORKERS as int ?: 1
     String testFunction = params.TEST_FUNCTION ?: ''
     String logLevel = params.LOG_LEVEL ?: 'INFO'
     pipeline {
@@ -221,7 +221,12 @@ void call() {
 } // end: call
 
 void sendSlackMessage() {
+    Bool branchRun = params.BRANCH_RUN ? false
+
     String slackChannel = '#vega-market-sim-notify'
+    if (branchRun == true) {
+        slackChannel = '#vega-market-sim-branch-notify'
+    }
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.id
 
