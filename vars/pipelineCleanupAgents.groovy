@@ -96,7 +96,7 @@ void call() {
     pipeline {
         agent none
         options {
-            timeout(time: 120, unit: 'MINUTES')
+            // timeout(time: 120, unit: 'MINUTES')
             disableConcurrentBuilds()
             timestamps()
             ansiColor('xterm')
