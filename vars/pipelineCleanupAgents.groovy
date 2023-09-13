@@ -97,8 +97,6 @@ void call() {
 
         selectedServers = servers.collect { it.name }
             .collate(6)        
-
-        error ("DISABLED FOR NOW")
     }
     else {
         selectedServers = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
