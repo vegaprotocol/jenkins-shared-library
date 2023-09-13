@@ -1170,7 +1170,7 @@ def jobs = [
             booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
             stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
             stringParam('NODE_LABEL', 'vega-market-sim', 'Jenkins label for running pipeline (empty means any node)')
-            booleanParam('BRANCH_RUN', false, 'Is this a branch or main run')
+            booleanParam('BRANCH_RUN', true, 'Is this a branch or main run')
         },
         copyArtifacts: true,
         daysToKeep: 5,
