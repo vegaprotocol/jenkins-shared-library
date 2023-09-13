@@ -221,10 +221,8 @@ void call() {
 } // end: call
 
 void sendSlackMessage() {
-    Bool branchRun = params.BRANCH_RUN ?: false
-
     String slackChannel = '#vega-market-sim-notify'
-    if (branchRun == true) {
+    if (params.BRANCH_RUN == true) {
         slackChannel = '#vega-market-sim-branch-notify'
     }
     String jobURL = env.RUN_DISPLAY_URL
