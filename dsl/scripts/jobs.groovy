@@ -381,7 +381,7 @@ def zfsBackupParams(args=[:]) {
         booleanParam('ROLLBACK_REMOTE_ZFS_SNAPSHOT_START_SERVICES', true, 'Start services after rollback.')
         stringParam('ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE', args.name == 'mainnet' ? 'api0.vega.community' : '', 'From which machine use backup')
         booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
-        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
+        stringParam('TIMEOUT', '900', 'Number of minutes after which the job will stop')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
         stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
