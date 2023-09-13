@@ -1,4 +1,3 @@
-
 List<String> dockerImages(){
     return [
         "vegaprotocol/vegacapsule-timescaledb:2.8.0-pg14-v0.0.1",
@@ -79,19 +78,30 @@ void _cacheGoBuild(Map<String, String> repositories) {
     }
 }
 
+@NonCPS
+def sortByPriority(List<?> list) { 
+  list.toSorted { a, b -> Integer.valueOf(a.isIdle() ? 0 : 1).compareTo(b.isIdle() ? 0 : 1) }
+}
+
 void call() {
     String nodeSelector = params.NODE ?: ''
+    List <List<String>> selectedServers = []
 
     if (nodeSelector.length() < 1) {
-        SLAVES = Jenkins
+        List servers = sortByPriority(Jenkins
             .instance
             .computers
-            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() }
-            .collect{ it.name }
-            .collate(6)
+            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() })        
+        
+        servers.each { print "Is " + it.name + " idle: " + it.isIdle() }
+
+        selectedServers = servers.collect { it.name }
+            .collate(6)        
+
+        error ("DISABLED FOR NOW")
     }
     else {
-        SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
+        selectedServers = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
     }
     pipeline {
         agent none
@@ -106,8 +116,8 @@ void call() {
                 steps {
                     script {
                         // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
-                        SLAVES.each{ slavesBatch ->
-                            parallel slavesBatch.collectEntries { name -> [
+                        selectedServers.each{ serversBatch ->
+                            parallel serversBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
                                         def labels = Jenkins
