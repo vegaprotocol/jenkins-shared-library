@@ -377,6 +377,9 @@ def zfsBackupParams(args=[:]) {
         stringParam('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES', '', 'Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
         stringParam('ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME', '', 'Name of the local zfs snapshot to rollback to. Leave empty to skip rollback.')
         booleanParam('ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES', true, 'Start services after rollback.')
+        booleanParam('ROLLBACK_REMOTE_ZFS_SNAPSHOT', false, 'Rollback to remote snapshot')
+        booleanParam('ROLLBACK_REMOTE_ZFS_SNAPSHOT_START_SERVICES', true, 'Start services after rollback.')
+        stringParam('ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE', args.name == 'mainnet' ? 'api0.vega.community' : '', 'From which machine use backup')
         booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
         stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
         stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
@@ -805,7 +808,7 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     //
-    // Stagnet 3
+    // Mainnet Mirror
     //
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Network',
@@ -865,6 +868,20 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
+            name: 'mainnet-mirror',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+        ],
+        parameters: zfsBackupParams(
             name: 'mainnet-mirror',
         ),
         disableConcurrentBuilds: false,
@@ -960,6 +977,20 @@ def jobs = [
         ),
         disableConcurrentBuilds: false,
     ],
+    [
+        name: 'private/Deployments/fairground/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: zfsBackupParams(
+            name: 'fairground',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // Validators-Testnet
     //
@@ -992,6 +1023,20 @@ def jobs = [
             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
+            name: 'validators-testnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/validators-testnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+        ],
+        parameters: zfsBackupParams(
             name: 'validators-testnet',
         ),
         disableConcurrentBuilds: false,
@@ -1051,6 +1096,20 @@ def jobs = [
                 'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),
+    ],
+    [
+        name: 'private/Deployments/mainnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+        ],
+        parameters: zfsBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
     ],
     //
     // Fleet

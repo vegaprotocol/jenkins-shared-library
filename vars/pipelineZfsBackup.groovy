@@ -108,24 +108,32 @@ void call() {
                                 destroy_local_zfs_snapshot_names: params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES,
                                 rollback_local_zfs_snapshot_name: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME,
                                 rollback_local_zfs_snapshot_start_services: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES,
+                                rollback_remote_zfs_snapshot: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT,
+                                rollback_remote_zfs_snapshot_start_services: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_START_SERVICES,
+                                rollback_remote_zfs_snapshot_src_machine: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE,
                             ].findAll{ key, value -> value != null && value != '' }
                         )
                     }
-                    withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
-                        withCredentials([sshCredentials]) {
-                            dir('ansible') {
-                                sh label: "ansible playbooks/playbook-zfs.yaml", script: """#!/bin/bash -e
-                                    ansible-playbook \
-                                        ${params.DRY_RUN ? '--check' : ''} \
-                                        --diff \
-                                        -u "\${PSSH_USER}" \
-                                        --private-key "\${PSSH_KEYFILE}" \
-                                        --inventory inventories \
-                                        --limit "${ANSIBLE_LIMIT}" \
-                                        --extra-vars '${ANSIBLE_VARS}' \
-                                        playbooks/playbook-zfs.yaml
-                                """
-                            }
+                    withCredentials([
+                        sshCredentials,
+                        usernamePassword(
+                            credentialsId: 'digitalocean-s3-credentials',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                            usernameVariable: 'AWS_ACCESS_KEY_ID'
+                        ),
+                    ]) {
+                        dir('ansible') {
+                            sh label: "ansible playbooks/playbook-zfs.yaml", script: """#!/bin/bash -e
+                                ansible-playbook \
+                                    ${params.DRY_RUN ? '--check' : ''} \
+                                    --diff \
+                                    -u "\${PSSH_USER}" \
+                                    --private-key "\${PSSH_KEYFILE}" \
+                                    --inventory inventories \
+                                    --limit "${ANSIBLE_LIMIT}" \
+                                    --extra-vars '${ANSIBLE_VARS}' \
+                                    playbooks/playbook-zfs.yaml
+                            """
                         }
                     }
                 }
