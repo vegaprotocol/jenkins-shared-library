@@ -347,3 +347,42 @@ void archiveExternalFile(String path) {
     sh 'rm -f ./*'
   }
 }
+
+
+@NonCPS
+def sortByPriority(List<?> list) {
+  list.toSorted { a, b -> Integer.valueOf(a.isIdle() ? 0 : 1).compareTo(b.isIdle() ? 0 : 1) }
+}
+
+def proxmoxNodeSelector(Map args) {
+    String nodeSelector = args.providedNode ?: ''
+    List <List<String>> selectedServers = []
+
+    if (nodeSelector.length() < 1) {
+        List servers = sortByPriority(Jenkins
+            .instance
+            .computers
+            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() })
+
+        servers.each { print "Is " + it.name + " idle: " + it.isIdle() }
+
+        selectedServers = servers.collect { it.name }
+            .collate(args.collateParam)
+    }
+    else {
+        selectedServers = nodeSelector.replaceAll(" ", "").split(",").toList().collate(args.collateParam)
+    }
+    return selectedServers
+}
+
+
+def nodeLabels(String name) {
+  def labels = Jenkins
+    .instance
+    .computers
+    .find{ "${it.name}" == name }
+    .getAssignedLabels()
+    .collect {it.toString()}
+  print('Labels for ' + name + ': ' + labels.join(', '))
+  return labels
+}

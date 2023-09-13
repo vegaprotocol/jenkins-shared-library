@@ -78,29 +78,11 @@ void _cacheGoBuild(Map<String, String> repositories) {
     }
 }
 
-@NonCPS
-def sortByPriority(List<?> list) { 
-  list.toSorted { a, b -> Integer.valueOf(a.isIdle() ? 0 : 1).compareTo(b.isIdle() ? 0 : 1) }
-}
-
 void call() {
-    String nodeSelector = params.NODE ?: ''
-    List <List<String>> selectedServers = []
-
-    if (nodeSelector.length() < 1) {
-        List servers = sortByPriority(Jenkins
-            .instance
-            .computers
-            .findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" && it.isOnline() })        
-        
-        servers.each { print "Is " + it.name + " idle: " + it.isIdle() }
-
-        selectedServers = servers.collect { it.name }
-            .collate(6)        
-    }
-    else {
-        selectedServers = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
-    }
+    selectedServers = vegautils.proxmoxNodeSelector(
+        providedNode: params.NODE,
+        collateParam: 6
+    )
     pipeline {
         agent none
         options {
@@ -118,18 +100,11 @@ void call() {
                             parallel serversBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        def labels = Jenkins
-                                            .instance
-                                            .computers
-                                            .find{ "${it.name}" == name }
-                                            .getAssignedLabels()
-                                            .collect {it.toString()}
-                                        print('Labels for ' + name + ': ' + labels.join(', '))
-                                        
-                                        
+                                        def labels = vegautils.nodeLabels(name)
+
                                         // We can keep job as UNSTABLE when the cleanup is not finished
                                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                                            
+
                                             retry(count: 3) {
                                                 timeout(time: 10) {
                                                     _goClean()

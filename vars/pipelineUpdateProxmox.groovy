@@ -1,10 +1,8 @@
 def call() {
-    if (!params.NODE) {
-        SLAVES = Jenkins.instance.computers.findAll{ "${it.class}" == "class hudson.slaves.SlaveComputer" }.collect{ it.name }.collate(3)
-    }
-    else {
-        SLAVES = params.NODE.replaceAll(" ", "").split(",").toList().collate(3)
-    }
+    selectedServers = vegautils.proxmoxNodeSelector(
+        providedNode: params.NODE,
+        collateParam: 6
+    )
     pipeline {
         agent {
             label 'tiny-cloud'
@@ -40,16 +38,11 @@ def call() {
                 steps {
                     script {
                         // implement logic that waits for jobs to be completed and blocks agents from scheduling new jobs...
-                        SLAVES.each{ slavesBatch ->
-                            parallel slavesBatch.collectEntries { name -> [
+                        selectedServers.each{ serversBatch ->
+                            parallel serversBatch.collectEntries { name -> [
                                 (name): {
                                     node(name) {
-                                        def labels = Jenkins
-                                            .instance
-                                            .computers
-                                            .find{ "${it.name}" == name }
-                                            .getAssignedLabels()
-                                            .collect {it.toString()}
+                                        def labels = vegautils.nodeLabels(name)
                                         def jsonData = [
                                             is_tiny: false,
                                             is_medium: false,
