@@ -109,7 +109,6 @@ void call() {
                                 rollback_local_zfs_snapshot_name: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME,
                                 rollback_local_zfs_snapshot_start_services: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES,
                                 rollback_remote_zfs_snapshot: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT,
-                                rollback_remote_zfs_snapshot_start_services: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_START_SERVICES,
                                 rollback_remote_zfs_snapshot_src_machine: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE,
                             ].findAll{ key, value -> value != null && value != '' }
                         )
