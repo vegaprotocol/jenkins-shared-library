@@ -117,6 +117,11 @@ void call() {
                     withCredentials([
                         sshCredentials,
                         usernamePassword(
+                            credentialsId: 'hashi-corp-vault-jenkins-approle',
+                            passwordVariable: 'HASHICORP_VAULT_SECRET_ID',
+                            usernameVariable:'HASHICORP_VAULT_ROLE_ID'
+                        ),
+                        usernamePassword(
                             credentialsId: 'digitalocean-s3-credentials',
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                             usernameVariable: 'AWS_ACCESS_KEY_ID'
