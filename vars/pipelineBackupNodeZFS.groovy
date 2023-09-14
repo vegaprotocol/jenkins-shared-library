@@ -126,6 +126,20 @@ def call() {
                     }
                 }
             }
+
+            stage('Delete old local zfs snapshots') {
+                steps {
+                    sh label: 'delete old local zfs snapshots', script: """#!/bin/bash -e
+                        sudo zfs list -t snapshot -o name -S creation -H | tail -n +61 | xargs -n 1 --no-run-if-empty sudo zfs destroy
+                    """
+                    // command explanation:
+                    // "-t snapshot" - print snapshots only
+                    // "-o name" - print only names
+                    // "-H" - do not print headers row
+                    // "-S creation" - order by creation time, newest first
+                    // "tail -n +61" - skip first 60 rows (there are 5 rows for each snapshots, we create 4 snapshots a day, every 7th snapshot is a full one, so we need to keep at least: 5 * 7 = 35)
+                }
+            }
         }
         post {
             always {
