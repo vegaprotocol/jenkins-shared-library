@@ -19,6 +19,10 @@ void call(Map config = [:]) {
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: "main"),
       string(name: 'NODE_LABEL', value: config.nodeLabel ?: 'vega-market-sim'),
+      booleanParam(
+        name: "BRANCH_RUN",
+        value: config.branchRun ? "${config.branchRun}".toBoolean() : false
+      ),
   ]
 
    RunWrapper vms = build(
