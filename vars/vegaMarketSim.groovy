@@ -23,6 +23,7 @@ void call(Map config = [:]) {
         name: "BRANCH_RUN",
         value: config.branchRun ? "${config.branchRun}".toBoolean() : false
       ),
+      string(name: "PARALLEL_WORKERS", value: config.parallelWorkers ?: "1"),
   ]
 
    RunWrapper vms = build(
