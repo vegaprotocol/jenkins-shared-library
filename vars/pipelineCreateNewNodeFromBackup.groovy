@@ -108,7 +108,7 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                    --limit "${ANSIBLE_LIMIT}" \
                                     playbooks/${env.ANSIBLE_PLAYBOOK_BARENODE_COMMON}
                             """
 
@@ -119,7 +119,7 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                    --limit "${ANSIBLE_LIMIT}" \
                                     --tag "create-node" \
                                     --extra-vars '{"release_version": "v0.71.4"}' \
                                     playbooks/${env.ANSIBLE_PLAYBOOK_BARENODE}
@@ -132,7 +132,7 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                    --limit "${ANSIBLE_LIMIT}" \
                                     playbooks/${env.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED}
                             """
                         }
@@ -214,7 +214,7 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                    --limit "${ANSIBLE_LIMIT}" \
                                     --tag "restart-node" \
                                     playbooks/${env.ANSIBLE_PLAYBOOK_BARENODE}
                             """
@@ -226,7 +226,7 @@ void call() {
                                     -u "\${PSSH_USER}" \
                                     --private-key "\${PSSH_KEYFILE}" \
                                     --inventory inventories \
-                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                    --limit "${ANSIBLE_LIMIT}" \
                                     playbooks/${env.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED}
                             """
                         }
