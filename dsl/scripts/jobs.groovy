@@ -387,6 +387,48 @@ def zfsBackupParams(args=[:]) {
     }
 }
 
+def createNewNodeFromBackupParams(args=[:]) {
+
+    List nodesList = [] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    if (args.name == "mainnet") {
+        nodesList = [
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
+
+    return {
+        choiceParam('NODE', nodesList, 'Apply changes to specified node.')
+        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
+        stringParam('SNAPSHOT_SRC_MACHINE', args.name == 'mainnet' ? 'api0.vega.community' : '', 'From which machine use backup')
+        booleanParam('INITIAL_SETUP', true, 'Perform initial setup: create unix accounts, setup zfs volumes, etc. (this will start node from block 0)')
+        booleanParam('START_AT_THE_END', true, 'Start node after restoring remote backup. This will update all configs etc.')
+        booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
+        stringParam('TIMEOUT', '3000', 'Number of minutes after which the job will stop')
+        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
+        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+        stringParam('NODE_LABEL', args.get('NODE_LABEL', 'tiny'), 'Jenkins label for running pipeline (empty means any node)')
+    }
+}
+
 def fleetUpdateMachineParams(args=[:]) {
     List machineList = [
         "prometheus.vega.rocks",
@@ -1106,6 +1148,23 @@ def jobs = [
             NET_NAME: 'mainnet',
         ],
         parameters: zfsBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/create-new-node-from-backup',
+        numToKeep: 100,
+        description: 'Setup new node from raw machine to fully sync node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCreateNewNodeFromBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK_BARENODE_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_BARENODE: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: createNewNodeFromBackupParams(
             name: 'mainnet',
         ),
         disableConcurrentBuilds: false,

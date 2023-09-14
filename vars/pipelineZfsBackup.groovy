@@ -47,6 +47,9 @@ void call() {
                         if (params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()) {
                             currentBuild.description += " rollback( ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES ? 'stop' : "don't stop"} )"
                         }
+                        if (params.ROLLBACK_REMOTE_ZFS_SNAPSHOT.trim()) {
+                            currentBuild.description += " rollback remote( from ${params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE} )"
+                        }
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
                         }
