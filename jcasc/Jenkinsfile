@@ -38,12 +38,7 @@ pipeline {
                     //         doctl --access-token $DIGITALOCEAN_TOKEN compute image list --no-header | grep jenkins-agent | awk '{printf("%s=%s\\n", $2, $1)}'
                     //     '''
                     // )
-                    if (env.JENKINS_URL.contains('jenkins.ops.vega.xyz')) {
-                        configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins.yaml'
-                    }
-                    else if (env.JENKINS_URL.contains('jenkins.vega.rocks')) {
-                        configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml'
-                    }
+                    configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml'
                     // copy paste = https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
                     def config = GlobalConfiguration.all().get(CasCGlobalConfig.class)
                     if (config != null) {
