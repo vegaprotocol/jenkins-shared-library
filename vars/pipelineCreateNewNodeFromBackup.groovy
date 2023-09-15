@@ -70,7 +70,6 @@ void call() {
                     retry (3) {
                         script {
                             ALERT_SILENCE_ID = alert.disableAlerts(
-                                environment: ALERT_DISABLE_ENV,
                                 node: ALERT_DISABLE_NODE,
                                 duration: params.TIMEOUT, // minutes
                             )
