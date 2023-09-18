@@ -39,6 +39,7 @@ String shellOutput(String command, boolean silent = false) {
   }
 
   String output = sh(returnStdout: true, script: command)
+  println("output: '${output}'")
   return output.trim()
 }
 
