@@ -784,6 +784,7 @@ def createNewNodeFromBackupParams(args=[:]) {
 def fleetUpdateMachineParams(args=[:]) {
     List machineList = [
         "prometheus.vega.rocks",
+        "bots.vega.rocks",
     ]
 
     return {
