@@ -38,8 +38,12 @@ String shellOutput(String command, boolean silent = false) {
     command = '#!/bin/bash +x\n' + command
   }
 
-  return sh(returnStdout: true,
-    script: command).trim()
+  def output = sh(
+    returnStdout: true,
+    script: command
+  )
+  output = output as String
+  return output.trim()
 }
 
 Map<String, ?> networkStatistics(Map args=[:]) {
