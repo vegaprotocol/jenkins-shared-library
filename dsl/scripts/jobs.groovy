@@ -1801,7 +1801,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: zfsBackupParams(
-            name: 'fairground',
+            name: 'testnet',
         ),
         disableConcurrentBuilds: false,
     ],
