@@ -132,7 +132,7 @@ String getVegaCiBotCredentials() {
 }
 
 // Remove all binaries found in PATH
-void _removeBinary(String binName) {
+void localRemoveBinary(String binName) {
   print("Removing all existing binaries of " + binName)
   while (true) {
     try {
@@ -148,14 +148,14 @@ void _removeBinary(String binName) {
   }
 }
 
-void _killRunningContainers() {
+void localKillRunningContainers() {
   sh (
     label: 'remove any running docker containers',
     script: 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q) || echo "echo failed to kill"; fi'
   )
 }
 
-void _dockerCleanup() {
+void localDockerCleanup() {
   sh label: 'docker volume prune',
   returnStatus: true,  // ignore exit code
   script: '''#!/bin/bash -e
@@ -168,18 +168,18 @@ void _dockerCleanup() {
  * previous runs, we should clean it up.
  **/
 def commonCleanup() {
-  _killRunningContainers()
-  _dockerCleanup()
+  localKillRunningContainers()
+  localDockerCleanup()
 
   // Each pipeline MUST build the following binaries in the pipeline
-  _removeBinary('vega')
-  _removeBinary('data-node')
-  _removeBinary('vegavisor')
-  _removeBinary('vegawallet')
-  _removeBinary('visor')
-  _removeBinary('vegatools')
-  _removeBinary('vegacapsule')
-  _removeBinary('blockexplorer')
+  localRemoveBinary('vega')
+  localRemoveBinary('data-node')
+  localRemoveBinary('vegavisor')
+  localRemoveBinary('vegawallet')
+  localRemoveBinary('visor')
+  localRemoveBinary('vegatools')
+  localRemoveBinary('vegacapsule')
+  localRemoveBinary('blockexplorer')
 }
 
 
