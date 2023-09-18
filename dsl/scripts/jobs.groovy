@@ -1150,8 +1150,8 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core') {
             stringParam {
                 name('SPECS_ARG')
-                defaultValue('{/workspace/specs/protocol/**/*.{md)
-                description(ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
+                defaultValue('{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}')
+                description('--specs argument value')
                 trim(true)
             }
         }
