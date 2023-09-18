@@ -477,8 +477,8 @@ def vegavisorTopupBotsParams(args=[:]) {
         }
         stringParam {
             name('ADDITIONAL_TRADER_BOTS_IDS')
-            defaultValue(args.get('additionalTraderbotsIds')
-            description([]).join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
+            defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
+            description('When there is one than more instane of traderbot, pass their ids(coma separated)')
             trim(true)
         }
         stringParam {
@@ -495,8 +495,8 @@ def vegavisorTopupBotsParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -572,8 +572,8 @@ def networkApplyNonRestartChangesParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -688,8 +688,8 @@ def zfsBackupParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -775,8 +775,8 @@ def createNewNodeFromBackupParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -906,8 +906,8 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('TIMEOUT')
-            defaultValue(args.get('TIMEOUT')
-            description('900'), 'Timeout in minutes, after which the pipline is force stopped.')
+            defaultValue(args.get('TIMEOUT', '900'))
+            description('Timeout in minutes, after which the pipline is force stopped.')
             trim(true)
         }
         booleanParam {
