@@ -1230,24 +1230,24 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core') {
             stringParam {
                 name('TESTS_ARG')
-                defaultValue('{/workspace/system-tests/tests/**/*.py)
-                description(/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}', '--tests argument value')
+                defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}')
+                description('--tests argument value')
                 trim(true)
             }
         }
         else if (config.type == 'frontend') {
             stringParam {
                 name('TESTS_ARG')
-                defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts)
-                description(js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}', '--tests argument value')
+                defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
+                description('--tests argument value')
                 trim(true)
             }
         }
         else if (config.type == 'browserWallet') {
             stringParam {
                 name('TESTS_ARG')
-                defaultValue('/workspace/vegawallet-browser/{frontend)
-                description(test,web-extension}/**/*.spec.{ts,js,tsx,jsx}', '--tests argument value')
+                defaultValue('/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}')
+                description('--tests argument value')
                 trim(true)
             }
         }
@@ -1255,8 +1255,8 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core' ) {
             stringParam {
                 name('IGNORE_ARG')
-                defaultValue('{/workspace/spec-internal/protocol/0060*)
-                description(/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
+                defaultValue('{/workspace/spec-internal/protocol/0060*,/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}')
+                description('--ignore argument value' )
                 trim(true)
             }
         }
