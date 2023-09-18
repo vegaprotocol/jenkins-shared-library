@@ -159,8 +159,8 @@ def vegavisorParamsBase(args=[:]) {
         }
         booleanParam {
             name('UPDATE_SYSTEM_CONFIGURATION')
-            defaultValue(args.get('UPDATE_CONFIGURATION')
-            description(true), 'This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
+            defaultValue(args.get('UPDATE_CONFIGURATION', true))
+            description('This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
         }
         booleanParam {
             name('PERFORM_NETWORK_OPERATIONS')
@@ -175,8 +175,8 @@ def vegavisorParamsBase(args=[:]) {
         }
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue(args.get('DEVOPSTOOLS_BRANCH')
-            description('main'), 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
         stringParam {
@@ -199,8 +199,8 @@ def vegavisorParamsBase(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL','tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -242,18 +242,18 @@ def vegavisorRestartNetworkParams(args=[:]) {
         }
         booleanParam {
             name('USE_CHECKPOINT')
-            defaultValue(args.get('USE_CHECKPOINT')
-            description(true), 'This will download latest checkpoint and use it to restart the network with')
+            defaultValue(args.get('USE_CHECKPOINT', true))
+            description('This will download latest checkpoint and use it to restart the network with')
         }
         booleanParam {
             name('CREATE_MARKETS')
-            defaultValue(args.get('CREATE_MARKETS')
-            description(false), h('create markets'))
+            defaultValue(args.get('CREATE_MARKETS', false))
+            description(h('create markets'))
         }
         booleanParam {
             name('TOP_UP_BOTS')
-            defaultValue(args.get('TOP_UP_BOTS')
-            description(false), h('trigger top up job'))
+            defaultValue(args.get('TOP_UP_BOTS', false))
+            description(h('trigger top up job'))
         }
         stringParam {
             name('DEVOPSSCRIPTS_BRANCH')
@@ -917,13 +917,13 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         booleanParam {
             name('RUN_PROTOCOL_UPGRADE_PROPOSAL')
-            defaultValue(args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL')
-            description(false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
+            defaultValue(args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false))
+            description('Determines whether the post-run stage to check protocol upgrade snapshot is run')
         }
         booleanParam {
             name('RUN_SOAK_TEST')
-            defaultValue(args.get('RUN_SOAK_TEST')
-            description(true), 'Determines if the SOAK test is going to run after the system-tests')
+            defaultValue(args.get('RUN_SOAK_TEST', true))
+            description('Determines if the SOAK test is going to run after the system-tests')
         }
         if (args.get('SCENARIO', false)){
             choiceParam{
@@ -940,8 +940,8 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('office-system-tests'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
@@ -1297,8 +1297,8 @@ def snapshotParams(args=[:]) {
     return {
         stringParam {
             name('TIMEOUT')
-            defaultValue(args.get('TIMEOUT')
-            description('10'), 'Number of minutes after which the node will stop')
+            defaultValue(args.get('TIMEOUT','10'))
+            description('Number of minutes after which the node will stop')
             trim(true)
         }
         booleanParam {
@@ -1314,8 +1314,8 @@ def snapshotParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL')
-            description('cloud-machine'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(args.get('NODE_LABEL','cloud-machine'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
