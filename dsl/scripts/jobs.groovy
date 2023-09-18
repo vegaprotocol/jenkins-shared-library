@@ -1286,8 +1286,8 @@ def approbationParams(def config=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(config.get('NODE_LABEL')
-            description('tiny'), 'Jenkins label for running pipeline (empty means any node)')
+            defaultValue(config.get('NODE_LABEL','tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
     }
