@@ -42,8 +42,11 @@ String shellOutput(String command, boolean silent = false) {
     returnStdout: true,
     script: command
   )
-  output = output as String
-  return output.trim()
+  if (output instanceof Boolean) {
+    return ''
+  } else {
+    return output.trim()
+  }
 }
 
 Map<String, ?> networkStatistics(Map args=[:]) {
