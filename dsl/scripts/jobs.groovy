@@ -288,184 +288,183 @@ def vegavisorRestartNetworkParams(args=[:]) {
     }
 }
 
-// devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
+devopsInfraDocs = h('Please read the docs located <a href="https://github.com/vegaprotocol/devops-infra/blob/master/doc/manage-new-network.md">here</a> on how to manage and debug networks', 2)
 
-// def vegavisorManageNodeDescription() {
-//     return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/>" + ul([
-//         'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
-//         'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
-//         'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
-//     ])
-// }
+def vegavisorManageNodeDescription() {
+    return devopsInfraDocs + "<br/>Some popular scenarios to run with this job<br/>" + ul([
+        'ansible tag "restart-node" + unsafe_reset_all set to true is restart from block 0 without local snapshot',
+        'ansible tag "restart-node" without unsafe_reset_all is restart from local snapshot (due to vegavisor config located in ansible)',
+        'ansible tag "create-node" + unsafe_reset_all + use_remote_snapshot + join_as_validator causes node to be reconfigured from 0 and join network as validator ',
+    ])
+}
 
-// def vegavisorManageNodeParams(args=[:]) {
-//     def choices = [
-//         'restart-node': 'regular restart',
-//         'create-node': 'reset node',
-//         'stop-node': 'stop node',
-//     ]
+def vegavisorManageNodeParams(args=[:]) {
+    def choices = [
+        'restart-node': 'regular restart',
+        'create-node': 'reset node',
+        'stop-node': 'stop node',
+    ]
 
-//     List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-//         "be.${args.name}.vega.rocks",
-//         "be02.${args.name}.vega.rocks",
-//         "metabase00.${args.name}.vega.rocks",
-//         "metabase01.${args.name}.vega.rocks",
-//         "metabase02.${args.name}.vega.rocks",
-//         "m.${args.name}.vega.rocks",
-//     ]
+    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+        "metabase02.${args.name}.vega.rocks",
+        "m.${args.name}.vega.rocks",
+    ]
 
-//     if (args.sentryNodes) {
-//         nodesList += ((0..15).collect { nodeNumber ->
-//             (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.rocks" }
-//         }).flatten()
-//     }
+    if (args.sentryNodes) {
+        nodesList += ((0..15).collect { nodeNumber ->
+            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.rocks" }
+        }).flatten()
+    }
 
 
-//     if (args.name == "mainnetapi") {
-//         nodesList = [
-//             "api0.mainnet.vega.xyz",
-//             "api1.mainnet.vega.xyz",
-//             "api2.mainnet.vega.xyz",
-//             "api3.mainnet.vega.xyz",
-//             "be0.mainnet.vega.xyz",
-//             "be1.mainnet.vega.xyz",
-//             "observer-01.mainnet.vega.xyz",
-//             "observer-02.mainnet.vega.xyz",
-//         ]
-//     } else if (args.name == "mainnet") {
-//         nodesList = [
-//             "api0.vega.community",
-//             "api1.vega.community",
-//             "api2.vega.community",
-//             "api3.vega.community",
-//             "api4.vega.community",
-//             "api5.vega.community",
-//             "be0.vega.community",
-//             "be1.vega.community",
-//             "be3.vega.community",
-//             "m0.vega.community",
-//             "m2.vega.community",
-//             "m3.vega.community",
-//             "m4.vega.community",
-//             "metabase.vega.community",
-//             "test.vega.community",
-//         ]
-//     }
+    if (args.name == "mainnetapi") {
+        nodesList = [
+            "api0.mainnet.vega.xyz",
+            "api1.mainnet.vega.xyz",
+            "api2.mainnet.vega.xyz",
+            "api3.mainnet.vega.xyz",
+            "be0.mainnet.vega.xyz",
+            "be1.mainnet.vega.xyz",
+            "observer-01.mainnet.vega.xyz",
+            "observer-02.mainnet.vega.xyz",
+        ]
+    } else if (args.name == "mainnet") {
+        nodesList = [
+            "api0.vega.community",
+            "api1.vega.community",
+            "api2.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
 
-//     return vegavisorParamsBase(args) << {
-//         choiceParam {
-//             name('NODE')
-//             choices(nodesList)
-//             description('Choose node to run job on')
-//         }
-//         choiceParam {
-//             name('ACTION')
-//             choices(choices.keySet() as List)
-//             description(h('action to be performed with a node') + ul(choices))
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(false)
-//             description('Run dry run without applying changes.')
-//         }
-//         booleanParam {
-//             name('UNSAFE_RESET_ALL')
-//             defaultValue(false)
-//             description('If set to true then delete all local node state. Otherwise leave it for restart.')
-//         }
-//         booleanParam {
-//             name('JOIN_AS_VALIDATOR')
-//             defaultValue(false)
-//             description('If set to true causes node to join network as validator. It will work only with `create-node`')
-//         }
-//         booleanParam {
-//             name('USE_REMOTE_SNAPSHOT')
-//             defaultValue(false)
-//             description('If set to true uses data from available validator to configure remote snapshot in tendermint config')
-//         }
-//         stringParam {
-//             name('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT')
-//             defaultValue('0')
-//             description('If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('RANDOM_NODE')
-//             defaultValue(false)
-//             description('If set to true restart random node instead of the one provided in the parameters.')
-//         }
-//         stringParam {
-//             name('RELEASE_VERSION')
-//             defaultValue('')
-//             description('Specify which version of vega to deploy. Leave empty to restart network only.')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('40')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('VEGA_VERSION')
-//             defaultValue('')
-//             description('''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only)
-//             trim(true)
-//         }
-//         Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-//         booleanParam {
-//             name('DISABLE_LOCK')
-//             defaultValue(false)
-//             description('Use only if you know what you are doing!!! Useful when provisioning many same nodes at the time')
-//         }
-//     }
-// }
+    return vegavisorParamsBase(args) << {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        choiceParam {
+            name('ACTION')
+            choices(choices.keySet() as List)
+            description(h('action to be performed with a node') + ul(choices))
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UNSAFE_RESET_ALL')
+            defaultValue(false)
+            description('If set to true then delete all local node state. Otherwise leave it for restart.')
+        }
+        booleanParam {
+            name('JOIN_AS_VALIDATOR')
+            defaultValue(false)
+            description('If set to true causes node to join network as validator. It will work only with `create-node`')
+        }
+        booleanParam {
+            name('USE_REMOTE_SNAPSHOT')
+            defaultValue(false)
+            description('If set to true uses data from available validator to configure remote snapshot in tendermint config')
+        }
+        stringParam {
+            name('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT')
+            defaultValue('0')
+            description('If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
+            trim(true)
+        }
+        booleanParam {
+            name('RANDOM_NODE')
+            defaultValue(false)
+            description('If set to true restart random node instead of the one provided in the parameters.')
+        }
+        stringParam {
+            name('RELEASE_VERSION')
+            defaultValue('')
+            description('Specify which version of vega to deploy. Leave empty to restart network only.')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('40')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_VERSION')
+            defaultValue('')
+            description('(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only. Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty')
+            trim(true)
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(false)
+            description('Use only if you know what you are doing!!! Useful when provisioning many same nodes at the time')
+        }
+    }
+}
 
-// def vegavisorProtocolUpgradeParams(args=[:]) {
-//     return vegavisorParamsBase(args + [
-//         'UPDATE_CONFIGURATION': false,
-//     ]) << {
-//         stringParam {
-//             name('UPGRADE_BLOCK')
-//             defaultValue('')
-//             description('Protocol upgrade block. Leave empty to use: current block + 400')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('RELEASE_VERSION')
-//             defaultValue('')
-//             description('Specify which version of vega to deploy. Leave empty to restart network only.')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('MANUAL_INSTALL')
-//             defaultValue(true)
-//             description('If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
-//         }
-//         booleanParam {
-//             name('RENDER_CONFIGS')
-//             defaultValue(true)
-//             description('If true, new configs are rendered and updated on the servers')
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(true)
-//             description('If true, no action is taken on the network')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('40')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('DOCKER_VERSION')
-//             defaultValue('')
-//             description('Specify which version of docker images to deploy. Leave empty to not change.')
-//             trim(true)
-//         }
-//     }
-// }
+def vegavisorProtocolUpgradeParams(args=[:]) {
+    return vegavisorParamsBase(args + [
+        'UPDATE_CONFIGURATION': false,
+    ]) << {
+        stringParam {
+            name('UPGRADE_BLOCK')
+            defaultValue('')
+            description('Protocol upgrade block. Leave empty to use: current block + 400')
+            trim(true)
+        }
+        stringParam {
+            name('RELEASE_VERSION')
+            defaultValue('')
+            description('Specify which version of vega to deploy. Leave empty to restart network only.')
+            trim(true)
+        }
+        booleanParam {
+            name('MANUAL_INSTALL')
+            defaultValue(true)
+            description('If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
+        }
+        booleanParam {
+            name('RENDER_CONFIGS')
+            defaultValue(true)
+            description('If true, new configs are rendered and updated on the servers')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(true)
+            description('If true, no action is taken on the network')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('40')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('DOCKER_VERSION')
+            defaultValue('')
+            description('Specify which version of docker images to deploy. Leave empty to not change.')
+            trim(true)
+        }
+    }
+}
 
 def vegavisorTopupBotsParams(args=[:]) {
     return {
@@ -2621,7 +2620,7 @@ def jobs = [
     ]
 ]
 
-// // MAIN
-// jobs.each { job ->
-//     createCommonPipeline(job)
-// }
+// MAIN
+jobs.each { job ->
+    createCommonPipeline(job)
+}
