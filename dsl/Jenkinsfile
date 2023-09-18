@@ -12,8 +12,8 @@ pipeline {
         stage('Create jobs') {
             steps {
                 jobDsl(
-                    removedViewAction: 'DELETE',
-                    removedJobAction: 'DELETE',
+                    removedViewAction: 'IGNORE',
+                    removedJobAction: 'IGNORE',
                     targets: [
                         'dsl/scripts/*.groovy'
                     ].join("\n"),
