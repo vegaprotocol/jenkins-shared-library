@@ -207,7 +207,7 @@ def vegavisorParamsBase(args=[:]) {
 }
 
 def vegavisorRestartNetworkParams(args=[:]) {
-    def choices = [
+    def possibleChoices = [
         'restart-network': 'regular restart',
         'create-network': 'reset network, additionally runs playbook-barenode-common.yaml that provisions software for nodes',
         'stop-network': 'stop entire network',
@@ -215,8 +215,8 @@ def vegavisorRestartNetworkParams(args=[:]) {
     return vegavisorParamsBase(args) << {
         choiceParam {
             name('ACTION')
-            choices(choices.keySet() as List)
-            description(h('action to be performed with a network') + ul(choices))
+            choices(possibleChoices.keySet() as List)
+            description(h('action to be performed with a network') + ul(possibleChoices))
         }
         booleanParam {
             name('DRY_RUN')
@@ -299,7 +299,7 @@ def vegavisorManageNodeDescription() {
 }
 
 def vegavisorManageNodeParams(args=[:]) {
-    def choices = [
+    def possibleChoices = [
         'restart-node': 'regular restart',
         'create-node': 'reset node',
         'stop-node': 'stop node',
@@ -360,8 +360,8 @@ def vegavisorManageNodeParams(args=[:]) {
         }
         choiceParam {
             name('ACTION')
-            choices(choices.keySet() as List)
-            description(h('action to be performed with a node') + ul(choices))
+            choices(possibleChoices.keySet() as List)
+            description(h('action to be performed with a node') + ul(possibleChoices))
         }
         booleanParam {
             name('DRY_RUN')
