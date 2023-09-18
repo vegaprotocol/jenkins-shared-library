@@ -467,859 +467,859 @@ def vegavisorRestartNetworkParams(args=[:]) {
 //     }
 // }
 
-// def vegavisorTopupBotsParams(args=[:]) {
-//     return {
-//         stringParam {
-//             name('DEVOPSTOOLS_BRANCH')
-//             defaultValue('main')
-//             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ADDITIONAL_TRADER_BOTS_IDS')
-//             defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
-//             description('When there is one than more instane of traderbot, pass their ids(coma separated)')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('15')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL', 'tiny'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+def vegavisorTopupBotsParams(args=[:]) {
+    return {
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            trim(true)
+        }
+        stringParam {
+            name('ADDITIONAL_TRADER_BOTS_IDS')
+            defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
+            description('When there is one than more instane of traderbot, pass their ids(coma separated)')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
-// def networkApplyNonRestartChangesParams(args=[:]) {
+def networkApplyNonRestartChangesParams(args=[:]) {
 
-//     List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-//         "be.${args.name}.vega.rocks",
-//         "be02.${args.name}.vega.rocks",
-//         "metabase00.${args.name}.vega.rocks",
-//         "metabase01.${args.name}.vega.rocks",
-//     ]
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
 
-//     if (args.name == "mainnet") {
-//         nodesList = [
-//             'All',
-//             "api0.vega.community",
-//             "api1.vega.community",
-//             "api3.vega.community",
-//             "api4.vega.community",
-//             "api5.vega.community",
-//             "be0.vega.community",
-//             "be1.vega.community",
-//             "be3.vega.community",
-//             "m0.vega.community",
-//             "m2.vega.community",
-//             "m3.vega.community",
-//             "m4.vega.community",
-//             "metabase.vega.community",
-//             "test.vega.community",
-//         ]
-//     }
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
 
-//     return {
-//         choiceParam {
-//             name('NODE')
-//             choices(nodesList)
-//             description('Choose node to run job on')
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(false)
-//             description('Run dry run without applying changes.')
-//         }
-//         booleanParam {
-//             name('UPDATE_ACCOUNTS')
-//             defaultValue(false)
-//             description('Update ssh accounts.')
-//         }
-//         booleanParam {
-//             name('DISABLE_LOCK')
-//             defaultValue(true)
-//             description('Allows you to run multiple jobs for specific network at the same time.')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('15')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ANSIBLE_BRANCH')
-//             defaultValue('master')
-//             description('Git branch, tag or hash of the vegaprotocol/ansible repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL', 'tiny'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UPDATE_ACCOUNTS')
+            defaultValue(false)
+            description('Update ssh accounts.')
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
-// def zfsBackupParams(args=[:]) {
+def zfsBackupParams(args=[:]) {
 
-//     List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-//         "be.${args.name}.vega.rocks",
-//         "be02.${args.name}.vega.rocks",
-//         "metabase00.${args.name}.vega.rocks",
-//         "metabase01.${args.name}.vega.rocks",
-//     ]
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
 
-//     if (args.name == "mainnet") {
-//         nodesList = [
-//             'All',
-//             "api0.vega.community",
-//             "api1.vega.community",
-//             "api3.vega.community",
-//             "api4.vega.community",
-//             "api5.vega.community",
-//             "be0.vega.community",
-//             "be1.vega.community",
-//             "be3.vega.community",
-//             "m0.vega.community",
-//             "m2.vega.community",
-//             "m3.vega.community",
-//             "m4.vega.community",
-//             "metabase.vega.community",
-//             "test.vega.community",
-//         ]
-//     }
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
 
-//     return {
-//         choiceParam {
-//             name('NODE')
-//             choices(nodesList)
-//             description('Choose node to run job on')
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(false)
-//             description('Run dry run without applying changes.')
-//         }
-//         booleanParam {
-//             name('CREATE_LOCAL_ZFS_SNAPSHOT')
-//             defaultValue(false)
-//             description('Create zfs snapshot, but not publish it anywhere')
-//         }
-//         stringParam {
-//             name('CREATE_LOCAL_ZFS_SNAPSHOT_NAME')
-//             defaultValue('')
-//             description('Name of the local zfs snapshot. Leave empty to get default value with timestamp in it.')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES')
-//             defaultValue(true)
-//             description('Stop services before taking snapshot, start them right after (if they were running).')
-//         }
-//         stringParam {
-//             name('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES')
-//             defaultValue('')
-//             description('Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME')
-//             defaultValue('')
-//             description('Name of the local zfs snapshot to rollback to. Leave empty to skip rollback.')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES')
-//             defaultValue(true)
-//             description('Start services after rollback.')
-//         }
-//         booleanParam {
-//             name('ROLLBACK_REMOTE_ZFS_SNAPSHOT')
-//             defaultValue(false)
-//             description('Rollback to remote snapshot')
-//         }
-//         stringParam {
-//             name('ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE')
-//             defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
-//             description('From which machine use backup')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('DISABLE_LOCK')
-//             defaultValue(true)
-//             description('Allows you to run multiple jobs for specific network at the same time.')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('3000')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ANSIBLE_BRANCH')
-//             defaultValue('master')
-//             description('Git branch, tag or hash of the vegaprotocol/ansible repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL', 'tiny'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Create zfs snapshot, but not publish it anywhere')
+        }
+        stringParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT_NAME')
+            defaultValue('')
+            description('Name of the local zfs snapshot. Leave empty to get default value with timestamp in it.')
+            trim(true)
+        }
+        booleanParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES')
+            defaultValue(true)
+            description('Stop services before taking snapshot, start them right after (if they were running).')
+        }
+        stringParam {
+            name('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES')
+            defaultValue('')
+            description('Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
+            trim(true)
+        }
+        stringParam {
+            name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME')
+            defaultValue('')
+            description('Name of the local zfs snapshot to rollback to. Leave empty to skip rollback.')
+            trim(true)
+        }
+        booleanParam {
+            name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES')
+            defaultValue(true)
+            description('Start services after rollback.')
+        }
+        booleanParam {
+            name('ROLLBACK_REMOTE_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Rollback to remote snapshot')
+        }
+        stringParam {
+            name('ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE')
+            defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
+            description('From which machine use backup')
+            trim(true)
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('3000')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
-// def createNewNodeFromBackupParams(args=[:]) {
+def createNewNodeFromBackupParams(args=[:]) {
 
-//     List nodesList = [] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-//         "be.${args.name}.vega.rocks",
-//         "be02.${args.name}.vega.rocks",
-//         "metabase00.${args.name}.vega.rocks",
-//         "metabase01.${args.name}.vega.rocks",
-//     ]
+    List nodesList = [] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
 
-//     if (args.name == "mainnet") {
-//         nodesList = [
-//             "api0.vega.community",
-//             "api1.vega.community",
-//             "api3.vega.community",
-//             "api4.vega.community",
-//             "api5.vega.community",
-//             "be0.vega.community",
-//             "be1.vega.community",
-//             "be3.vega.community",
-//             "m0.vega.community",
-//             "m2.vega.community",
-//             "m3.vega.community",
-//             "m4.vega.community",
-//             "metabase.vega.community",
-//             "test.vega.community",
-//         ]
-//     }
+    if (args.name == "mainnet") {
+        nodesList = [
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
 
-//     return {
-//         choiceParam {
-//             name('NODE')
-//             choices(nodesList)
-//             description('Choose node to run job on')
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(false)
-//             description('Run dry run without applying changes.')
-//         }
-//         stringParam {
-//             name('SNAPSHOT_SRC_MACHINE')
-//             defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
-//             description('From which machine use backup')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('INITIAL_SETUP')
-//             defaultValue(true)
-//             description('Perform initial setup: create unix accounts, setup zfs volumes, etc. (this will start node from block 0)')
-//         }
-//         booleanParam {
-//             name('START_AT_THE_END')
-//             defaultValue(true)
-//             description('Start node after restoring remote backup. This will update all configs etc.')
-//         }
-//         booleanParam {
-//             name('DISABLE_LOCK')
-//             defaultValue(true)
-//             description('Allows you to run multiple jobs for specific network at the same time.')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('3000')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ANSIBLE_BRANCH')
-//             defaultValue('master')
-//             description('Git branch, tag or hash of the vegaprotocol/ansible repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL', 'tiny'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        stringParam {
+            name('SNAPSHOT_SRC_MACHINE')
+            defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
+            description('From which machine use backup')
+            trim(true)
+        }
+        booleanParam {
+            name('INITIAL_SETUP')
+            defaultValue(true)
+            description('Perform initial setup: create unix accounts, setup zfs volumes, etc. (this will start node from block 0)')
+        }
+        booleanParam {
+            name('START_AT_THE_END')
+            defaultValue(true)
+            description('Start node after restoring remote backup. This will update all configs etc.')
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('3000')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
-// def fleetUpdateMachineParams(args=[:]) {
-//     List machineList = [
-//         "prometheus.vega.rocks",
-//     ]
+def fleetUpdateMachineParams(args=[:]) {
+    List machineList = [
+        "prometheus.vega.rocks",
+    ]
 
-//     return {
-//         choiceParam {
-//             name('MACHINE_NAME')
-//             choices(machineList)
-//             description('Apply changes to specified machine.')
-//         }
-//         booleanParam {
-//             name('DRY_RUN')
-//             defaultValue(false)
-//             description('Run dry run without applying changes.')
-//         }
-//         booleanParam {
-//             name('UPDATE_ACCOUNTS')
-//             defaultValue(false)
-//             description('Update ssh accounts.')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue('15')
-//             description('Number of minutes after which the job will stop')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('ANSIBLE_BRANCH')
-//             defaultValue('master')
-//             description('Git branch, tag or hash of the vegaprotocol/ansible repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue('tiny')
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
-
-
-// def systemTestsParamsGeneric(args=[:]) {
-//     return {
-//         stringParam {
-//             name('ORIGIN_REPO')
-//             defaultValue('vegaprotocol/vega')
-//             description('repository which acts as vega source code (used for forks builds)')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('VEGA_BRANCH')
-//             defaultValue('develop')
-//             description('Git branch, tag or hash of the vegaprotocol/vega repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('VEGA_BRANCH_UPGRADE')
-//             defaultValue('')
-//             description('Git branch, tag or hash of the vegaprotocol/vega repository to build the upgrade binary. If empty upgrade binary is created from the VEGA_BRANCH')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_BRANCH')
-//             defaultValue('develop')
-//             description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('VEGACAPSULE_BRANCH')
-//             defaultValue('main')
-//             description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('VEGATOOLS_BRANCH')
-//             defaultValue('develop')
-//             description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('DEVOPS_INFRA_BRANCH')
-//             defaultValue('master')
-//             description('Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('DEVOPSSCRIPTS_BRANCH')
-//             defaultValue('main')
-//             description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('TEST_EXTRA_PYTEST_ARGS')
-//             defaultValue('')
-//             description('extra args passed to system tests execution')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES')
-//             defaultValue('')
-//             description('Override network parameters at the beginning of the run.')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('DEVOPSTOOLS_BRANCH')
-//             defaultValue('main')
-//             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('SYSTEM_TESTS_DEBUG')
-//             defaultValue(false)
-//             description('Enable debug logs for system-tests execution')
-//         }
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue(args.get('TIMEOUT', '900'))
-//             description('Timeout in minutes, after which the pipline is force stopped.')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('PRINT_NETWORK_LOGS')
-//             defaultValue(false)
-//             description('By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
-//         }
-//         booleanParam {
-//             name('RUN_PROTOCOL_UPGRADE_PROPOSAL')
-//             defaultValue(args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false))
-//             description('Determines whether the post-run stage to check protocol upgrade snapshot is run')
-//         }
-//         booleanParam {
-//             name('RUN_SOAK_TEST')
-//             defaultValue(args.get('RUN_SOAK_TEST', true))
-//             description('Determines if the SOAK test is going to run after the system-tests')
-//         }
-//         if (args.get('SCENARIO', false)){
-//             choiceParam {
-//                 name('SCENARIO')
-//                 choices(args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'])
-//                 description('Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
-//             }
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
-
-// def systemTestsParamsWrapper() {
-//     return systemTestsParamsGeneric() << {
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_FUNCTION')
-//             defaultValue('')
-//             description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_MARK')
-//             defaultValue('smoke')
-//             description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_DIRECTORY')
-//             defaultValue('')
-//             description('Run tests from files in this directory and all sub-directories')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('TEST_DIRECTORY')
-//             defaultValue('')
-//             description('list or wildcard of files/directories to collect test files from')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('CAPSULE_CONFIG')
-//             defaultValue('capsule_config.hcl')
-//             description('Run tests using the given vegacapsule config file')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('SKIP_MULTISIGN_SETUP')
-//             defaultValue(false)
-//             description(h('When true validators are not added to multisig as signers'))
-//         }
-//         booleanParam {
-//             name('ARCHIVE_VEGA_BINARY')
-//             defaultValue(false)
-//             description('Define if vega binary needs to be archived - requirement for soak test pipelines')
-//         }
-//     }
-// }
-
-// def lnlSystemTestsparams(Map args=[:]) {
-//     return systemTestsParamsGeneric(args) << {
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_FUNCTION')
-//             defaultValue('test_checkpoint_loaded')
-//             description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_MARK')
-//             defaultValue('')
-//             description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_DIRECTORY')
-//             defaultValue('tests/LNL')
-//             description('Run tests from files in this directory and all sub-directories')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('CAPSULE_CONFIG')
-//             defaultValue('capsule_config_mainnet.hcl')
-//             description('Run tests using the given vegacapsule config file')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('SKIP_MULTISIGN_SETUP')
-//             defaultValue(true)
-//             description(h('When true validators are not added to multisig as signers'))
-//         }
-//     }
-// }
-
-// def snapshotCompatibilityParams(Map args=[:]) {
-//     return systemTestsParamsGeneric(args) << {
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_FUNCTION')
-//             defaultValue('')
-//             description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_MARK')
-//             defaultValue('')
-//             description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('SYSTEM_TESTS_TEST_DIRECTORY')
-//             defaultValue('tests/snapshot_compatibility')
-//             description('Run tests from files in this directory and all sub-directories')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('CAPSULE_CONFIG')
-//             defaultValue('capsule_config_mainnet_snapshot.hcl')
-//             description('Run tests using the given vegacapsule config file')
-//             trim(true)
-//         }
-//     }
-// }
+    return {
+        choiceParam {
+            name('MACHINE_NAME')
+            choices(machineList)
+            description('Apply changes to specified machine.')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UPDATE_ACCOUNTS')
+            defaultValue(false)
+            description('Update ssh accounts.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue('tiny')
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
 
+def systemTestsParamsGeneric(args=[:]) {
+    return {
+        stringParam {
+            name('ORIGIN_REPO')
+            defaultValue('vegaprotocol/vega')
+            description('repository which acts as vega source code (used for forks builds)')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/vega repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_BRANCH_UPGRADE')
+            defaultValue('')
+            description('Git branch, tag or hash of the vegaprotocol/vega repository to build the upgrade binary. If empty upgrade binary is created from the VEGA_BRANCH')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGACAPSULE_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGATOOLS_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPS_INFRA_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPSSCRIPTS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            trim(true)
+        }
+        stringParam {
+            name('TEST_EXTRA_PYTEST_ARGS')
+            defaultValue('')
+            description('extra args passed to system tests execution')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES')
+            defaultValue('')
+            description('Override network parameters at the beginning of the run.')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            trim(true)
+        }
+        booleanParam {
+            name('SYSTEM_TESTS_DEBUG')
+            defaultValue(false)
+            description('Enable debug logs for system-tests execution')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue(args.get('TIMEOUT', '900'))
+            description('Timeout in minutes, after which the pipline is force stopped.')
+            trim(true)
+        }
+        booleanParam {
+            name('PRINT_NETWORK_LOGS')
+            defaultValue(false)
+            description('By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+        }
+        booleanParam {
+            name('RUN_PROTOCOL_UPGRADE_PROPOSAL')
+            defaultValue(args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false))
+            description('Determines whether the post-run stage to check protocol upgrade snapshot is run')
+        }
+        booleanParam {
+            name('RUN_SOAK_TEST')
+            defaultValue(args.get('RUN_SOAK_TEST', true))
+            description('Determines if the SOAK test is going to run after the system-tests')
+        }
+        if (args.get('SCENARIO', false)){
+            choiceParam {
+                name('SCENARIO')
+                choices(args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'])
+                description('Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+            }
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
-// def approbationParams(def config=[:]) {
-//     return {
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('ORIGIN_REPO')
-//                 defaultValue('vegaprotocol/vega')
-//                 description('repo which acts as source of vegaprotocol (used for forks builds)')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_CORE_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the origin repo repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('MULTISIG_CONTROL_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_TOKEN_V2_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/Vega_Token_V2 repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('STAKING_BRIDGE_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/Staking_Bridge repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('SYSTEM_TESTS_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend') {
-//             stringParam {
-//                 name('FRONTEND_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGAWALLET_DESKTOP_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGAWALLET_UI_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('CONSOLE_TEST_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/console-test repository')
-//                 trim(true)
-//             }
+def systemTestsParamsWrapper() {
+    return systemTestsParamsGeneric() << {
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('smoke')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('TEST_DIRECTORY')
+            defaultValue('')
+            description('list or wildcard of files/directories to collect test files from')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+        booleanParam {
+            name('SKIP_MULTISIGN_SETUP')
+            defaultValue(false)
+            description(h('When true validators are not added to multisig as signers'))
+        }
+        booleanParam {
+            name('ARCHIVE_VEGA_BINARY')
+            defaultValue(false)
+            description('Define if vega binary needs to be archived - requirement for soak test pipelines')
+        }
+    }
+}
 
-//         }
-//         else if(config.type == 'browserWallet') {
-//             stringParam {
-//                 name('VEGAWALLET_BROWSER_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
-//                 trim(true)
-//             }
-//         }
+def lnlSystemTestsparams(Map args=[:]) {
+    return systemTestsParamsGeneric(args) << {
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('test_checkpoint_loaded')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('tests/LNL')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config_mainnet.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+        booleanParam {
+            name('SKIP_MULTISIGN_SETUP')
+            defaultValue(true)
+            description(h('When true validators are not added to multisig as signers'))
+        }
+    }
+}
 
-//         stringParam {
-//             name('APPROBATION_TAG')
-//             defaultValue('v4.5.1')
-//             description('Approbation image tag. latest or specific version with v prefix')
-//             trim(true)
-//         }
+def snapshotCompatibilityParams(Map args=[:]) {
+    return systemTestsParamsGeneric(args) << {
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('tests/snapshot_compatibility')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config_mainnet_snapshot.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+    }
+}
 
-//         stringParam {
-//             name('SPECS_BRANCH')
-//             defaultValue('cosmicelevator')
-//             description('Git branch, tag or hash of the vegaprotocol/specs repository')
-//             trim(true)
-//         }
 
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('SPECS_ARG')
-//                 defaultValue('{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}')
-//                 description('--specs argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend') {
-//             stringParam {
-//                 name('SPECS_ARG')
-//                 defaultValue('/workspace/frontend-monorepo/specs/**/*.md')
-//                 description('--specs argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'browserWallet') {
-//             stringParam {
-//                 name('SPECS_ARG')
-//                 defaultValue('/workspace/vegawallet-browser/specs/**/*.md')
-//                 description('--specs argument value')
-//                 trim(true)
-//             }
-//         }
 
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('CATEGORIES_ARG')
-//                 defaultValue('/workspace/specs/protocol/categories.json')
-//                 description('--categories argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend') {
-//             stringParam {
-//                 name('CATEGORIES_ARG')
-//                 defaultValue('/workspace/frontend-monorepo/specs/categories.json')
-//                 description('--categories argument value for the categories run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('APPS_ARG')
-//                 defaultValue('/workspace/frontend-monorepo/specs/apps.json')
-//                 description('--categories argument value for the apps run')
-//                 trim(true)
-//             }
-//         }
+def approbationParams(def config=[:]) {
+    return {
+        if (config.type == 'core') {
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repo which acts as source of vegaprotocol (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_CORE_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the origin repo repository')
+                trim(true)
+            }
+            stringParam {
+                name('MULTISIG_CONTROL_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_TOKEN_V2_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/Vega_Token_V2 repository')
+                trim(true)
+            }
+            stringParam {
+                name('STAKING_BRIDGE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/Staking_Bridge repository')
+                trim(true)
+            }
+            stringParam {
+                name('SYSTEM_TESTS_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend') {
+            stringParam {
+                name('FRONTEND_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGAWALLET_DESKTOP_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGAWALLET_UI_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
+                trim(true)
+            }
+            stringParam {
+                name('CONSOLE_TEST_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/console-test repository')
+                trim(true)
+            }
 
-//         else if (config.type == 'browserWallet') {
-//             stringParam {
-//                 name('CATEGORIES_ARG')
-//                 defaultValue('/workspace/vegawallet-browser/specs/categories.json')
-//                 description('--categories argument value for the categories run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('APPS_ARG')
-//                 defaultValue('/workspace/vegawallet-browser/specs/apps.json')
-//                 description('--categories argument value for the apps run')
-//                 trim(true)
-//             }
-//         }
+        }
+        else if(config.type == 'browserWallet') {
+            stringParam {
+                name('VEGAWALLET_BROWSER_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
+                trim(true)
+            }
+        }
 
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('FEATURES_ARG')
-//                 defaultValue('/workspace/specs/protocol/features.json')
-//                 description('--features argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend' || config.type == 'browserWallet') {
-//             stringParam {
-//                 name('FEATURES_ARG')
-//                 defaultValue('')
-//                 description('--features argument value')
-//                 trim(true)
-//             }
-//         }
+        stringParam {
+            name('APPROBATION_TAG')
+            defaultValue('v4.5.1')
+            description('Approbation image tag. latest or specific version with v prefix')
+            trim(true)
+        }
 
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('TESTS_ARG')
-//                 defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}')
-//                 description('--tests argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend') {
-//             stringParam {
-//                 name('TESTS_ARG')
-//                 defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
-//                 description('--tests argument value')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'browserWallet') {
-//             stringParam {
-//                 name('TESTS_ARG')
-//                 defaultValue('/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}')
-//                 description('--tests argument value')
-//                 trim(true)
-//             }
-//         }
+        stringParam {
+            name('SPECS_BRANCH')
+            defaultValue('cosmicelevator')
+            description('Git branch, tag or hash of the vegaprotocol/specs repository')
+            trim(true)
+        }
 
-//         if (config.type == 'core' ) {
-//             stringParam {
-//                 name('IGNORE_ARG')
-//                 defaultValue('{/workspace/spec-internal/protocol/0060*,/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}')
-//                 description('--ignore argument value' )
-//                 trim(true)
-//             }
-//         }
+        if (config.type == 'core') {
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}')
+                description('--specs argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend') {
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/**/*.md')
+                description('--specs argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/**/*.md')
+                description('--specs argument value')
+                trim(true)
+            }
+        }
 
-//         if (config.type == 'core') {
-//             stringParam {
-//                 name('OTHER_ARG')
-//                 defaultValue('--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats')
-//                 description('Other arguments')
-//                 trim(true)
-//             }
-//         }
-//         else if (config.type == 'frontend' || config.type == 'browserWallet') {
-//             stringParam {
-//                 name('OTHER_ARG')
-//                 defaultValue('--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv')
-//                 description('Other arguments')
-//                 trim(true)
-//             }
-//         }
+        if (config.type == 'core') {
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/specs/protocol/categories.json')
+                description('--categories argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend') {
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/categories.json')
+                description('--categories argument value for the categories run')
+                trim(true)
+            }
+            stringParam {
+                name('APPS_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/apps.json')
+                description('--categories argument value for the apps run')
+                trim(true)
+            }
+        }
 
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(config.get('NODE_LABEL','tiny'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/categories.json')
+                description('--categories argument value for the categories run')
+                trim(true)
+            }
+            stringParam {
+                name('APPS_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/apps.json')
+                description('--categories argument value for the apps run')
+                trim(true)
+            }
+        }
 
-// def snapshotParams(args=[:]) {
-//     return {
-//         stringParam {
-//             name('TIMEOUT')
-//             defaultValue(args.get('TIMEOUT','10'))
-//             description('Number of minutes after which the node will stop')
-//             trim(true)
-//         }
-//         booleanParam {
-//             name('BACKUP_SNAPSHOTS')
-//             defaultValue(false)
-//             description('Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-//         }
-//         stringParam {
-//             name('JENKINS_SHARED_LIB_BRANCH')
-//             defaultValue('main')
-//             description('Branch of jenkins-shared-library from which pipeline should be run')
-//             trim(true)
-//         }
-//         stringParam {
-//             name('NODE_LABEL')
-//             defaultValue(args.get('NODE_LABEL','cloud-machine'))
-//             description('Jenkins label for running pipeline (empty means any node)')
-//             trim(true)
-//         }
-//     }
-// }
+        if (config.type == 'core') {
+            stringParam {
+                name('FEATURES_ARG')
+                defaultValue('/workspace/specs/protocol/features.json')
+                description('--features argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
+            stringParam {
+                name('FEATURES_ARG')
+                defaultValue('')
+                description('--features argument value')
+                trim(true)
+            }
+        }
+
+        if (config.type == 'core') {
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}')
+                description('--tests argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend') {
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
+                description('--tests argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}')
+                description('--tests argument value')
+                trim(true)
+            }
+        }
+
+        if (config.type == 'core' ) {
+            stringParam {
+                name('IGNORE_ARG')
+                defaultValue('{/workspace/spec-internal/protocol/0060*,/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}')
+                description('--ignore argument value' )
+                trim(true)
+            }
+        }
+
+        if (config.type == 'core') {
+            stringParam {
+                name('OTHER_ARG')
+                defaultValue('--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats')
+                description('Other arguments')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
+            stringParam {
+                name('OTHER_ARG')
+                defaultValue('--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv')
+                description('Other arguments')
+                trim(true)
+            }
+        }
+
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(config.get('NODE_LABEL','tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
+
+def snapshotParams(args=[:]) {
+    return {
+        stringParam {
+            name('TIMEOUT')
+            defaultValue(args.get('TIMEOUT','10'))
+            description('Number of minutes after which the node will stop')
+            trim(true)
+        }
+        booleanParam {
+            name('BACKUP_SNAPSHOTS')
+            defaultValue(false)
+            description('Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL','cloud-machine'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
 
 
 // def jobs = [
