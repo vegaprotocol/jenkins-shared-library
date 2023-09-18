@@ -1322,1304 +1322,1304 @@ def snapshotParams(args=[:]) {
 }
 
 
-// def jobs = [
-//     // DSL Job - the one that manages this file
-//     [
-//         name: 'private/jenkins/DSL Job',
-//         numToKeep: 50,
-//         repo: 'jenkins-shared-library',
-//         description: h('this job is used to generate other jobs'),
-//         jenkinsfile: 'dsl/Jenkinsfile',
-//         branch: 'main',
-//         disableConcurrentBuilds: true,
+def jobs = [
+    // DSL Job - the one that manages this file
+    [
+        name: 'private/jenkins/DSL Job',
+        numToKeep: 50,
+        repo: 'jenkins-shared-library',
+        description: h('this job is used to generate other jobs'),
+        jenkinsfile: 'dsl/Jenkinsfile',
+        branch: 'main',
+        disableConcurrentBuilds: true,
 
-//         check: 'DSL Job',
-//     ],
-//     // Jenkins Configuration As Code
-//     [
-//         name: 'private/jenkins/Jenkins Configuration as Code Pipeline',
-//         numToKeep: 50,
-//         check: 'Jenkins Configuration as Code pipeline',
-//         repo: 'jenkins-shared-library',
-//         description: h('This job is used to auto apply changes to jenkins instance configuration'),
-//         jenkinsfile: 'jcasc/Jenkinsfile',
-//         branch: 'main',
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/jenkins/proxmox-provisioner',
-//         numToKeep: 50,
-//         repo: 'ansible',
-//         description: h('This job is used to auto apply changes done to the jenkins-agent role'),
-//         jenkinsfile: 'Jenkinsfile',
-//         branch: 'master',
-//         disableConcurrentBuilds: false,
-//         parameters: {
-//             stringParam {
-//                 name('NODE')
-//                 defaultValue('')
-//                 description('define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('DRY_RUN')
-//                 defaultValue(false)
-//                 description('Run dry run without applying changes.')
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('ANSIBLE_BRANCH')
-//                 defaultValue('master')
-//                 description('Git branch, tag or hash of the vegaprotocol/ansible repository')
-//                 trim(true)
-//             }
-//         }
-//     ],
-//     [
-//         name: 'private/Deployments/Publish-vega-dev-releases',
-//         numToKeep: 200,
-//         description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegaDevRelease()'),
-//         parameters: {
-//             stringParam {
-//                 name('VEGA_VERSION')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega repository')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('DEPLOY_TO_DEVNET_1')
-//                 defaultValue(true)
-//                 description('Trigger deployment to Devnet 1')
-//             }
-//             booleanParam {
-//                 name('DEPLOY_TO_STAGNET_1')
-//                 defaultValue(false)
-//                 description('Trigger deployment to Stagnet 1')
-//             }
-//             stringParam {
-//                 name('RELEASE_VERSION_OVERRIDE')
-//                 defaultValue('')
-//                 description('Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('core-build')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//         },
-//         disableConcurrentBuilds: true,
-//     ],
-//     //
-//     // Devnet 1
-//     //
-//     [
-//         name: 'private/Deployments/devnet1/Manage-Network',
-//         numToKeep: 100,
-//         description: devopsInfraDocs,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNetwork()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//             ANSIBLE_LIMIT: 'devnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorRestartNetworkParams(
-//             TOP_UP_BOTS: true,
-//             USE_CHECKPOINT: false,
-//             CREATE_MARKETS: true,
-//         ),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/devnet1/Manage-Node',
-//         numToKeep: 100,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNode()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'devnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//         parameterizedCron: [
-//             // restart a random node every 1 hour
-//             '20 * * * * %' + ['RANDOM_NODE=true'].join(';'),
-//             // validator joining & leaving every 1 hour
-//             '50 * * * * %' + [
-//                 'ACTION=create-node',
-//                 'UNSAFE_RESET_ALL=true',
-//                 'JOIN_AS_VALIDATOR=true',
-//                 'USE_REMOTE_SNAPSHOT=true',
-//                 'NODE=n05.devnet1.vega.rocks'
-//             ].join(';'),
-//         ].join('\n'),
-//     ],
-//     [
-//         name: 'private/Deployments/devnet1/Protocol-Upgrade',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//             ANSIBLE_LIMIT: 'devnet1',
-//         ],
-//         parameters: vegavisorProtocolUpgradeParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/devnet1/Topup-Bots',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorTopupBots()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//             RESEARCH_BOT: true,
-//         ],
-//         parameters: vegavisorTopupBotsParams(),
-//         cron: '0 H/2 * * *',
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/devnet1/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'devnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/devnet1/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'devnet1',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'devnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // Stagnet 1
-//     //
-//     [
-//         name: 'private/Deployments/stagnet1/Manage-Network',
-//         numToKeep: 100,
-//         description: devopsInfraDocs,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNetwork()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//             ANSIBLE_LIMIT: 'stagnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorRestartNetworkParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/stagnet1/Manage-Node',
-//         numToKeep: 100,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNode()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'stagnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//         // restart a random node every 30min
-//         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-//     ],
-//     [
-//         name: 'private/Deployments/stagnet1/Protocol-Upgrade',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//             ANSIBLE_LIMIT: 'stagnet1',
-//         ],
-//         parameters: vegavisorProtocolUpgradeParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/stagnet1/Topup-Bots',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorTopupBots()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//         ],
-//         parameters: vegavisorTopupBotsParams(),
-//         cron: 'H * * * *',
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/stagnet1/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'stagnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/stagnet1/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'stagnet1',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'stagnet1',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // Mainnet Mirror
-//     //
-//     [
-//         name: 'private/Deployments/mainnet-mirror/Manage-Network',
-//         numToKeep: 100,
-//         description: devopsInfraDocs,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNetwork()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//             ANSIBLE_LIMIT: 'mainnet-mirror',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorRestartNetworkParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet-mirror/Manage-Node',
-//         numToKeep: 100,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkManageNode71()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'mainnet-mirror',
-//         ),
-//         disableConcurrentBuilds: false,
-//         // restart a random node every 30min
-//         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet-mirror/Topup-Bots',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorTopupBots()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//         ],
-//         parameters: vegavisorTopupBotsParams(),
-//         cron: 'H */6 * * *',
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet-mirror/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'mainnet-mirror',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet-mirror/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'mainnet-mirror',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//             ANSIBLE_LIMIT: 'mainnet-mirror',
-//         ],
-//         parameters: vegavisorProtocolUpgradeParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     //
-//     // Fairground
-//     //
-//     [
-//         name: 'private/Deployments/fairground/Manage-Network',
-//         numToKeep: 100,
-//         description: devopsInfraDocs,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNetwork()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//             ANSIBLE_LIMIT: 'fairground',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorRestartNetworkParams(
-//             USE_CHECKPOINT: true,
-//         ),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/fairground/Manage-Node',
-//         numToKeep: 100,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNode()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'testnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//         // restart a random node every 30min
-//         // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-//     ],
-//     [
-//         name: 'private/Deployments/fairground/Protocol-Upgrade',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//             ANSIBLE_LIMIT: 'fairground',
-//         ],
-//         parameters: vegavisorProtocolUpgradeParams(),
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/fairground/Topup-Bots',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorTopupBots()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//         ],
-//         parameters: vegavisorTopupBotsParams(),
-//         cron: 'H/30 * * * *',
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Deployments/fairground/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'testnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/fairground/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'fairground',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'fairground',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // Validators-Testnet
-//     //
-//     [
-//         name: 'private/Deployments/validators-testnet/Manage-Node-v0-68',
-//         numToKeep: 100,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorManageNode()'),
-//         env: [
-//             NET_NAME: 'validators-testnet',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'validators-testnet',
-//             sentryNodes: true,
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'validators-testnet',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'validators-testnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/validators-testnet/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'validators-testnet',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'validators-testnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // Mainnet
-//     //
-//     [
-//         name: 'private/Deployments/mainnet/Manage-Node-71',
-//         numToKeep: 500,
-//         description: vegavisorManageNodeDescription(),
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkManageNode71()'),
-//         env: [
-//             NET_NAME: 'mainnet',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
-//             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
-//         ],
-//         parameters: vegavisorManageNodeParams(
-//             name: 'mainnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet/Non-Restart-Changes',
-//         numToKeep: 100,
-//         description: 'Apply changes not requiring restarting a node or network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-//         env: [
-//             NET_NAME: 'mainnet',
-//             ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
-//         ],
-//         parameters: networkApplyNonRestartChangesParams(
-//             name: 'mainnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet/Backup',
-//         description: devopsInfraDocs,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineBackupNodeZFS()'),
-//         env: [],
-//         parameters: {
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('tiny')
-//                 description('The node label pipeline is going to run on')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('TIMEOUT')
-//                 defaultValue('200')
-//                 description('Global timeout in minutes')
-//                 trim(true)
-//             }
-//             choiceParam {
-//                 name('ACTION')
-//                 choices(['BACKUP', 'RESTORE', 'LIST_BACKUPS'])
-//                 description('Action to execute')
-//             }
-//             stringParam {
-//                 name('SERVER')
-//                 defaultValue('')
-//                 description('Server where we are going to execute action')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//         },
-//         disableConcurrentBuilds: false,
-//         parameterizedCron: [
-//             // automatic backup every 6h
-//             'H */6 * * * %' + [
-//                 'SERVER=api0.vega.community',
-//             ].join(';'),
-//         ].join('\n'),
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet/zfs-backup',
-//         numToKeep: 100,
-//         description: 'Perform zfs backup or restore tasks',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineZfsBackup()'),
-//         env: [
-//             NET_NAME: 'mainnet',
-//         ],
-//         parameters: zfsBackupParams(
-//             name: 'mainnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     [
-//         name: 'private/Deployments/mainnet/create-new-node-from-backup',
-//         numToKeep: 100,
-//         description: 'Setup new node from raw machine to fully sync node',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineCreateNewNodeFromBackup()'),
-//         env: [
-//             NET_NAME: 'mainnet',
-//             ANSIBLE_PLAYBOOK_BARENODE_COMMON: 'playbook-barenode71-common.yaml',
-//             ANSIBLE_PLAYBOOK_BARENODE: 'playbook-barenode71.yaml',
-//             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
-//         ],
-//         parameters: createNewNodeFromBackupParams(
-//             name: 'mainnet',
-//         ),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // Fleet
-//     //
-//     [
-//         name: 'private/Deployments/fleet/Update-Machine',
-//         numToKeep: 100,
-//         description: 'Apply changes from Ansible',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineFleet()'),
-//         env: [
-//             ANSIBLE_PLAYBOOK: 'playbook-fleet.yaml',
-//         ],
-//         parameters: fleetUpdateMachineParams(),
-//         disableConcurrentBuilds: false,
-//     ],
-//     //
-//     // System-Tests
-//     //
-//     // Primary pipeline
-//     [
-//         name: 'common/system-tests-wrapper',
-//         useScmDefinition: false,
-//         definition: libDefinition('capsuleSystemTests()'),
-//         parameters: systemTestsParamsWrapper(),
-//         copyArtifacts: true,
-//         daysToKeep: 10,
-//         numToKeep: 3500,
-//     ],
-//     [
-//         name: 'common/system-tests-lnl-mainnet',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineCapsuleLNL()'),
-//         parameters: lnlSystemTestsparams(
-//             NODE_LABEL: 'office-system-tests-lnl',
-//             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
-//             RUN_SOAK_TEST: false,
-//         ),
-//         copyArtifacts: true,
-//         daysToKeep: 10,
-//         cron: 'H 3 * * *',
-//     ],
-//     [
-//         name: 'common/system-tests-snapshot-compatibility',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
-//         parameters: snapshotCompatibilityParams(),
-//         copyArtifacts: true,
-//         daysToKeep: 10,
-//         cron: 'H 2 * * *',
-//     ],
-//     [
-//         name: 'common/system-tests',
-//         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineCapsuleSystemTests()'),
-//         parameters: systemTestsParamsGeneric('SCENARIO': 'PR'),
-//         copyArtifacts: true,
-//         daysToKeep: 10,
-//     ],
-//     // Primary pipeline
-//     [
-//         name: 'common/system-tests-nightly',
-//         description: 'This job is executed every 24h to ensure stability of the system',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineCapsuleSystemTests()'),
-//         parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
-//         copyArtifacts: true,
-//         daysToKeep: 10,
-//         cron: 'H 0 * * *',
-//     ],
-//     //
-//     // Vegavisor automatic download and PUP
-//     //
-//     [
-//         name: 'common/visor-autoinstall-and-pup',
+        check: 'DSL Job',
+    ],
+    // Jenkins Configuration As Code
+    [
+        name: 'private/jenkins/Jenkins Configuration as Code Pipeline',
+        numToKeep: 50,
+        check: 'Jenkins Configuration as Code pipeline',
+        repo: 'jenkins-shared-library',
+        description: h('This job is used to auto apply changes to jenkins instance configuration'),
+        jenkinsfile: 'jcasc/Jenkinsfile',
+        branch: 'main',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/jenkins/proxmox-provisioner',
+        numToKeep: 50,
+        repo: 'ansible',
+        description: h('This job is used to auto apply changes done to the jenkins-agent role'),
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'master',
+        disableConcurrentBuilds: false,
+        parameters: {
+            stringParam {
+                name('NODE')
+                defaultValue('')
+                description('define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
+                trim(true)
+            }
+            booleanParam {
+                name('DRY_RUN')
+                defaultValue(false)
+                description('Run dry run without applying changes.')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('ANSIBLE_BRANCH')
+                defaultValue('master')
+                description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+                trim(true)
+            }
+        }
+    ],
+    [
+        name: 'private/Deployments/Publish-vega-dev-releases',
+        numToKeep: 200,
+        description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaDevRelease()'),
+        parameters: {
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            booleanParam {
+                name('DEPLOY_TO_DEVNET_1')
+                defaultValue(true)
+                description('Trigger deployment to Devnet 1')
+            }
+            booleanParam {
+                name('DEPLOY_TO_STAGNET_1')
+                defaultValue(false)
+                description('Trigger deployment to Stagnet 1')
+            }
+            stringParam {
+                name('RELEASE_VERSION_OVERRIDE')
+                defaultValue('')
+                description('Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('core-build')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+        },
+        disableConcurrentBuilds: true,
+    ],
+    //
+    // Devnet 1
+    //
+    [
+        name: 'private/Deployments/devnet1/Manage-Network',
+        numToKeep: 100,
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'devnet1',
+            ANSIBLE_LIMIT: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(
+            TOP_UP_BOTS: true,
+            USE_CHECKPOINT: false,
+            CREATE_MARKETS: true,
+        ),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/devnet1/Manage-Node',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'devnet1',
+        ),
+        disableConcurrentBuilds: false,
+        parameterizedCron: [
+            // restart a random node every 1 hour
+            '20 * * * * %' + ['RANDOM_NODE=true'].join(';'),
+            // validator joining & leaving every 1 hour
+            '50 * * * * %' + [
+                'ACTION=create-node',
+                'UNSAFE_RESET_ALL=true',
+                'JOIN_AS_VALIDATOR=true',
+                'USE_REMOTE_SNAPSHOT=true',
+                'NODE=n05.devnet1.vega.rocks'
+            ].join(';'),
+        ].join('\n'),
+    ],
+    [
+        name: 'private/Deployments/devnet1/Protocol-Upgrade',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'devnet1',
+            ANSIBLE_LIMIT: 'devnet1',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/devnet1/Topup-Bots',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'devnet1',
+            RESEARCH_BOT: true,
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        cron: '0 H/2 * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/devnet1/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'devnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'devnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/devnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'devnet1',
+        ],
+        parameters: zfsBackupParams(
+            name: 'devnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Stagnet 1
+    //
+    [
+        name: 'private/Deployments/stagnet1/Manage-Network',
+        numToKeep: 100,
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_LIMIT: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/Manage-Node',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'stagnet1',
+        ),
+        disableConcurrentBuilds: false,
+        // restart a random node every 30min
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/stagnet1/Protocol-Upgrade',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_LIMIT: 'stagnet1',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/Topup-Bots',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'stagnet1',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'stagnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: zfsBackupParams(
+            name: 'stagnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Mainnet Mirror
+    //
+    [
+        name: 'private/Deployments/mainnet-mirror/Manage-Network',
+        numToKeep: 100,
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_LIMIT: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Manage-Node',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkManageNode71()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnet-mirror',
+        ),
+        disableConcurrentBuilds: false,
+        // restart a random node every 30min
+        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Topup-Bots',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H */6 * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'mainnet-mirror',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+        ],
+        parameters: zfsBackupParams(
+            name: 'mainnet-mirror',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            ANSIBLE_LIMIT: 'mainnet-mirror',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    //
+    // Fairground
+    //
+    [
+        name: 'private/Deployments/fairground/Manage-Network',
+        numToKeep: 100,
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNetwork()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_LIMIT: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorRestartNetworkParams(
+            USE_CHECKPOINT: true,
+        ),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/fairground/Manage-Node',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'testnet',
+        ),
+        disableConcurrentBuilds: false,
+        // restart a random node every 30min
+        // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
+    ],
+    [
+        name: 'private/Deployments/fairground/Protocol-Upgrade',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_LIMIT: 'fairground',
+        ],
+        parameters: vegavisorProtocolUpgradeParams(),
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/fairground/Topup-Bots',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorTopupBots()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H/30 * * * *',
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Deployments/fairground/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'fairground',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'testnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/fairground/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: zfsBackupParams(
+            name: 'fairground',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Validators-Testnet
+    //
+    [
+        name: 'private/Deployments/validators-testnet/Manage-Node-v0-68',
+        numToKeep: 100,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'validators-testnet',
+            sentryNodes: true,
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'validators-testnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/validators-testnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'validators-testnet',
+        ],
+        parameters: zfsBackupParams(
+            name: 'validators-testnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Mainnet
+    //
+    [
+        name: 'private/Deployments/mainnet/Manage-Node-71',
+        numToKeep: 500,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkManageNode71()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/Non-Restart-Changes',
+        numToKeep: 100,
+        description: 'Apply changes not requiring restarting a node or network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: networkApplyNonRestartChangesParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/Backup',
+        description: devopsInfraDocs,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineBackupNodeZFS()'),
+        env: [],
+        parameters: {
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('The node label pipeline is going to run on')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('200')
+                description('Global timeout in minutes')
+                trim(true)
+            }
+            choiceParam {
+                name('ACTION')
+                choices(['BACKUP', 'RESTORE', 'LIST_BACKUPS'])
+                description('Action to execute')
+            }
+            stringParam {
+                name('SERVER')
+                defaultValue('')
+                description('Server where we are going to execute action')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+        },
+        disableConcurrentBuilds: false,
+        parameterizedCron: [
+            // automatic backup every 6h
+            'H */6 * * * %' + [
+                'SERVER=api0.vega.community',
+            ].join(';'),
+        ].join('\n'),
+    ],
+    [
+        name: 'private/Deployments/mainnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+        ],
+        parameters: zfsBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/create-new-node-from-backup',
+        numToKeep: 100,
+        description: 'Setup new node from raw machine to fully sync node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCreateNewNodeFromBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK_BARENODE_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_BARENODE: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: createNewNodeFromBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Fleet
+    //
+    [
+        name: 'private/Deployments/fleet/Update-Machine',
+        numToKeep: 100,
+        description: 'Apply changes from Ansible',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineFleet()'),
+        env: [
+            ANSIBLE_PLAYBOOK: 'playbook-fleet.yaml',
+        ],
+        parameters: fleetUpdateMachineParams(),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // System-Tests
+    //
+    // Primary pipeline
+    [
+        name: 'common/system-tests-wrapper',
+        useScmDefinition: false,
+        definition: libDefinition('capsuleSystemTests()'),
+        parameters: systemTestsParamsWrapper(),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        numToKeep: 3500,
+    ],
+    [
+        name: 'common/system-tests-lnl-mainnet',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleLNL()'),
+        parameters: lnlSystemTestsparams(
+            NODE_LABEL: 'office-system-tests-lnl',
+            RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
+            RUN_SOAK_TEST: false,
+        ),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 3 * * *',
+    ],
+    [
+        name: 'common/system-tests-snapshot-compatibility',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
+        parameters: snapshotCompatibilityParams(),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 2 * * *',
+    ],
+    [
+        name: 'common/system-tests',
+        description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
+        parameters: systemTestsParamsGeneric('SCENARIO': 'PR'),
+        copyArtifacts: true,
+        daysToKeep: 10,
+    ],
+    // Primary pipeline
+    [
+        name: 'common/system-tests-nightly',
+        description: 'This job is executed every 24h to ensure stability of the system',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSystemTests()'),
+        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 0 * * *',
+    ],
+    //
+    // Vegavisor automatic download and PUP
+    //
+    [
+        name: 'common/visor-autoinstall-and-pup',
 
-//         description: 'Job starts the network, perform protocol upgrade and waits until new binaries are automatically downloaded and network is upgraded',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
-//         parameters: {
-//             stringParam {
-//                 name('RELEASES_REPO')
-//                 defaultValue('vegaprotocol/vega-dev-releases-system-tests')
-//                 description('repository where we keep all our releases for vega')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_BRANCH')
-//                 defaultValue('develop')
-//                 description('git branch, tag or hash of the vegaprotocol/vega repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('SYSTEM_TESTS_BRANCH')
-//                 defaultValue('develop')
-//                 description('git branch, tag or hash of the vegaprotocol/system-tests repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGATOOLS_BRANCH')
-//                 defaultValue('develop')
-//                 description('git branch, tag or hash of the vegaprotocol/vegatools repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGACAPSULE_BRANCH')
-//                 defaultValue('main')
-//                 description('git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('DEVOPSSCRIPTS_BRANCH')
-//                 defaultValue('main')
-//                 description('git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('CREATE_RELEASE')
-//                 defaultValue(true)
-//                 description('If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('office-system-tests')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//         },
-//         copyArtifacts: true,
-//         daysToKeep: 14,
-//         cron: 'H 0 * * *',
-//     ],
-//     //
-//     // Vega Market Simulator
-//     //
-//     [
-//         name: 'common/vega-market-sim',
-//         description: 'Simulate Markets on fully controllable Simulator of Vega Network',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegaMarketSim()'),
-//         parameters: {
-//             stringParam {
-//                 name('ORIGIN_REPO')
-//                 defaultValue('vegaprotocol/vega')
-//                 description('repository which acts as vega source code (used for forks builds)')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_VERSION')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGACAPSULE_VERSION')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_MARKET_SIM_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('TIMEOUT')
-//                 defaultValue('45')
-//                 description('Number of minutes after which the job will stop')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('TEST_FUNCTION')
-//                 defaultValue('')
-//                 description('Defines specified functions to run(specifies value for the pytest -k param)')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('PARALLEL_WORKERS')
-//                 defaultValue('1')
-//                 description('Defines number of parallel tests (specifies value for the pytest -n param)')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('LOG_LEVEL')
-//                 defaultValue('INFO')
-//                 description('Log level for the pytest (INFO,DEBUG,WARN,ERROR)')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('RUN_EXTRA_TESTS')
-//                 defaultValue(false)
-//                 description('Run extra tests that you don\'t always want to run')
-//             }
-//             booleanParam {
-//                 name('RUN_LEARNING')
-//                 defaultValue(false)
-//                 description('Run a long reinforcement learning test')
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('vega-market-sim')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('BRANCH_RUN')
-//                 defaultValue(true)
-//                 description('Is this a branch or main run')
-//             }
-//         },
-//         copyArtifacts: true,
-//         daysToKeep: 5,
-//     ],
-//     [
-//         name: 'common/vega-market-sim-reinforcement',
-//         description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineVegaMarketSim()'),
-//         parameters: {
-//             stringParam {
-//                 name('ORIGIN_REPO')
-//                 defaultValue('vegaprotocol/vega')
-//                 description('repository which acts as vega source code (used for forks builds)')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_VERSION')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGACAPSULE_VERSION')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGA_MARKET_SIM_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('TIMEOUT')
-//                 defaultValue('1440')
-//                 description('Number of minutes after which the job will stop')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('RUN_EXTRA_TESTS')
-//                 defaultValue(false)
-//                 description('Run extra tests that you don\'t always want to run')
-//             }
-//             booleanParam {
-//                 name('RUN_LEARNING')
-//                 defaultValue(true)
-//                 description('Run a long reinforcement learning test')
-//             }
-//             stringParam {
-//                 name('NUM_FUZZ_STEPS')
-//                 defaultValue('2880')
-//                 description('Number of steps to run fuzz test for')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NUM_RL_ITERATIONS')
-//                 defaultValue('300')
-//                 description('Number of iterations to run RL tests for')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('vega-market-sim')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//             booleanParam {
-//                 name('BRANCH_RUN')
-//                 defaultValue(false)
-//                 description('Is this a branch or main run')
-//             }
-//         },
-//         copyArtifacts: true,
-//         daysToKeep: 5,
-//         cron: 'H 0 * * *',
-//     ],
-//     // Snapshots
-//     //
-//     [
-//         name: 'private/Snapshots/Devnet1',
-//         numToKeep: 500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'devnet1',
-//             HISTORY_KEY: 'NetworkHistory',
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 4,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Snapshots/Stagnet1',
-//         numToKeep: 500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'stagnet1',
-//             HISTORY_KEY: 'NetworkHistory',
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 4,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Snapshots/mainnet-mirror',
-//         numToKeep: 500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'mainnet-mirror',
-//             HISTORY_KEY: 'NetworkHistory',
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 4,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         // cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Snapshots/Fairground',
-//         // disabled: true,
-//         numToKeep: 500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'fairground',
-//             HISTORY_KEY: 'NetworkHistory',
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 4,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Snapshots/Validators-Testnet',
-//         // disabled: true,
-//         numToKeep: 500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'validators-testnet',
-//             HISTORY_KEY: 'NetworkHistory',
-//             NODES_DENYLIST: 'n01.validators-testnet.vega.rocks'
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 4,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     [
-//         name: 'private/Snapshots/Mainnet',
-//         // disabled: true,
-//         numToKeep: 2500,
-//         useScmDefinition: false,
-//         env: [
-//             NET_NAME: 'mainnet',
-//             HISTORY_KEY: 'NetworkHistory'
-//         ],
-//         parameters: snapshotParams(),
-//         daysToKeep: 21,
-//         definition: libDefinition('pipelineSnapshotTesting()'),
-//         cron: "H/12 * * * *",
-//         disableConcurrentBuilds: true,
-//     ],
-//     // review deprecation of this job
-//     [
-//         name: 'private/Automations/Checkpoint-Backup',
-//         useScmDefinition: false,
-//         parameters: {
-//             booleanParam {
-//                 name('DEVNET_1')
-//                 defaultValue(false)
-//                 description('Backup the latest checkpoint from the Devnet 1')
-//             }
-//             booleanParam {
-//                 name('FAIRGROUND')
-//                 defaultValue(true)
-//                 description('Backup the latest checkpoint from the Fairground network')
-//             }
-//             booleanParam {
-//                 name('MAINNET')
-//                 defaultValue(true)
-//                 description('Backup the latest checkpoint from the Mainnet')
-//             }
-//             stringParam {
-//                 name('CHECKPOINT_STORE_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('tiny')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//         },
-//         disableConcurrentBuilds: true,
-//         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
-//         definition: libDefinition('pipelineCheckpointBackup()'),
-//     ],
-//     // review deprecation of this job
-//     [
-//         name: 'private/Automations/Spam-orders',
-//         useScmDefinition: false,
-//         parameters: {
-//             choiceParam {
-//                 name('NETWORK_NAME')
-//                 choices(['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'])
-//                 description('Network name')
-//             }
-//             stringParam {
-//                 name('THREADS')
-//                 defaultValue('4')
-//                 description('Number of thread for spammers')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('MAX_PRICE')
-//                 defaultValue('10000')
-//                 description('Max price for single order')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('THREAD_RATE_LIMIT')
-//                 defaultValue('15')
-//                 description('Maximum number of orders single thread can send')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('MARKET_ID')
-//                 defaultValue('')
-//                 description('Market ID bots are sending orders to')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('DURATION')
-//                 defaultValue('15m30s')
-//                 description('Duration of stress-test')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('DEVOPSTOOLS_VERSION')
-//                 defaultValue('main')
-//                 description('Branch/commit for the vegaprotocol/devopstools repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('tiny')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//         },
-//         //cron: 'H */2 * * *',
-//         description: 'Send orders which will stay in order book to the network',
-//         definition: libDefinition('spamOrders()'),
-//     ],
-//     //
-//     // Approbations
-//     //
-//     [
-//         name: 'common/approbation',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineApprobation(type: "core")'),
-//         parameters: approbationParams(type: 'core'),
-//         copyArtifacts: true,
-//     ],
-//     [
-//         name: 'common/approbation-frontend',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineApprobation(type: "frontend")'),
-//         parameters: approbationParams(type: 'frontend'),
-//         copyArtifacts: true,
-//     ],
-//     [
-//         name: 'common/approbation-browser-wallet',
-//         numToKeep: 100,
-//         useScmDefinition: false,
-//         definition: libDefinition('pipelineApprobation(type: "browserWallet")'),
-//         parameters: approbationParams(type: 'browserWallet'),
-//         copyArtifacts: true,
-//     ],
-//     // just wrapper for runApprobation.groovy
-//     [
-//         name: 'common/frontend-monorepo',
-//         repo: 'frontend-monorepo',
-//         numToKeep: 300,
-//         useGithub: true,
-//         jenkinsfile: 'Jenkinsfile',
-//         check: 'Approbation Pipeline',
-//         branch: 'develop',
-//         disableConcurrentBuilds: true,
-//         env: [
-//             BRANCH_NAME: 'develop',
-//             CHANGE_BRANCH: 'develop',
-//         ],
-//     ],
-//     // just wrapper for runApprobation.groovy
-//     [
-//         name: 'common/vegawallet-desktop',
-//         repo: 'vegawallet-desktop',
-//         useGithub: true,
-//         jenkinsfile: 'Jenkinsfile',
-//         branch: 'develop',
-//         disableConcurrentBuilds: true,
-//         check: 'Approbation Pipeline',
-//         env: [
-//             BRANCH_NAME: 'develop',
-//             CHANGE_BRANCH: 'develop',
-//         ],
-//     ],
-//     [
-//         name: 'common/vegawallet-browser',
-//         repo: 'vegawallet-browser',
-//         useGithub: true,
-//         jenkinsfile: 'Jenkinsfile',
-//         branch: 'main',
-//         disableConcurrentBuilds: true,
-//         check: 'Approbation Pipeline',
-//         env: [
-//             BRANCH_NAME: 'main',
-//             CHANGE_BRANCH: 'main',
-//         ],
-//     ],
-//     [
-//         name: 'common/performance-tests',
-//         useScmDefinition: false,
-//         numToKeep: 30,
-//         cron: '0 0 * * *',
-//         definition: libDefinition('pipelinePerformanceTest()'),
-//         parameters: {
-//             stringParam {
-//                 name('VEGA_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vega repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGACAPSULE_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('VEGATOOLS_BRANCH')
-//                 defaultValue('develop')
-//                 description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('PERFORMANCE_BRANCH')
-//                 defaultValue('main')
-//                 description('Git branch, tag or hash of the vegaprotocol/performance repository')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('NODE_LABEL')
-//                 defaultValue('performance-tests')
-//                 description('Jenkins label for running pipeline (empty means any node)')
-//                 trim(true)
-//             }
-//         }
-//     ],
-//     [
-//         name: 'private/jenkins/agents-cleanup',
-//         useScmDefinition: false,
-//         numToKeep: 20,
-//         cron: 'H 0 * * *',
-//         definition: libDefinition('pipelineCleanupAgents()'),
-//         parameters: {
-//             stringParam {
-//                 name('NODE')
-//                 defaultValue('')
-//                 description('Node name (e.g jenkins01) to run cleanup on')
-//                 trim(true)
-//             }
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//         }
-//     ],
-//     [
-//         name: 'private/Automations/grafana-backup',
-//         useScmDefinition: false,
-//         numToKeep: 14,
-//         cron: 'H 0 * * *',
-//         definition: libDefinition('pipelineGrafanaBackup()'),
-//         cron: 'H 0 * * *',
-//         parameters: {
-//             stringParam {
-//                 name('JENKINS_SHARED_LIB_BRANCH')
-//                 defaultValue('main')
-//                 description('Branch of jenkins-shared-library from which pipeline should be run')
-//                 trim(true)
-//             }
-//         }
-//     ]
-// ]
+        description: 'Job starts the network, perform protocol upgrade and waits until new binaries are automatically downloaded and network is upgraded',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
+        parameters: {
+            stringParam {
+                name('RELEASES_REPO')
+                defaultValue('vegaprotocol/vega-dev-releases-system-tests')
+                description('repository where we keep all our releases for vega')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('SYSTEM_TESTS_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/system-tests repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGATOOLS_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/vegatools repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_BRANCH')
+                defaultValue('main')
+                description('git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('DEVOPSSCRIPTS_BRANCH')
+                defaultValue('main')
+                description('git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+                trim(true)
+            }
+            booleanParam {
+                name('CREATE_RELEASE')
+                defaultValue(true)
+                description('If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('office-system-tests')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+        },
+        copyArtifacts: true,
+        daysToKeep: 14,
+        cron: 'H 0 * * *',
+    ],
+    //
+    // Vega Market Simulator
+    //
+    [
+        name: 'common/vega-market-sim',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaMarketSim()'),
+        parameters: {
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repository which acts as vega source code (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_VERSION')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_MARKET_SIM_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('45')
+                description('Number of minutes after which the job will stop')
+                trim(true)
+            }
+            stringParam {
+                name('TEST_FUNCTION')
+                defaultValue('')
+                description('Defines specified functions to run(specifies value for the pytest -k param)')
+                trim(true)
+            }
+            stringParam {
+                name('PARALLEL_WORKERS')
+                defaultValue('1')
+                description('Defines number of parallel tests (specifies value for the pytest -n param)')
+                trim(true)
+            }
+            stringParam {
+                name('LOG_LEVEL')
+                defaultValue('INFO')
+                description('Log level for the pytest (INFO,DEBUG,WARN,ERROR)')
+                trim(true)
+            }
+            booleanParam {
+                name('RUN_EXTRA_TESTS')
+                defaultValue(false)
+                description('Run extra tests that you don\'t always want to run')
+            }
+            booleanParam {
+                name('RUN_LEARNING')
+                defaultValue(false)
+                description('Run a long reinforcement learning test')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('vega-market-sim')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+            booleanParam {
+                name('BRANCH_RUN')
+                defaultValue(true)
+                description('Is this a branch or main run')
+            }
+        },
+        copyArtifacts: true,
+        daysToKeep: 5,
+    ],
+    [
+        name: 'common/vega-market-sim-reinforcement',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegaMarketSim()'),
+        parameters: {
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repository which acts as vega source code (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_VERSION')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_MARKET_SIM_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('1440')
+                description('Number of minutes after which the job will stop')
+                trim(true)
+            }
+            booleanParam {
+                name('RUN_EXTRA_TESTS')
+                defaultValue(false)
+                description('Run extra tests that you don\'t always want to run')
+            }
+            booleanParam {
+                name('RUN_LEARNING')
+                defaultValue(true)
+                description('Run a long reinforcement learning test')
+            }
+            stringParam {
+                name('NUM_FUZZ_STEPS')
+                defaultValue('2880')
+                description('Number of steps to run fuzz test for')
+                trim(true)
+            }
+            stringParam {
+                name('NUM_RL_ITERATIONS')
+                defaultValue('300')
+                description('Number of iterations to run RL tests for')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('vega-market-sim')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+            booleanParam {
+                name('BRANCH_RUN')
+                defaultValue(false)
+                description('Is this a branch or main run')
+            }
+        },
+        copyArtifacts: true,
+        daysToKeep: 5,
+        cron: 'H 0 * * *',
+    ],
+    // Snapshots
+    //
+    [
+        name: 'private/Snapshots/Devnet1',
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'devnet1',
+            HISTORY_KEY: 'NetworkHistory',
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Stagnet1',
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'stagnet1',
+            HISTORY_KEY: 'NetworkHistory',
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/mainnet-mirror',
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'mainnet-mirror',
+            HISTORY_KEY: 'NetworkHistory',
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        // cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Fairground',
+        // disabled: true,
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'fairground',
+            HISTORY_KEY: 'NetworkHistory',
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Validators-Testnet',
+        // disabled: true,
+        numToKeep: 500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'validators-testnet',
+            HISTORY_KEY: 'NetworkHistory',
+            NODES_DENYLIST: 'n01.validators-testnet.vega.rocks'
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 4,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Mainnet',
+        // disabled: true,
+        numToKeep: 2500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'mainnet',
+            HISTORY_KEY: 'NetworkHistory'
+        ],
+        parameters: snapshotParams(),
+        daysToKeep: 21,
+        definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/12 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    // review deprecation of this job
+    [
+        name: 'private/Automations/Checkpoint-Backup',
+        useScmDefinition: false,
+        parameters: {
+            booleanParam {
+                name('DEVNET_1')
+                defaultValue(false)
+                description('Backup the latest checkpoint from the Devnet 1')
+            }
+            booleanParam {
+                name('FAIRGROUND')
+                defaultValue(true)
+                description('Backup the latest checkpoint from the Fairground network')
+            }
+            booleanParam {
+                name('MAINNET')
+                defaultValue(true)
+                description('Backup the latest checkpoint from the Mainnet')
+            }
+            stringParam {
+                name('CHECKPOINT_STORE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+        },
+        disableConcurrentBuilds: true,
+        description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
+        definition: libDefinition('pipelineCheckpointBackup()'),
+    ],
+    // review deprecation of this job
+    [
+        name: 'private/Automations/Spam-orders',
+        useScmDefinition: false,
+        parameters: {
+            choiceParam {
+                name('NETWORK_NAME')
+                choices(['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'])
+                description('Network name')
+            }
+            stringParam {
+                name('THREADS')
+                defaultValue('4')
+                description('Number of thread for spammers')
+                trim(true)
+            }
+            stringParam {
+                name('MAX_PRICE')
+                defaultValue('10000')
+                description('Max price for single order')
+                trim(true)
+            }
+            stringParam {
+                name('THREAD_RATE_LIMIT')
+                defaultValue('15')
+                description('Maximum number of orders single thread can send')
+                trim(true)
+            }
+            stringParam {
+                name('MARKET_ID')
+                defaultValue('')
+                description('Market ID bots are sending orders to')
+                trim(true)
+            }
+            stringParam {
+                name('DURATION')
+                defaultValue('15m30s')
+                description('Duration of stress-test')
+                trim(true)
+            }
+            stringParam {
+                name('DEVOPSTOOLS_VERSION')
+                defaultValue('main')
+                description('Branch/commit for the vegaprotocol/devopstools repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+        },
+        //cron: 'H */2 * * *',
+        description: 'Send orders which will stay in order book to the network',
+        definition: libDefinition('spamOrders()'),
+    ],
+    //
+    // Approbations
+    //
+    [
+        name: 'common/approbation',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "core")'),
+        parameters: approbationParams(type: 'core'),
+        copyArtifacts: true,
+    ],
+    [
+        name: 'common/approbation-frontend',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "frontend")'),
+        parameters: approbationParams(type: 'frontend'),
+        copyArtifacts: true,
+    ],
+    [
+        name: 'common/approbation-browser-wallet',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "browserWallet")'),
+        parameters: approbationParams(type: 'browserWallet'),
+        copyArtifacts: true,
+    ],
+    // just wrapper for runApprobation.groovy
+    [
+        name: 'common/frontend-monorepo',
+        repo: 'frontend-monorepo',
+        numToKeep: 300,
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        check: 'Approbation Pipeline',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+        env: [
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
+    ],
+    // just wrapper for runApprobation.groovy
+    [
+        name: 'common/vegawallet-desktop',
+        repo: 'vegawallet-desktop',
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'develop',
+        disableConcurrentBuilds: true,
+        check: 'Approbation Pipeline',
+        env: [
+            BRANCH_NAME: 'develop',
+            CHANGE_BRANCH: 'develop',
+        ],
+    ],
+    [
+        name: 'common/vegawallet-browser',
+        repo: 'vegawallet-browser',
+        useGithub: true,
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'main',
+        disableConcurrentBuilds: true,
+        check: 'Approbation Pipeline',
+        env: [
+            BRANCH_NAME: 'main',
+            CHANGE_BRANCH: 'main',
+        ],
+    ],
+    [
+        name: 'common/performance-tests',
+        useScmDefinition: false,
+        numToKeep: 30,
+        cron: '0 0 * * *',
+        definition: libDefinition('pipelinePerformanceTest()'),
+        parameters: {
+            stringParam {
+                name('VEGA_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGATOOLS_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
+                trim(true)
+            }
+            stringParam {
+                name('PERFORMANCE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/performance repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('performance-tests')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+        }
+    ],
+    [
+        name: 'private/jenkins/agents-cleanup',
+        useScmDefinition: false,
+        numToKeep: 20,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineCleanupAgents()'),
+        parameters: {
+            stringParam {
+                name('NODE')
+                defaultValue('')
+                description('Node name (e.g jenkins01) to run cleanup on')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+        }
+    ],
+    [
+        name: 'private/Automations/grafana-backup',
+        useScmDefinition: false,
+        numToKeep: 14,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineGrafanaBackup()'),
+        cron: 'H 0 * * *',
+        parameters: {
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+        }
+    ]
+]
 
 // // MAIN
 // jobs.each { job ->
