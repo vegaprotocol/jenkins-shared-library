@@ -38,8 +38,8 @@ String shellOutput(String command, boolean silent = false) {
     command = '#!/bin/bash +x\n' + command
   }
 
-  return sh(returnStdout: true,
-    script: command).trim()
+  String output = sh(returnStdout: true, script: command)
+  return output.trim()
 }
 
 Map<String, ?> networkStatistics(Map args=[:]) {
@@ -136,7 +136,7 @@ void localRemoveBinary(String binName) {
   print("Removing all existing binaries of " + binName)
   while (true) {
     try {
-      binaryPath = shellOutput("which " + binName)
+      String binaryPath = shellOutput("which " + binName)
       if (binaryPath == "") {
         return
       } else {
