@@ -114,8 +114,8 @@ jenkins:
   nodes:
   # bluesky005 8CPU - 12GB
   - permanent: &node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       launcher:
         inbound:
           webSocket: true
@@ -152,8 +152,8 @@ jenkins:
   # bluesky004 6 cpu - 16GB
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins06"
   # bluesky007 6cpu - 8GB
   - permanent:
@@ -173,14 +173,14 @@ jenkins:
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
       name: "jenkins10"
   # bluesky004 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins11"
   # bluesky001 - 2 vcpu 4gb - overprovisioned CPU and memory
   - permanent:
@@ -190,14 +190,14 @@ jenkins:
   # bluesky007 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins13"
   # bluesky007 - 6vcpu 16gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       # labelString: "ganache-debugging"
       name: "jenkins14"
   # bluesky001 - 2vcpu 4gb
@@ -208,14 +208,14 @@ jenkins:
   # bluesky008 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins16"
   # bluesky008 - 6vcpu 16gb
   - permanent:
       <<: *node-template
-      labelString: ""
-      # labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
+      # labelString: ""
+      labelString: "office-system-tests core-build office-machine vega-market-sim office-system-tests-lnl"
       name: "jenkins17"
   # # bluesky008 - 6vcpu 16gb - overprovisioned CPU
   # - permanent:
@@ -240,8 +240,8 @@ jenkins:
   # bluesky007 - 3 vcpu 6gb - overprovisioned CPU and memory
   - permanent:
       <<: *node-template
-      # labelString: "tiny"
-      labelString: ""
+      labelString: "tiny"
+      # labelString: ""
       name: "jenkins22"
   # - permanent:
   #     <<: *node-template
