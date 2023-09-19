@@ -1496,6 +1496,8 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             RESEARCH_BOT: true,
+            TRADERBOT: true,
+            LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
         cron: '0 H/2 * * *',
@@ -1587,9 +1589,12 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'stagnet1',
+            RESEARCH_BOT: true,
+            TRADERBOT: true,
+            LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H * * * *',
+        cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1666,9 +1671,12 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'mainnet-mirror',
+            RESEARCH_BOT: true,
+            TRADERBOT: false,
+            LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H */6 * * *',
+        cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1771,6 +1779,9 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'fairground',
+            RESEARCH_BOT: false,
+            TRADERBOT: true,
+            LIQBOT: true,
         ],
         parameters: vegavisorTopupBotsParams(),
         cron: 'H/30 * * * *',
