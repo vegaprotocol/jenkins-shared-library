@@ -147,7 +147,8 @@ jenkins:
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine"
+      labelString: ""
+      # labelString: "office-system-tests core-build office-machine"
       name: "jenkins05"
   # bluesky004 6 cpu - 16GB
   - permanent:
@@ -158,7 +159,8 @@ jenkins:
   # bluesky007 6cpu - 8GB
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine"
+      labelString: ""
+      # labelString: "office-system-tests core-build office-machine"
       name: "jenkins07"
   # bluesky002 - 3vcpu 6gb
   - permanent:
@@ -168,7 +170,8 @@ jenkins:
   # bluesky006 - 6vcpu 12gb - overprovisioned cpu
   - permanent:
       <<: *node-template
-      labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
+      labelString: ""
+      # labelString: "office-system-tests core-build office-machine office-system-tests-lnl"
       name: "jenkins09"
   # bluesky005 - 8vcpu 12gb - overprovisioned cpu and memory
   - permanent:
