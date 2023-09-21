@@ -31,42 +31,42 @@ void call() {
     'NIGHTLY': [
       'full a-f': [
         pytestDirectory: 'tests/[a-fA-F]*',
-        mark: 'full',
+        mark: 'full and not future',
       ],
       'full g-n': [
         pytestDirectory: 'tests/[g-nG-N]*',
-        mark: 'full',
+        mark: 'full and not future',
       ],
       'full o-r': [
         pytestDirectory: 'tests/[o-rO-R]*',
-        mark: 'full',
+        mark: 'full and not future',
       ],
       'full s': [
         pytestDirectory: 'tests/[sS]*',
-        mark: 'full',
+        mark: 'full and not future',
       ],
       'full t-z': [
         pytestArgs: "--ignore-glob 'tests/[a-sA-S]*'",
-        mark: 'full',
+        mark: 'full and not future',
       ],
       'network_infra a-o': [
         pytestDirectory: 'tests/[a-oA-O]*',
-        mark: 'network_infra',
+        mark: 'network_infra and not future',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra p without validators': [
         pytestDirectory: 'tests/[pP]*',
-        mark: 'network_infra',
+        mark: 'network_infra and not future',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra q-z without validators': [
         pytestArgs: "--ignore-glob 'tests/[a-pA-P]*' --ignore-glob 'tests/validators/*'",
-        mark: 'network_infra',
+        mark: 'network_infra and not future',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators a-p': [
         pytestDirectory: 'tests/validators/[a-pA-P]*',
-        mark: 'network_infra',
+        mark: 'network_infra and not future',
         capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra validators r-z': [
