@@ -22,7 +22,7 @@ def call() {
                 steps {
                     script {
                         sh 'printenv'
-
+                        print("params=${params.inspect()}")
                         print("Liqbot: " + liqBot)
                         print("Traderbot: " + traderBot)
                         print("Research-bot: " + researchBots)
@@ -32,8 +32,6 @@ def call() {
             }
             stage('Checkout') {
                 steps {
-                    sh 'printenv'
-                    echo "params=${params.inspect()}"
                     gitClone(
                         vegaUrl: 'devopstools',
                         directory:'devopstools',
