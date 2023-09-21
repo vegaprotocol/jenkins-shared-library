@@ -1496,7 +1496,7 @@ def jobs = [
         env: [
             NET_NAME: 'devnet1',
             RESEARCH_BOT: true,
-            TRADERBOT: true,
+            TRADERBOT: false,
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
