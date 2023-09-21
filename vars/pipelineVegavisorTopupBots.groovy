@@ -1,7 +1,7 @@
 def call() {
-    boolean researchBots = (env.RESEARCH_BOT ?: false) as boolean
-    boolean liqBot = (env.LIQBOT ?: false) as boolean
-    boolean traderBot = (env.TRADERBOT ?: false) as boolean
+    boolean researchBots = ((env.RESEARCH_BOT ?: "false") as String).toLowerCase() == "true"
+    boolean liqBot = ((env.LIQBOT ?: "false") as String).toLowerCase() == "true"
+    boolean traderBot = ((env.TRADERBOT ?: "false") as String).toLowerCase() == "true"
 
     pipeline {
         agent {
@@ -21,6 +21,11 @@ def call() {
             stage('Prepare') {
                 steps {
                     script {
+                        sh 'printenv'
+
+                        print("Liqbot: " + liqBot)
+                        print("Traderbot: " + traderBot)
+                        print("Research-bot: " + researchBots)
                         vegautils.commonCleanup()
                     }
                 }
