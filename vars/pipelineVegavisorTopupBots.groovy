@@ -118,19 +118,17 @@ def call() {
                             )
 
                             sleep 10
-                            withCredentials([
-                                usernamePassword(
-                                    credentialsId: 'digitalocean-s3-credentials',
-                                    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                                    usernameVariable: 'AWS_ACCESS_KEY_ID'
-                                ),
-                            ]) {
+                            withCredentials([sshUserPrivateKey(
+                                credentialsId: 'ssh-vega-network',
+                                keyFileVariable: 'PSSH_KEYFILE',
+                                usernameVariable: 'PSSH_USER'
+                            )]) {
                                 sh '''
                                     ssh \
                                     -o "StrictHostKeyChecking=no" \
                                     -i "''' + PSSH_KEYFILE + '''" \
                                     ''' + PSSH_USER + '''@bots.vega.rocks \
-                                    "systemctl restart  bots-''' + env.NET_NAME + '''.service"'''
+                                    "sudo systemctl restart  bots-''' + env.NET_NAME + '''.service"'''
                             }
                             sleep 60
                             vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
