@@ -117,7 +117,7 @@ def call() {
                                 command: 'topup traderbot --traderbots-url ' + researchBotsURL 
                             )
 
-                            sleep 10
+                            sleep 90 // some time to make sure deposits are reflected in the network
                             withCredentials([sshUserPrivateKey(
                                 credentialsId: 'ssh-vega-network',
                                 keyFileVariable: 'PSSH_KEYFILE',
