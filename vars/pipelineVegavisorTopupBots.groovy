@@ -1,5 +1,7 @@
 def call() {
-    boolean researchBots = (env.RESEARCH_BOT ?: false) as boolean
+    boolean researchBots = ((env.RESEARCH_BOT ?: "false") as String).toLowerCase() == "true"
+    boolean liqBot = ((env.LIQBOT ?: "false") as String).toLowerCase() == "true"
+    boolean traderBot = ((env.TRADERBOT ?: "false") as String).toLowerCase() == "true"
 
     pipeline {
         agent {
@@ -19,14 +21,17 @@ def call() {
             stage('Prepare') {
                 steps {
                     script {
+                        sh 'printenv'
+                        print("params=${params.inspect()}")
+                        print("Liqbot: " + liqBot)
+                        print("Traderbot: " + traderBot)
+                        print("Research-bot: " + researchBots)
                         vegautils.commonCleanup()
                     }
                 }
             }
             stage('Checkout') {
                 steps {
-                    sh 'printenv'
-                    echo "params=${params.inspect()}"
                     gitClone(
                         vegaUrl: 'devopstools',
                         directory:'devopstools',
@@ -39,10 +44,8 @@ def call() {
             }
             stage('Top ups Liqbot') {
                 when {
-                    not {
-                        expression {
-                            researchBots
-                        }
+                    expression {
+                        liqBot
                     }
                 }
                 steps {
@@ -56,10 +59,8 @@ def call() {
             }
             stage('Top ups Traderbot') {
                 when {
-                    not {
-                        expression {
-                            researchBots
-                        }
+                    expression {
+                        traderBot
                     }
                 }
 
@@ -108,7 +109,7 @@ def call() {
 
                 steps {
                     script {
-                        String researchBotsURL = 'https://research-bots-' + env.NET_NAME + '.ops.vega.xyz'
+                        String researchBotsURL = 'https://' + env.NET_NAME + '.bots.vega.rocks'
                         vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
 
                         try {
@@ -116,9 +117,18 @@ def call() {
                                 command: 'topup traderbot --traderbots-url ' + researchBotsURL 
                             )
 
-                            sleep 10
-                            withGoogleSA('gcp-k8s') {
-                                sh "kubectl rollout restart statefulset research-bots-app -n ${env.NET_NAME}"
+                            sleep 90 // some time to make sure deposits are reflected in the network
+                            withCredentials([sshUserPrivateKey(
+                                credentialsId: 'ssh-vega-network',
+                                keyFileVariable: 'PSSH_KEYFILE',
+                                usernameVariable: 'PSSH_USER'
+                            )]) {
+                                sh '''
+                                    ssh \
+                                    -o "StrictHostKeyChecking=no" \
+                                    -i "''' + PSSH_KEYFILE + '''" \
+                                    ''' + PSSH_USER + '''@bots.vega.rocks \
+                                    "sudo systemctl restart  bots-''' + env.NET_NAME + '''.service"'''
                             }
                             sleep 60
                             vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
