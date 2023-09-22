@@ -515,6 +515,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 'run system-tests': {
                   dir('system-tests/scripts') {
                     sh label: 'Vegacapsule version', script: 'vegacapsule version'
+                    sh label: 'which vegacapsule', script: 'which vegacapsule'
                     
                     if (config.fastFail) {
                       // Just execute and fail immediately when something return an error
