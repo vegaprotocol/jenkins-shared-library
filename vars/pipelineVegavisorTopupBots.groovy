@@ -113,10 +113,12 @@ def call() {
                         vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
 
                         try {
-                            withDevopstools(
-                                command: 'topup traderbot --traderbots-url ' + researchBotsURL 
-                            )
-
+                            retry(3) {
+                                withDevopstools(
+                                    command: 'topup traderbot --traderbots-url ' + researchBotsURL 
+                                )
+                            }
+                            
                             sleep 90 // some time to make sure deposits are reflected in the network
                             withCredentials([sshUserPrivateKey(
                                 credentialsId: 'ssh-vega-network',
