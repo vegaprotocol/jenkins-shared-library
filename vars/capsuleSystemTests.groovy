@@ -762,6 +762,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         catchError {
           dir(testNetworkDir) {
+            sleep 3600*72
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
           }
         }
