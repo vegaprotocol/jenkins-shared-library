@@ -345,7 +345,9 @@ unclassified:
   buildStepOperation:
     enabled: false
   casCGlobalConfig:
-    configurationPath: "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins-new.yaml"
+    configurationPath:
+      - "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/all-the-rest.yaml"
+      - "https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/office-agents.yaml"
   # email-ext:
   #   adminRequiredForTemplateTesting: false
   #   allowUnregisteredEnabled: false
