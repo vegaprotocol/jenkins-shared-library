@@ -541,6 +541,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
       }
+      stage('sleep') {
+        steps {
+          script {
+            catchError {
+              sleep 3600*72
+            }
+          }
+        }
+      }
 
       stage('post run tests steps') {
         when {
