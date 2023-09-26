@@ -1,10 +1,6 @@
-Map<String, String> configFiles = [
-    "basic": "resources/grafana-agent-basic.yaml"
-]
-
 boolean supported() {
-    exitCode = (sh returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent') as int
-
+ //   int exitCode = (sh (returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent')) as int
+    int exitCode = 0
     return exitCode == 0
 }
 
@@ -16,11 +12,16 @@ void writeEnvVars(String file, Map<String, String> envVars=[:]) {
 }
 
 void configure(String configName, Map<String, String> extraEnvs=[:]) {
+    Map<String, String> configFiles = [
+        "basic": "grafana-agent-basic.yaml"
+    ]
+
+
     if (!configName in configFiles) {
         error("Grafana-agent config not found for " + configName)
     }
 
-    writeEnvVars(extraEnvs)
+    writeEnvVars("/etc/default/grafana-agent", extraEnvs)
     writeFile (
         text: libraryResource (
             resource: configFiles[configName]
@@ -41,5 +42,5 @@ void stop() {
 
 void cleanup() {
     stop()
-    sh 'sudo rm /etc/grafana-agent.yaml'
+    sh 'sudo rm /etc/grafana-agent.yaml || echo "OK: grafana-agent.yaml not found"'
 }
