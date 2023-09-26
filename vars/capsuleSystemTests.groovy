@@ -74,8 +74,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
-            grafanaAgent.configure("basic", [:])
-            grafanaAgent.start()
+            grafanaAgent.configure("basic", [
+              AGENT_NAME: "${NODE_NAME}",
+            ])
+            grafanaAgent.restart()
             vegautils.commonCleanup()
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")

@@ -20,7 +20,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2102
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -29,7 +29,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2112
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -38,7 +38,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2122
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -47,7 +47,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2132
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -56,7 +56,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2142
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -65,7 +65,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2152
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -74,7 +74,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2162
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -84,7 +84,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2123
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -93,7 +93,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2133
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -102,7 +102,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2143
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -111,7 +111,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2153
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -120,7 +120,7 @@ metrics:
             - targets:
                 - 127.0.0.1:2163
          relabel_configs:
-           - replacement: ${HOSTNAME}
+           - replacement: ${AGENT_NAME}
              source_labels:
                 - __address__
              target_label: instance
@@ -134,7 +134,7 @@ integrations:
     disable_collectors:
       - "mdadm"
     metric_relabel_configs:
-      - replacement: ${HOSTNAME}
+      - replacement: ${AGENT_NAME}
         source_labels:
           - __address__
         target_label: instance

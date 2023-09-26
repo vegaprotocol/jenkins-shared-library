@@ -51,6 +51,13 @@ void stop() {
     }
     sh label: 'Stop grafana-agent', script: 'sudo systemctl stop grafana-agent'
 }
+void restart() {
+    if (!agentSupported()) {
+        print("Grafana agent not supported")
+        return
+    }
+    sh label: 'Restart grafana-agent', script: 'sudo systemctl restart grafana-agent'
+}
 
 void cleanup() {
     if (!agentSupported()) {
