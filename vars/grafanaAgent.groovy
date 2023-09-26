@@ -38,3 +38,8 @@ void start() {
 void stop() {
     sh 'sudo systemctl stop grafana-agent'
 }
+
+void cleanup() {
+    stop()
+    sh 'sudo rm /etc/grafana-agent.yaml'
+}
