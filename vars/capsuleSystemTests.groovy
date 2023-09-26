@@ -74,6 +74,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            grafanaAgent.configure("basic", [
+              AGENT_NAME: "${NODE_NAME}",
+            ])
+            grafanaAgent.restart()
             vegautils.commonCleanup()
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")
@@ -753,6 +757,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
     post {
       always {
+        catchError {
+          script {
+            grafanaAgent.stop()
+            grafanaAgent.cleanup()
+          }
+        }
         catchError {
           script {
             if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
