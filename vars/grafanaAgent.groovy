@@ -17,7 +17,8 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
     }
 
     Map<String, String> configFiles = [
-        "basic": "grafana-agent-basic.yaml"
+        "basic": "grafana-agent-basic.yaml",
+        "node-only": "grafana-agent-node-only.yaml",
     ]
 
 
