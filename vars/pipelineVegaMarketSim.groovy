@@ -33,6 +33,10 @@ void call() {
             stage('CI Config') {
                 steps {
                     script {
+                        grafanaAgent.configure("node-only", [
+                            AGENT_NAME: "${NODE_NAME}",
+                        ])
+                        grafanaAgent.restart()
                         vegautils.commonCleanup()
                     }
                     sh 'printenv'
@@ -195,6 +199,12 @@ void call() {
         } // end: stages
         post {
             always {
+                catchError {
+                    script {
+                        grafanaAgent.stop()
+                        grafanaAgent.cleanup()
+                    }
+                }
                 catchError {
                     // Jenkins does not allow to archive artifacts outside of the workspace
                     script {

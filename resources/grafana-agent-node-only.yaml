@@ -1,0 +1,31 @@
+# For a full configuration reference, see: https://grafana.com/docs/agent/latest/configuration/.
+server:
+  log_level: warn
+
+metrics:
+  global:
+    scrape_interval: 60s
+    remote_write:
+      - url: ${PROMETHEUS_URL}
+        basic_auth:
+          username: ${PROMETHEUS_USERNAME}
+          password: ${PROMETHEUS_PASSWORD}
+
+  wal_directory: '/var/lib/grafana-agent'
+  configs:
+    - name: agent
+      scrape_configs:
+
+integrations:
+  agent:
+    enabled: true
+  node_exporter:
+    enabled: true
+    include_exporter_metrics: true
+    disable_collectors:
+      - "mdadm"
+    metric_relabel_configs:
+      - replacement: ${AGENT_NAME}
+        source_labels:
+          - __address__
+        target_label: instance
