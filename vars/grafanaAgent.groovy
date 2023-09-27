@@ -85,7 +85,7 @@ def getPRInfo() {
     RunWrapper build = currentBuild
     while (true) {
         print("build=${build}")
-        Map<String,​String> envVars = build.getBuildVariables()
+        Map<String, String> envVars = build.getBuildVariables()
         print("build=${envVars}")
         print("upstreamBuilds (${build.upstreamBuilds.size()})=${build.upstreamBuilds}")
         if (build.upstreamBuilds.size() == 0) {
