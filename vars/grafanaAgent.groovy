@@ -1,3 +1,6 @@
+
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
 boolean agentSupported() {
     int exitCode = sh (label: 'Check if grafana agent is supported on this node', returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent') as int
     return exitCode == 0
@@ -15,11 +18,12 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         print("Grafana agent not supported")
         return
     }
+    def (String pr, String pr_build) = getPRInfo()
     Map defaultEnvs = [
-        AGENT_NAME: "${NODE_NAME}",
-        JOB_NAME: "${JOB_BASE_NAME}",
-        PR_NUMBER: "${CHANGE_ID}",
-        JOB_RUN: "${BUILD_NUMBER}",
+        AGENT_NAME: "${env.NODE_NAME}",
+        JOB_NAME: "${env.JOB_BASE_NAME}",
+        PR_NUMBER: "${env.CHANGE_ID}",
+        JOB_RUN: "${env.BUILD_NUMBER}",
     ]
 
     Map grafanaEnvs = defaultEnvs + extraEnvs
@@ -75,4 +79,19 @@ void cleanup() {
     }
     stop()
     sh 'sudo rm /etc/grafana-agent.yaml || echo "OK: grafana-agent.yaml not found"'
+}
+
+def getPRInfo() {
+    RunWrapper build = currentBuild
+    while (true) {
+        print("build=${build}")
+        Map<String,​String> envVars = build.getBuildVariables()
+        print("build=${envVars}")
+        print("upstreamBuilds (${build.upstreamBuilds.size()})=${build.upstreamBuilds}")
+        if (build.upstreamBuilds.size() == 0) {
+            break
+        }
+        build = build.upstreamBuilds[0]
+    }
+    return ["${env.CHANGE_ID}", "${env.BUILD_NUMBER}"]
 }
