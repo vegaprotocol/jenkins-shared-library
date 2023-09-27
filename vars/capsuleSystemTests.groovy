@@ -75,7 +75,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           cleanWs()
           script {
             grafanaAgent.configure("basic", [
-              AGENT_NAME: "${NODE_NAME}",
+              TEST_MARK: "${SYSTEM_TESTS_TEST_MARK}",
+              TEST_DIRECTORY: "${SYSTEM_TESTS_TEST_DIRECTORY}",
             ])
             grafanaAgent.restart()
             vegautils.commonCleanup()

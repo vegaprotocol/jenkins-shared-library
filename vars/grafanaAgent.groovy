@@ -15,6 +15,14 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         print("Grafana agent not supported")
         return
     }
+    Map defaultEnvs = [
+        AGENT_NAME: "${NODE_NAME}",
+        JOB_NAME: "${JOB_BASE_NAME}",
+        PR_NUMBER: "${CHANGE_ID}",
+        JOB_RUN: "${BUILD_NUMBER}",
+    ]
+
+    Map grafanaEnvs = defaultEnvs + extraEnvs
 
     Map<String, String> configFiles = [
         "basic": "grafana-agent-basic.yaml",
@@ -26,7 +34,7 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         error("Grafana-agent config not found for " + configName)
     }
 
-    writeEnvVars("/etc/default/grafana-agent", extraEnvs)
+    writeEnvVars("/etc/default/grafana-agent", grafanaEnvs)
     writeFile (
         text: libraryResource (
             resource: configFiles[configName]
