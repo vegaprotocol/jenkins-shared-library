@@ -118,7 +118,7 @@ Map<String, String> getJobInfo() {
 
     if (!triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()) {
         started_by = "user"
-        started_by_user = ((hudson.model.Cause$UserIdCause) triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').get(0)).getUserName()
+        started_by_user = triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userName
     }
     if (!triggerBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').isEmpty()) {
         started_by = "cron"
