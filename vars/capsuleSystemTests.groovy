@@ -83,7 +83,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")
             String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-            currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME}]"
+            currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME.take(12)}]"
             sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()

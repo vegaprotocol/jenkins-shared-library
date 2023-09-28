@@ -4,7 +4,10 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 /* groovylint-disable-next-line MethodSize */
 void call() {
     String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${ env.SCENARIO ?: '' }"
+    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${ env.SCENARIO ==  ?: '' }"
+    if (env.SCENARIO == "NIGHTLY") {
+      currentBuild.displayName += " (NIGHTLY)"
+    }
     println('pipelineCapsuleSystemTests params: ' + params)
     // this is default scenario for smoke test, but it will require changing for other types
     scenario = [
