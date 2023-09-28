@@ -18,9 +18,9 @@ metrics:
        - job_name: vega0
         static_configs:
           - labels:
-              pr: "${PR_NUMBER}"
               job: "${JOB_NAME}"
-              job_run: "${JOB_RUN}"
+              pr: "${PR}"
+              pr_job_number: "${PR_JOB_NUMBER}"
               test_mark: "${TEST_MARK}"
               test_directory: "${TEST_DIRECTORY}"
          static_configs:

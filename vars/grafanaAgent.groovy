@@ -18,12 +18,12 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         print("Grafana agent not supported")
         return
     }
-    def (String pr, String pr_build) = getPRInfo()
+    def prInfo = getPRInfo()
     Map defaultEnvs = [
         AGENT_NAME: "${env.NODE_NAME}",
-        JOB_NAME: "${env.JOB_BASE_NAME}",
-        PR_NUMBER: "${env.CHANGE_ID}",
-        JOB_RUN: "${env.BUILD_NUMBER}",
+        JOB_NAME: prInfo.job_name,
+        PR: prInfo.pr,
+        PR_JOB_NUMBER: prInfo.pr_job_number,
     ]
 
     Map grafanaEnvs = defaultEnvs + extraEnvs
@@ -82,26 +82,30 @@ void cleanup() {
 }
 
 def getPRInfo() {
-    RunWrapper build = currentBuild
-    while (true) {
-        print("----------")
-        print("build=${build} ()")
-        print("getAbsoluteUrl=${build.getAbsoluteUrl()}")
-        print("getNumber=${build.getNumber()}")
-        print("getDisplayName=${build.getDisplayName()}")
-        print("getDescription=${build.getDescription()}")
-        print("getProjectName=${build.getProjectName()}")
-        Map<String, String> envVars = build.getBuildVariables()
-        print("envVars (${envVars.size()})=${envVars}")
-        print("upstreamBuilds (${build.upstreamBuilds.size()})=${build.upstreamBuilds}")
-        for (int i=0; i<build.upstreamBuilds.size(); i++) {
-            RunWrapper upBuild = build.upstreamBuilds[i]
-            print("upstream (no ${i}) = ${upBuild} (${upBuild.getAbsoluteUrl()})")
-        }
-        if (build.upstreamBuilds.size() == 0) {
+    RunWrapper upBuild = null
+    for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
+        // Find first build that getProjectName() starts with `PR-`
+        if (build.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
+            upBuild = build.upstreamBuilds[i]
             break
         }
-        build = build.upstreamBuilds[0]
     }
-    return ["${env.CHANGE_ID}", "${env.BUILD_NUMBER}"]
+    print("currentBuild.getAbsoluteUrl=${currentBuild.getAbsoluteUrl()}")
+    print("currentBuild.getNumber=${currentBuild.getNumber()}")
+    print("currentBuild.getDisplayName=${currentBuild.getDisplayName()}")
+    print("currentBuild.getDescription=${currentBuild.getDescription()}")
+    print("currentBuild.getProjectName=${currentBuild.getProjectName()}")
+    if (upBuild != null) {
+        print("upBuild.getAbsoluteUrl=${upBuild.getAbsoluteUrl()}")
+        print("upBuild.getNumber=${upBuild.getNumber()}")
+        print("upBuild.getDisplayName=${upBuild.getDisplayName()}")
+        print("upBuild.getDescription=${upBuild.getDescription()}")
+        print("upBuild.getProjectName=${upBuild.getProjectName()}")
+    }
+
+    return [
+        job_name: "${env.JOB_BASE_NAME}",
+        pr: "${env.CHANGE_ID}",
+        pr_job_number: "${env.BUILD_NUMBER}",
+    ]
 }
