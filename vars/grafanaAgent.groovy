@@ -84,10 +84,20 @@ void cleanup() {
 def getPRInfo() {
     RunWrapper build = currentBuild
     while (true) {
-        print("build=${build}")
+        print("----------")
+        print("build=${build} ()")
+        print("getAbsoluteUrl=${build.getAbsoluteUrl()}")
+        print("getNumber=${build.getNumber()}")
+        print("getDisplayName=${build.getDisplayName()}")
+        print("getDescription=${build.getDescription()}")
+        print("getProjectName=${build.getProjectName()}")
         Map<String, String> envVars = build.getBuildVariables()
-        print("build=${envVars}")
+        print("envVars (${envVars.size()})=${envVars}")
         print("upstreamBuilds (${build.upstreamBuilds.size()})=${build.upstreamBuilds}")
+        for (int i=0; i<build.upstreamBuilds.size(); i++) {
+            RunWrapper upBuild = build.upstreamBuilds[i]
+            print("upstream (no ${i}) = ${upBuild} (${upBuild.getAbsoluteUrl()})")
+        }
         if (build.upstreamBuilds.size() == 0) {
             break
         }
