@@ -10,19 +10,18 @@ metrics:
         basic_auth:
           username: ${PROMETHEUS_USERNAME}
           password: ${PROMETHEUS_PASSWORD}
+    external_labels:
+      jenkins_job: "${JENKINS_JOB_NAME}"
+      jenkins_pr: "${JENKINS_PR}"
+      jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
+      jenkins_test_mark: "${JENKINS_TEST_MARK}"
+      jenkins_test_directory: "${JENKINS_TEST_DIRECTORY}"
 
   wal_directory: '/var/lib/grafana-agent'
   configs:
     - name: agent
       scrape_configs:
        - job_name: vega0
-        static_configs:
-          - labels:
-              job: "${JOB_NAME}"
-              pr: "${PR}"
-              pr_job_number: "${PR_JOB_NUMBER}"
-              test_mark: "${TEST_MARK}"
-              test_directory: "${TEST_DIRECTORY}"
          static_configs:
             - targets:
                 - 127.0.0.1:2102

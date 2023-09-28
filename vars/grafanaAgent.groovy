@@ -21,10 +21,10 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
     def prInfo = getPRInfo()
     Map defaultEnvs = [
         AGENT_NAME: "${env.NODE_NAME}",
-        JOB_NAME: prInfo.job_name,
-        JOB_URL: prInfo.job_url,
-        PR: prInfo.pr,
-        PR_JOB_NUMBER: prInfo.pr_job_number,
+        JENKINS_JOB_NAME: prInfo.job_name,
+        JENKINS_JOB_URL: prInfo.job_url,
+        JENKINS_PR: prInfo.pr,
+        JENKINS_PR_JOB_NUMBER: prInfo.pr_job_number,
     ]
 
     Map grafanaEnvs = defaultEnvs + extraEnvs
@@ -108,7 +108,7 @@ def getPRInfo() {
         pr = upBuild.getProjectName()
         pr_job_number = upBuild.getNumber()
     } else {
-        // Probably leave "pr" and "pr_job_number" empty
+        // Probably leave "jenkins_pr" and "jenkins_pr_job_number" empty
     }
 
     return [

@@ -75,14 +75,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           cleanWs()
           script {
             grafanaAgent.configure("basic", [
-              TEST_MARK: "${SYSTEM_TESTS_TEST_MARK}",
-              TEST_DIRECTORY: "${SYSTEM_TESTS_TEST_DIRECTORY}",
+              JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
+              JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
             ])
             grafanaAgent.restart()
             vegautils.commonCleanup()
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")
-            currentBuild.description = "${params.SYSTEM_TESTS_TEST_MARK}, ${params.SYSTEM_TESTS_TEST_DIRECTORY} [${env.NODE_NAME}]"
+            currentBuild.description = "${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME}]"
             sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
