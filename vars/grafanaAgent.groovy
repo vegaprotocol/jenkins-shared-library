@@ -85,8 +85,8 @@ def getPRInfo() {
     RunWrapper upBuild = null
     for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
         // Find first build that getProjectName() starts with `PR-`
-        if (build.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
-            upBuild = build.upstreamBuilds[i]
+        if (currentBuild.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
+            upBuild = currentBuild.upstreamBuilds[i]
             break
         }
     }
