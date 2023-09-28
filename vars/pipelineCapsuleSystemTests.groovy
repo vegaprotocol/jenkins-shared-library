@@ -4,7 +4,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 /* groovylint-disable-next-line MethodSize */
 void call() {
     String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${ env.SCENARIO ==  ?: '' }"
+    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription}"
     if (env.SCENARIO == "NIGHTLY") {
       currentBuild.displayName += " (NIGHTLY)"
     }
