@@ -100,7 +100,7 @@ Map<String, String> getJobInfo() {
         print("allBuilds[${i}].getFullDisplayName=${allBuilds[i].getFullDisplayName()}")
         print("allBuilds[${i}].getFullProjectName=${allBuilds[i].getFullProjectName()}")
 
-        if (allBuilds[i].getBuildCauses('hudson.model.Cause.UpstreamCause').isEmpty()) {
+        if (allBuilds[i].getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause').isEmpty()) {
             // not triggered by upstream build
             triggerBuild = allBuilds[i]
             break
