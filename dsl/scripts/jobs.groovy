@@ -1286,7 +1286,7 @@ def approbationParams(def config=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(config.get('NODE_LABEL','tiny'))
+            defaultValue(config.get('NODE_LABEL','tiny-cloud'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
