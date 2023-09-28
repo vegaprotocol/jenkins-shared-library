@@ -25,7 +25,7 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         JENKINS_JOB_URL: jobInfo.job_url,
         JENKINS_PR: jobInfo.pr,
         JENKINS_PR_JOB_NUMBER: jobInfo.pr_job_number,
-        JENKINS_STARTED_BY: jobInfo.staretd_by,
+        JENKINS_STARTED_BY: jobInfo.started_by,
         JENKINS_STARTED_BY_USER: jobInfo.started_by_user,
     ]
 
