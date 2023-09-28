@@ -1,6 +1,5 @@
 
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
-import hudson.model.Cause$UserIdCause
 
 boolean agentSupported() {
     int exitCode = sh (label: 'Check if grafana agent is supported on this node', returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent') as int
@@ -119,7 +118,7 @@ Map<String, String> getJobInfo() {
 
     if (!triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()) {
         started_by = "user"
-        started_by_user = ((UserIdCause) triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').get(0)).getUserName()
+        started_by_user = ((hudson.model.Cause$UserIdCause) triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').get(0)).getUserName()
     }
     if (!triggerBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').isEmpty()) {
         started_by = "cron"
