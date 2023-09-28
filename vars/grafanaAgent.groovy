@@ -88,14 +88,24 @@ def getPRInfo() {
     String pr = ""
     String pr_job_number = ""
     RunWrapper upBuild = null
+    print("currentBuild.getProjectName=${currentBuild.getProjectName()}")
+    print("currentBuild.getDescription=${currentBuild.getDescription()}")
+    print("currentBuild.getDisplayName=${currentBuild.getDisplayName()}")
+    print("currentBuild.getBuildCauses=${currentBuild.getBuildCauses()}")
+    print("currentBuild.getFullDisplayName=${currentBuild.getFullDisplayName()}")
+    print("currentBuild.getFullProjectName=${currentBuild.getFullProjectName()}")
     if (job_name.startsWith("PR-")) {
         upBuild = currentBuild
         // TODO: update job_name
         // job_name = ...
-        print("currentBuild.getFullDisplayName=${currentBuild.getFullDisplayName()}")
-        print("currentBuild.getFullProjectName=${currentBuild.getFullProjectName()}")
     } else {
         for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
+            print("currentBuild.upstreamBuilds[${i}].getProjectName=${currentBuild.upstreamBuilds[i].getProjectName()}")
+            print("currentBuild.upstreamBuilds[${i}].getDescription=${currentBuild.upstreamBuilds[i].getDescription()}")
+            print("currentBuild.upstreamBuilds[${i}].getDisplayName=${currentBuild.upstreamBuilds[i].getDisplayName()}")
+            print("currentBuild.upstreamBuilds[${i}].getBuildCauses=${currentBuild.upstreamBuilds[i].getBuildCauses()}")
+            print("currentBuild.upstreamBuilds[${i}].getFullDisplayName=${currentBuild.upstreamBuilds[i].getFullDisplayName()}")
+            print("currentBuild.upstreamBuilds[${i}].getFullProjectName=${currentBuild.upstreamBuilds[i].getFullProjectName()}")
             // Find first build that getProjectName() starts with `PR-`
             if (currentBuild.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
                 upBuild = currentBuild.upstreamBuilds[i]
