@@ -11,6 +11,7 @@ metrics:
           username: ${PROMETHEUS_USERNAME}
           password: ${PROMETHEUS_PASSWORD}
     external_labels:
+      instance: "${AGENT_NAME}"
       jenkins_job: "${JENKINS_JOB_NAME}"
       jenkins_pr: "${JENKINS_PR}"
       jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
@@ -21,128 +22,63 @@ metrics:
   configs:
     - name: agent
       scrape_configs:
-       - job_name: vega0
-         static_configs:
+        - job_name: vega0
+          static_configs:
             - targets:
                 - 127.0.0.1:2102
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega1
-         static_configs:
+        - job_name: vega1
+          static_configs:
             - targets:
                 - 127.0.0.1:2112
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega2
-         static_configs:
+        - job_name: vega2
+          static_configs:
             - targets:
                 - 127.0.0.1:2122
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega3
-         static_configs:
+        - job_name: vega3
+          static_configs:
             - targets:
                 - 127.0.0.1:2132
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega4
-         static_configs:
+        - job_name: vega4
+          static_configs:
             - targets:
                 - 127.0.0.1:2142
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega5
-         static_configs:
+        - job_name: vega5
+          static_configs:
             - targets:
                 - 127.0.0.1:2152
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: vega6
-         static_configs:
+        - job_name: vega6
+          static_configs:
             - targets:
                 - 127.0.0.1:2162
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
 
-       - job_name: datanode2
-         static_configs:
+        - job_name: datanode2
+          static_configs:
             - targets:
                 - 127.0.0.1:2123
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: datanode3
-         static_configs:
+        - job_name: datanode3
+          static_configs:
             - targets:
                 - 127.0.0.1:2133
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: datanode4
-         static_configs:
+        - job_name: datanode4
+          static_configs:
             - targets:
                 - 127.0.0.1:2143
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: datanode5
-         static_configs:
+        - job_name: datanode5
+          static_configs:
             - targets:
                 - 127.0.0.1:2153
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
-       - job_name: datanode6
-         static_configs:
+        - job_name: datanode6
+          static_configs:
             - targets:
                 - 127.0.0.1:2163
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
 
-       - job_name: nomad
-         metrics_path: /v1/metrics
-         params:
+        - job_name: nomad
+          metrics_path: /v1/metrics
+          params:
             format: ['prometheus']
-         static_configs:
+          static_configs:
             - targets:
                 - 127.0.0.1:4646
-         relabel_configs:
-           - replacement: ${AGENT_NAME}
-             source_labels:
-                - __address__
-             target_label: instance
 
 integrations:
   agent:
