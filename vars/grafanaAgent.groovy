@@ -22,6 +22,7 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
     Map defaultEnvs = [
         AGENT_NAME: "${env.NODE_NAME}",
         JOB_NAME: prInfo.job_name,
+        JOB_URL: prInfo.job_url,
         PR: prInfo.pr,
         PR_JOB_NUMBER: prInfo.pr_job_number,
     ]
@@ -82,30 +83,38 @@ void cleanup() {
 }
 
 def getPRInfo() {
+    String job_name = currentBuild.getProjectName()
+    String job_url = currentBuild.getAbsoluteUrl()
+    String pr = ""
+    String pr_job_number = ""
     RunWrapper upBuild = null
-    for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
-        // Find first build that getProjectName() starts with `PR-`
-        if (currentBuild.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
-            upBuild = currentBuild.upstreamBuilds[i]
-            break
+    if (job_name.startsWith("PR-")) {
+        upBuild = currentBuild
+        // TODO: update job_name
+        // job_name = ...
+        print("currentBuild.getFullDisplayName=${currentBuild.getFullDisplayName()}")
+        print("currentBuild.getFullProjectName=${currentBuild.getFullProjectName()}")
+    } else {
+        for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
+            // Find first build that getProjectName() starts with `PR-`
+            if (currentBuild.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
+                upBuild = currentBuild.upstreamBuilds[i]
+                break
+            }
         }
     }
-    print("currentBuild.getAbsoluteUrl=${currentBuild.getAbsoluteUrl()}")
-    print("currentBuild.getNumber=${currentBuild.getNumber()}")
-    print("currentBuild.getDisplayName=${currentBuild.getDisplayName()}")
-    print("currentBuild.getDescription=${currentBuild.getDescription()}")
-    print("currentBuild.getProjectName=${currentBuild.getProjectName()}")
+
     if (upBuild != null) {
-        print("upBuild.getAbsoluteUrl=${upBuild.getAbsoluteUrl()}")
-        print("upBuild.getNumber=${upBuild.getNumber()}")
-        print("upBuild.getDisplayName=${upBuild.getDisplayName()}")
-        print("upBuild.getDescription=${upBuild.getDescription()}")
-        print("upBuild.getProjectName=${upBuild.getProjectName()}")
+        pr = upBuild.getProjectName()
+        pr_job_number = upBuild.getNumber()
+    } else {
+        // Probably leave "pr" and "pr_job_number" empty
     }
 
     return [
-        job_name: "${env.JOB_BASE_NAME}",
-        pr: "${env.CHANGE_ID}",
-        pr_job_number: "${env.BUILD_NUMBER}",
+        job_name: job_name,
+        job_url: job_url,
+        pr: pr,
+        pr_job_number: pr_job_number,
     ]
 }
