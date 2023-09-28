@@ -18,13 +18,15 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         print("Grafana agent not supported")
         return
     }
-    def prInfo = getPRInfo()
+    def jobInfo = getJobInfo()
     Map defaultEnvs = [
         AGENT_NAME: "${env.NODE_NAME}",
-        JENKINS_JOB_NAME: prInfo.job_name,
-        JENKINS_JOB_URL: prInfo.job_url,
-        JENKINS_PR: prInfo.pr,
-        JENKINS_PR_JOB_NUMBER: prInfo.pr_job_number,
+        JENKINS_JOB_NAME: jobInfo.job_name,
+        JENKINS_JOB_URL: jobInfo.job_url,
+        JENKINS_PR: jobInfo.pr,
+        JENKINS_PR_JOB_NUMBER: jobInfo.pr_job_number,
+        JENKINS_STARTED_BY: jobInfo.staretd_by,
+        JENKINS_STARTED_BY_USER: jobInfo.started_by_user,
     ]
 
     Map grafanaEnvs = defaultEnvs + extraEnvs
@@ -82,49 +84,72 @@ void cleanup() {
     sh 'sudo rm /etc/grafana-agent.yaml || echo "OK: grafana-agent.yaml not found"'
 }
 
-def getPRInfo() {
-    String job_name = currentBuild.getProjectName()
-    String job_url = currentBuild.getAbsoluteUrl()
-    String pr = ""
-    String pr_job_number = ""
-    RunWrapper upBuild = null
-    print("currentBuild.getProjectName=${currentBuild.getProjectName()}")
-    print("currentBuild.getDescription=${currentBuild.getDescription()}")
-    print("currentBuild.getDisplayName=${currentBuild.getDisplayName()}")
-    print("currentBuild.getBuildCauses=${currentBuild.getBuildCauses()}")
-    print("currentBuild.getFullDisplayName=${currentBuild.getFullDisplayName()}")
-    print("currentBuild.getFullProjectName=${currentBuild.getFullProjectName()}")
-    if (job_name.startsWith("PR-")) {
-        upBuild = currentBuild
-        // TODO: update job_name
-        // job_name = ...
-    } else {
-        for (int i=0; i<currentBuild.upstreamBuilds.size(); i++) {
-            print("currentBuild.upstreamBuilds[${i}].getProjectName=${currentBuild.upstreamBuilds[i].getProjectName()}")
-            print("currentBuild.upstreamBuilds[${i}].getDescription=${currentBuild.upstreamBuilds[i].getDescription()}")
-            print("currentBuild.upstreamBuilds[${i}].getDisplayName=${currentBuild.upstreamBuilds[i].getDisplayName()}")
-            print("currentBuild.upstreamBuilds[${i}].getBuildCauses=${currentBuild.upstreamBuilds[i].getBuildCauses()}")
-            print("currentBuild.upstreamBuilds[${i}].getFullDisplayName=${currentBuild.upstreamBuilds[i].getFullDisplayName()}")
-            print("currentBuild.upstreamBuilds[${i}].getFullProjectName=${currentBuild.upstreamBuilds[i].getFullProjectName()}")
-            // Find first build that getProjectName() starts with `PR-`
-            if (currentBuild.upstreamBuilds[i].getProjectName().startsWith("PR-")) {
-                upBuild = currentBuild.upstreamBuilds[i]
-                break
-            }
+Map<String, String> getJobInfo() {
+    //
+    // Find build not triggered by upstream build
+    //
+    RunWrapper triggerBuild = null
+    allBuilds = [currentBuild] + currentBuild.upstreamBuilds
+    print("allBuilds=${allBuilds}")
+    for (int i=0; i<allBuilds.size(); i++) {
+        // TODO: remove extra logging at some point
+        print("allBuilds[${i}].getProjectName=${allBuilds[i].getProjectName()}")
+        print("allBuilds[${i}].getDescription=${allBuilds[i].getDescription()}")
+        print("allBuilds[${i}].getDisplayName=${allBuilds[i].getDisplayName()}")
+        print("allBuilds[${i}].getBuildCauses=${allBuilds[i].getBuildCauses()}")
+        print("allBuilds[${i}].getFullDisplayName=${allBuilds[i].getFullDisplayName()}")
+        print("allBuilds[${i}].getFullProjectName=${allBuilds[i].getFullProjectName()}")
+
+        if (allBuilds[i].getBuildCauses('hudson.model.Cause.UpstreamCause').isEmpty()) {
+            // not triggered by upstream build
+            triggerBuild = allBuilds[i]
+            break
         }
     }
-
-    if (upBuild != null) {
-        pr = upBuild.getProjectName()
-        pr_job_number = upBuild.getNumber()
-    } else {
-        // Probably leave "jenkins_pr" and "jenkins_pr_job_number" empty
+    if (triggerBuild == null) {
+        print("SOMETHING IS WRONG - could not find trigger build")
+        triggerBuild = currentBuild
     }
+    //
+    // Find who started the build
+    //
+    String started_by = ""
+    String started_by_user = ""
 
+    if (!triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()) {
+        started_by = "user"
+        started_by_user = ((UserIdCause) triggerBuild.getBuildCauses('hudson.model.Cause$UserIdCause').get(0)).getUserName()
+    }
+    if (!triggerBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').isEmpty()) {
+        started_by = "cron"
+    }
+    if (!triggerBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
+        started_by = "pr"
+    }
+    //
+    // Get PR info if started by PR
+    //
+    String pr = ""
+    String pr_job_number = ""
+    if (triggerBuild.getProjectName().startsWith("PR-")) {
+        pr = triggerBuild.getProjectName()
+        pr_job_number = triggerBuild.getNumber()
+    }
+    //
+    // Get Job name
+    //
+    String job_name = currentBuild.getProjectName()
+    String job_url = currentBuild.getAbsoluteUrl()
+    if (job_name.startsWith("PR-")) {
+        job_name = currentBuild.getFullProjectName().split("/")[-2]
+    }
     return [
+        build: triggerBuild,
         job_name: job_name,
         job_url: job_url,
         pr: pr,
         pr_job_number: pr_job_number,
+        started_by: started_by,
+        started_by_user: started_by_user,
     ]
 }

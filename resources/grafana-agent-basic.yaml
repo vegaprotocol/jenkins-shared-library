@@ -16,6 +16,8 @@ metrics:
       jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
       jenkins_test_mark: "${JENKINS_TEST_MARK}"
       jenkins_test_directory: "${JENKINS_TEST_DIRECTORY}"
+      jenkins_started_by: "${JENKINS_STARTED_BY}"
+      jenkins_started_by_user: "${JENKINS_STARTED_BY_USER}"
 
   wal_directory: '/var/lib/grafana-agent'
   configs:
