@@ -1,5 +1,6 @@
 
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+import hudson.model.Cause$UserIdCause
 
 boolean agentSupported() {
     int exitCode = sh (label: 'Check if grafana agent is supported on this node', returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent') as int
