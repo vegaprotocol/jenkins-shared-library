@@ -4,7 +4,7 @@ server:
 
 metrics:
   global:
-    scrape_interval: 60s
+    scrape_interval: 15s
     remote_write:
       - url: ${PROMETHEUS_URL}
         basic_auth:
