@@ -2,10 +2,8 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call() {
-    if (currentBuild.upstreamBuilds) {
-        RunWrapper upBuild = currentBuild.upstreamBuilds[0]
-        currentBuild.displayName = "#${currentBuild.id} - ${upBuild.fullProjectName} #${upBuild.id}"
-    }
+    String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription}"
     int parallelWorkers = params.PARALLEL_WORKERS as int ?: 1
     String testFunction = params.TEST_FUNCTION ?: ''
     String logLevel = params.LOG_LEVEL ?: 'INFO'
