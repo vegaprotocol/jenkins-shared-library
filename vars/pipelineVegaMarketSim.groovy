@@ -31,7 +31,7 @@ void call() {
             stage('CI Config') {
                 steps {
                     script {
-                        grafanaAgent.configure("node-only", [])
+                        grafanaAgent.configure("node-only", [:])
                         grafanaAgent.restart()
                         vegautils.commonCleanup()
                     }
