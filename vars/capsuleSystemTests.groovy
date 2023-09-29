@@ -75,13 +75,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           cleanWs()
           script {
             grafanaAgent.configure("basic", [
-              AGENT_NAME: "${NODE_NAME}",
+              JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
+              JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
             ])
             grafanaAgent.restart()
             vegautils.commonCleanup()
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")
-            currentBuild.description = "${params.SYSTEM_TESTS_TEST_MARK}, ${params.SYSTEM_TESTS_TEST_DIRECTORY} [${env.NODE_NAME}]"
+            String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+            currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME.take(12)}]"
             sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
@@ -91,6 +93,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
+              currentBuild.description = "ssh ${publicIP}, nomad: http://" + publicIP + ":4646"
 
               print("Parameters")
               print("==========")

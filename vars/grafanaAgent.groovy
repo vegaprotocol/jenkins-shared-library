@@ -1,3 +1,6 @@
+
+
+
 boolean agentSupported() {
     int exitCode = sh (label: 'Check if grafana agent is supported on this node', returnStatus: true, script: 'systemctl list-units --all | grep grafana-agent') as int
     return exitCode == 0
@@ -15,6 +18,19 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         print("Grafana agent not supported")
         return
     }
+    def jobInfo = jenkinsutils.getJobInfo()
+    Map defaultEnvs = [
+        AGENT_NAME: "${env.NODE_NAME}",
+        JENKINS_JOB_NAME: jobInfo.job_name,
+        JENKINS_JOB_URL: jobInfo.job_url,
+        JENKINS_PR: jobInfo.pr,
+        JENKINS_PR_JOB_NUMBER: jobInfo.pr_job_number,
+        JENKINS_PR_REPO: jobInfo.pr_repo,
+        JENKINS_STARTED_BY: jobInfo.started_by,
+        JENKINS_STARTED_BY_USER: jobInfo.started_by_user,
+    ]
+
+    Map grafanaEnvs = defaultEnvs + extraEnvs
 
     Map<String, String> configFiles = [
         "basic": "grafana-agent-basic.yaml",
@@ -26,7 +42,7 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
         error("Grafana-agent config not found for " + configName)
     }
 
-    writeEnvVars("/etc/default/grafana-agent", extraEnvs)
+    writeEnvVars("/etc/default/grafana-agent", grafanaEnvs)
     writeFile (
         text: libraryResource (
             resource: configFiles[configName]
