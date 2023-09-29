@@ -10,6 +10,11 @@ metrics:
         basic_auth:
           username: ${PROMETHEUS_USERNAME}
           password: ${PROMETHEUS_PASSWORD}
+      write_relabel_configs:
+        - replacement: ${AGENT_NAME}
+          source_labels:
+            - __address__
+          target_label: instance
     external_labels:
       jenkins_job: "${JENKINS_JOB_NAME}"
       jenkins_pr: "${JENKINS_PR}"
@@ -19,11 +24,6 @@ metrics:
       jenkins_test_directory: "${JENKINS_TEST_DIRECTORY}"
       jenkins_started_by: "${JENKINS_STARTED_BY}"
       jenkins_started_by_user: "${JENKINS_STARTED_BY_USER}"
-    write_relabel_configs:
-      - replacement: ${AGENT_NAME}
-        source_labels:
-          - __address__
-        target_label: instance
 
 
   wal_directory: '/var/lib/grafana-agent'
