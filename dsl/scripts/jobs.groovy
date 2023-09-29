@@ -1409,6 +1409,11 @@ def jobs = [
                 description('Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
                 trim(true)
             }
+            booleanParam {
+                name('CHANGE_VERSION_IN_BINARY')
+                defaultValue(true)
+                description('Modify code and replace version with custom version. When set to false, the binary will have original version, but it will be uploaded to generated version in vega-dev-releases repo')
+            }
             stringParam {
                 name('JENKINS_SHARED_LIB_BRANCH')
                 defaultValue('main')
