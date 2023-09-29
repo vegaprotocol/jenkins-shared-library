@@ -102,14 +102,14 @@ void call() {
                                     } else {
                                         versionTag = versionOverride
                                     }
-                                }
-                                if (params?.CHANGE_VERSION_IN_BINARY) {
-                                    sh label: 'Add hash to version', script: """#!/bin/bash -e
-                                        sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                                    """
-                                    print('Changed version in the code to: ' + versionTag)
-                                } else {
-                                    print('Unchanged version in the code: ' + orgVersion)
+                                    if (params?.CHANGE_VERSION_IN_BINARY) {
+                                        sh label: 'Add hash to version', script: """#!/bin/bash -e
+                                            sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
+                                        """
+                                        print('Changed version in the code to: ' + versionTag)
+                                    } else {
+                                        print('Unchanged version in the code: ' + orgVersion)
+                                    }
                                 }
                             }
                         }
