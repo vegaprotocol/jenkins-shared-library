@@ -10,11 +10,11 @@ metrics:
         basic_auth:
           username: ${PROMETHEUS_USERNAME}
           password: ${PROMETHEUS_PASSWORD}
-      write_relabel_configs:
-        - replacement: ${AGENT_NAME}
-          source_labels:
-            - __address__
-          target_label: instance
+        write_relabel_configs:
+          - replacement: ${AGENT_NAME}
+            source_labels:
+              - __address__
+            target_label: instance
     external_labels:
       jenkins_job: "${JENKINS_JOB_NAME}"
       jenkins_pr: "${JENKINS_PR}"
