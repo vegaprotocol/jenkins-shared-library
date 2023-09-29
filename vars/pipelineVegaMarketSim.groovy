@@ -31,7 +31,7 @@ void call() {
             stage('CI Config') {
                 steps {
                     script {
-                        grafanaAgent.configure("node-only", [:])
+                        grafanaAgent.configure("market-sim", [:])
                         grafanaAgent.restart()
                         vegautils.commonCleanup()
                     }
@@ -161,7 +161,7 @@ void call() {
                         steps {
                             /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh ${NUM_FUZZ_STEPS}
+                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
                         post {
