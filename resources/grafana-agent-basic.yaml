@@ -14,6 +14,7 @@ metrics:
       jenkins_job: "${JENKINS_JOB_NAME}"
       jenkins_pr: "${JENKINS_PR}"
       jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
+      jenkins_pr_repo: "${JENKINS_PR_REPO}"
       jenkins_test_mark: "${JENKINS_TEST_MARK}"
       jenkins_test_directory: "${JENKINS_TEST_DIRECTORY}"
       jenkins_started_by: "${JENKINS_STARTED_BY}"

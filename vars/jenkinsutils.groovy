@@ -48,9 +48,11 @@ Map<String, String> getJobInfo() {
     //
     String pr = ""
     String pr_job_number = ""
+    String pr_repo = ""
     if (triggerBuild.getProjectName().startsWith("PR-")) {
         pr = triggerBuild.getProjectName()
         pr_job_number = triggerBuild.getNumber()
+        pr_repo = triggerBuild.getFullProjectName().split("/")[-2]
     }
     //
     // Get Job name
@@ -66,6 +68,7 @@ Map<String, String> getJobInfo() {
         job_url: job_url,
         pr: pr,
         pr_job_number: pr_job_number,
+        pr_repo: pr_repo,
         started_by: started_by,
         started_by_user: started_by_user,
     ]
@@ -75,7 +78,7 @@ String getNicePrefixForJobDescription() {
     String description = ""
     def jobInfo = getJobInfo()
     if (jobInfo.pr) {
-        description += "[${jobInfo.pr} (${jobInfo.pr_job_number})]"
+        description += "[${jobInfo.pr_repo}/${jobInfo.pr} (${jobInfo.pr_job_number})]"
     } else if (jobInfo.started_by_user) {
         description += "${jobInfo.started_by_user}"
     } else {
