@@ -19,6 +19,7 @@ void call(Map config=[:]) {
 
     String remoteServer
     String jenkinsAgentIP
+    String monitoringDashboardURL
 
     // api output placeholders
     def TM_VERSION
@@ -56,15 +57,8 @@ void call(Map config=[:]) {
                     script {
                         // initial cleanup
                         vegautils.commonCleanup()
-                        // set job Title and Description
-                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
-                        currentBuild.description = " [${env.NODE_NAME}]"
-                        // Setup grafana-agent
-                        grafanaAgent.configure("snapshot", [
-                            JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
-                        ])
-                        grafanaAgent.restart()
+                        // init global variables
+                        monitoringDashboardURL = "https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
                         jenkinsAgentIP = sh (
                             'script': '''
                                 hostname -I | awk '{print $1}'
@@ -72,7 +66,16 @@ void call(Map config=[:]) {
                             returnStdout: true,
                         ).trim()
                         echo "Jenkins Agent IP: ${jenkinsAgentIP}"
-                        echo "Metrics: https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
+                        echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                        // set job Title and Description
+                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                        currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
+                        // Setup grafana-agent
+                        grafanaAgent.configure("snapshot", [
+                            JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                        ])
+                        grafanaAgent.restart()
                     }
                 }
 
@@ -470,13 +473,13 @@ void call(Map config=[:]) {
                             },
                             'Info': {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentIP}. Some useful links:"
-                                echo "http://${jenkinsAgentIP}:3003/statistics"
-                                echo "http://${jenkinsAgentIP}:3008/graphql/"
-                                echo "http://${jenkinsAgentIP}:3008/api/v2/epoch"
-                                echo "http://${jenkinsAgentIP}:3008/statistics"
-                                echo "https://${remoteServerDataNode}/statistics"
-                                echo "${remoteServerCometBFT}/net_info"
-                                echo "https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
+                                echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                                echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                                echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                                echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                                echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                                echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                                echo "Monitoring Dashboard: ${monitoringDashboardURL}"
                             }
                         )
                     }
