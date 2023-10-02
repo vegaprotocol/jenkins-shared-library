@@ -115,11 +115,13 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       }
 
       stage('INFO') {
+        steps {
           // Print Info only, do not execute anythig
           echo "Nomad UI: http://${jenkinsAgentIP}:4646"
           echo "Jenkins Agent IP: ${jenkinsAgentIP}"
           echo "Jenkins Agent name: ${env.NODE_NAME}"
           echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+        }
       }
 
       stage('get source codes') {

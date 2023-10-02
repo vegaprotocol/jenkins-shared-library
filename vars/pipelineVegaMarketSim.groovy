@@ -57,10 +57,12 @@ void call() {
             }
 
             stage('INFO') {
-                // Print Info only, do not execute anythig
-                echo "Jenkins Agent IP: ${jenkinsAgentIP}"
-                echo "Jenkins Agent name: ${env.NODE_NAME}"
-                echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                steps {
+                    // Print Info only, do not execute anythig
+                    echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                    echo "Jenkins Agent name: ${env.NODE_NAME}"
+                    echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                }
             }
 
             stage('Clone vega-market-sim'){
