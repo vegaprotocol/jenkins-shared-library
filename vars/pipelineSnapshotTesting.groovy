@@ -79,6 +79,19 @@ void call(Map config=[:]) {
                     }
                 }
 
+                stage('INFO') {
+                    // Print Info only, do not execute anythig
+                    echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                    echo "Jenkins Agent name: ${env.NODE_NAME}"
+                    echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                    echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                    echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                    echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                    echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                    echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                    echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                }
+
                 // give extra 12 minutes for setup
                 timeout(time: params.TIMEOUT.toInteger() + 12, unit: 'MINUTES') {
                     stage('Clone devopstools') {
