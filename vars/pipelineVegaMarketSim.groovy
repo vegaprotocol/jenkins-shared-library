@@ -32,7 +32,7 @@ void call() {
                 steps {
                     script {
                         // init global variables
-                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
                         jenkinsAgentIP = sh (
                             'script': '''
                                 hostname -I | awk '{print $1}'
