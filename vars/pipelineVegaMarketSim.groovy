@@ -33,12 +33,7 @@ void call() {
                     script {
                         // init global variables
                         monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
-                        jenkinsAgentIP = sh (
-                            'script': '''
-                                hostname -I | awk '{print $1}'
-                            ''',
-                            returnStdout: true,
-                        ).trim()
+                        jenkinsAgentIP = agent.getPublicIP()
                         echo "Jenkins Agent IP: ${jenkinsAgentIP}"
                         echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
                         // set job Title and Description
