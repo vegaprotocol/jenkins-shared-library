@@ -65,6 +65,14 @@ void call(Map config=[:]) {
                             JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
                         ])
                         grafanaAgent.restart()
+                        jenkinsAgentIP = sh (
+                            'script': '''
+                                hostname -I | awk '{print $1}'
+                            ''',
+                            returnStdout: true,
+                        ).trim()
+                        echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                        echo "Metrics: https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
                     }
                 }
 
@@ -77,36 +85,6 @@ void call(Map config=[:]) {
                             credentialsId: 'vega-ci-bot',
                             directory: 'devopstools'
                         ])
-                    }
-                    stage('CI config') {
-                        // Printout all configuration variables
-                        // sh 'printenv'
-                        // echo "params=${params.inspect()}"
-                        // // digitalocean
-                        // if (params.NODE_LABEL == "do-snapshot") {
-                        //     jenkinsAgentIP = sh(
-                        //         script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
-                        //         returnStdout: true,
-                        //     ).trim()
-                        // }
-                        // // aws
-                        // else {
-                        //     jenkinsAgentIP = sh(
-                        //         script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
-                        //         returnStdout: true,
-                        //     ).trim()
-                        // }
-                        // echo "jenkinsAgentIP=${jenkinsAgentIP}"
-                        // if (!jenkinsAgentIP) {
-                        //     error("Couldn't resolve jenkinsAgentIP")
-                        // }
-                        // it's private ip but should work
-                        jenkinsAgentIP = sh (
-                            'script': '''
-                                hostname -I | awk '{print $1}'
-                            ''',
-                            returnStdout: true,
-                        ).trim()
                     }
 
                     stage('Find available remote server') {
@@ -498,6 +476,7 @@ void call(Map config=[:]) {
                                 echo "http://${jenkinsAgentIP}:3008/statistics"
                                 echo "https://${remoteServerDataNode}/statistics"
                                 echo "${remoteServerCometBFT}/net_info"
+                                echo "https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
                             }
                         )
                     }
