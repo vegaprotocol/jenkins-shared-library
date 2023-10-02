@@ -110,7 +110,7 @@ def call() {
                 steps {
                     script {
                         String researchBotsURL = 'https://' + env.NET_NAME + '.bots.vega.rocks/traders'
-                        vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
+                        vegautils.waitForValidHTTPCode(researchBotsURL, 20, 5)
 
                         try {
                             retry(3) {
@@ -133,7 +133,7 @@ def call() {
                                     "sudo systemctl restart  bots-''' + env.NET_NAME + '''.service"'''
                             }
                             sleep 60
-                            vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
+                            vegautils.waitForValidHTTPCode(researchBotsURL, 20, 5)
                         } catch(err) {
                             print(err)
                             currentBuild.result = 'UNSTABLE'
