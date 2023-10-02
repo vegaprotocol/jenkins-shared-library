@@ -53,6 +53,11 @@ void call(Map config=[:]) {
                 cleanWs()
                 script {
                     vegautils.commonCleanup()
+                    String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                    grafanaAgent.configure("snapshot", [
+                        JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                    ])
                     currentBuild.description = " [${env.NODE_NAME}]"
                 }
             }
@@ -297,6 +302,8 @@ void call(Map config=[:]) {
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
                                         ./dasel put string -f vega_config/config/node/config.toml Broker.Socket.DialTimeout "4h"
+                                        ./dasel put bool -f vega_config/config/node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/node/config.toml Metrics.Port 2112
                                         cat vega_config/config/node/config.toml
                                     """
                             },
@@ -312,6 +319,8 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount 2001
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/data-node/config.toml Metrics.Port 2113
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
