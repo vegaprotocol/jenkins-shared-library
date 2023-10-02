@@ -5,6 +5,8 @@ void call() {
     int parallelWorkers = params.PARALLEL_WORKERS as int ?: 1
     String testFunction = params.TEST_FUNCTION ?: ''
     String logLevel = params.LOG_LEVEL ?: 'INFO'
+    String jenkinsAgentIP
+    String monitoringDashboardURL
     pipeline {
         agent {
             label params.NODE_LABEL
@@ -30,8 +32,8 @@ void call() {
                 steps {
                     script {
                         // init global variables
-                        String monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
-                        String jenkinsAgentIP = sh (
+                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                        jenkinsAgentIP = sh (
                             'script': '''
                                 hostname -I | awk '{print $1}'
                             ''',
@@ -53,6 +55,14 @@ void call() {
                     echo "params=${params.inspect()}"
                 }
             }
+
+            stage('INFO') {
+                // Print Info only, do not execute anythig
+                echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                echo "Jenkins Agent name: ${env.NODE_NAME}"
+                echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+            }
+
             stage('Clone vega-market-sim'){
                 options { retry(3) }
                 steps {

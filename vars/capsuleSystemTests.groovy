@@ -55,6 +55,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   String protocolUpgradeVersion = 'v99.9.9-system-tests-' + currentBuild.number
 
+  String jenkinsAgentIP
+  String monitoringDashboardURL
+
   pipeline {
     agent {
       label agentLabel
@@ -92,12 +95,12 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
-              String monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
-              publicIP = agent.getPublicIP()
-              print("The box public IP is: " + publicIP)
-              print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
+              monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
+              jenkinsAgentIP = agent.getPublicIP()
+              print("The box public IP is: " + jenkinsAgentIP)
+              print("You may want to visit the nomad web interface: http://" + jenkinsAgentIP + ":4646")
               print("The nomad interface is available only when the tests are running")
-              currentBuild.description = "ssh ${publicIP}, nomad: http://" + publicIP + ":4646, Monitoring: ${monitoringDashboardURL}"
+              currentBuild.description = "ssh ${jenkinsAgentIP}, nomad: http://" + jenkinsAgentIP + ":4646, Monitoring: ${monitoringDashboardURL}"
               print("Monitoring Dashboard URL: " + monitoringDashboardURL)
 
               print("Parameters")
@@ -109,6 +112,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
           }
         }
+      }
+
+      stage('INFO') {
+          // Print Info only, do not execute anythig
+          echo "Nomad UI: http://${jenkinsAgentIP}:4646"
+          echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+          echo "Jenkins Agent name: ${env.NODE_NAME}"
+          echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
       }
 
       stage('get source codes') {
