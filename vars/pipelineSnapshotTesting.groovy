@@ -221,7 +221,7 @@ void call(Map config=[:]) {
                                 SNAPSHOT_HASH = snapshotInfo['blockHash']
                                 println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
                                 println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
-                                currentBuild.description = "block: ${SNAPSHOT_HEIGHT} [${env.NODE_NAME}]"
+                                currentBuild.description += " block: ${SNAPSHOT_HEIGHT}"
 
                                 // Check TM version
                                 def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
@@ -485,24 +485,24 @@ void call(Map config=[:]) {
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
-                            currentBuild.description = "no CHAIN_STATUS_CONNECTED [${env.NODE_NAME}]"
+                            currentBuild.description += "no CHAIN_STATUS_CONNECTED"
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
-                            currentBuild.description = "block did not increase [${env.NODE_NAME}]"
+                            currentBuild.description += "block did not increase"
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
                         echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
-                            currentBuild.description = "did not catch up [${env.NODE_NAME}]"
+                            currentBuild.description += "did not catch up"
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
                         }
                         if (notHealthyAgainCount > 0) {
-                            currentBuild.description = "became unhealthy (${notHealthyAgainCount}) [${env.NODE_NAME}]"
+                            currentBuild.description += "became unhealthy (${notHealthyAgainCount})"
                             extraMsg = extraMsg ?: "became unhealthy ${notHealthyAgainCount} times."
                             error("Non-validator became unhealthy ${notHealthyAgainCount} times.")
                         }
