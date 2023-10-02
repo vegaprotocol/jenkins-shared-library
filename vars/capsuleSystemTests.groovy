@@ -95,7 +95,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
-              monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
+              monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([test_mark: params.SYSTEM_TESTS_TEST_MARK, test_directory: params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS])
               jenkinsAgentIP = agent.getPublicIP()
               print("The box public IP is: " + jenkinsAgentIP)
               print("You may want to visit the nomad web interface: http://" + jenkinsAgentIP + ":4646")
