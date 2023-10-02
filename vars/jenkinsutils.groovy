@@ -96,10 +96,10 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
         monitoringURL += "var-job=${jobInfo.job_name}&"
     }
     if (extraVars?.test_mark) {
-        monitoringURL += "var-test_mark=${jobInfo.test_mark}&"
+        monitoringURL += "var-test_mark=${extraVars.test_mark}&"
     }
     if (extraVars?.test_directory) {
-        monitoringURL += "var-test_directory=${jobInfo.test_directory}&"
+        monitoringURL += "var-test_directory=${extraVars.test_directory}&"
     }
     if (jobInfo?.pr) {
         monitoringURL += "var-pr=${jobInfo.pr}&"
