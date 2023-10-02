@@ -86,3 +86,14 @@ String getNicePrefixForJobDescription() {
     }
     return description
 }
+
+String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
+    String monitoringURL = "https://monitoring.vega.community/d/system-tests?"
+    def jobInfo = getJobInfo()
+    if (extraVars?.job) {
+        monitoringURL += "var-job=${extraVars.job}&"
+    } else if(jobInfo?.job_name) {
+        monitoringURL += "var-job=${jobInfo.job_name}&"
+    }
+    return monitoringURL
+}

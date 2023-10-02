@@ -2,8 +2,6 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 void call() {
-    String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription}"
     int parallelWorkers = params.PARALLEL_WORKERS as int ?: 1
     String testFunction = params.TEST_FUNCTION ?: ''
     String logLevel = params.LOG_LEVEL ?: 'INFO'
@@ -31,9 +29,25 @@ void call() {
             stage('CI Config') {
                 steps {
                     script {
+                        // init global variables
+                        String monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                        String jenkinsAgentIP = sh (
+                            'script': '''
+                                hostname -I | awk '{print $1}'
+                            ''',
+                            returnStdout: true,
+                        ).trim()
+                        echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                        echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                        // set job Title and Description
+                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                        currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
+                        // Cleanup
+                        vegautils.commonCleanup()
+                        // Setup grafana-agent
                         grafanaAgent.configure("market-sim", [:])
                         grafanaAgent.restart()
-                        vegautils.commonCleanup()
                     }
                     sh 'printenv'
                     echo "params=${params.inspect()}"

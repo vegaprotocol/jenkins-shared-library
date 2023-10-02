@@ -74,14 +74,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            // Cleanup
+            vegautils.commonCleanup()
+            // Jenkins agent supports the /var/docker-ps.log
+            vegautils.cleanExternalFile("/var/docker-ps.log")
+            // Setup grafana-agent
             grafanaAgent.configure("basic", [
               JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
               JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
             ])
             grafanaAgent.restart()
-            vegautils.commonCleanup()
-            // Jenkins agent supports the /var/docker-ps.log
-            vegautils.cleanExternalFile("/var/docker-ps.log")
+            // Setup Job Title and description
             String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
             currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME.take(12)}]"
             sh 'mkdir -p bin'
@@ -89,11 +92,13 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
+              String monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL()
               publicIP = agent.getPublicIP()
               print("The box public IP is: " + publicIP)
               print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
               print("The nomad interface is available only when the tests are running")
-              currentBuild.description = "ssh ${publicIP}, nomad: http://" + publicIP + ":4646"
+              currentBuild.description = "ssh ${publicIP}, nomad: http://" + publicIP + ":4646, Monitoring: ${monitoringDashboardURL}"
+              print("Monitoring Dashboard URL: " + monitoringDashboardURL)
 
               print("Parameters")
               print("==========")

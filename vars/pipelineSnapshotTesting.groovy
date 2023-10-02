@@ -58,7 +58,7 @@ void call(Map config=[:]) {
                         // initial cleanup
                         vegautils.commonCleanup()
                         // init global variables
-                        monitoringDashboardURL = "https://monitoring.vega.community/d/system-tests?var-job=snapshot-${env.NET_NAME}"
+                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
                         jenkinsAgentIP = sh (
                             'script': '''
                                 hostname -I | awk '{print $1}'
