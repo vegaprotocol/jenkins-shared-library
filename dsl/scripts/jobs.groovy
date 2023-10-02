@@ -1505,7 +1505,7 @@ def jobs = [
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: '0 H/2 * * *',
+        cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1681,7 +1681,7 @@ def jobs = [
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H 11 * * *',
+        cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1789,7 +1789,7 @@ def jobs = [
             LIQBOT: true,
         ],
         parameters: vegavisorTopupBotsParams(),
-        cron: 'H/30 * * * *',
+        cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
     ],
     [

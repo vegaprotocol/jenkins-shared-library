@@ -109,13 +109,13 @@ def call() {
 
                 steps {
                     script {
-                        String researchBotsURL = 'https://' + env.NET_NAME + '.bots.vega.rocks'
+                        String researchBotsURL = 'https://' + env.NET_NAME + '.bots.vega.rocks/traders'
                         vegautils.waitForValidHTTPCode(researchBotsURL + '/status', 20, 5)
 
                         try {
                             retry(3) {
                                 withDevopstools(
-                                    command: 'topup traderbot --traderbots-url ' + researchBotsURL 
+                                    command: 'topup with-transfer --network ' + env.NET_NAME + ' --traders-url ' + researchBotsURL 
                                 )
                             }
                             
