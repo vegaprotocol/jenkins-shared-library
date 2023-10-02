@@ -48,21 +48,26 @@ void call(Map config=[:]) {
     node(params.NODE_LABEL) {
         timestamps {
 
-            stage('init') {
-                skipDefaultCheckout()
-                cleanWs()
-                script {
-                    vegautils.commonCleanup()
-                    String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
-                    currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
-                    grafanaAgent.configure("snapshot", [
-                        JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
-                    ])
-                    currentBuild.description = " [${env.NODE_NAME}]"
-                }
-            }
-
             try {
+
+                stage('init') {
+                    skipDefaultCheckout()
+                    cleanWs()
+                    script {
+                        // initial cleanup
+                        vegautils.commonCleanup()
+                        // set job Title and Description
+                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                        currentBuild.description = " [${env.NODE_NAME}]"
+                        // Setup grafana-agent
+                        grafanaAgent.configure("snapshot", [
+                            JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                        ])
+                        grafanaAgent.restart()
+                    }
+                }
+
                 // give extra 12 minutes for setup
                 timeout(time: params.TIMEOUT.toInteger() + 12, unit: 'MINUTES') {
                     stage('Clone devopstools') {
@@ -579,6 +584,13 @@ void call(Map config=[:]) {
             } finally {
                 stage('Notification') {
                     sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
+                }
+                stage('cleanup') {
+                    script {
+                        // cleanup grafana
+                        grafanaAgent.stop()
+                        grafanaAgent.cleanup()
+                    }
                 }
             }
         }
