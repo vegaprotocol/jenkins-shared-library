@@ -105,6 +105,8 @@ integrations:
     enabled: true
     instance: ${AGENT_NAME}
     scrape_interval: 15s
+    track_threads: false
+    gather_smaps: false
     process_names:
       - comm:
           - python
