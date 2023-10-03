@@ -13,8 +13,12 @@ void call() {
         pytestDirectory: "tests/[a-gA-G]*",
         mark: 'smoke'
       ],
-      'smoke h-m': [
-        pytestDirectory: "tests/[h-mH-M]*",
+      'smoke h-k': [
+        pytestDirectory: "tests/[h-kH-K]*",
+        mark: 'smoke'
+      ],
+      'smoke l-m': [
+        pytestDirectory: "tests/[l-mL-M]*",
         mark: 'smoke'
       ],
       'smoke n-z': [
