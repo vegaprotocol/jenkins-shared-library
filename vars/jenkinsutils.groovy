@@ -86,3 +86,32 @@ String getNicePrefixForJobDescription() {
     }
     return description
 }
+
+String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
+    String monitoringURL = "https://monitoring.vega.community/d/system-tests?"
+    def jobInfo = getJobInfo()
+    if (extraVars?.job) {
+        monitoringURL += "var-job=${extraVars.job}&"
+    } else if(jobInfo?.job_name) {
+        monitoringURL += "var-job=${jobInfo.job_name}&"
+    }
+    if (extraVars?.test_mark) {
+        monitoringURL += "var-test_mark=${extraVars.test_mark}&"
+    }
+    if (extraVars?.test_directory) {
+        monitoringURL += "var-test_directory=${extraVars.test_directory}&"
+    }
+    if (jobInfo?.pr) {
+        monitoringURL += "var-pr=${jobInfo.pr}&"
+    }
+    if (jobInfo?.pr_job_number) {
+        monitoringURL += "var-pr_job_number=${jobInfo.pr_job_number}&"
+    }
+    if (jobInfo?.pr_repo) {
+        monitoringURL += "var-pr_repo=${jobInfo.pr_repo}&"
+    }
+    if (jobInfo?.started_by_user) {
+        monitoringURL += "var-started_by_user=${jobInfo.started_by_user}&"
+    }
+    return monitoringURL
+}

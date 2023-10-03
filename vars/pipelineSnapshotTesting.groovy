@@ -19,6 +19,7 @@ void call(Map config=[:]) {
 
     String remoteServer
     String jenkinsAgentIP
+    String monitoringDashboardURL
 
     // api output placeholders
     def TM_VERSION
@@ -48,16 +49,44 @@ void call(Map config=[:]) {
     node(params.NODE_LABEL) {
         timestamps {
 
-            stage('init') {
-                skipDefaultCheckout()
-                cleanWs()
-                script {
-                    vegautils.commonCleanup()
-                    currentBuild.description = " [${env.NODE_NAME}]"
-                }
-            }
-
             try {
+
+                stage('init') {
+                    skipDefaultCheckout()
+                    cleanWs()
+                    script {
+                        // initial cleanup
+                        vegautils.commonCleanup()
+                        // init global variables
+                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                        jenkinsAgentIP = agent.getPublicIP()
+                        echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                        echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                        // set job Title and Description
+                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                        currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
+                        // Setup grafana-agent
+                        grafanaAgent.configure("snapshot", [
+                            JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                        ])
+                        grafanaAgent.restart()
+                    }
+                }
+
+                stage('INFO') {
+                    // Print Info only, do not execute anythig
+                    echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                    echo "Jenkins Agent name: ${env.NODE_NAME}"
+                    echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                    echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                    echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                    echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                    echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                    echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                    echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                }
+
                 // give extra 12 minutes for setup
                 timeout(time: params.TIMEOUT.toInteger() + 12, unit: 'MINUTES') {
                     stage('Clone devopstools') {
@@ -67,36 +96,6 @@ void call(Map config=[:]) {
                             credentialsId: 'vega-ci-bot',
                             directory: 'devopstools'
                         ])
-                    }
-                    stage('CI config') {
-                        // Printout all configuration variables
-                        // sh 'printenv'
-                        // echo "params=${params.inspect()}"
-                        // // digitalocean
-                        // if (params.NODE_LABEL == "do-snapshot") {
-                        //     jenkinsAgentIP = sh(
-                        //         script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
-                        //         returnStdout: true,
-                        //     ).trim()
-                        // }
-                        // // aws
-                        // else {
-                        //     jenkinsAgentIP = sh(
-                        //         script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
-                        //         returnStdout: true,
-                        //     ).trim()
-                        // }
-                        // echo "jenkinsAgentIP=${jenkinsAgentIP}"
-                        // if (!jenkinsAgentIP) {
-                        //     error("Couldn't resolve jenkinsAgentIP")
-                        // }
-                        // it's private ip but should work
-                        jenkinsAgentIP = sh (
-                            'script': '''
-                                hostname -I | awk '{print $1}'
-                            ''',
-                            returnStdout: true,
-                        ).trim()
                     }
 
                     stage('Find available remote server') {
@@ -230,7 +229,7 @@ void call(Map config=[:]) {
                                 SNAPSHOT_HASH = snapshotInfo['blockHash']
                                 println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
                                 println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
-                                currentBuild.description = "block: ${SNAPSHOT_HEIGHT} [${env.NODE_NAME}]"
+                                currentBuild.description += " block: ${SNAPSHOT_HEIGHT}"
 
                                 // Check TM version
                                 def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
@@ -297,6 +296,8 @@ void call(Map config=[:]) {
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
                                         ./dasel put string -f vega_config/config/node/config.toml Broker.Socket.DialTimeout "4h"
+                                        ./dasel put bool -f vega_config/config/node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/node/config.toml Metrics.Port 2112
                                         cat vega_config/config/node/config.toml
                                     """
                             },
@@ -312,6 +313,8 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount 2001
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/data-node/config.toml Metrics.Port 2113
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
@@ -478,35 +481,36 @@ void call(Map config=[:]) {
                             },
                             'Info': {
                                 echo "Jenkins Agent Public IP: ${jenkinsAgentIP}. Some useful links:"
-                                echo "http://${jenkinsAgentIP}:3003/statistics"
-                                echo "http://${jenkinsAgentIP}:3008/graphql/"
-                                echo "http://${jenkinsAgentIP}:3008/api/v2/epoch"
-                                echo "http://${jenkinsAgentIP}:3008/statistics"
-                                echo "https://${remoteServerDataNode}/statistics"
-                                echo "${remoteServerCometBFT}/net_info"
+                                echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                                echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                                echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                                echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                                echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                                echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                                echo "Monitoring Dashboard: ${monitoringDashboardURL}"
                             }
                         )
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
-                            currentBuild.description = "no CHAIN_STATUS_CONNECTED [${env.NODE_NAME}]"
+                            currentBuild.description += "no CHAIN_STATUS_CONNECTED"
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
-                            currentBuild.description = "block did not increase [${env.NODE_NAME}]"
+                            currentBuild.description += "block did not increase"
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
                         echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
-                            currentBuild.description = "did not catch up [${env.NODE_NAME}]"
+                            currentBuild.description += "did not catch up"
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
                         }
                         if (notHealthyAgainCount > 0) {
-                            currentBuild.description = "became unhealthy (${notHealthyAgainCount}) [${env.NODE_NAME}]"
+                            currentBuild.description += "became unhealthy (${notHealthyAgainCount})"
                             extraMsg = extraMsg ?: "became unhealthy ${notHealthyAgainCount} times."
                             error("Non-validator became unhealthy ${notHealthyAgainCount} times.")
                         }
@@ -570,6 +574,13 @@ void call(Map config=[:]) {
             } finally {
                 stage('Notification') {
                     sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
+                }
+                stage('cleanup') {
+                    script {
+                        // cleanup grafana
+                        grafanaAgent.stop()
+                        grafanaAgent.cleanup()
+                    }
                 }
             }
         }

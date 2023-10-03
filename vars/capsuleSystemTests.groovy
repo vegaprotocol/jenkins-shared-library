@@ -55,6 +55,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   String protocolUpgradeVersion = 'v99.9.9-system-tests-' + currentBuild.number
 
+  String jenkinsAgentIP
+  String monitoringDashboardURL
+
   pipeline {
     agent {
       label agentLabel
@@ -74,14 +77,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            // Cleanup
+            vegautils.commonCleanup()
+            // Jenkins agent supports the /var/docker-ps.log
+            vegautils.cleanExternalFile("/var/docker-ps.log")
+            // Setup grafana-agent
             grafanaAgent.configure("basic", [
               JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
               JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
             ])
             grafanaAgent.restart()
-            vegautils.commonCleanup()
-            // Jenkins agent supports the /var/docker-ps.log
-            vegautils.cleanExternalFile("/var/docker-ps.log")
+            // Setup Job Title and description
             String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
             currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME.take(12)}]"
             sh 'mkdir -p bin'
@@ -89,11 +95,13 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
-              publicIP = agent.getPublicIP()
-              print("The box public IP is: " + publicIP)
-              print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
+              monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([test_mark: params.SYSTEM_TESTS_TEST_MARK, test_directory: params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS])
+              jenkinsAgentIP = agent.getPublicIP()
+              print("The box public IP is: " + jenkinsAgentIP)
+              print("You may want to visit the nomad web interface: http://" + jenkinsAgentIP + ":4646")
               print("The nomad interface is available only when the tests are running")
-              currentBuild.description = "ssh ${publicIP}, nomad: http://" + publicIP + ":4646"
+              currentBuild.description = "ssh ${jenkinsAgentIP}, nomad: http://" + jenkinsAgentIP + ":4646, Monitoring: ${monitoringDashboardURL}"
+              print("Monitoring Dashboard URL: " + monitoringDashboardURL)
 
               print("Parameters")
               print("==========")
@@ -103,6 +111,16 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               sh 'printenv'
             }
           }
+        }
+      }
+
+      stage('INFO') {
+        steps {
+          // Print Info only, do not execute anythig
+          echo "Nomad UI: http://${jenkinsAgentIP}:4646"
+          echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+          echo "Jenkins Agent name: ${env.NODE_NAME}"
+          echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
         }
       }
 
