@@ -17,6 +17,7 @@ metrics:
             target_label: instance
     external_labels:
       jenkins_job: "${JENKINS_JOB_NAME}"
+      jenkins_build_number: "${JENKINS_BUILD_NUMBER}"
       jenkins_pr: "${JENKINS_PR}"
       jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
       jenkins_pr_repo: "${JENKINS_PR_REPO}"

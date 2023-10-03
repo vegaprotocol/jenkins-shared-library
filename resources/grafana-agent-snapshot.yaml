@@ -17,6 +17,7 @@ metrics:
             target_label: instance
     external_labels:
       jenkins_job: "${JENKINS_JOB_NAME}"
+      jenkins_build_number: "${JENKINS_BUILD_NUMBER}"
       network: "${JENKINS_NETWORK}"
 
   wal_directory: "/var/lib/grafana-agent"
