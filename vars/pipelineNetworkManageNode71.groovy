@@ -147,22 +147,24 @@ void call() {
                             error('You need to set UNSAFE_RESET_ALL when JOIN_AS_VALIDATOR to wipe out old data from the machine.')
                         }
                     }
-                    print("""Run command that:
-                    - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
-                    - Unstake Vega Tokens on ERC20 Bridge for Old VegaPubKey - this will cause the old validator to be removed at the end of epoch
-                    - Stake Vega Tokens on ERC20 Bridge to Newly generated VegaPubKey
-                    """)
-                    withDevopstools(
-                        command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
-                    )
-                    script {
-                        ETH_ADDRESS = withDevopstools(
-                            command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
-                            returnStdout: true,
-                        ).trim()
-                        ANSIBLE_VARS_DICT = [
-                            'healthcheck_type': 'time_check',
-                        ]
+                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                        print("""Run command that:
+                        - Generates New Secrets for ${NODE_NAME} on ${env.NET_NAME} - all of them: vega, eth, tendermint,
+                        - Unstake Vega Tokens on ERC20 Bridge for Old VegaPubKey - this will cause the old validator to be removed at the end of epoch
+                        - Stake Vega Tokens on ERC20 Bridge to Newly generated VegaPubKey
+                        """)
+                        withDevopstools(
+                            command: "validator join --node ${SHORT_NODE} --generate-new-secrets --unstake-from-old-secrets --stake"
+                        )
+                        script {
+                            ETH_ADDRESS = withDevopstools(
+                                command: "validator join --node ${SHORT_NODE} --get-eth-to-submit-bundle",
+                                returnStdout: true,
+                            ).trim()
+                            ANSIBLE_VARS_DICT = [
+                                'healthcheck_type': 'time_check',
+                            ]
+                        }
                     }
                 }
             }

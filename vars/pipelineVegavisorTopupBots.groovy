@@ -49,9 +49,11 @@ def call() {
                     }
                 }
                 steps {
-                    withDevopstools(
-                        command: 'topup liqbot'
-                    )
+                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                        withDevopstools(
+                            command: 'topup liqbot'
+                        )
+                    }
                     withGoogleSA('gcp-k8s') {
                         sh "kubectl rollout restart statefulset liqbot-app -n ${env.NET_NAME}"
                     }
@@ -67,9 +69,11 @@ def call() {
                 steps {
                     script {
                         try {
-                            withDevopstools(
-                                command: 'topup traderbot'
-                            )
+                            lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                withDevopstools(
+                                    command: 'topup traderbot'
+                                )
+                            }
                             withGoogleSA('gcp-k8s') {
                                 sh "kubectl rollout restart statefulset traderbot-app -n ${env.NET_NAME}"
                             }
@@ -84,12 +88,14 @@ def call() {
                                 additionalTraderbotsIds = params.ADDITIONAL_TRADER_BOTS_IDS.split(',')
                             }
 
-                            additionalTraderbotsIds.each{traderbotId ->
-                                withDevopstools(
-                                    command: 'topup traderbot --traderbot-id ' + traderbotId
-                                )
-                                withGoogleSA('gcp-k8s') {
-                                    sh "kubectl rollout restart statefulset traderbot${traderbotId}-app -n ${env.NET_NAME}"
+                            lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                additionalTraderbotsIds.each{traderbotId ->
+                                    withDevopstools(
+                                        command: 'topup traderbot --traderbot-id ' + traderbotId
+                                    )
+                                    withGoogleSA('gcp-k8s') {
+                                        sh "kubectl rollout restart statefulset traderbot${traderbotId}-app -n ${env.NET_NAME}"
+                                    }
                                 }
                             }
                         } catch(err) {
@@ -114,9 +120,11 @@ def call() {
 
                         try {
                             retry(3) {
-                                withDevopstools(
-                                    command: 'topup with-transfer --network ' + env.NET_NAME + ' --traders-url ' + researchBotsURL 
-                                )
+                                lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                    withDevopstools(
+                                        command: 'topup with-transfer --network ' + env.NET_NAME + ' --traders-url ' + researchBotsURL 
+                                    )
+                                }
                             }
                             
                             sleep 90 // some time to make sure deposits are reflected in the network
