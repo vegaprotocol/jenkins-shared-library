@@ -70,35 +70,7 @@ void call(Map paramsOverrides=[:]) {
                     }
                 }
             ],
-            postNetworkStart: [
-                'Fix for duplicates - vegaprotocol/vega 8662': {
-                    // We have to run this pipeline because when the network is started, data-node runs the migrations
-                    // before any data is loaded into the network. It means We run the `DELETE FROM ...` queries when the
-                    // tables are empty. Then after protocol upgrade we do not run the same migration again because
-                    // the database is already in latest version.
-                    //
-                    // Because of how the LNL pipeline works(it alwasy tests agains the develop branch), We have to apply
-                    // the fix from https://github.com/vegaprotocol/vega/pull/8662 again once data is in the database.
-
-                    // This step MUST be removed once the vegaprotocol/vega#8662 is released to mainnet
-
-                    for (int i=0; i<20; i++) {
-                        script {
-                            sh '''PGPASSWORD=vega \
-                                psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
-                                        --command "delete from stake_linking where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
-                                2>/dev/null || echo -n ""
-                            '''
-
-                            sh '''PGPASSWORD=vega \
-                                psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
-                                        --command "delete from stake_linking_current where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
-                                2>/dev/null || echo -n ""
-                            '''
-                        }
-                    }
-                }
-            ],
+            postNetworkStart: [],
             runTests: [
                 'Copy checkpoint after load': {
                     String networkDir = ""
