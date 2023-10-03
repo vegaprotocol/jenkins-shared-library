@@ -110,3 +110,5 @@ integrations:
     process_names:
       - comm:
           - python
+        cmdline:
+          - pytest
