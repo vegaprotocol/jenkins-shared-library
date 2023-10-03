@@ -26,10 +26,15 @@ void call(def config=[:]) {
             timestamps()
             timeout(time: 35, unit: 'MINUTES')
         }
+        environment {
+            GOBIN = "${env.WORKSPACE}/gobin"
+        }
+
         stages {
             stage('CI Config') {
                 steps {
                     script {
+                        vegautils.commonCleanup()
                         sh 'printenv'
                     }
                     echo "params=${params.inspect()}"
@@ -179,7 +184,7 @@ void call(def config=[:]) {
                     stage('vegawallet-browser') {
                         when {
                             expression {
-                                config.type == 'frontend'
+                                config.type == 'browserWallet'
                             }
                         }
                         steps {
@@ -192,28 +197,56 @@ void call(def config=[:]) {
                             sh "rm -rf vegawallet-browser@tmp"
                         }
                     }
+                    stage('console-test') {
+                        when {
+                            expression {
+                                config.type == 'frontend'
+                            }
+                        }
+                        steps {
+                            gitClone(
+                                directory: 'console-test',
+                                vegaUrl: 'console-test',
+                                branch: params.CONSOLE_TEST_BRANCH ?: 'main',
+                                extensions: [[$class: 'LocalBranch', localBranch: "**" ]]
+                            )
+                            sh "rm -rf console-test@tmp"
+                        }
+                    }
                 }
             }
             stage('Run Approbation: Categories') {
                 steps {
-                    sh label: 'approbation', script: """#!/bin/bash -e
-                        npx --yes --silent github:vegaprotocol/approbation check-references \
-                            --specs="${params.SPECS_ARG}" \
-                            --tests="${params.TESTS_ARG}" \
-                            --categories="${params.CATEGORIES_ARG}" \
-                            ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
-                    """
+                    withDockerRegistry([
+                        credentialsId: vegautils.getVegaCiBotCredentials(),
+                        url: 'https://ghcr.io'
+                    ]) {
+                        sh label: 'approbation', script: """#!/bin/bash -e
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:${params.APPROBATION_TAG} check-references \
+                                --specs="${params.SPECS_ARG}" \
+                                --tests="${params.TESTS_ARG}" \
+                                --categories="${params.CATEGORIES_ARG}" \
+                                --features="${params.FEATURES_ARG}" \
+                                ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
+                        """
+                    }
                 }
             }
             stage('Run Approbation: Apps') {
-                    when {
-                        expression {
-                            config.type == 'frontend'
-                        }
+                when {
+                    expression {
+                        config.type == 'frontend' || config.type == 'browserWallet'
                     }
-                    steps {
+                }
+                steps {
+                    withDockerRegistry([
+                        credentialsId: vegautils.getVegaCiBotCredentials(),
+                        url: 'https://ghcr.io'
+                    ]) {
                         sh label: 'approbation', script: """#!/bin/bash -e
-                            npx --yes --silent github:vegaprotocol/approbation check-references \
+                            mkdir -p results
+                            docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:main check-references \
                                 --specs="${params.SPECS_ARG}" \
                                 --tests="${params.TESTS_ARG}" \
                                 --categories="${params.APPS_ARG}" \
@@ -221,6 +254,7 @@ void call(def config=[:]) {
                         """
                     }
                 }
+            }
         }
         post {
             always {
@@ -233,7 +267,7 @@ void call(def config=[:]) {
                         script: "cat results/jenkins.txt || echo 'no jenkins.txt'",
                         returnStdout: true,
                     ).trim()
-                    sendSlackMessage(scriptSlackMsg, config.type == 'frontend' ? '#coverage-notify-frontend' : '#coverage-notify')
+                    sendSlackMessage(scriptSlackMsg, config.type == 'frontend' || config.type == 'browserWallet' ? '#coverage-notify-frontend' : '#coverage-notify')
                 }
                 cleanWs()
             }

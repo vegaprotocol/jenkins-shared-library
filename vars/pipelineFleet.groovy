@@ -7,10 +7,7 @@ void call() {
         usernameVariable: 'PSSH_USER'
     )
 
-    ANSIBLE_LIMIT = 'non-existing'
-
-    ALERT_DISABLE_ENV = null
-    ALERT_DISABLE_NODE = null
+    MACHINE_NAME = null
     ALERT_SILENCE_ID = ''
 
     pipeline {
@@ -21,8 +18,6 @@ void call() {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
-            // allow disabling lock when provisoining new nodes
-            lock(resource: params.DISABLE_LOCK ? "${Math.abs(new Random().nextInt(9999))}" : env.NET_NAME)
             ansiColor('xterm')
         }
         environment {
@@ -36,18 +31,10 @@ void call() {
                     echo "params=${params.inspect()}"
                     script {
                         vegautils.commonCleanup()
-                        currentBuild.description = "node: ${params.NODE}"
+                        MACHINE_NAME = params.MACHINE_NAME.trim()
+                        currentBuild.description = "${MACHINE_NAME}"
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
-                        }
-                        if (params.NODE?.toLowerCase() == 'all') {
-                            ANSIBLE_LIMIT = env.NET_NAME
-                            ALERT_DISABLE_ENV = ANSIBLE_LIMIT
-                        } else if (params.NODE?.trim()) {
-                            ANSIBLE_LIMIT = params.NODE.trim()
-                            ALERT_DISABLE_NODE = ANSIBLE_LIMIT
-                        } else {
-                            error "cannot run ansible: NODE parameter is not set"
                         }
                     }
                 }
@@ -73,8 +60,7 @@ void call() {
                     retry (3) {
                         script {
                             ALERT_SILENCE_ID = alert.disableAlerts(
-                                environment: ALERT_DISABLE_ENV,
-                                node: ALERT_DISABLE_NODE,
+                                node: MACHINE_NAME,
                                 duration: params.TIMEOUT, // minutes
                             )
                         }
@@ -97,7 +83,7 @@ void call() {
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
                                         --inventory inventories \
-                                        --limit "${ANSIBLE_LIMIT}" \
+                                        --limit "${MACHINE_NAME}" \
                                         --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
                                         playbooks/${env.ANSIBLE_PLAYBOOK}
                                 """

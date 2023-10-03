@@ -4,18 +4,45 @@
 void call(Map additionalConfig=[:], parametersOverride=[:]) {
   Map defaultConfig = [
     hooks: [:],
-    agentLabel: 'system-tests-capsule',
-    fastFail: true,
+    fastFail: false,
     protocolUpgradeReleaseRepository: 'vegaprotocol/vega-dev-releases',
     extraEnvVars: [:],
     slackTitle: 'System Tests Capsule',
     slackChannel: '#qa-notify',
   ]
 
+  // Helper variable to disable some steps when system-test variable
+  // failed when the fastFail config is set to false
+  boolean systmeTestFailed = false
+
   Map config = defaultConfig + additionalConfig
   params = params + parametersOverride
 
+  // Set default values for the parameters in case some job does not have this param defined
+  // params.TIMEOUT = params.TIMEOUT ?: 60
+  // params.ORIGIN_REPO = params.ORIGIN_REPO ?: 'vegaprotocol/vega'
+  // params.VEGA_BRANCH = params.VEGA_BRANCH ?: 'develop'
+  // params.SYSTEM_TESTS_BRANCH = params.SYSTEM_TESTS_BRANCH ?: 'develop'
+  // params.VEGACAPSULE_BRANCH = params.VEGACAPSULE_BRANCH ?: 'main'
+  // params.VEGATOOLS_BRANCH = params.VEGATOOLS_BRANCH ?: 'develop'
+  // params.DEVOPSSCRIPTS_BRANCH = params.DEVOPSSCRIPTS_BRANCH ?: 'main'
+  // params.DEVOPSTOOLS_BRANCH = params.DEVOPSTOOLS_BRANCH ?: 'main'
+  // params.BUILD_PROTOCOL_UPGRADE_VERSION = params.BUILD_PROTOCOL_UPGRADE_VERSION ?: false
+  // params.CAPSULE_CONFIG = params.CAPSULE_CONFIG ?: 'capsule_config.hcl'
+  // params.ARCHIVE_VEGA_BINARY = params.ARCHIVE_VEGA_BINARY ?: false
+  // params.SKIP_RUN_TESTS = params.SKIP_RUN_TESTS ?: false
+  // params.SKIP_MULTISIGN_SETUP = params.SKIP_MULTISIGN_SETUP ?: false
+  // params.SYSTEM_TESTS_TEST_FUNCTION = params.SYSTEM_TESTS_TEST_FUNCTION ?: ''
+  // params.SYSTEM_TESTS_TEST_MARK = params.SYSTEM_TESTS_TEST_MARK ?: 'smoke'
+  // params.SYSTEM_TESTS_TEST_DIRECTORY = params.SYSTEM_TESTS_TEST_DIRECTORY ?: ''
+  // params.SYSTEM_TESTS_DEBUG = params.SYSTEM_TESTS_DEBUG ?: false
+  // params.RUN_PROTOCOL_UPGRADE_PROPOSAL = params.RUN_PROTOCOL_UPGRADE_PROPOSAL ?: false
+  // params.TEST_EXTRA_PYTEST_ARGS = params.TEST_EXTRA_PYTEST_ARGS ?: ''
+
+  String agentLabel = params.NODE_LABEL ?: 'office-system-tests'
+
   Map pipelineHooks = [
+      postStartNomad: [:],
       postNetworkGenerate: [:],
       postNetworkStart: [:],
       runTests: [:],
@@ -28,9 +55,16 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   String protocolUpgradeVersion = 'v99.9.9-system-tests-' + currentBuild.number
 
+  String jenkinsAgentIP
+  String monitoringDashboardURL
+
   pipeline {
     agent {
-      label config.agentLabel
+      label agentLabel
+    }
+    environment {
+      PATH = "${env.WORKSPACE}/gobin:${env.PATH}:${env.WORKSPACE}/bin"
+      GOBIN = "${env.WORKSPACE}/gobin"
     }
 
     options {
@@ -43,20 +77,50 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           cleanWs()
           script {
+            // Cleanup
+            vegautils.commonCleanup()
+            // Jenkins agent supports the /var/docker-ps.log
+            vegautils.cleanExternalFile("/var/docker-ps.log")
+            // Setup grafana-agent
+            grafanaAgent.configure("system-tests", [
+              JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
+              JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
+            ])
+            grafanaAgent.restart()
+            // Setup Job Title and description
+            String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+            currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} ${params.SYSTEM_TESTS_TEST_MARK}, ${ params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS } [${env.NODE_NAME.take(12)}]"
+            sh 'mkdir -p bin'
             dir(pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir) {
               testNetworkDir = pwd()
               networkPath = vegautils.escapePath(env.WORKSPACE + '/' + pipelineDefaults.capsuleSystemTests.systemTestsNetworkDir)
 
-              publicIP = agent.getPublicIP()
-              print("The box public IP is: " + publicIP)
-              print("You may want to visit the nomad web interface: http://" + publicIP + ":4646")
+              monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([test_mark: params.SYSTEM_TESTS_TEST_MARK, test_directory: params.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS])
+              jenkinsAgentIP = agent.getPublicIP()
+              print("The box public IP is: " + jenkinsAgentIP)
+              print("You may want to visit the nomad web interface: http://" + jenkinsAgentIP + ":4646")
               print("The nomad interface is available only when the tests are running")
+              currentBuild.description = "ssh ${jenkinsAgentIP}, nomad: http://" + jenkinsAgentIP + ":4646, Monitoring: ${monitoringDashboardURL}"
+              print("Monitoring Dashboard URL: " + monitoringDashboardURL)
 
               print("Parameters")
               print("==========")
               print("${params}")
+
+              sh 'docker image ls --all > docker-image-ls.log'
+              sh 'printenv'
             }
           }
+        }
+      }
+
+      stage('INFO') {
+        steps {
+          // Print Info only, do not execute anythig
+          echo "Nomad UI: http://${jenkinsAgentIP}:4646"
+          echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+          echo "Jenkins Agent name: ${env.NODE_NAME}"
+          echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
         }
       }
 
@@ -68,11 +132,11 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/system-tests', branch: params.SYSTEM_TESTS_BRANCH ],
               [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
-              [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ],
+              // [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ?: ], // TODO: Remove me
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
               [ name: 'vegaprotocol/devopstools', branch: params.DEVOPSTOOLS_BRANCH ],
             ]
-            def reposSteps = repositories.collectEntries{value -> [
+            def reposSteps = [failFast: true] + repositories.collectEntries{value -> [
                 value.name,
                 {
                   gitClone([
@@ -80,7 +144,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     branch: value.branch,
                     directory: value.directory ?: value.name.split('/')[1],
                     credentialsId: 'vega-ci-bot',
-                    timeout: 2,
+                    timeout: 3,
                   ])
                 }
             ]}
@@ -95,16 +159,19 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         steps {
           dir('system-tests/scripts') {
+            sh 'echo $PATH'
+            sh 'env'
             sh 'make check'
           }
         }
       }
 
       stage('prepare environment') {
+        failFast true
         parallel {
           stage('build devopsscripts') {
             options {
-              timeout(time: 5, unit: 'MINUTES')
+              timeout(time: 15, unit: 'MINUTES')
               retry(3)
             }
             steps {
@@ -115,7 +182,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('build devopstools') {
             options {
-              timeout(time: 5, unit: 'MINUTES')
+              timeout(time: 15, unit: 'MINUTES')
               retry(3)
             }
             steps {
@@ -126,7 +193,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make vegacapsule'){
             options {
-              timeout(time: 15, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
+              timeout(time: 25, unit: 'MINUTES') // TODO: revert timeout to 10 min when build optimized
               retry(3)
             }
             environment {
@@ -142,7 +209,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make visor'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -156,7 +223,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make toxiproxy'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -170,7 +237,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make vega tools'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -184,7 +251,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
           stage('make test proto'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -192,13 +259,15 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             }
             steps {
               dir('system-tests/scripts') {
-                sh 'make build-test-proto'
+                withDockerLogin('vegaprotocol-dockerhub', false) {
+                  sh 'make build-test-proto'
+                }
               }
             }
           }
           stage('make core'){
             options {
-              timeout(time: 10, unit: 'MINUTES')
+              timeout(time: 20, unit: 'MINUTES')
               retry(3)
             }
             environment {
@@ -211,26 +280,37 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               }
             }
           }
+
           stage('prepare system tests dependencies') {
             options {
-              timeout(time: 20, unit: 'MINUTES')
+              timeout(time: 30, unit: 'MINUTES')
               retry(3)
             }
             steps {
               dir('system-tests') {
-                // Use automatic pyenv resolution for installation & resolution
                 sh label: 'Install python', script: '''
+                  echo $PATH
+                  which pyenv
+                  which poetry
+                  which python
                   pyenv install --skip-existing
                 '''
 
                 sh label: 'Print versions', script: '''
+                  pyenv versions
                   python --version
                   poetry --version
                 '''
 
                 dir('scripts') {
+                  // delete existing virtualenv if exists
                   sh label: 'Install poetry dependencies', script: '''
+                    if poetry env info -p; then
+                      echo "removing old poetry virtualenv located at: $(poetry env info -p)"
+                      rm -rf $(poetry env info -p)
+                    fi
                     make poetry-install
+                    poetry env info
                   '''
                 }
               }
@@ -249,59 +329,32 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
       }
-      // stage('build upgrade binaries') {
-      //   steps {
-      //     script {
-      //       dir('vega') {
-      //           sh label: 'Build upgrade version of vega binary for tests', script: """#!/bin/bash -e
-      //           sed -i 's/"v0.*"/"v99.99.0+dev"/g' version/version.go
-      //           """
-      //       }
-      //       def binaries = [
-      //         [ repository: 'vega', name: 'vega-v99.99.0+dev', packages: './cmd/vega' ],
-      //       ]
-      //       parallel binaries.collectEntries{value -> [
-      //         value.name,
-      //         {
-      //           vegautils.buildGoBinary(value.repository,  testNetworkDir + '/' + value.name, value.packages)
-      //         }
-      //       ]}
-      //     }
-      //   }
-      // }
-      stage('build upgrade binaries') {
+
+      stage('prepare upgrade binary') {
         when {
           expression {
-            params.BUILD_PROTOCOL_UPGRADE_VERSION
+            params.VEGA_BRANCH_UPGRADE != null && params.VEGA_BRANCH_UPGRADE != ''
           }
         }
-
-        options {
-          timeout(time: 10, unit: 'MINUTES')
-          retry(2)
-        }
-
         steps {
           script {
-            sh 'mkdir -p vega/build'
-            sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="''' + protocolUpgradeVersion + '''"/' vega/version/version.go'''
-            vegautils.buildGoBinary('vega', 'build', './...')
+            // when a different branch specified for upgrade version, clone vega repository again, switch to the
+            // `VEGA_BRANCH_UPGRADE` commit, and build a binary for a protocol upgrade
+            gitClone([
+              url: 'git@github.com:vegaprotocol/vega.git',
+              branch: params.VEGA_BRANCH_UPGRADE,
+              directory: 'vega-upgrade',
+              credentialsId: 'vega-ci-bot',
+              timeout: 3,
+            ])
 
-            dir('vega/build') {
-              sh './vega version'
-              sh './data-node version'
-              sh 'zip data-node-linux-amd64.zip data-node'
-              sh 'zip vega-linux-amd64.zip vega'
-
-              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
-                sh '''gh release create \
-                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
-                    ''' + protocolUpgradeVersion + ''' \
-                    *.zip'''
-              }
+            dir('vega-upgrade') {
+              sh '''sed -i 's/^\\s*cliVersion\\s*=\\s*".*"$/cliVersion="v99.99.0+dev"/' version/version.go'''
             }
+            sh 'rm -f ' + testNetworkDir + '/vega-v99.99.0+dev || echo "OK"'
+            vegautils.buildGoBinary('vega-upgrade',  testNetworkDir + '/vega-v99.99.0+dev', './cmd/vega')
 
-            versionToUpgradeNetwork = 'v77.7.7-jenkins-visor-pup-' + currentBuild.number
+            sh testNetworkDir + '/vega-v99.99.0+dev version'
           }
         }
       }
@@ -312,7 +365,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             dir ('system-tests/scripts') {
               String makeAbsBinaryPath = vegautils.shellOutput('which make')
               String cwd = vegautils.shellOutput('pwd')
-
+              
               sh '''daemonize \
                 -o ''' + testNetworkDir + '''/nomad.log \
                 -e ''' + testNetworkDir + '''/nomad.log \
@@ -320,6 +373,28 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                 -p ''' + testNetworkDir + '''/vegacapsule_nomad.pid \
                   ''' + makeAbsBinaryPath + ''' vegacapsule-start-nomad-only '''
             }
+
+            vegautils.waitForValidHTTPCode('http://localhost:4646', 20, 1)
+            sleep 3 // Additional sleep
+          }
+        }
+      }
+
+      stage('post start nomad steps') {
+        when {
+          expression {
+            pipelineHooks.containsKey('postStartNomad') && pipelineHooks.postStartNomad.size() > 0
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
+          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
+        }
+
+        steps {
+          script {
+            parallel pipelineHooks.postStartNomad
           }
         }
       }
@@ -328,9 +403,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         environment {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
+          // hack to install nomad into current workspace
+          GOBIN = "${env.WORKSPACE}/bin"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -352,8 +427,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${networkPath}:${env.PATH}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -383,8 +456,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           PATH = "${networkPath}:${env.PATH}"
           TESTS_DIR = "${testNetworkDir}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         steps {
@@ -423,8 +494,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         }
         environment {
           PATH = "${env.PATH}:${networkPath}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
         }
 
         options {
@@ -457,9 +526,9 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           SYSTEM_TESTS_LOG_OUTPUT="${testNetworkDir}/log-output"
           PATH = "${networkPath}:${env.PATH}"
           VEGACAPSULE_CONFIG_FILENAME = "${env.WORKSPACE}/system-tests/vegacapsule/${params.CAPSULE_CONFIG}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? config.protocolUpgradeReleaseRepository : ''}"
-          PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
           SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES = "${params.BUILD_PROTOCOL_UPGRADE_VERSION ? params.BUILD_PROTOCOL_UPGRADE_VERSION : ''}"
+          // Slow things down due to: https://github.com/vegaprotocol/system-tests/issues/2458
+          PROPOSAL_BASE_TIME=7
         }
 
         steps {
@@ -470,16 +539,17 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               Map runStages = [
                 'run system-tests': {
                   dir('system-tests/scripts') {
-                    try {
+                    if (config.fastFail) {
+                      // Just execute and fail immediately when something return an error
                       sh 'make test'
-                    } catch(err) {
-                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL), but we still want to report failure
-                      currentBuild.result = 'FAILURE'
-                      if (!config.fastFail) {
-                        print(err)
-                      } else {
-                        throw err
+                    } else {
+                      // We have some scenarios, where We do not want to stop pipeline here(e.g. LNL),
+                      // but we still want to report failure for overall build and the stage itself
+                      catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh 'make test'
                       }
+
+                      systmeTestFailed = true
                     }
                   }
                 }
@@ -532,8 +602,8 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         steps {
           script {
             // We cannot just start the data node as it is because we do not know what binary is
-            // currently running in the network. We may expect protocol upgrades/binaries shifts, etc. 
-            // We have a simple helper that checks each node, compares height, and selects 
+            // currently running in the network. We may expect protocol upgrades/binaries shifts, etc.
+            // We have a simple helper that checks each node, compares height, and selects
             // binary from the node at the highest block.
             //
             // We copy the binary which is running on the network to `<testNetworkDir>/vega-latest`
@@ -591,7 +661,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
 
             print('Run snapshot checks')
-            sleep '30'
+            sleep '5'
             sh '''
               mkdir -p ./snapshot-tmp;
               rsync -av ''' + testNetworkDir + '''/testnet/vega/node1/state/node/snapshots/ ./snapshot-tmp;
@@ -608,10 +678,112 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
       }
+
+      stage("SOAK Test") {
+        when {
+          expression {
+            params.RUN_SOAK_TEST
+          }
+        }
+        environment {
+          PATH = "${networkPath}:${env.PATH}"
+        }
+        options {
+          timeout(time: 40, unit: 'MINUTES')
+        }
+
+        steps {
+          script {
+            // Find an index for the data-node
+            String dataNodeIndex = vegautils.shellOutput('''vegacapsule nodes ls \
+                --home-path ''' + testNetworkDir + '''/testnet \
+              | jq -r '[.[] | select(.Mode | contains("full"))] | .[0] | .Index';
+            ''')
+            String nodeName = 'node' + dataNodeIndex
+            String tmHome = testNetworkDir + '/testnet/tendermint/' + nodeName
+            String vegaHome = testNetworkDir + '/testnet/vega/' + nodeName
+            String vegaBinary = 'vega' // comes from PATH
+
+            sh vegaBinary + ' version'
+
+            String systemTestsPath = ""
+            dir('system-tests') {
+              systemTestsPath = vegautils.shellOutput('pwd')
+            }
+
+            // Ensure network is stopped
+            dir(testNetworkDir) {
+              sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
+            }
+
+            boolean soakFailed = false
+            groovy.time.TimeDuration duration
+            String soakError = ""
+            try {
+                duration = vegautils.elapsedTime {
+                  // Run in separated folder because script produces a lot of logs and We want
+                  // to avoid having them in the system-tests dir.
+                  dir("soak-test") {
+                      String cwd = vegautils.shellOutput('pwd')
+                      sh '''
+                          cd ''' + systemTestsPath + ''';
+                          . $(poetry env info --path)/bin/activate
+                          cd ''' + cwd + ''';
+
+                          python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                            --tm-home="''' + tmHome + '''" \
+                            --vega-home="''' + vegaHome + '''" \
+                            --vega-binary="''' + vegaBinary + '''" \
+                            --replay
+
+                          python "''' + systemTestsPath + '''/tests/soak-test/run.py" \
+                            --tm-home="''' + tmHome + '''" \
+                            --vega-home="''' + vegaHome + '''" \
+                            --vega-binary="''' + vegaBinary + '''"
+                      '''
+                  }
+                } // elapsedTime
+            } catch (err) {
+              soakFailed = true
+              soakError = err.getMessage()
+              throw err
+            } finally {
+              Map failureObj = null
+              if (soakFailed) {
+                failureObj = [name: "Soak test failed", type: "Exception", description: soakError ]
+              }
+              List jUnitReport = [
+                [
+                  name: "Soak Test",
+                  testCases: [
+                    [
+                        name: "Soak test",
+                        className: "run",
+                        time: duration == null ? 0.0 : duration.getSeconds(),
+                        failure: failureObj,
+                    ],
+                  ],
+                ]
+              ]
+
+              dir('system-tests') {
+                writeFile text: vegautils.generateJUnitReport(jUnitReport), file: 'build/test-reports/soak-test.xml'
+              }
+            } // finally
+
+          }
+        }
+      }
     }
 
     post {
       always {
+        catchError {
+          script {
+            grafanaAgent.stop()
+            grafanaAgent.cleanup()
+          }
+        }
         catchError {
           script {
             if (pipelineHooks.containsKey('preNetworkStop') && pipelineHooks.preNetworkStop.size() > 0) {
@@ -622,20 +794,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
         catchError {
           dir(testNetworkDir) {
             sh './vegacapsule network stop --home-path ' + testNetworkDir + '/testnet 2>/dev/null'
-          }
-        }
-
-        catchError {
-          script {
-            if (params.BUILD_PROTOCOL_UPGRADE_VERSION) {
-              withGHCLI('credentialsId': vegautils.getVegaCiBotCredentials()) {
-                sh '''gh release delete \
-                    --yes \
-                    --repo ''' + config.protocolUpgradeReleaseRepository + ''' \
-                    ''' + protocolUpgradeVersion + ''' \
-                | echo "Release does not exist"'''
-              }
-            }
           }
         }
 
@@ -655,12 +813,27 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
           }
         }
 
+        catchError {
+          script {
+            if (params.RUN_SOAK_TEST) {
+              archiveArtifacts(
+                  artifacts: "soak-test/**/**/node-*.log",
+                  allowEmptyArchive: true,
+              )
+              archiveArtifacts(
+                  artifacts: "soak-test/**/**/err-node-*.log",
+                  allowEmptyArchive: true,
+              )
+            }
+          }
+        }
+
         dir(testNetworkDir) {
           archiveArtifacts(
             artifacts: 'testnet/**/*',
             excludes: [
               'testnet/**/*.sock',
-              'testnet/data/**/state/data-node/**/*',
+              // 'testnet/data/**/state/data-node/**/*', # https://github.com/vegaprotocol/jenkins-shared-library/issues/549
               // do not archive vega binaries
               'testnet/visor/**/vega',
               'testnet/visor/**/data-node',
@@ -668,7 +841,10 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             allowEmptyArchive: true
           )
           archiveArtifacts(
-            artifacts: 'nomad.log',
+            artifacts: [
+              'nomad.log',
+              'docker-image-ls.log'
+            ].join(', '),
             allowEmptyArchive: true
           )
           script {
@@ -701,12 +877,14 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   allowEmptyArchive: true
               )
             }
+          
+            vegautils.archiveExternalFile("/var/docker-ps.log")
           }
 
           catchError {
             junit(
               checksName: 'System Tests',
-              testResults: 'build/test-reports/system-test-results.xml',
+              testResults: 'build/test-reports/*.xml',
               skipMarkingBuildUnstable: false,
               skipPublishingChecks: false,
             )

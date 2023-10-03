@@ -4,11 +4,14 @@ import jenkins.model.GlobalConfiguration;
 // https://jenkins.ops.vega.xyz/configuration-as-code/reference
 // https://jenkins.ops.vega.xyz/configuration-as-code/schema
 pipeline {
-    agent any
+    agent {
+        label 'tiny'
+    }
     options {
         timestamps()
         ansiColor('xterm')
         disableConcurrentBuilds()
+        timeout(time: 10, unit: 'MINUTES')
     }
     stages {
         stage('Apply Config') {
@@ -23,20 +26,12 @@ pipeline {
             }
             steps {
                 script {
-                    sh (
-                        // display current image ids
-                        script: '''
-                            wget https://github.com/digitalocean/doctl/releases/download/v1.92.0/doctl-1.92.0-linux-amd64.tar.gz
-                            tar xf ./doctl-1.92.0-linux-amd64.tar.gz
-                            mkdir bin
-                            mv doctl bin/
-                            chmod +x bin/doctl
-                            export PATH="$PWD/bin:$PATH"
-                            doctl --access-token $DIGITALOCEAN_TOKEN compute image list --no-header | grep jenkins-agent | awk '{printf("%s=%s\\n", $2, $1)}'
-                        '''
-                    )
-                    def configUrl = 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/jenkins.yaml'
-                    // copy paste = https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
+                    configsUrls = [
+                        'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/office-agents.yaml',
+                        'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/all-the-rest.yaml',
+                    ]
+                    configUrl = configsUrls.join(',')
+                    // https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/plugin/src/main/java/io/jenkins/plugins/casc/ConfigurationAsCode.java#L199
                     def config = GlobalConfiguration.all().get(CasCGlobalConfig.class)
                     if (config != null) {
                         if (config.getConfigurationPath() != configUrl) {

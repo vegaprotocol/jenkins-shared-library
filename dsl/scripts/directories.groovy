@@ -51,10 +51,18 @@ def dirs = [
         id: 'private/Deployments/Veganet',
         display: 'Veganet',
     ],
+    [
+        id: 'private/Deployments/fleet',
+        display: 'fleet',
+    ],
     // [
     //     id: 'private/Deployments/sandbox',
     //     display: 'Sandbox',
     // ],
+    [
+        id :'private/jenkins',
+        display: 'Jenkins',
+    ],
     [
         id: 'private/playgrounds',
         display: 'Playgrounds',

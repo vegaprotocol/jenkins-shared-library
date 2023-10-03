@@ -19,6 +19,8 @@ void call() {
         usernameVariable: 'GITHUB_API_USER'
     )
 
+    String versionOverride = params.RELEASE_VERSION_OVERRIDE ?: ''
+
     def doGitClone = { repo, branch ->
         dir(repo) {
             retry(3) {
@@ -52,10 +54,15 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
             stage('CI Config') {
                 steps {
+                    script {
+                        vegautils.commonCleanup()
+                    }
                     sh "printenv"
                     echo "params=${params.inspect()}"
                 }
@@ -90,12 +97,20 @@ void call() {
                                         returnStdout: true,
                                     ).trim()
                                     orgVersion = orgVersion.replace('"', '')
-                                    versionTag = orgVersion + '-' + counter + '-' + versionHash
+                                    if (versionOverride == '') {
+                                        versionTag = orgVersion + '-' + counter + '-' + versionHash
+                                    } else {
+                                        versionTag = versionOverride
+                                    }
+                                    if (params?.CHANGE_VERSION_IN_BINARY) {
+                                        sh label: 'Add hash to version', script: """#!/bin/bash -e
+                                            sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
+                                        """
+                                        print('Changed version in the code to: ' + versionTag)
+                                    } else {
+                                        print('Unchanged version in the code: ' + orgVersion)
+                                    }
                                 }
-                                sh label: 'Add hash to version', script: """#!/bin/bash -e
-                                    sed -i 's/"v0.*"/"${versionTag}"/g' version/version.go
-                                """
-                                print('Binary version ' + versionTag)
                             }
                         }
                     }

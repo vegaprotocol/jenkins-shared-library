@@ -1,6 +1,6 @@
 /* groovylint-disable DuplicateStringLiteral, NestedBlockDepth */
 def call() {
-    String nodeLabel = params.NODE_LABEL ?: 's-2vcpu-4gb'
+    String nodeLabel = params.NODE_LABEL ?: 'tiny'
     int pipelineTimeout = params.TIMEOUT ? params.TIMEOUT as int : 120
     String pipelineAction = params.ACTION ?: 'BACKUP'
     String stateRepository = 'vega-backups-state'
@@ -23,11 +23,13 @@ def call() {
             GOOS = 'linux'
             GOARCH = 'amd64'
             CGO_ENABLED = '0'
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         stages {
             stage('Prepare') {
                 steps {
                     script {
+                        vegautils.commonCleanup()
                         if (server == "") {
                             error("Backup server cannot be empty")
                         }
@@ -98,6 +100,7 @@ def call() {
                             dir (stateRepository) {
                                 sh '''
                                     scp \
+                                    -o "UserKnownHostsFile=/dev/null" \
                                     -o "StrictHostKeyChecking=no" \
                                     -i "''' + PSSH_KEYFILE + '''" \
                                     ''' + PSSH_USER + '''@''' + server + ''':/etc/backup-state.json \
@@ -121,6 +124,20 @@ def call() {
                     script {
                         sh 'cat ' + stateRepository + '/' + server + '.json'
                     }
+                }
+            }
+
+            stage('Delete old local zfs snapshots') {
+                steps {
+                    sh label: 'delete old local zfs snapshots', script: """#!/bin/bash -e
+                        sudo zfs list -t snapshot -o name -S creation -H | tail -n +61 | xargs -n 1 --no-run-if-empty sudo zfs destroy
+                    """
+                    // command explanation:
+                    // "-t snapshot" - print snapshots only
+                    // "-o name" - print only names
+                    // "-H" - do not print headers row
+                    // "-S creation" - order by creation time, newest first
+                    // "tail -n +61" - skip first 60 rows (there are 5 rows for each snapshots, we create 4 snapshots a day, every 7th snapshot is a full one, so we need to keep at least: 5 * 7 = 35)
                 }
             }
         }

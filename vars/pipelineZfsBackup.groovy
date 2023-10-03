@@ -8,6 +8,7 @@ void call() {
     )
 
     ANSIBLE_LIMIT = 'non-existing'
+    ANSIBLE_VARS = ''
 
     ALERT_DISABLE_ENV = null
     ALERT_DISABLE_NODE = null
@@ -37,6 +38,18 @@ void call() {
                     script {
                         vegautils.commonCleanup()
                         currentBuild.description = "node: ${params.NODE}"
+                        if (params.CREATE_LOCAL_ZFS_SNAPSHOT) {
+                            currentBuild.description += " create_local( ${params.CREATE_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES ? 'stop' : "don't stop"} )"
+                        }
+                        if (params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()) {
+                            currentBuild.description += " destroy_local( ${params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES.trim()} )"
+                        }
+                        if (params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()) {
+                            currentBuild.description += " rollback( ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME.trim()}, ${params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES ? 'stop' : "don't stop"} )"
+                        }
+                        if (params.ROLLBACK_REMOTE_ZFS_SNAPSHOT) {
+                            currentBuild.description += " rollback remote( from ${params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE} )"
+                        }
                         if (params.DRY_RUN) {
                             currentBuild.description += " [DRY RUN]"
                         }
@@ -87,21 +100,47 @@ void call() {
                     HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
                 }
                 steps {
-                    withCredentials([usernamePassword(credentialsId: 'hashi-corp-vault-jenkins-approle', passwordVariable: 'HASHICORP_VAULT_SECRET_ID', usernameVariable:'HASHICORP_VAULT_ROLE_ID')]) {
-                        withCredentials([sshCredentials]) {
-                            dir('ansible') {
-                                sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
-                                    ansible-playbook \
-                                        ${params.DRY_RUN ? '--check' : ''} \
-                                        --diff \
-                                        -u "\${PSSH_USER}" \
-                                        --private-key "\${PSSH_KEYFILE}" \
-                                        --inventory inventories \
-                                        --limit "${ANSIBLE_LIMIT}" \
-                                        --extra-vars '{"update_accounts": ${params.UPDATE_ACCOUNTS}}' \
-                                        playbooks/${env.ANSIBLE_PLAYBOOK}
-                                """
-                            }
+                    script {
+                        // create json with function instead of manual
+                        ANSIBLE_VARS = writeJSON(
+                            returnText: true,
+                            json: [
+                                create_local_zfs_snapshot: params.CREATE_LOCAL_ZFS_SNAPSHOT,
+                                create_local_zfs_snapshot_name: params.CREATE_LOCAL_ZFS_SNAPSHOT_NAME,
+                                create_local_zfs_snapshot_stop_services: params.CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES,
+                                destroy_local_zfs_snapshot_names: params.DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES,
+                                rollback_local_zfs_snapshot_name: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME,
+                                rollback_local_zfs_snapshot_start_services: params.ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES,
+                                rollback_remote_zfs_snapshot: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT,
+                                rollback_remote_zfs_snapshot_src_machine: params.ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE,
+                            ].findAll{ key, value -> value != null && value != '' }
+                        )
+                    }
+                    withCredentials([
+                        sshCredentials,
+                        usernamePassword(
+                            credentialsId: 'hashi-corp-vault-jenkins-approle',
+                            passwordVariable: 'HASHICORP_VAULT_SECRET_ID',
+                            usernameVariable:'HASHICORP_VAULT_ROLE_ID'
+                        ),
+                        usernamePassword(
+                            credentialsId: 'digitalocean-s3-credentials',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                            usernameVariable: 'AWS_ACCESS_KEY_ID'
+                        ),
+                    ]) {
+                        dir('ansible') {
+                            sh label: "ansible playbooks/playbook-zfs.yaml", script: """#!/bin/bash -e
+                                ansible-playbook \
+                                    ${params.DRY_RUN ? '--check' : ''} \
+                                    --diff \
+                                    -u "\${PSSH_USER}" \
+                                    --private-key "\${PSSH_KEYFILE}" \
+                                    --inventory inventories \
+                                    --limit "${ANSIBLE_LIMIT}" \
+                                    --extra-vars '${ANSIBLE_VARS}' \
+                                    playbooks/playbook-zfs.yaml
+                            """
                         }
                     }
                 }

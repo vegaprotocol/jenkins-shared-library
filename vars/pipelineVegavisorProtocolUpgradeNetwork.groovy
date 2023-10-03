@@ -27,17 +27,21 @@ void call() {
             skipDefaultCheckout()
             timeout(time: params.TIMEOUT, unit: 'MINUTES')
             timestamps()
+            ansiColor('xterm')
             lock(resource: env.NET_NAME)
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
             stage('CI Config') {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        vegautils.commonCleanup()
                         (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
                     echo "Release version: ${RELEASE_VERSION}"
@@ -118,6 +122,7 @@ void call() {
                                 protocol_upgrade_version: RELEASE_VERSION,
                                 protocol_upgrade_block: protocolUpgradeBlock,
                                 protocol_upgrade_manual_install: params.MANUAL_INSTALL,
+                                protocol_upgrade_render_configs: params.RENDER_CONFIGS,
                                 perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
                                 update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
@@ -129,7 +134,7 @@ void call() {
                                 // Note: environment variables PSSH_KEYFILE and PSSH_USER
                                 //        are set by withCredentials wrapper
                                 sh label: 'ansible playbook run', script: """#!/bin/bash -e
-                                    ansible-playbook \
+                                    ansible-playbook ${params.DRY_RUN ? '--check' : ''} \
                                         --diff \
                                         -u "\${PSSH_USER}" \
                                         --private-key "\${PSSH_KEYFILE}" \
@@ -147,6 +152,9 @@ void call() {
             stage('Update vegawallet service') {
                 when {
                     expression { DOCKER_VERSION }
+                    expression {
+                        env.NET_NAME == 'fairground'
+                    }
                 }
                 steps {
                     script {

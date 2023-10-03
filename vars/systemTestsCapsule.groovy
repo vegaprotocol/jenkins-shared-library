@@ -17,6 +17,7 @@ void call(Map config = [:]) {
       string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
       string(name: 'DEVOPSSCRIPTS_BRANCH', value: config.devopsScripts ?: pipelineDefaults.capsuleSystemTests.branchDevopsScripts),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: pipelineDefaults.capsuleSystemTests.jenkinsSharedLib),
+      string(name: 'NODE_LABEL', value: config.nodeLabel ?: pipelineDefaults.capsuleSystemTests.nodeLabel),
 
       // string(name: 'SYSTEM_TESTS_TEST_FUNCTION', value: config.testFunction ?: pipelineDefaults.capsuleSystemTests.systemTestsTestFunction),
       // string(name: 'SYSTEM_TESTS_TEST_MARK', value: config.testMark ?: pipelineDefaults.capsuleSystemTests.systemTestsTestMark),

@@ -1,9 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        label 'tiny'
+    }
     options {
         timestamps()
         ansiColor('xterm')
         disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES')
     }
     stages {
         stage('Create jobs') {

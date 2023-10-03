@@ -1,9 +1,28 @@
 /* groovylint-disable LineLength */
 void call(Map paramsOverrides=[:]) {
+    List mainnetApiServers = [
+      'api0.vega.community',
+      'api1.vega.community',
+      'api3.vega.community',
+    ]
+
+    node(params.NODE_LABEL ?: '') {
+        Boolean isMainnetVersionScenario = paramsOverrides.get("mainnetVersionScenario", false)
+        if (isMainnetVersionScenario) {
+        Map<String, ?> nodeStatistics = vegautils.networkStatistics(nodesList: mainnetApiServers)
+        // When we have the mainnet scenario we target the vega version which is
+        // runnin in the current mainnet. We overrides version collected from the
+        // /statistics endpoint of the mainnet API server.
+
+        paramsOverrides.put('VEGA_BRANCH', nodeStatistics['statistics']['appVersion'])
+        print('This is pipeline targeting the mainnet version. Running with vega_branch = ' + nodeStatistics['statistics']['appVersion'])
+        }
+    }
+
+
     capsuleSystemTests([
         agentLabel: params.NODE_LABEL ?: '',
         vegacapsuleConfig: 'mainnet_config.hcl',
-        systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
             'MAINNET_TEST_CASE': 'true',
         ],
@@ -12,6 +31,9 @@ void call(Map paramsOverrides=[:]) {
         hooks: [
             postNetworkGenerate: [
                 'Load mainnet checkpoint': {
+                    Random rnd = new Random()
+                    String selectedMainnetApiServer = mainnetApiServers[rnd.nextInt(mainnetApiServers.size)]
+
                     def sshCredentials = sshUserPrivateKey(
                         credentialsId: 'ssh-vega-network',
                         keyFileVariable: 'PSSH_KEYFILE',
@@ -24,20 +46,13 @@ void call(Map paramsOverrides=[:]) {
                             networkDir = vegautils.escapePath(pwd())
                         }
 
-                        List availableCheckpointServers = [
-                            'api0.vega.community',
-                            'api1.vega.community',
-                            'api2.vega.community',
-                        ]
                         String tendermintRestAPIUrl = 'https://be.vega.community'
 
-                        Random rnd = new Random()
-                        String selectedCheckpointSourceServer = availableCheckpointServers[rnd.nextInt(availableCheckpointServers.size)]
-                        print('Random server for checkpoint source: ' + selectedCheckpointSourceServer)
+                        print('Random server for checkpoint source: ' + selectedMainnetApiServer)
                         sh label: 'Prepare mainnet genesis', script: '''mkdir -p ./lnl-workdir;
                             devopsscripts lnl prepare-network \
                                 --checkpoint-server-checkpoint-dir "/home/vega/vega_home/state/node/checkpoints" \
-                                --checkpoint-server-host "''' + selectedCheckpointSourceServer + '''" \
+                                --checkpoint-server-host "''' + selectedMainnetApiServer + '''" \
                                 --tendermint-rest-api-url "''' + tendermintRestAPIUrl + '''" \
                                 --checkpoint-server-key-file "''' + PSSH_KEYFILE + '''" \
                                 --checkpoint-server-user "''' + PSSH_USER + '''" \
@@ -52,6 +67,35 @@ void call(Map paramsOverrides=[:]) {
                         sh label: 'Copy loaded checkpoint into system-tests directory', script: '''
                             cp ./lnl-workdir/checkpoint.json system-tests/tests/LNL/checkpoint-resume.json
                         '''
+                    }
+                }
+            ],
+            postNetworkStart: [
+                'Fix for duplicates - vegaprotocol/vega 8662': {
+                    // We have to run this pipeline because when the network is started, data-node runs the migrations
+                    // before any data is loaded into the network. It means We run the `DELETE FROM ...` queries when the
+                    // tables are empty. Then after protocol upgrade we do not run the same migration again because
+                    // the database is already in latest version.
+                    //
+                    // Because of how the LNL pipeline works(it alwasy tests agains the develop branch), We have to apply
+                    // the fix from https://github.com/vegaprotocol/vega/pull/8662 again once data is in the database.
+
+                    // This step MUST be removed once the vegaprotocol/vega#8662 is released to mainnet
+
+                    for (int i=0; i<20; i++) {
+                        script {
+                            sh '''PGPASSWORD=vega \
+                                psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
+                                        --command "delete from stake_linking where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
+                                2>/dev/null || echo -n ""
+                            '''
+
+                            sh '''PGPASSWORD=vega \
+                                psql --host localhost --port 5532 --user vega vega'''+ i + ''' \
+                                        --command "delete from stake_linking_current where id='\\x6fb63c814ffe23b706decf5aeb0be88727b19618970655d5257c189454b4520f';" \
+                                2>/dev/null || echo -n ""
+                            '''
+                        }
                     }
                 }
             ],
@@ -74,10 +118,10 @@ void call(Map paramsOverrides=[:]) {
                             --no-secrets
                         '''
                     ).trim()
-                    
+
                     checkpointPath = vegautils.escapePath(rawPath)
-                    sh label: 'Copy found checkpoint', 
-                    script: '''vegatools checkpoint \
+                    sh label: 'Copy found checkpoint',
+                    script: '''vega tools checkpoint \
                         --file "''' + checkpointPath + '''" \
                         --out system-tests/tests/LNL/after_checkpoint_load.json \
                         1> /dev/null

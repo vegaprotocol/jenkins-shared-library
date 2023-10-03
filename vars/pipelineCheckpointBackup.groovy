@@ -43,6 +43,7 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
         stages {
             stage('CI Config') {
@@ -50,6 +51,7 @@ void call() {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        vegautils.commonCleanup()
                         publicIP = agent.getPublicIP()
                         print("Jenkins Agent public IP is: " + publicIP)
                     }

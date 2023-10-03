@@ -18,7 +18,12 @@ void call(Map config = [:]) {
       string(name: 'VEGACAPSULE_VERSION', value: config.vegacapsuleVersion ?: "main"),
       string(name: 'VEGA_MARKET_SIM_BRANCH', value: config.vegaMarketSim ?: "develop"),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: "main"),
-      string(name: 'NODE_LABEL', value: config.nodeLabel ?: 'system-tests'),
+      string(name: 'NODE_LABEL', value: config.nodeLabel ?: 'vega-market-sim'),
+      booleanParam(
+        name: "BRANCH_RUN",
+        value: config.branchRun ? "${config.branchRun}".toBoolean() : false
+      ),
+      string(name: "PARALLEL_WORKERS", value: config.parallelWorkers ?: "1"),
   ]
 
    RunWrapper vms = build(

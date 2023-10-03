@@ -18,9 +18,8 @@ void call(Map config=[:]) {
     )
 
     String remoteServer
-    String remoteServerDataNode
-    String remoteServerCometBFT
-    String jenkinsAgentPublicIP
+    String jenkinsAgentIP
+    String monitoringDashboardURL
 
     // api output placeholders
     def TM_VERSION
@@ -36,92 +35,123 @@ void call(Map config=[:]) {
     boolean chainStatusConnected = false
     boolean caughtUp = false
     boolean blockHeightIncreased = false
+    int notHealthyAgainCount = 0
     String networkVersion = null
+    String devopsToolsBranch = params.DEVOPSTOOLS_BRANCH ?: 'main'
+
+    Map<String, List<String>> healthyNodes = [:]
+    List<String> networkNodes = []
+    List<String> tendermintNodes = []
+
+    String remoteServerDataNode = ""
+    String remoteServerCometBFT = ""
 
     node(params.NODE_LABEL) {
         timestamps {
 
-            stage('init') {
-                skipDefaultCheckout()
-                cleanWs()
-                sh 'if [ ! -z "$(docker ps -q)" ]; then docker kill $(docker ps -q); fi'
-            }
-
             try {
-                // give extra 5 minutes for setup
-                timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
-                    stage('CI config') {
-                        // Printout all configuration variables
-                        sh 'printenv'
-                        echo "params=${params.inspect()}"
-                        // digitalocean
-                        if (params.NODE_LABEL == "s-4vcpu-8gb") {
-                            jenkinsAgentPublicIP = sh(
-                                script: 'curl --max-time 3 -sL http://169.254.169.254/metadata/v1.json | jq -Mrc ".interfaces.public[0].ipv4.ip_address"',
-                                returnStdout: true,
-                            ).trim()
-                        }
-                        // aws
-                        else {
-                            jenkinsAgentPublicIP = sh(
-                                script: 'curl --max-time 3 http://169.254.169.254/latest/meta-data/public-ipv4',
-                                returnStdout: true,
-                            ).trim()
-                        }
-                        echo "jenkinsAgentPublicIP=${jenkinsAgentPublicIP}"
-                        if (!jenkinsAgentPublicIP) {
-                            error("Couldn't resolve jenkinsAgentPublicIP")
-                        }
+
+                stage('init') {
+                    skipDefaultCheckout()
+                    cleanWs()
+                    script {
+                        // initial cleanup
+                        vegautils.commonCleanup()
+                        // init global variables
+                        monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                        jenkinsAgentIP = agent.getPublicIP()
+                        echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                        echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                        // set job Title and Description
+                        String prefixDescription = jenkinsutils.getNicePrefixForJobDescription()
+                        currentBuild.displayName = "#${currentBuild.id} ${prefixDescription} [${env.NODE_NAME.take(12)}]"
+                        currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
+                        // Setup grafana-agent
+                        grafanaAgent.configure("snapshot", [
+                            JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                        ])
+                        grafanaAgent.restart()
+                    }
+                }
+
+                stage('INFO') {
+                    // Print Info only, do not execute anythig
+                    echo "Jenkins Agent IP: ${jenkinsAgentIP}"
+                    echo "Jenkins Agent name: ${env.NODE_NAME}"
+                    echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
+                    echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                    echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                    echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                    echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                    echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                    echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                }
+
+                // give extra 12 minutes for setup
+                timeout(time: params.TIMEOUT.toInteger() + 12, unit: 'MINUTES') {
+                    stage('Clone devopstools') {
+                        gitClone([
+                            url: 'git@github.com:vegaprotocol/devopstools.git',
+                            branch: devopsToolsBranch,
+                            credentialsId: 'vega-ci-bot',
+                            directory: 'devopstools'
+                        ])
                     }
 
                     stage('Find available remote server') {
-                        def baseDomain = "${env.NET_NAME}.vega.xyz"
+
                         if (env.NET_NAME == "fairground") {
-                            baseDomain = "testnet.vega.xyz"
+                            baseDomain = "testnet.vega.rocks"
                         }
-                        def networkServers = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${baseDomain}" }
-                        if (env.NET_NAME == "mainnet") {
-                            networkServers = [
-                                "api0.vega.community",
-                                "api1.vega.community",
-                                "api2.vega.community",
-                                "api3.vega.community",
-                                "api4.vega.community",
-                                "api5.vega.community",
-                                "api6.vega.community",
-                                "api7.vega.community",
-                            ]
+
+
+                        /**
+                         * Return the following structure:
+                         * {
+                         *   "validators": [ .... ],
+                         *   "explorers": [ .... ],
+                         *   "data_nodes": [ .... ],
+                         *   "all": [ .... ]
+                         * }
+                         */
+                        String healthyNodesJSON = withDevopstools(
+                            command: 'network healthy-nodes',
+                            netName: env.NET_NAME,
+                            returnStdout: true,
+                        )
+
+                        print('Found healthy servers: \n' + healthyNodesJSON)
+
+                        healthyNodes = readJSON text: healthyNodesJSON
+                        if (healthyNodes["data_nodes"].size() < 1) {
+                            currentBuild.result = 'ABORTED'
+                            error("No healthy data nodes")
+                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
+                        }
+                        networkNodes = healthyNodes["data_nodes"]
+                        tendermintNodes = healthyNodes["tendermint_endpoints"]
+
+                        if (tendermintNodes.size() < 1) {
+                            currentBuild.result = 'ABORTED'
+                            error("No healthy tendermint nodes")
+                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
                         }
 
                         // exclude from checking servers that are in the denylist configured in DSL
                         if (env.NODES_DENYLIST) {
                             def denyList = (env.NODES_DENYLIST as String).split(',')
-                            networkServers = networkServers.findAll{ server -> !denyList.contains(server) }
+                            networkNodes = networkNodes.findAll{ server -> !denyList.contains(server) }
                         }
 
-                        Collections.shuffle(networkServers as List)
+                        Collections.shuffle(networkNodes)
 
-                        echo "Going to check servers: ${networkServers}"
-                        // Need to check Data Node endpoint
-                        if (env.NET_NAME == "mainnet") {
-                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy(serverName) }
-                        } else {
-                            remoteServer = networkServers.find{ serverName -> isDataNodeHealthy("api.${serverName}") }
+                        remoteServerDataNode = networkNodes[0]
+                        remoteServerCometBFT = tendermintNodes[0]
+                        if (!remoteServerCometBFT.contains("http")) {
+                            remoteServerCometBFT = 'https://' + remoteServerCometBFT
                         }
-                        if ( remoteServer == null ) {
-                            // No single machine online means that Vega Network is down
-                            // This is quite often for Devnet, when deployments happen all the time
-                            extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
-                            currentBuild.result = 'ABORTED'
-                            error("${env.NET_NAME} seems down")
-                        }
-                        if (env.NET_NAME == "mainnet") {
-                            remoteServerDataNode = remoteServer
-                            remoteServerCometBFT = "tm.${remoteServer}"
-                        } else {
-                            remoteServerDataNode = "api.${remoteServer}"
-                            remoteServerCometBFT = "tm.${remoteServer}"
-                        }
+
+
                         echo "Found available server: ${remoteServerDataNode} (${remoteServerCometBFT})"
                     }
 
@@ -131,14 +161,14 @@ void call(Map config=[:]) {
                             'dasel & data node config': {
                                 sh label: 'download dasel to edit toml files',
                                     script: '''#!/bin/bash -e
-                                        wget https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
+                                        wget --no-verbose https://github.com/TomWright/dasel/releases/download/v1.24.3/dasel_linux_amd64 && \
                                             mv dasel_linux_amd64 dasel && \
                                             chmod +x dasel
                                     '''
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp data node config from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
+                                            scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
                                         """
                                 }
                                 NETWORK_HISTORY_PEERS = sh(
@@ -150,9 +180,13 @@ void call(Map config=[:]) {
                             },
                             'vega core binary': {
                                 withCredentials([sshDevnetCredentials]) {
-                                    sh label: "scp vega core from ${remoteServerDataNode}",
+                                    sh label: "rsync vega core from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vegavisor_home/current/vega vega
+                                            time rsync -avz \
+                                                -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i '\${PSSH_KEYFILE}'" \
+                                                --progress \
+                                                \"\${PSSH_USER}\"@'${remoteServerDataNode}':/home/vega/vegavisor_home/current/vega \
+                                                ./vega
                                         """
                                     sh label: "vega version", script: """#!/bin/bash -e
                                         ./vega version
@@ -163,11 +197,11 @@ void call(Map config=[:]) {
                                 withCredentials([sshDevnetCredentials]) {
                                     sh label: "scp genesis.json from ${remoteServerDataNode}",
                                         script: """#!/bin/bash -e
-                                            scp -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
+                                            scp  -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/tendermint_home/config/genesis.json genesis.json
                                         """
-                                    sh label: "print genesis.json", script: """#!/bin/bash -e
-                                        cat genesis.json
-                                    """
+                                    // sh label: "print genesis.json", script: """#!/bin/bash -e
+                                    //     cat genesis.json
+                                    // """
                                 }
                             }
                         ])
@@ -184,42 +218,46 @@ void call(Map config=[:]) {
                     }
 
                     stage("Get API data related to configs") {
-                        try {
-                            // Check last snapshoted block
-                            def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
-                            def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
-                            def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
-                            SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
-                            SNAPSHOT_HASH = snapshotInfo['blockHash']
-                            println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
-                            println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
+                        // mitigiate moment when network restarts
+                        retry(3) {
+                            try {
+                                // Check last snapshoted block
+                                def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
+                                def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
+                                def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
+                                SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
+                                SNAPSHOT_HASH = snapshotInfo['blockHash']
+                                println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
+                                println("SNAPSHOT_HASH='${SNAPSHOT_HASH}' - also used as trusted block hash in tendermint statesync config")
+                                currentBuild.description += " block: ${SNAPSHOT_HEIGHT}"
 
-                            // Check TM version
-                            def status_req = new URL("https://${remoteServerCometBFT}/status").openConnection()
-                            def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
-                            TM_VERSION = status.result.node_info.version
-                            println("TM_VERSION=${TM_VERSION}")
+                                // Check TM version
+                                def status_req = new URL("${remoteServerCometBFT}/status").openConnection()
+                                def status = new groovy.json.JsonSlurperClassic().parseText(status_req.getInputStream().getText())
+                                TM_VERSION = status.result.node_info.version
+                                println("TM_VERSION=${TM_VERSION}")
 
-                            // Get data from TM
-                            (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
-                            Collections.shuffle(SEEDS as List)
-                            Collections.shuffle(RPC_SERVERS as List)
-                            SEEDS = SEEDS.take(2).join(",")
-                            RPC_SERVERS = RPC_SERVERS.take(2).join(",")
-                            println("SEEDS=${SEEDS}")
-                            println("RPC_SERVERS=${RPC_SERVERS}")
+                                // Get data from TM
+                                (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                                Collections.shuffle(SEEDS as List)
+                                Collections.shuffle(RPC_SERVERS as List)
+                                SEEDS = SEEDS.take(2).join(",")
+                                RPC_SERVERS = RPC_SERVERS.take(2).join(",")
+                                println("SEEDS=${SEEDS}")
+                                println("RPC_SERVERS=${RPC_SERVERS}")
 
-                        } catch (e) {
-                            if ( !isDataNodeHealthy(remoteServerDataNode) ) {
-                                // Remote server stopped being available.
-                                // This is quite often for Devnet, when deployments happen all the time
-                                extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
-                                currentBuild.result = 'ABORTED'
-                                error("${env.NET_NAME} seems down")
-                            } else {
-                                println("Remote server ${remoteServerDataNode} is still up.")
-                                // re-throw
-                                throw e
+                            } catch (e) {
+                                if ( !isDataNodeHealthy(remoteServerDataNode) ) {
+                                    // Remote server stopped being available.
+                                    // This is quite often for Devnet, when deployments happen all the time
+                                    extraMsg = extraMsg ?: "${env.NET_NAME} seems down. Snapshot test aborted."
+                                    currentBuild.result = 'ABORTED'
+                                    error("${env.NET_NAME} seems down")
+                                } else {
+                                    println("Remote server ${remoteServerDataNode} is still up.")
+                                    // re-throw
+                                    throw e
+                                }
                             }
                         }
                     }
@@ -235,16 +273,17 @@ void call(Map config=[:]) {
                                         ./dasel put int -f tm_config/config/config.toml statesync.trust_height ${SNAPSHOT_HEIGHT}
                                         ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers ${RPC_SERVERS}
                                         ./dasel put string -f tm_config/config/config.toml statesync.discovery_time "30s"
-                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "30s"
+                                        ./dasel put string -f tm_config/config/config.toml statesync.chunk_request_timeout "60s"
                                         ./dasel put string -f tm_config/config/config.toml p2p.seeds ${SEEDS}
+                                        ./dasel put string -f tm_config/config/config.toml p2p.dial_timeout "10s"
                                         ./dasel put int -f tm_config/config/config.toml p2p.max_packet_msg_payload_size 16384
-                                        ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentPublicIP}:26656"
+                                        ./dasel put string -f tm_config/config/config.toml p2p.external_address "${jenkinsAgentIP}:26656"
                                         ./dasel put bool -f tm_config/config/config.toml p2p.allow_duplicate_ip true
                                     """
                                 if (env.NET_NAME == 'validators-testnet') {
                                     sh label: 'set Tendermint config (validators-testnet specific)',
                                         script: """#!/bin/bash -e
-                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn012.validators-testnet.vega.xyz:40127,sn011.validators-testnet.vega.xyz:40117"
+                                            ./dasel put string -f tm_config/config/config.toml statesync.rpc_servers "sn010.validators-testnet.vega.rocks:40107,sn011.validators-testnet.vega.rocks:40117"
                                         """
                                 }
                                 sh label: 'print tendermint config',
@@ -256,6 +295,9 @@ void call(Map config=[:]) {
                                 sh label: 'set vega config',
                                     script: """#!/bin/bash -e
                                         ./dasel put bool -f vega_config/config/node/config.toml Broker.Socket.Enabled true
+                                        ./dasel put string -f vega_config/config/node/config.toml Broker.Socket.DialTimeout "4h"
+                                        ./dasel put bool -f vega_config/config/node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/node/config.toml Metrics.Port 2112
                                         cat vega_config/config/node/config.toml
                                     """
                             },
@@ -269,6 +311,10 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Username vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Password vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
+                                        ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
+                                        ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount 2001
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml Metrics.Enabled true
+                                        ./dasel put int -f vega_config/config/data-node/config.toml Metrics.Port 2113
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
                                         cat vega_config/config/data-node/config.toml
                                     """
@@ -350,95 +396,123 @@ void call(Map config=[:]) {
                                 }
                             },
                             'Checks': {
-                                nicelyStopAfter(params.TIMEOUT) {
+                                nicelyStopAfter(Integer.toString(params.TIMEOUT.toInteger() - 1)) {
+                                    int startAt = currentBuild.duration
                                     sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
-                                    int runEverySec = 30
+                                    int runEverySec = 10
                                     int runEveryMs = runEverySec * 1000
-                                    int startAt = currentBuild.duration
                                     int previousLocalHeight = -1
-                                    String currTime = currentBuild.durationString - ' and counting'
-                                    println("Checks are run every ${runEverySec} seconds (${currTime})")
+                                    // String currTime = currentBuild.durationString - ' and counting'
+                                    String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                    println("Checks are run every ${runEverySec} seconds")
                                     while (true) {
                                         // wait until next 20 or 50 sec past full minute since start
                                         int sleepForMs = runEveryMs - ((currentBuild.duration - startAt + 10 * 1000) % runEveryMs)
                                         sleep(time:sleepForMs, unit:'MILLISECONDS')
 
-                                        String timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                        if (!blockHeightIncreased) {
 
-                                        String remoteServerStats = sh(
-                                                script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
-                                        Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
-                                        String localServerStats = sh(
-                                                script: "curl --max-time 5 http://127.0.0.1:3003/statistics || echo '{}'",
-                                                returnStdout: true,
-                                            ).trim()
-                                        println("http://127.0.0.1:3003/statistics\n${localServerStats}")
-                                        Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
+                                            String remoteServerStats = sh(
+                                                    script: "curl --max-time 5 https://${remoteServerDataNode}/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("https://${remoteServerDataNode}/statistics\n${remoteServerStats}")
+                                            Object remoteStats = new groovy.json.JsonSlurperClassic().parseText(remoteServerStats)
+                                            String localServerStats = sh(
+                                                    script: "curl --max-time 5 http://127.0.0.1:3008/statistics || echo '{}'",
+                                                    returnStdout: true,
+                                                ).trim()
+                                            println("http://127.0.0.1:3008/statistics\n${localServerStats}")
+                                            Object localStats = new groovy.json.JsonSlurperClassic().parseText(localServerStats)
 
-                                        if (networkVersion == null || networkVersion.length() < 1) {
-                                            networkVersion = localStats?.statistics?.appVersion
-                                        }
-
-                                        if (!chainStatusConnected) {
-                                            if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
-                                                chainStatusConnected = true
-                                                currTime = currentBuild.durationString - ' and counting'
-                                                println("Node has reached status CHAIN_STATUS_CONNECTED !! (${currTime})")
+                                            if (networkVersion == null || networkVersion.length() < 1) {
+                                                networkVersion = localStats?.statistics?.appVersion
                                             }
-                                        }
-                                        if (chainStatusConnected) {
-                                            int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
-                                            int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
 
-                                            if (!blockHeightIncreased) {
+                                            if (!chainStatusConnected) {
+                                                if (localStats?.statistics?.status == "CHAIN_STATUS_CONNECTED") {
+                                                    chainStatusConnected = true
+                                                    // currTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    println("====>>> Node has reached status CHAIN_STATUS_CONNECTED !! (${timeSinceStartSec} sec) <<<<====")
+                                                }
+                                            }
+
+                                            // don't use else, to run next test in the same iteration
+                                            if (chainStatusConnected) {
+                                                int remoteHeight = remoteStats?.statistics?.blockHeight?.toInteger() ?: 0
+                                                int localHeight = localStats?.statistics?.blockHeight?.toInteger() ?: 0
                                                 if (localHeight > 0) {
                                                     if (previousLocalHeight < 0) {
                                                         previousLocalHeight = localHeight
                                                     } else if (localHeight > previousLocalHeight) {
                                                         blockHeightIncreased = true
-                                                        currTime = currentBuild.durationString - ' and counting'
-                                                        println("Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${currTime})")
+                                                        // currTime = currentBuild.durationString - ' and counting'
+                                                        timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                        println("====>>> Detected that block has increased from ${previousLocalHeight} to ${localHeight} (${timeSinceStartSec} sec) <<<<====")
                                                     }
                                                 }
                                             }
+                                        }
 
-                                            if (!caughtUp && remoteHeight != 0 && (remoteHeight - localHeight < 10)) {
-                                                caughtUp = true
-                                                catchupTime = currentBuild.durationString - ' and counting'
-                                                println("Node has caught up with the vega network !! (heights local: ${localHeight}, remote: ${remoteHeight}) (${catchupTime})")
+                                        // don't use else, to run next test in the same iteration
+                                        if (blockHeightIncreased) {
+                                            if (!caughtUp) {
+                                                if ( isLocalDataNodeHealthy(true) ) {
+                                                    caughtUp = true
+                                                    // catchupTime = currentBuild.durationString - ' and counting'
+                                                    timeSinceStartSec = Math.round((currentBuild.duration - startAt)/1000)
+                                                    catchupTime = "${timeSinceStartSec} sec"
+                                                    println("====>>> Data Node has caught up with the vega network !! (${timeSinceStartSec} sec) <<<<====")
+                                                    // still take samples every 10sec, to investigate potential issue on Devnet
+                                                    // runEveryMs *= 2
+                                                    // println("Increasing delay between checks to ${runEveryMs/1000} seconds")
+                                                }
+                                            } else {
+                                                if ( !isLocalDataNodeHealthy(true) ) {
+                                                    notHealthyAgainCount += 1
+                                                    println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                }
                                             }
                                         }
                                     }
                                 }
                             },
                             'Info': {
-                                echo "Jenkins Agent Public IP: ${jenkinsAgentPublicIP}. Some useful links:"
-                                echo "http://${jenkinsAgentPublicIP}:3003/statistics"
-                                echo "http://${jenkinsAgentPublicIP}:3008/graphql/"
-                                echo "http://${jenkinsAgentPublicIP}:3008/api/v2/epoch"
-                                echo "https://${remoteServerDataNode}/statistics"
-                                echo "https://${remoteServerCometBFT}/net_info"
+                                echo "Jenkins Agent Public IP: ${jenkinsAgentIP}. Some useful links:"
+                                echo "Core stats: http://${jenkinsAgentIP}:3003/statistics"
+                                echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
+                                echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
+                                echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+                                echo "External Data-Node stats: https://${remoteServerDataNode}/statistics"
+                                echo "CometBFT: ${remoteServerCometBFT}/net_info"
+                                echo "Monitoring Dashboard: ${monitoringDashboardURL}"
                             }
                         )
                     }
                     stage("Verify checks") {
                         if (!chainStatusConnected) {
+                            currentBuild.description += "no CHAIN_STATUS_CONNECTED"
                             extraMsg = extraMsg ?: "Not reached CHAIN_STATUS_CONNECTED."
                             error("Non-validator never reached CHAIN_STATUS_CONNECTED status.")
                         }
                         echo "Chain status connected: ${chainStatusConnected}"
                         if (!blockHeightIncreased) {
+                            currentBuild.description += "block did not increase"
                             extraMsg = extraMsg ?: "block height didn't increase."
                             error("Non-validator block height did not incrase.")
                         }
                         echo "Block height increased: ${blockHeightIncreased}"
                         if (!caughtUp) {
+                            currentBuild.description += "did not catch up"
                             extraMsg = extraMsg ?: "didn't catch up with network."
                             error("Non-validator did not catch up.")
+                        }
+                        if (notHealthyAgainCount > 0) {
+                            currentBuild.description += "became unhealthy (${notHealthyAgainCount})"
+                            extraMsg = extraMsg ?: "became unhealthy ${notHealthyAgainCount} times."
+                            error("Non-validator became unhealthy ${notHealthyAgainCount} times.")
                         }
                         echo "Caught up: ${caughtUp}"
                         println("All checks passed.")
@@ -501,6 +575,13 @@ void call(Map config=[:]) {
                 stage('Notification') {
                     sendSlackMessage(env.NET_NAME, extraMsg, catchupTime)
                 }
+                stage('cleanup') {
+                    script {
+                        // cleanup grafana
+                        grafanaAgent.stop()
+                        grafanaAgent.cleanup()
+                    }
+                }
             }
         }
     }
@@ -525,35 +606,116 @@ boolean nicelyStopAfter(String timeoutMin, Closure body) {
     return ( timeoutMin.toInteger() * 60 - 5 ) * 1000 < (currentBuild.duration - startTimeMs)
 }
 
-boolean isDataNodeHealthy(String serverURL) {
+boolean isDataNodeHealthy(String serverURL, boolean tls = true, boolean debug = false) {
     try {
-        def conn = new URL("https://${serverURL}/statistics").openConnection()
+        def conn = new URL("http${tls ? 's' : ''}://${serverURL}/statistics").openConnection()
         conn.setConnectTimeout(1000)
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: response code ${conn.getResponseCode()} not 200 for ${serverURL}")
+            }
+            return false
         }
         int datanode_height = (conn.getHeaderField("x-block-height") ?: "-1") as int
         if (datanode_height < 0) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for ${serverURL}")
+            }
+            return false
         }
         def stats = new groovy.json.JsonSlurperClassic().parseText(conn.getInputStream().getText())
         int core_height = stats.statistics.blockHeight as int
         if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for ${serverURL}")
+            }
             return false
         }
         Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
         if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
-          return false
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${vega_time}) is more than 10 seconds behind now (${current_time}) for ${serverURL}")
+            }
+            return false
         }
         return true
     } catch (IOException e) {
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for ${serverURL}")
+        }
         return false
     }
 }
 
+boolean isLocalDataNodeHealthy(boolean debug = false) {
+    try {
+        String localServerStatsResponse = sh(
+                script: "curl --max-time 5 -i http://127.0.0.1:3008/statistics || echo '{}'",
+                returnStdout: true,
+                encoding: 'UTF-8',
+            ).trim()
+        localServerStatsResponse = localServerStatsResponse.replaceAll("\r", "")
+        def respParts = localServerStatsResponse.split("\n\n")
+        if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: malformed response (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
+            }
+            return false
+        }
+        String localServerStatsBody = respParts[1]
+        respParts = respParts[0].split("\n", 2)
+        if (respParts.size() != 2) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing response code (${respParts.size()}) for local data-node:\n${localServerStatsResponse}")
+            }
+            return false
+        }
+        String localServerStatsCode = respParts[0]
+        String localServerStatsHeaders = respParts[1]
+        if (!localServerStatsCode.contains("200")) {
+            if (debug) {
+                println("Data Node healthcheck failed: response code is not 200: ${localServerStatsCode} for local data-node")
+            }
+            return false
+        }
+        def headerMatcher = (localServerStatsHeaders =~ /(?i)X-Block-Height: (.*)\n/)
+        if (!headerMatcher.find()) {
+            if (debug) {
+                println("Data Node healthcheck failed: missing x-block-height response header for local data-node")
+            }
+            return false
+        }
+        int datanode_height = headerMatcher[0][1] as int
+        def stats = new groovy.json.JsonSlurperClassic().parseText(localServerStatsBody)
+        int core_height = stats.statistics.blockHeight as int
+        if ((core_height - datanode_height).abs() > 10) {
+            if (debug) {
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for local data-node")
+            }
+            return false
+        }
+        Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
+        Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
+        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
+            if (debug) {
+                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for local data-node")
+            }
+            return false
+        }
+        return true
+    } catch (IOException e) {
+        if (debug) {
+            println("Data Node healthcheck failed: exception ${e} for local data-node")
+        }
+        return false
+    }
+
+}
+
 void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
     String slackChannel = '#snapshot-notify'
+    String slackFailedChannel = '#snapshot-notify-failed'
     String jobURL = env.RUN_DISPLAY_URL
     String jobName = currentBuild.displayName
 
@@ -590,6 +752,14 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
         color: color,
         message: msg,
     )
+
+    if (currentResult != 'SUCCESS') {
+        slackSend(
+            channel: slackFailedChannel,
+            color: color,
+            message: msg,
+        )
+    }
 }
 
 boolean checkServerListening(String serverHost, int serverPort) {
@@ -610,9 +780,9 @@ boolean checkServerListening(String serverHost, int serverPort) {
 }
 
 def getSeedsAndRPCServers(String cometURL) {
-  def net_info_req = new URL("https://${cometURL}/net_info").openConnection()
+  def net_info_req = new URL("${cometURL}/net_info").openConnection()
   def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
-  
+
   RPC_SERVERS = []
   SEEDS = []
   for(peer in net_info.result.peers) {
@@ -626,10 +796,13 @@ def getSeedsAndRPCServers(String cometURL) {
     if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
       continue
     }
+    if(addr.startsWith("be")) {  // remove Block Explorers - as not stable
+      continue
+    }
     if( ! checkServerListening(addr, port)) {
       continue
     }
-    // Get RPC port 
+    // Get RPC port
     def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
     if(rpc_port.size()<2) {
       continue

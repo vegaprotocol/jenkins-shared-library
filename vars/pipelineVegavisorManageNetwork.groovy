@@ -68,14 +68,20 @@ void call() {
         }
         environment {
             PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+            GOBIN = "${env.WORKSPACE}/gobin"
         }
+
         stages {
             stage('CI Config') {
                 steps {
                     sh "printenv"
                     echo "params=${params.inspect()}"
                     script {
+                        vegautils.commonCleanup()
                         currentBuild.description = "action: ${params.ACTION}"
+                        if (params.DRY_RUN) {
+                            currentBuild.description += " [DRY RUN]"
+                        }
                         (RELEASE_VERSION, DOCKER_VERSION) = vegavisorConfigureReleaseVersion(params.RELEASE_VERSION, params.DOCKER_VERSION)
                     }
                 }
@@ -356,12 +362,17 @@ void call() {
                 }
             }
             stage('Disable Alerts') {
+                when {
+                    not { expression { params.DRY_RUN } }
+                }
                 steps {
-                    script {
-                        ALERT_SILENCE_ID = alert.disableAlerts(
-                            environment: env.ANSIBLE_LIMIT,
-                            duration: 40, // minutes
-                        )
+                    retry(3) {
+                        script {
+                            ALERT_SILENCE_ID = alert.disableAlerts(
+                                environment: env.ANSIBLE_LIMIT,
+                                duration: 40, // minutes
+                            )
+                        }
                     }
                 }
             }
@@ -388,7 +399,7 @@ void call() {
                             json: [
                                 release_version: RELEASE_VERSION,
                                 unsafe_reset_all: params.UNSAFE_RESET_ALL,
-                                perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
+                                    perform_network_operations: params.PERFORM_NETWORK_OPERATIONS,
                                 update_system_configuration: params.UPDATE_SYSTEM_CONFIGURATION,
                             ].findAll{ key, value -> value != null }
                         )
@@ -399,6 +410,7 @@ void call() {
                                         stage('Provision Infrastructure') {
                                             sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
+                                                    ${params.DRY_RUN ? '--check' : ''} \
                                                     --diff \
                                                     -u "\${PSSH_USER}" \
                                                     --private-key "\${PSSH_KEYFILE}" \
@@ -415,6 +427,7 @@ void call() {
                                     stage(stageName) {
                                         sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
                                             ansible-playbook \
+                                                ${params.DRY_RUN ? '--check' : ''} \
                                                 --diff \
                                                 -u "\${PSSH_USER}" \
                                                 --private-key "\${PSSH_KEYFILE}" \
@@ -425,6 +438,21 @@ void call() {
                                                 playbooks/${env.ANSIBLE_PLAYBOOK}
                                         """
                                     }
+
+                                    if (!params.SKIP_INFRA_PROVISION) {
+                                        stage('Non restart required changes') {
+                                            sh label: "ansible playbooks/playbook-barenode-non-restart-required.yaml", script: """#!/bin/bash -e
+                                                ansible-playbook \
+                                                    ${params.DRY_RUN ? '--check' : ''} \
+                                                    --diff \
+                                                    -u "\${PSSH_USER}" \
+                                                    --private-key "\${PSSH_KEYFILE}" \
+                                                    --inventory inventories \
+                                                    --limit "${env.ANSIBLE_LIMIT}" \
+                                                    playbooks/${env.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED}
+                                            """
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -432,12 +460,10 @@ void call() {
                 }
                 post {
                     success {
-                        catchError {
-                            script {
+                        script {
+                            if (ALERT_SILENCE_ID) {
                                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 5)
                             }
-                        }
-                        script {
                             stagesStatus[stagesHeaders.version] = statuses.ok
                             String action = ': restart'
                             if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS ) {
@@ -447,12 +473,10 @@ void call() {
                         }
                     }
                     unsuccessful {
-                        catchError {
-                            script {
+                        script {
+                            if (ALERT_SILENCE_ID) {
                                 alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
                             }
-                        }
-                        script {
                             stagesStatus[stagesHeaders.version] = statuses.failed
                             String action = ': restart'
                             if (RELEASE_VERSION && params.PERFORM_NETWORK_OPERATIONS) {
@@ -491,9 +515,11 @@ void call() {
                             //   - increase sleep
                             //
                             sleep 180
-                            withDevopstools(
-                                command: 'network self-delegate'
-                            )
+                            lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                withDevopstools(
+                                    command: 'network self-delegate'
+                                )
+                            }
                         }
                         post {
                             success {
@@ -523,13 +549,17 @@ void call() {
                                 }
                                 steps {
                                     sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
-                                    withDevopstools(
-                                        command: 'market propose --all'
-                                    )
+                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                        withDevopstools(
+                                            command: 'market propose --all'
+                                        )
+                                    }
                                     sleep 30 * 7
-                                    withDevopstools(
-                                        command: 'market provide-lp'
-                                    )
+                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                        withDevopstools(
+                                            command: 'market provide-lp'
+                                        )
+                                    }
                                 }
                                 post {
                                     success {
@@ -589,11 +619,13 @@ void call() {
                                 expression {
                                     params.ACTION != 'stop-network'
                                 }
+                                expression {
+                                    env.NET_NAME == 'fairground'
+                                }
                             }
                         }
                         steps {
                             script {
-                                // ['vegawallet', 'faucet'].each { app ->
                                 ['vegawallet'].each { app ->
                                     releaseKubernetesApp(
                                         networkName: env.NET_NAME,

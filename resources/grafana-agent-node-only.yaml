@@ -1,0 +1,39 @@
+# For a full configuration reference, see: https://grafana.com/docs/agent/latest/configuration/.
+server:
+  log_level: warn
+
+metrics:
+  global:
+    scrape_interval: 15s
+    remote_write:
+      - url: ${PROMETHEUS_URL}
+        basic_auth:
+          username: ${PROMETHEUS_USERNAME}
+          password: ${PROMETHEUS_PASSWORD}
+    external_labels:
+      jenkins_job: "${JENKINS_JOB_NAME}"
+      jenkins_build_number: "${JENKINS_BUILD_NUMBER}"
+      jenkins_pr: "${JENKINS_PR}"
+      jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
+      jenkins_pr_repo: "${JENKINS_PR_REPO}"
+      jenkins_started_by: "${JENKINS_STARTED_BY}"
+      jenkins_started_by_user: "${JENKINS_STARTED_BY_USER}"
+
+  wal_directory: '/var/lib/grafana-agent'
+  configs:
+    - name: agent
+      scrape_configs:
+
+integrations:
+  agent:
+    enabled: false
+  node_exporter:
+    enabled: true
+    include_exporter_metrics: true
+    disable_collectors:
+      - "mdadm"
+    metric_relabel_configs:
+      - replacement: ${AGENT_NAME}
+        source_labels:
+          - __address__
+        target_label: instance

@@ -59,7 +59,6 @@ def standardDescription() {
     """, 5)
 }
 
-
 def createCommonPipeline(args){
     args.repoName = "vegaprotocol/${args.repo}"
     args.repo = "git@github.com:vegaprotocol/${args.repo}.git"
@@ -67,8 +66,8 @@ def createCommonPipeline(args){
     def des = args.get('description', '')
     des += "${des ? '<br/>' : ''} ${standardDescription()}"
 
-    return pipelineJob(args.name) {
-
+    return pipelineJob(args.name.replaceAll(' ', '-')) {
+        displayName(args.name.split('/')[-1])
         disabled(args.get('disabled', false))
 
         description(des)
@@ -90,6 +89,12 @@ def createCommonPipeline(args){
             args.env.each { key, value ->
                 env(key.toUpperCase(), value)
             }
+            env("GOROOT", "/usr/local/go")
+            env("GOPATH", "/jenkins/GOPATH")
+            env("GOCACHE", "/jenkins/GOCACHE")
+            env("GO111MODULE", "on")
+            env("GOBIN", "/jenkins/GOPATH/bin")
+            env("PATH+EXTRA", "/jenkins/GOPATH/bin:/usr/local/go/bin:/home/ubuntu/.local/bin:/home/ubuntu/.pyenv/bin:/home/ubuntu/.pyenv/shims")
         }
 
         if (args.get('useScmDefinition', true)) {
@@ -147,38 +152,139 @@ def libDefinition(methodName) {
 
 def vegavisorParamsBase(args=[:]) {
     return {
-        booleanParam('SKIP_INFRA_PROVISION', false, 'switch to true when you use `create-*` action and wish to ommit infrastrucutre provisioning like: accounts, grafana-agent, etc.')
-        booleanParam('UPDATE_SYSTEM_CONFIGURATION', args.get('UPDATE_CONFIGURATION', true), 'This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
-        booleanParam('PERFORM_NETWORK_OPERATIONS', true, 'This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
-        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
-        stringParam('NETWORKS_INTERNAL_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/networks-internal repository')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        booleanParam {
+            name('SKIP_INFRA_PROVISION')
+            defaultValue(true)
+            description('switch to false when creating node, or you want to apply other changes along with retarting node. Otherwise you can use non-restart required pipeline.')
+        }
+        booleanParam {
+            name('UPDATE_SYSTEM_CONFIGURATION')
+            defaultValue(args.get('UPDATE_CONFIGURATION', true))
+            description('This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
+        }
+        booleanParam {
+            name('PERFORM_NETWORK_OPERATIONS')
+            defaultValue(true)
+            description('This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
+        }
+        stringParam {
+            name('VEGACAPSULE_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('NETWORKS_INTERNAL_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/networks-internal repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL','tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
 def vegavisorRestartNetworkParams(args=[:]) {
-    def choices = [
+    def possibleChoices = [
         'restart-network': 'regular restart',
         'create-network': 'reset network, additionally runs playbook-barenode-common.yaml that provisions software for nodes',
         'stop-network': 'stop entire network',
     ]
     return vegavisorParamsBase(args) << {
-        choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a network') + ul(choices))
-        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-        stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
-        booleanParam('UNSAFE_RESET_ALL', true, 'If set to true then delete all local state. Otherwise leave it for restart.')
-        booleanParam('USE_CHECKPOINT', args.get('USE_CHECKPOINT', true), 'This will download latest checkpoint and use it to restart the network with')
-        booleanParam('CREATE_MARKETS', args.get('CREATE_MARKETS', false), h('create markets'))
-        booleanParam('TOP_UP_BOTS', args.get('TOP_UP_BOTS', false), h('trigger top up job'))
-        stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-        stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
-        stringParam('TIMEOUT', '80', 'Number of minutes after which the job will stop')
-        stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
-        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-        stringParam('VEGA_REPO', 'vegaprotocol/vega', 'Works only when VEGA_VERSION is not empty')
+        choiceParam {
+            name('ACTION')
+            choices(possibleChoices.keySet() as List)
+            description(h('action to be performed with a network') + ul(possibleChoices))
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        stringParam {
+            name('RELEASE_VERSION')
+            defaultValue('')
+            description('Specify which version of vega to deploy. Leave empty to restart network only.')
+            trim(true)
+        }
+        stringParam {
+            name('DOCKER_VERSION')
+            defaultValue('')
+            description('Specify which version of docker images to deploy. Leave empty to not change.')
+            trim(true)
+        }
+        booleanParam {
+            name('UNSAFE_RESET_ALL')
+            defaultValue(true)
+            description('If set to true then delete all local state. Otherwise leave it for restart.')
+        }
+        booleanParam {
+            name('USE_CHECKPOINT')
+            defaultValue(args.get('USE_CHECKPOINT', true))
+            description('This will download latest checkpoint and use it to restart the network with')
+        }
+        booleanParam {
+            name('CREATE_MARKETS')
+            defaultValue(args.get('CREATE_MARKETS', false))
+            description(h('create markets'))
+        }
+        booleanParam {
+            name('TOP_UP_BOTS')
+            defaultValue(args.get('TOP_UP_BOTS', false))
+            description(h('trigger top up job'))
+        }
+        stringParam {
+            name('DEVOPSSCRIPTS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            trim(true)
+        }
+        stringParam {
+            name('CHECKPOINT_STORE_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('80')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_VERSION')
+            defaultValue('')
+            description('''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only. Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_REPO')
+            defaultValue('vegaprotocol/vega')
+            description('Works only when VEGA_VERSION is not empty')
+            trim(true)
+        }
     }
 }
 
@@ -193,36 +299,24 @@ def vegavisorManageNodeDescription() {
 }
 
 def vegavisorManageNodeParams(args=[:]) {
-    def choices = [
+    def possibleChoices = [
         'restart-node': 'regular restart',
         'create-node': 'reset node',
         'stop-node': 'stop node',
     ]
 
-    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.xyz" } + [
-        "be.${args.name}.vega.xyz",
-        "be02.${args.name}.vega.xyz",
-        "metabase00.${args.name}.vega.xyz",
-        "metabase01.${args.name}.vega.xyz",
-        "metabase02.${args.name}.vega.xyz",
-        "m.${args.name}.vega.xyz",
+    List nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+        "metabase02.${args.name}.vega.rocks",
+        "m.${args.name}.vega.rocks",
     ]
-
-
-    if (args.name == "devnet1") {
-        nodesList = (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
-            "be.${args.name}.vega.rocks",
-            "be02.${args.name}.vega.rocks",
-            "metabase00.${args.name}.vega.rocks",
-            "metabase01.${args.name}.vega.rocks",
-            "metabase02.${args.name}.vega.rocks",
-            "m.${args.name}.vega.rocks",
-        ]
-    }
 
     if (args.sentryNodes) {
         nodesList += ((0..15).collect { nodeNumber ->
-            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.xyz" }
+            (0..9).collect { "sn${nodeNumber.toString().padLeft( 2, '0' )}${it}.${args.name}.vega.rocks" }
         }).flatten()
     }
 
@@ -246,32 +340,83 @@ def vegavisorManageNodeParams(args=[:]) {
             "api3.vega.community",
             "api4.vega.community",
             "api5.vega.community",
-            "api6.vega.community",
-            "api7.vega.community",
             "be0.vega.community",
             "be1.vega.community",
-            "be2.vega.community",
+            "be3.vega.community",
             "m0.vega.community",
-            "m1.vega.community",
             "m2.vega.community",
             "m3.vega.community",
+            "m4.vega.community",
             "metabase.vega.community",
+            "test.vega.community",
         ]
     }
 
     return vegavisorParamsBase(args) << {
-        choiceParam('NODE', nodesList, 'Choose which node to restart')
-        choiceParam('ACTION', choices.keySet() as List, h('action to be performed with a node') + ul(choices) )
-        booleanParam('UNSAFE_RESET_ALL', false, 'If set to true then delete all local node state. Otherwise leave it for restart.')
-        booleanParam('JOIN_AS_VALIDATOR', false, 'If set to true causes node to join network as validator. It will work only with `create-node`')
-        booleanParam('USE_REMOTE_SNAPSHOT', false, 'If set to true uses data from available validator to configure remote snapshot in tendermint config')
-        stringParam('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT', '0', 'If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
-        booleanParam('RANDOM_NODE', false, 'If set to true restart random node instead of the one provided in the parameters.')
-        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-        stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
-        stringParam('VEGA_VERSION', '', '''(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only.
-        Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty''')
-        booleanParam('DISABLE_LOCK', false, 'Use only if you know what you are doing!!! Useful when provisioning many same nodes at the time')
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        choiceParam {
+            name('ACTION')
+            choices(possibleChoices.keySet() as List)
+            description(h('action to be performed with a node') + ul(possibleChoices))
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UNSAFE_RESET_ALL')
+            defaultValue(false)
+            description('If set to true then delete all local node state. Otherwise leave it for restart.')
+        }
+        booleanParam {
+            name('JOIN_AS_VALIDATOR')
+            defaultValue(false)
+            description('If set to true causes node to join network as validator. It will work only with `create-node`')
+        }
+        booleanParam {
+            name('USE_REMOTE_SNAPSHOT')
+            defaultValue(false)
+            description('If set to true uses data from available validator to configure remote snapshot in tendermint config')
+        }
+        stringParam {
+            name('USE_REMOTE_SNAPSHOT_BLOCK_HEIGHT')
+            defaultValue('0')
+            description('If set to any value different than 0 then ansible while omit reading /api/v2/snapshot tendermint API and set --load-from-block-height flag for vega directly from this input')
+            trim(true)
+        }
+        booleanParam {
+            name('RANDOM_NODE')
+            defaultValue(false)
+            description('If set to true restart random node instead of the one provided in the parameters.')
+        }
+        stringParam {
+            name('RELEASE_VERSION')
+            defaultValue('')
+            description('Specify which version of vega to deploy. Leave empty to restart network only.')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('40')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_VERSION')
+            defaultValue('')
+            description('(Use only if you know what you are doing). Specify which version of vega to deploy. Leave empty to restart network only. Provide git branch, tag or hash of the vegaprotocol/vega repository or leave empty')
+            trim(true)
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(false)
+            description('Use only if you know what you are doing!!! Useful when provisioning many same nodes at the time')
+        }
     }
 }
 
@@ -279,27 +424,86 @@ def vegavisorProtocolUpgradeParams(args=[:]) {
     return vegavisorParamsBase(args + [
         'UPDATE_CONFIGURATION': false,
     ]) << {
-        stringParam('UPGRADE_BLOCK', '', 'Protocol upgrade block. Leave empty to use: current block + 400')
-        stringParam('RELEASE_VERSION', '', 'Specify which version of vega to deploy. Leave empty to restart network only.')
-        booleanParam('MANUAL_INSTALL', true, 'If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
-        stringParam('TIMEOUT', '40', 'Number of minutes after which the job will stop')
-        stringParam('DOCKER_VERSION', '', 'Specify which version of docker images to deploy. Leave empty to not change.')
+        stringParam {
+            name('UPGRADE_BLOCK')
+            defaultValue('')
+            description('Protocol upgrade block. Leave empty to use: current block + 400')
+            trim(true)
+        }
+        stringParam {
+            name('RELEASE_VERSION')
+            defaultValue('')
+            description('Specify which version of vega to deploy. Leave empty to restart network only.')
+            trim(true)
+        }
+        booleanParam {
+            name('MANUAL_INSTALL')
+            defaultValue(true)
+            description('If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
+        }
+        booleanParam {
+            name('RENDER_CONFIGS')
+            defaultValue(true)
+            description('If true, new configs are rendered and updated on the servers')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(true)
+            description('If true, no action is taken on the network')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('40')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('DOCKER_VERSION')
+            defaultValue('')
+            description('Specify which version of docker images to deploy. Leave empty to not change.')
+            trim(true)
+        }
     }
 }
 
 def vegavisorTopupBotsParams(args=[:]) {
     return {
-        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        stringParam('ADDITIONAL_TRADER_BOTS_IDS', args.get('additionalTraderbotsIds', []).join(","), 'When there is one than more instane of traderbot, pass their ids(coma separated)')
-        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            trim(true)
+        }
+        stringParam {
+            name('ADDITIONAL_TRADER_BOTS_IDS')
+            defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
+            description('When there is one than more instane of traderbot, pass their ids(coma separated)')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
 def networkApplyNonRestartChangesParams(args=[:]) {
 
-    List nodesList = ['All'] + (0..15).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
         "be.${args.name}.vega.rocks",
         "be02.${args.name}.vega.rocks",
         "metabase00.${args.name}.vega.rocks",
@@ -311,141 +515,809 @@ def networkApplyNonRestartChangesParams(args=[:]) {
             'All',
             "api0.vega.community",
             "api1.vega.community",
-            "api2.vega.community",
-            "api7.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
             "be0.vega.community",
             "be1.vega.community",
-            "be2.vega.community",
+            "be3.vega.community",
             "m0.vega.community",
-            "m1.vega.community",
             "m2.vega.community",
             "m3.vega.community",
+            "m4.vega.community",
             "metabase.vega.community",
+            "test.vega.community",
         ]
     }
 
     return {
-        choiceParam('NODE', nodesList, 'Apply changes to specified node.')
-        booleanParam('DRY_RUN', false, 'Run dry run without applying changes.')
-        booleanParam('UPDATE_ACCOUNTS', false, 'Update ssh accounts.')
-        booleanParam('DISABLE_LOCK', true, 'Allows you to run multiple jobs for specific network at the same time.')
-        stringParam('TIMEOUT', '15', 'Number of minutes after which the job will stop')
-        stringParam('ANSIBLE_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/ansible repository')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UPDATE_ACCOUNTS')
+            defaultValue(false)
+            description('Update ssh accounts.')
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
+def zfsBackupParams(args=[:]) {
+
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
+
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Create zfs snapshot, but not publish it anywhere')
+        }
+        stringParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT_NAME')
+            defaultValue('')
+            description('Name of the local zfs snapshot. Leave empty to get default value with timestamp in it.')
+            trim(true)
+        }
+        booleanParam {
+            name('CREATE_LOCAL_ZFS_SNAPSHOT_STOP_SERVICES')
+            defaultValue(true)
+            description('Stop services before taking snapshot, start them right after (if they were running).')
+        }
+        stringParam {
+            name('DESTROY_LOCAL_ZFS_SNAPSHOT_NAMES')
+            defaultValue('')
+            description('Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
+            trim(true)
+        }
+        stringParam {
+            name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_NAME')
+            defaultValue('')
+            description('Name of the local zfs snapshot to rollback to. Leave empty to skip rollback.')
+            trim(true)
+        }
+        booleanParam {
+            name('ROLLBACK_LOCAL_ZFS_SNAPSHOT_START_SERVICES')
+            defaultValue(true)
+            description('Start services after rollback.')
+        }
+        booleanParam {
+            name('ROLLBACK_REMOTE_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Rollback to remote snapshot')
+        }
+        stringParam {
+            name('ROLLBACK_REMOTE_ZFS_SNAPSHOT_SRC_MACHINE')
+            defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
+            description('From which machine use backup')
+            trim(true)
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('3000')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
+
+def createNewNodeFromBackupParams(args=[:]) {
+
+    List nodesList = [] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    if (args.name == "mainnet") {
+        nodesList = [
+            "api0.vega.community",
+            "api1.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
+
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        stringParam {
+            name('SNAPSHOT_SRC_MACHINE')
+            defaultValue(args.name == 'mainnet' ? 'api0.vega.community' : '')
+            description('From which machine use backup')
+            trim(true)
+        }
+        booleanParam {
+            name('INITIAL_SETUP')
+            defaultValue(true)
+            description('Perform initial setup: create unix accounts, setup zfs volumes, etc. (this will start node from block 0)')
+        }
+        booleanParam {
+            name('START_AT_THE_END')
+            defaultValue(true)
+            description('Start node after restoring remote backup. This will update all configs etc.')
+        }
+        booleanParam {
+            name('DISABLE_LOCK')
+            defaultValue(true)
+            description('Allows you to run multiple jobs for specific network at the same time.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('3000')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
+
+def fleetUpdateMachineParams(args=[:]) {
+    List machineList = [
+        "prometheus.vega.rocks",
+        "bots.vega.rocks",
+    ]
+
+    return {
+        choiceParam {
+            name('MACHINE_NAME')
+            choices(machineList)
+            description('Apply changes to specified machine.')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+        booleanParam {
+            name('UPDATE_ACCOUNTS')
+            defaultValue(false)
+            description('Update ssh accounts.')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('15')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue('tiny')
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
+
+
 def systemTestsParamsGeneric(args=[:]) {
     return {
-        stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
-        stringParam('VEGA_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-        stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
-        stringParam('VEGACAPSULE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-        stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-        stringParam('DEVOPS_INFRA_BRANCH', 'master', 'Git branch, tag or hash of the vegaprotocol/devops-infra repository')
-        stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-        stringParam('TEST_EXTRA_PYTEST_ARGS', '', 'extra args passed to system tests execution')
-        stringParam('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES', '', 'Override network parameters at the beginning of the run.')
-        stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-        booleanParam('SYSTEM_TESTS_DEBUG', false, 'Enable debug logs for system-tests execution')
-        stringParam('TIMEOUT', '300', 'Timeout in minutes, after which the pipline is force stopped.')
-        booleanParam('PRINT_NETWORK_LOGS', false, 'By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
-        booleanParam('RUN_PROTOCOL_UPGRADE_PROPOSAL', args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false), 'Determines whether the post-run stage to check protocol upgrade snapshot is run')
-        booleanParam('BUILD_PROTOCOL_UPGRADE_VERSION', false, 'If true, temporary release is created under the vegaprotocol/vega-dev-releases. Release is used for protocol upgrade tests. There are two environment variables available for system-tests to find that release: `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_REPOSITORY`, `PROTOCOL_UPGRADE_EXTERNAL_RELEASE_VERSION`')
-        if (args.get('SCENARIO', false)){
-            choiceParam('SCENARIO', args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'], 'Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+        stringParam {
+            name('ORIGIN_REPO')
+            defaultValue('vegaprotocol/vega')
+            description('repository which acts as vega source code (used for forks builds)')
+            trim(true)
         }
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', ''), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam {
+            name('VEGA_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/vega repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_BRANCH_UPGRADE')
+            defaultValue('')
+            description('Git branch, tag or hash of the vegaprotocol/vega repository to build the upgrade binary. If empty upgrade binary is created from the VEGA_BRANCH')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGACAPSULE_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGATOOLS_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPS_INFRA_BRANCH')
+            defaultValue('master')
+            description('Git branch, tag or hash of the vegaprotocol/devops-infra repository')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPSSCRIPTS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+            trim(true)
+        }
+        stringParam {
+            name('TEST_EXTRA_PYTEST_ARGS')
+            defaultValue('')
+            description('extra args passed to system tests execution')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES')
+            defaultValue('')
+            description('Override network parameters at the beginning of the run.')
+            trim(true)
+        }
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
+            trim(true)
+        }
+        booleanParam {
+            name('SYSTEM_TESTS_DEBUG')
+            defaultValue(false)
+            description('Enable debug logs for system-tests execution')
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue(args.get('TIMEOUT', '900'))
+            description('Timeout in minutes, after which the pipline is force stopped.')
+            trim(true)
+        }
+        booleanParam {
+            name('PRINT_NETWORK_LOGS')
+            defaultValue(false)
+            description('By default logs are only archived as as Jenkins Pipeline artifact. If this is checked, the logs will be printed in jenkins as well')
+        }
+        booleanParam {
+            name('RUN_PROTOCOL_UPGRADE_PROPOSAL')
+            defaultValue(args.get('RUN_PROTOCOL_UPGRADE_PROPOSAL', false))
+            description('Determines whether the post-run stage to check protocol upgrade snapshot is run')
+        }
+        booleanParam {
+            name('RUN_SOAK_TEST')
+            defaultValue(args.get('RUN_SOAK_TEST', true))
+            description('Determines if the SOAK test is going to run after the system-tests')
+        }
+        if (args.get('SCENARIO', false)){
+            choiceParam {
+                name('SCENARIO')
+                choices(args.get('SCENARIO') == 'NIGHTLY' ? ['NIGHTLY', 'PR'] : ['PR', 'NIGHTLY'])
+                description('Choose which scenario should be run, to see exact implementation of the scenario visit -> https://github.com/vegaprotocol/jenkins-shared-library/blob/main/vars/pipelineCapsuleSystemTests.groovy')
+            }
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
 def systemTestsParamsWrapper() {
     return systemTestsParamsGeneric() << {
-        stringParam('SYSTEM_TESTS_TEST_FUNCTION', '', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-        stringParam('SYSTEM_TESTS_TEST_MARK', 'smoke', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-        stringParam('SYSTEM_TESTS_TEST_DIRECTORY', '', 'Run tests from files in this directory and all sub-directories')
-        stringParam('TEST_DIRECTORY', '', 'list or wildcard of files/directories to collect test files from')
-        stringParam('CAPSULE_CONFIG', 'capsule_config.hcl', 'Run tests using the given vegacapsule config file')
-        booleanParam('SKIP_MULTISIGN_SETUP', false, h('When true validators are not added to multisig as signers'))
-        booleanParam('ARCHIVE_VEGA_BINARY', false, 'Define if vega binary needs to be archived - requirement for soak test pipelines')
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('smoke')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('TEST_DIRECTORY')
+            defaultValue('')
+            description('list or wildcard of files/directories to collect test files from')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+        booleanParam {
+            name('SKIP_MULTISIGN_SETUP')
+            defaultValue(false)
+            description(h('When true validators are not added to multisig as signers'))
+        }
+        booleanParam {
+            name('ARCHIVE_VEGA_BINARY')
+            defaultValue(false)
+            description('Define if vega binary needs to be archived - requirement for soak test pipelines')
+        }
     }
 }
 
 def lnlSystemTestsparams(Map args=[:]) {
     return systemTestsParamsGeneric(args) << {
-        stringParam('SYSTEM_TESTS_TEST_FUNCTION', 'test_checkpoint_loaded', 'Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-        stringParam('SYSTEM_TESTS_TEST_MARK', '', 'Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
-        stringParam('SYSTEM_TESTS_TEST_DIRECTORY', 'tests/LNL', 'Run tests from files in this directory and all sub-directories')
-        stringParam('CAPSULE_CONFIG', 'capsule_config_mainnet.hcl', 'Run tests using the given vegacapsule config file')
-        booleanParam('SKIP_MULTISIGN_SETUP', true, h('When true validators are not added to multisig as signers'))
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('test_checkpoint_loaded')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('tests/LNL')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config_mainnet.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+        booleanParam {
+            name('SKIP_MULTISIGN_SETUP')
+            defaultValue(true)
+            description(h('When true validators are not added to multisig as signers'))
+        }
     }
 }
+
+def snapshotCompatibilityParams(Map args=[:]) {
+    return systemTestsParamsGeneric(args) << {
+        stringParam {
+            name('SYSTEM_TESTS_TEST_FUNCTION')
+            defaultValue('')
+            description('Run only a tests with a specified function name. This is actually a "pytest -k $SYSTEM_TESTS_TEST_FUNCTION_NAME" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_MARK')
+            defaultValue('')
+            description('Run only a tests with the specified mark(s). This is actually a "pytest -m $SYSTEM_TESTS_TEST_MARK" command-line argument, see more: https://docs.pytest.org/en/stable/usage.html')
+            trim(true)
+        }
+        stringParam {
+            name('SYSTEM_TESTS_TEST_DIRECTORY')
+            defaultValue('tests/snapshot_compatibility')
+            description('Run tests from files in this directory and all sub-directories')
+            trim(true)
+        }
+        stringParam {
+            name('CAPSULE_CONFIG')
+            defaultValue('capsule_config_mainnet_snapshot.hcl')
+            description('Run tests using the given vegacapsule config file')
+            trim(true)
+        }
+    }
+}
+
+
 
 def approbationParams(def config=[:]) {
     return {
         if (config.type == 'core') {
-            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repo which acts as source of vegaprotocol (used for forks builds)')
-            stringParam('VEGA_CORE_BRANCH', 'develop', 'Git branch, tag or hash of the origin repo repository')
-            stringParam('MULTISIG_CONTROL_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
-            stringParam('VEGA_TOKEN_V2_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/Vega_Token_V2 repository')
-            stringParam('STAKING_BRIDGE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/Staking_Bridge repository')
-            stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/system-tests repository')
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repo which acts as source of vegaprotocol (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_CORE_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the origin repo repository')
+                trim(true)
+            }
+            stringParam {
+                name('MULTISIG_CONTROL_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/MultisigControl repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_TOKEN_V2_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/Vega_Token_V2 repository')
+                trim(true)
+            }
+            stringParam {
+                name('STAKING_BRIDGE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/Staking_Bridge repository')
+                trim(true)
+            }
+            stringParam {
+                name('SYSTEM_TESTS_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/system-tests repository')
+                trim(true)
+            }
         }
         else if (config.type == 'frontend') {
-            stringParam('FRONTEND_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
-            stringParam('VEGAWALLET_DESKTOP_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
-            stringParam('VEGAWALLET_UI_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
-            stringParam('VEGAWALLET_BROWSER_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
+            stringParam {
+                name('FRONTEND_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/frontend-monorepo repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGAWALLET_DESKTOP_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-desktop repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGAWALLET_UI_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-ui repository')
+                trim(true)
+            }
+            stringParam {
+                name('CONSOLE_TEST_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/console-test repository')
+                trim(true)
+            }
+
+        }
+        else if(config.type == 'browserWallet') {
+            stringParam {
+                name('VEGAWALLET_BROWSER_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegawallet-browser repository')
+                trim(true)
+            }
         }
 
-        stringParam('SPECS_BRANCH', 'cosmicelevator', 'Git branch, tag or hash of the vegaprotocol/specs repository')
+        stringParam {
+            name('APPROBATION_TAG')
+            defaultValue('v4.5.1')
+            description('Approbation image tag. latest or specific version with v prefix')
+            trim(true)
+        }
+
+        stringParam {
+            name('SPECS_BRANCH')
+            defaultValue('cosmicelevator')
+            description('Git branch, tag or hash of the vegaprotocol/specs repository')
+            trim(true)
+        }
 
         if (config.type == 'core') {
-            stringParam('SPECS_ARG', '{./specs/protocol/**/*.{md,ipynb},./specs/non-protocol-specs/**/*.{md,ipynb}}', '--specs argument value')
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('{/workspace/specs/protocol/**/*.{md,ipynb},/workspace/specs/non-protocol-specs/**/*.{md,ipynb}}')
+                description('--specs argument value')
+                trim(true)
+            }
         }
         else if (config.type == 'frontend') {
-            stringParam('SPECS_ARG', 'specs/user-interface/**/*.md', '--specs argument value')
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/**/*.md')
+                description('--specs argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('SPECS_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/**/*.md')
+                description('--specs argument value')
+                trim(true)
+            }
         }
 
         if (config.type == 'core') {
-            stringParam('CATEGORIES_ARG', './specs/protocol/categories.json', '--categories argument value')
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/specs/protocol/categories.json')
+                description('--categories argument value')
+                trim(true)
+            }
         }
         else if (config.type == 'frontend') {
-            stringParam('CATEGORIES_ARG', 'specs/user-interface/categories.json', '--categories argument value for the categories run')
-            stringParam('APPS_ARG', 'specs/user-interface/apps.json', '--categories argument value for the apps run')
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/categories.json')
+                description('--categories argument value for the categories run')
+                trim(true)
+            }
+            stringParam {
+                name('APPS_ARG')
+                defaultValue('/workspace/frontend-monorepo/specs/apps.json')
+                description('--categories argument value for the apps run')
+                trim(true)
+            }
+        }
+
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('CATEGORIES_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/categories.json')
+                description('--categories argument value for the categories run')
+                trim(true)
+            }
+            stringParam {
+                name('APPS_ARG')
+                defaultValue('/workspace/vegawallet-browser/specs/apps.json')
+                description('--categories argument value for the apps run')
+                trim(true)
+            }
         }
 
         if (config.type == 'core') {
-            stringParam('TESTS_ARG',  '{./system-tests/tests/**/*.py,./vega/core/integration/**/*.{go,feature},./MultisigControl/test/*.js,./Vega_Token_V2/test/*.js,./Staking_Bridge/test/*.js}', '--tests argument value')
+            stringParam {
+                name('FEATURES_ARG')
+                defaultValue('/workspace/specs/protocol/features.json')
+                description('--features argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
+            stringParam {
+                name('FEATURES_ARG')
+                defaultValue('')
+                description('--features argument value')
+                trim(true)
+            }
+        }
+
+        if (config.type == 'core') {
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}')
+                description('--tests argument value')
+                trim(true)
+            }
         }
         else if (config.type == 'frontend') {
-            stringParam('TESTS_ARG', '{frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},vegawallet-browser/{src,test}/**/*.{spec,test}.{ts,js,tsx,jsx}}', '--tests argument value')
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
+                description('--tests argument value')
+                trim(true)
+            }
+        }
+        else if (config.type == 'browserWallet') {
+            stringParam {
+                name('TESTS_ARG')
+                defaultValue('/workspace/vegawallet-browser/{frontend,test,web-extension}/**/*.spec.{ts,js,tsx,jsx}')
+                description('--tests argument value')
+                trim(true)
+            }
         }
 
         if (config.type == 'core' ) {
-            stringParam('IGNORE_ARG','{./spec-internal/protocol/0060*,./specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}', '--ignore argument value' )
+            stringParam {
+                name('IGNORE_ARG')
+                defaultValue('{/workspace/spec-internal/protocol/0060*,/workspace/specs/non-protocol-specs/{0001-NP*,0002-NP*,0004-NP*,0006-NP*,0007-NP*,0008-NP*,0010-NP*}}')
+                description('--ignore argument value' )
+                trim(true)
+            }
         }
 
         if (config.type == 'core') {
-            stringParam('OTHER_ARG', '--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats',  'Other arguments')
+            stringParam {
+                name('OTHER_ARG')
+                defaultValue('--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats')
+                description('Other arguments')
+                trim(true)
+            }
         }
-        else if (config.type == 'frontend') {
-            stringParam('OTHER_ARG', '--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv', 'Other arguments')
+        else if (config.type == 'frontend' || config.type == 'browserWallet') {
+            stringParam {
+                name('OTHER_ARG')
+                defaultValue('--category-stats --show-branches --verbose --show-files --output-jenkins  --output-csv')
+                description('Other arguments')
+                trim(true)
+            }
         }
 
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', config.get('NODE_LABEL', 'general'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(config.get('NODE_LABEL','tiny-cloud'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
 def snapshotParams(args=[:]) {
     return {
-        stringParam('TIMEOUT', '10', 'Number of minutes after which the node will stop')
-        booleanParam('BACKUP_SNAPSHOTS', false, 'Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-        stringParam('NODE_LABEL', args.get('NODE_LABEL', 's-4vcpu-8gb'), 'Jenkins label for running pipeline (empty means any node)')
+        stringParam {
+            name('TIMEOUT')
+            defaultValue(args.get('TIMEOUT','10'))
+            description('Number of minutes after which the node will stop')
+            trim(true)
+        }
+        booleanParam {
+            name('BACKUP_SNAPSHOTS')
+            defaultValue(false)
+            description('Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL','cloud-machine'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
     }
 }
 
@@ -453,7 +1325,7 @@ def snapshotParams(args=[:]) {
 def jobs = [
     // DSL Job - the one that manages this file
     [
-        name: 'private/DSL Job',
+        name: 'private/jenkins/DSL Job',
         numToKeep: 50,
         repo: 'jenkins-shared-library',
         description: h('this job is used to generate other jobs'),
@@ -464,7 +1336,7 @@ def jobs = [
     ],
     // Jenkins Configuration As Code
     [
-        name: 'private/Jenkins Configuration as Code Pipeline',
+        name: 'private/jenkins/Jenkins Configuration as Code Pipeline',
         numToKeep: 50,
         check: 'Jenkins Configuration as Code pipeline',
         repo: 'jenkins-shared-library',
@@ -474,17 +1346,85 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
+        name: 'private/jenkins/proxmox-provisioner',
+        numToKeep: 50,
+        repo: 'ansible',
+        description: h('This job is used to auto apply changes done to the jenkins-agent role'),
+        jenkinsfile: 'Jenkinsfile',
+        branch: 'master',
+        disableConcurrentBuilds: false,
+        parameters: {
+            stringParam {
+                name('NODE')
+                defaultValue('')
+                description('define on which node run provision, if empty - all nodes will be used, if you want multiple seperate them with ","')
+                trim(true)
+            }
+            booleanParam {
+                name('DRY_RUN')
+                defaultValue(false)
+                description('Run dry run without applying changes.')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('ANSIBLE_BRANCH')
+                defaultValue('master')
+                description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+                trim(true)
+            }
+        }
+    ],
+    [
         name: 'private/Deployments/Publish-vega-dev-releases',
         numToKeep: 200,
         description: h('This job builds vega binaries and publishes then as GitHub release to vega-dev-releases GitHub repo'),
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaDevRelease()'),
         parameters: {
-            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-            booleanParam('DEPLOY_TO_DEVNET_1', true, 'Trigger deployment to Devnet 1')
-            booleanParam('DEPLOY_TO_STAGNET_1', false, 'Trigger deployment to Stagnet 1')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 's-4vcpu-8gb', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            booleanParam {
+                name('DEPLOY_TO_DEVNET_1')
+                defaultValue(true)
+                description('Trigger deployment to Devnet 1')
+            }
+            booleanParam {
+                name('DEPLOY_TO_STAGNET_1')
+                defaultValue(false)
+                description('Trigger deployment to Stagnet 1')
+            }
+            stringParam {
+                name('RELEASE_VERSION_OVERRIDE')
+                defaultValue('')
+                description('Define version override. If not empty this version is used in the binary version and for the release name in the vega-dev-releases repository')
+                trim(true)
+            }
+            booleanParam {
+                name('CHANGE_VERSION_IN_BINARY')
+                defaultValue(true)
+                description('Modify code and replace version with custom version. When set to false, the binary will have original version, but it will be uploaded to generated version in vega-dev-releases repo')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('core-build')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
         },
         disableConcurrentBuilds: true,
     ],
@@ -502,12 +1442,12 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -521,10 +1461,10 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -549,9 +1489,7 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -561,10 +1499,11 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'devnet1',
+            RESEARCH_BOT: true,
+            TRADERBOT: false,
+            LIQBOT: false,
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
+        parameters: vegavisorTopupBotsParams(),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -580,56 +1519,23 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'devnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
-    //
-    // Sandbox
-    //
-    // [
-    //     name: 'private/Deployments/sandbox/Manage-Network',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_LIMIT: 'sandbox',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/sandbox/Manage-Node',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'sandbox'),
-    //     disableConcurrentBuilds: false,
-    //     // restart a random node every 30min
-    //     // parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    // ],
-    // [
-    //     name: 'private/Deployments/sandbox/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //         ANSIBLE_LIMIT: 'sandbox',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
+    [
+        name: 'private/Deployments/devnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'devnet1',
+        ],
+        parameters: zfsBackupParams(
+            name: 'devnet1',
+        ),
+        disableConcurrentBuilds: false,
+    ],
     //
     // Stagnet 1
     //
@@ -644,10 +1550,9 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -660,10 +1565,10 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -678,9 +1583,7 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -690,12 +1593,12 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'stagnet1',
+            RESEARCH_BOT: true,
+            TRADERBOT: true,
+            LIQBOT: false,
         ],
-        // parameters: vegavisorTopupBotsParams(["2","3","4","5", "6", "7"]),
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
-        cron: 'H * * * *',
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -710,70 +1613,25 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'stagnet1',
-            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/stagnet1/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'stagnet1',
+        ],
+        parameters: zfsBackupParams(
+            name: 'stagnet1',
         ),
         disableConcurrentBuilds: false,
     ],
     //
-    // Stagnet 2
-    //
-    // [
-    //     name: 'private/Deployments/stagnet2/Manage-Network',
-    //     numToKeep: 100,
-    //     description: devopsInfraDocs,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNetwork()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_LIMIT: 'stagnet2',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorRestartNetworkParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Manage-Node',
-    //     numToKeep: 100,
-    //     description: vegavisorManageNodeDescription(),
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorManageNode()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-    //         ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-    //     ],
-    //     parameters: vegavisorManageNodeParams(name: 'stagnet2'),
-    //     disableConcurrentBuilds: false,
-    //     // restart a random node every 30min
-    //     //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //         ANSIBLE_LIMIT: 'stagnet2',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(),
-    //     disableConcurrentBuilds: true,
-    // ],
-    // [
-    //     name: 'private/Deployments/stagnet2/Topup-Bots',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorTopupBots()'),
-    //     env: [
-    //         NET_NAME: 'stagnet2',
-    //     ],
-    //     parameters: vegavisorTopupBotsParams(),
-    //     // cron: 'H/30 * * * *',
-    //     disableConcurrentBuilds: true,
-    // ],
-    //
-    // Stagnet 3
+    // Mainnet Mirror
     //
     [
         name: 'private/Deployments/mainnet-mirror/Manage-Network',
@@ -784,12 +1642,11 @@ def jobs = [
         env: [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorRestartNetworkParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -797,38 +1654,20 @@ def jobs = [
         numToKeep: 100,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
+        definition: libDefinition('pipelineNetworkManageNode71()'),
         env: [
             NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
         //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
     ],
-    // [
-    //     name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
-    //     numToKeep: 100,
-    //     useScmDefinition: false,
-    //     definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-    //     env: [
-    //         NET_NAME: 'mainnet-mirror',
-    //         ANSIBLE_LIMIT: 'mainnet-mirror',
-    //     ],
-    //     parameters: vegavisorProtocolUpgradeParams(
-    //         NODE_LABEL: 's-4vcpu-8gb',
-    //     ),
-    //     // everyday 2AM UTC, jenkins prefred minute
-    //     // parameterizedCron: 'H 2 * * * %' + [
-    //     //     'RELEASE_VERSION=latest',
-    //     // ].join(';'),
-    //     disableConcurrentBuilds: true,
-    // ],
     [
         name: 'private/Deployments/mainnet-mirror/Topup-Bots',
         numToKeep: 100,
@@ -836,11 +1675,12 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'mainnet-mirror',
+            RESEARCH_BOT: true,
+            TRADERBOT: false,
+            LIQBOT: false,
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
-        cron: 'H */6 * * *',
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -851,11 +1691,24 @@ def jobs = [
         definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
         env: [
             NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode71-non-restart-required.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet-mirror/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet-mirror',
+        ],
+        parameters: zfsBackupParams(
+            name: 'mainnet-mirror',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -868,9 +1721,7 @@ def jobs = [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     //
@@ -887,10 +1738,10 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -904,10 +1755,10 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -922,9 +1773,7 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -934,11 +1783,12 @@ def jobs = [
         definition: libDefinition('pipelineVegavisorTopupBots()'),
         env: [
             NET_NAME: 'fairground',
+            RESEARCH_BOT: false,
+            TRADERBOT: true,
+            LIQBOT: true,
         ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 's-2vcpu-4gb',
-        ),
-        cron: 'H/30 * * * *',
+        parameters: vegavisorTopupBotsParams(),
+        cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -953,7 +1803,20 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/fairground/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'fairground',
+        ],
+        parameters: zfsBackupParams(
+            name: 'testnet',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -970,29 +1833,13 @@ def jobs = [
             NET_NAME: 'validators-testnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/validators-testnet/Manage-Node-53',
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode53.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(
-            name: 'validators-testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
-        ),
-        disableConcurrentBuilds: true,
     ],
     [
         name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
@@ -1006,26 +1853,26 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'validators-testnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
     [
-        name: 'private/Deployments/mainnet/Manage-Node-53',
-        description: devopsInfraDocs,
+        name: 'private/Deployments/validators-testnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
+        definition: libDefinition('pipelineZfsBackup()'),
         env: [
-            NET_NAME: 'mainnetapi',
-            ANSIBLE_PLAYBOOK: 'playbook-mainnetapi.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-mainnetapi-common.yaml',
+            NET_NAME: 'validators-testnet',
         ],
-        parameters: vegavisorManageNodeParams(
-            name: 'mainnetapi',
-            NODE_LABEL: 's-4vcpu-8gb',
+        parameters: zfsBackupParams(
+            name: 'validators-testnet',
         ),
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
     ],
+    //
+    // Mainnet
+    //
     [
         name: 'private/Deployments/mainnet/Manage-Node-71',
         numToKeep: 500,
@@ -1036,10 +1883,10 @@ def jobs = [
             NET_NAME: 'mainnet',
             ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1055,7 +1902,6 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet',
-            NODE_LABEL: 's-4vcpu-8gb',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1066,19 +1912,89 @@ def jobs = [
         definition: libDefinition('pipelineBackupNodeZFS()'),
         env: [],
         parameters: {
-            stringParam('NODE_LABEL', 's-2vcpu-4gb', 'The node label pipeline is going to run on')
-            stringParam('TIMEOUT', '120', 'Global timeout in minutes')
-            choiceParam('ACTION', ['BACKUP', 'RESTORE', 'LIST_BACKUPS'], 'Action to execute')
-            stringParam('SERVER', '', 'Server where we are going to execute action')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('The node label pipeline is going to run on')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('200')
+                description('Global timeout in minutes')
+                trim(true)
+            }
+            choiceParam {
+                name('ACTION')
+                choices(['BACKUP', 'RESTORE', 'LIST_BACKUPS'])
+                description('Action to execute')
+            }
+            stringParam {
+                name('SERVER')
+                defaultValue('')
+                description('Server where we are going to execute action')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
         },
-        disableConcurrentBuilds: true,
+        disableConcurrentBuilds: false,
         parameterizedCron: [
             // automatic backup every 6h
             'H */6 * * * %' + [
-                'SERVER=api7.vega.community',
+                'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),
+    ],
+    [
+        name: 'private/Deployments/mainnet/zfs-backup',
+        numToKeep: 100,
+        description: 'Perform zfs backup or restore tasks',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineZfsBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+        ],
+        parameters: zfsBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/create-new-node-from-backup',
+        numToKeep: 100,
+        description: 'Setup new node from raw machine to fully sync node',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCreateNewNodeFromBackup()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK_BARENODE_COMMON: 'playbook-barenode71-common.yaml',
+            ANSIBLE_PLAYBOOK_BARENODE: 'playbook-barenode71.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+        ],
+        parameters: createNewNodeFromBackupParams(
+            name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    //
+    // Fleet
+    //
+    [
+        name: 'private/Deployments/fleet/Update-Machine',
+        numToKeep: 100,
+        description: 'Apply changes from Ansible',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineFleet()'),
+        env: [
+            ANSIBLE_PLAYBOOK: 'playbook-fleet.yaml',
+        ],
+        parameters: fleetUpdateMachineParams(),
+        disableConcurrentBuilds: false,
     ],
     //
     // System-Tests
@@ -1093,27 +2009,27 @@ def jobs = [
         daysToKeep: 10,
         numToKeep: 3500,
     ],
-    // Secondary pipeline
-    [
-        name: 'private/common/system-tests-wrapper',
-        useScmDefinition: false,
-        definition: libDefinition('capsuleSystemTests()'),
-        parameters: systemTestsParamsWrapper(),
-        copyArtifacts: true,
-        daysToKeep: 10,
-        numToKeep: 3500,
-    ],
     [
         name: 'common/system-tests-lnl-mainnet',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 's-8vcpu-16gb',
+            NODE_LABEL: 'office-system-tests-lnl',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
+            RUN_SOAK_TEST: false,
         ),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 3 * * *',
+    ],
+    [
+        name: 'common/system-tests-snapshot-compatibility',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
+        parameters: snapshotCompatibilityParams(),
+        copyArtifacts: true,
+        daysToKeep: 10,
+        cron: 'H 2 * * *',
     ],
     [
         name: 'common/system-tests',
@@ -1130,43 +2046,74 @@ def jobs = [
         description: 'This job is executed every 24h to ensure stability of the system',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY'),
+        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 0 * * *',
-    ],
-    // Secondary pipeline
-    [
-        name: 'private/common/system-tests-nightly',
-        description: 'This job is executed every 24h to ensure stability of the system',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineCapsuleSystemTests()'),
-        env: [
-            DOWNSTREAM_SUBDIR: 'private',
-        ],
-        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY'),
-        copyArtifacts: true,
-        daysToKeep: 10,
-        //cron: 'H 0 * * *',
     ],
     //
     // Vegavisor automatic download and PUP
     //
     [
         name: 'common/visor-autoinstall-and-pup',
+
         description: 'Job starts the network, perform protocol upgrade and waits until new binaries are automatically downloaded and network is upgraded',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegavisorPupAutomaticDownload()'),
         parameters: {
-            stringParam('RELEASES_REPO', 'vegaprotocol/vega-dev-releases-system-tests', 'repository where we keep all our releases for vega')
-            stringParam('VEGA_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vega repository')
-            stringParam('SYSTEM_TESTS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/system-tests repository')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('VEGACAPSULE_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-            stringParam('DEVOPSSCRIPTS_BRANCH', 'main', 'git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            booleanParam('CREATE_RELEASE', true, 'If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('RELEASES_REPO')
+                defaultValue('vegaprotocol/vega-dev-releases-system-tests')
+                description('repository where we keep all our releases for vega')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('SYSTEM_TESTS_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/system-tests repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGATOOLS_BRANCH')
+                defaultValue('develop')
+                description('git branch, tag or hash of the vegaprotocol/vegatools repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_BRANCH')
+                defaultValue('main')
+                description('git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('DEVOPSSCRIPTS_BRANCH')
+                defaultValue('main')
+                description('git branch, tag or hash of the vegaprotocol/devopsscripts repository')
+                trim(true)
+            }
+            booleanParam {
+                name('CREATE_RELEASE')
+                defaultValue(true)
+                description('If true, the temporary release is created in the "RELEASE_REPO", otherwise we use last two releases from the above repository - one before last to start the network and latest to upgrade network to')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('office-system-tests')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
         },
         copyArtifacts: true,
         daysToKeep: 14,
@@ -1181,18 +2128,84 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: {
-            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
-            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-            stringParam('VEGACAPSULE_VERSION', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-            stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-            stringParam('TIMEOUT', '45', 'Number of minutes after which the job will stop')
-            booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
-            booleanParam('RUN_LEARNING', false, 'Run a long reinforcement learning test')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repository which acts as vega source code (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_VERSION')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_MARKET_SIM_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('45')
+                description('Number of minutes after which the job will stop')
+                trim(true)
+            }
+            stringParam {
+                name('TEST_FUNCTION')
+                defaultValue('')
+                description('Defines specified functions to run(specifies value for the pytest -k param)')
+                trim(true)
+            }
+            stringParam {
+                name('PARALLEL_WORKERS')
+                defaultValue('1')
+                description('Defines number of parallel tests (specifies value for the pytest -n param)')
+                trim(true)
+            }
+            stringParam {
+                name('LOG_LEVEL')
+                defaultValue('INFO')
+                description('Log level for the pytest (INFO,DEBUG,WARN,ERROR)')
+                trim(true)
+            }
+            booleanParam {
+                name('RUN_EXTRA_TESTS')
+                defaultValue(false)
+                description('Run extra tests that you don\'t always want to run')
+            }
+            booleanParam {
+                name('RUN_LEARNING')
+                defaultValue(false)
+                description('Run a long reinforcement learning test')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('vega-market-sim')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+            booleanParam {
+                name('BRANCH_RUN')
+                defaultValue(true)
+                description('Is this a branch or main run')
+            }
         },
         copyArtifacts: true,
-        daysToKeep: 10,
+        daysToKeep: 5,
     ],
     [
         name: 'common/vega-market-sim-reinforcement',
@@ -1200,23 +2213,80 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: {
-            stringParam('ORIGIN_REPO', 'vegaprotocol/vega', 'repository which acts as vega source code (used for forks builds)')
-            stringParam('VEGA_VERSION', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega repository')
-            stringParam('VEGACAPSULE_VERSION', 'main', 'Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-            stringParam('VEGA_MARKET_SIM_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-            stringParam('TIMEOUT', '1440', 'Number of minutes after which the job will stop')
-            booleanParam('RUN_EXTRA_TESTS', false, 'Run extra tests that you don\'t always want to run')
-            booleanParam('RUN_LEARNING', true, 'Run a long reinforcement learning test')
-            stringParam('NUM_FUZZ_STEPS', '2880', 'Number of steps to run fuzz test for')
-            stringParam('NUM_RL_ITERATIONS', '300', 'Number of iterations to run RL tests for')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repository which acts as vega source code (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_VERSION')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_MARKET_SIM_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('1440')
+                description('Number of minutes after which the job will stop')
+                trim(true)
+            }
+            booleanParam {
+                name('RUN_EXTRA_TESTS')
+                defaultValue(false)
+                description('Run extra tests that you don\'t always want to run')
+            }
+            booleanParam {
+                name('RUN_LEARNING')
+                defaultValue(true)
+                description('Run a long reinforcement learning test')
+            }
+            stringParam {
+                name('NUM_FUZZ_STEPS')
+                defaultValue('2880')
+                description('Number of steps to run fuzz test for')
+                trim(true)
+            }
+            stringParam {
+                name('NUM_RL_ITERATIONS')
+                defaultValue('300')
+                description('Number of iterations to run RL tests for')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('vega-market-sim')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+            booleanParam {
+                name('BRANCH_RUN')
+                defaultValue(false)
+                description('Is this a branch or main run')
+            }
         },
         copyArtifacts: true,
-        daysToKeep: 10,
+        daysToKeep: 5,
         cron: 'H 0 * * *',
     ],
-    //
     // Snapshots
     //
     [
@@ -1284,7 +2354,7 @@ def jobs = [
         env: [
             NET_NAME: 'validators-testnet',
             HISTORY_KEY: 'NetworkHistory',
-            NODES_DENYLIST: 'n01.validators-testnet.vega.xyz'
+            NODES_DENYLIST: 'n01.validators-testnet.vega.rocks'
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
@@ -1312,12 +2382,39 @@ def jobs = [
         name: 'private/Automations/Checkpoint-Backup',
         useScmDefinition: false,
         parameters: {
-            booleanParam('DEVNET_1', false, 'Backup the latest checkpoint from the Devnet 1')
-            booleanParam('FAIRGROUND', true, 'Backup the latest checkpoint from the Fairground network')
-            booleanParam('MAINNET', true, 'Backup the latest checkpoint from the Mainnet')
-            stringParam('CHECKPOINT_STORE_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
+            booleanParam {
+                name('DEVNET_1')
+                defaultValue(false)
+                description('Backup the latest checkpoint from the Devnet 1')
+            }
+            booleanParam {
+                name('FAIRGROUND')
+                defaultValue(true)
+                description('Backup the latest checkpoint from the Fairground network')
+            }
+            booleanParam {
+                name('MAINNET')
+                defaultValue(true)
+                description('Backup the latest checkpoint from the Mainnet')
+            }
+            stringParam {
+                name('CHECKPOINT_STORE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
         },
         disableConcurrentBuilds: true,
         description: 'Backup checkpoints from different networks into vegaprotocol/checkpoint-store',
@@ -1328,15 +2425,59 @@ def jobs = [
         name: 'private/Automations/Spam-orders',
         useScmDefinition: false,
         parameters: {
-            choiceParam('NETWORK_NAME', ['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'], 'Network name')
-            stringParam('THREADS', '4', 'Number of thread for spammers')
-            stringParam('MAX_PRICE', '10000', 'Max price for single order')
-            stringParam('THREAD_RATE_LIMIT', '15', 'Maximum number of orders single thread can send')
-            stringParam('MARKET_ID', '', 'Market ID bots are sending orders to')
-            stringParam('DURATION', '15m30s', 'Duration of stress-test')
-            stringParam('DEVOPSTOOLS_VERSION', 'main', 'Branch/commit for the vegaprotocol/devopstools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
+            choiceParam {
+                name('NETWORK_NAME')
+                choices(['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'])
+                description('Network name')
+            }
+            stringParam {
+                name('THREADS')
+                defaultValue('4')
+                description('Number of thread for spammers')
+                trim(true)
+            }
+            stringParam {
+                name('MAX_PRICE')
+                defaultValue('10000')
+                description('Max price for single order')
+                trim(true)
+            }
+            stringParam {
+                name('THREAD_RATE_LIMIT')
+                defaultValue('15')
+                description('Maximum number of orders single thread can send')
+                trim(true)
+            }
+            stringParam {
+                name('MARKET_ID')
+                defaultValue('')
+                description('Market ID bots are sending orders to')
+                trim(true)
+            }
+            stringParam {
+                name('DURATION')
+                defaultValue('15m30s')
+                description('Duration of stress-test')
+                trim(true)
+            }
+            stringParam {
+                name('DEVOPSTOOLS_VERSION')
+                defaultValue('main')
+                description('Branch/commit for the vegaprotocol/devopstools repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('tiny')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
         },
         //cron: 'H */2 * * *',
         description: 'Send orders which will stay in order book to the network',
@@ -1361,12 +2502,19 @@ def jobs = [
         parameters: approbationParams(type: 'frontend'),
         copyArtifacts: true,
     ],
+    [
+        name: 'common/approbation-browser-wallet',
+        numToKeep: 100,
+        useScmDefinition: false,
+        definition: libDefinition('pipelineApprobation(type: "browserWallet")'),
+        parameters: approbationParams(type: 'browserWallet'),
+        copyArtifacts: true,
+    ],
     // just wrapper for runApprobation.groovy
     [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
         numToKeep: 300,
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         check: 'Approbation Pipeline',
         branch: 'develop',
@@ -1380,7 +2528,6 @@ def jobs = [
     [
         name: 'common/vegawallet-desktop',
         repo: 'vegawallet-desktop',
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
@@ -1393,7 +2540,6 @@ def jobs = [
     [
         name: 'common/vegawallet-browser',
         repo: 'vegawallet-browser',
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
@@ -1403,55 +2549,88 @@ def jobs = [
             CHANGE_BRANCH: 'main',
         ],
     ],
-    // Primary pipeline
     [
-        name: 'common/snapshot-soak-tests',
+        name: 'common/performance-tests',
         useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
+        numToKeep: 30,
+        cron: '0 0 * * *',
+        definition: libDefinition('pipelinePerformanceTest()'),
         parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('VEGA_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGATOOLS_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vegatools repository')
+                trim(true)
+            }
+            stringParam {
+                name('PERFORMANCE_BRANCH')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/performance repository')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('performance-tests')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
         }
     ],
-    // Secondary pipeline
     [
-        name: 'private/common/snapshot-soak-tests',
+        name: 'private/jenkins/agents-cleanup',
         useScmDefinition: false,
-        numToKeep: 100,
-        definition: libDefinition('pipelineSnapshotSoakTest()'),
-        copyArtifacts: true,
+        numToKeep: 20,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineCleanupAgents()'),
         parameters: {
-            stringParam('SYSTEM_TEST_JOB_NAME', 'private/common/system-tests-wrapper', 'Job from which snapshot artifcats will be copied')
-            stringParam('SYSTEM_TEST_BUILD_NUMBER', '0', 'Job number to copy artifacts')
-            stringParam('SUIT_NAME', '', 'Name of the suit, there are some special conditions for network_infra suits')
-            stringParam('VEGATOOLS_BRANCH', 'develop', 'Git branch, tag or hash of the vegaprotocol/vegatools repository')
-            stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-            stringParam('NODE_LABEL', 'system-tests-capsule', 'Jenkins label for running pipeline (empty means any node)')
+            stringParam {
+                name('NODE')
+                defaultValue('')
+                description('Node name (e.g jenkins01) to run cleanup on')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
         }
     ],
-    // ethereum events
-    // [
-    //     name: 'private/Automations/Ethereum-Events/Sandbox',
-    //     useScmDefinition: false,
-    //     numToKeep: 100,
-    //     definition: libDefinition('pipelineEthereumEvents()'),
-    //     env: [
-    //         NET_NAME: 'sandbox',
-    //     ],
-    //     cron: 'H/30 * * * *',
-    //     parameters: {
-    //         stringParam('NUMBER_OF_EVENTS', '20', 'Number of ethereum events to be sent by pipeline')
-    //         stringParam('DEVOPSTOOLS_BRANCH', 'main', 'Git branch, tag or hash of the vegaprotocol/devopstools repository')
-    //         stringParam('JENKINS_SHARED_LIB_BRANCH', 'main', 'Branch of jenkins-shared-library from which pipeline should be run')
-    //         stringParam('NODE_LABEL', 'general', 'Jenkins label for running pipeline (empty means any node)')
-    //     },
-    // ],
+    [
+        name: 'private/Automations/grafana-backup',
+        useScmDefinition: false,
+        numToKeep: 14,
+        cron: 'H 0 * * *',
+        definition: libDefinition('pipelineGrafanaBackup()'),
+        cron: 'H 0 * * *',
+        parameters: {
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+        }
+    ]
 ]
 
 // MAIN
