@@ -103,6 +103,8 @@ integrations:
     scrape_interval: 15s
     gather_smaps: false
     process_names:
-      - name: system-tests
+      - name: "{{.Comm}}"
         comm:
           - python
+          - pytest
+          - java
