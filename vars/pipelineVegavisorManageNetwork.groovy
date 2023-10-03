@@ -515,9 +515,11 @@ void call() {
                             //   - increase sleep
                             //
                             sleep 180
-                            withDevopstools(
-                                command: 'network self-delegate'
-                            )
+                            lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                withDevopstools(
+                                    command: 'network self-delegate'
+                                )
+                            }
                         }
                         post {
                             success {
@@ -547,13 +549,17 @@ void call() {
                                 }
                                 steps {
                                     sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
-                                    withDevopstools(
-                                        command: 'market propose --all'
-                                    )
+                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                        withDevopstools(
+                                            command: 'market propose --all'
+                                        )
+                                    }
                                     sleep 30 * 7
-                                    withDevopstools(
-                                        command: 'market provide-lp'
-                                    )
+                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                        withDevopstools(
+                                            command: 'market provide-lp'
+                                        )
+                                    }
                                 }
                                 post {
                                     success {
