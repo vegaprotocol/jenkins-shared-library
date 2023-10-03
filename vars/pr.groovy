@@ -62,7 +62,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
     Map result = [:]
     List<String> allComments = getAllComments(config)
 
-    Map repoToParam = [
+    Map commentStringToParam = [
         'vega': 'VEGA_BRANCH',
         'vegatools': 'VEGATOOLS_BRANCH',
         'system-tests': 'SYSTEM_TESTS_BRANCH',
@@ -72,8 +72,28 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'checkpoint-store': 'CHECKPOINT_STORE_BRANCH',
         'vegacapsule': 'VEGACAPSULE_BRANCH',
         'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH',
-        'deploy-to-devnet': 'DEPLOY_TO_DEVNET'
+        'deploy-to-devnet': 'DEPLOY_TO_DEVNET',
+        'devops-infra': 'DEVOPS_INFRA_BRANCH',
+        'devopsscripts': 'DEVOPSSCRIPTS_BRANCH',
+        'vega-version': 'VEGA_VERSION',
+        'node-label': 'NODE_LABEL',
+        'vega-branch-upgrade': 'VEGA_BRANCH_UPGRADE',
+        'extra-pytest-args': 'TEST_EXTRA_PYTEST_ARGS',
+        'network-param-overrides': 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES',
+        'system-tests-debug': 'SYSTEM_TESTS_DEBUG',
+        'timeout': 'TIMEOUT',
+        'scenario': 'SCENARIO',
+        'run-soak-test': 'RUN_SOAK_TEST',
+        'run-protocol-upgrade-proposal': 'RUN_PROTOCOL_UPGRADE_PROPOSAL',
+        'print-network-logs': 'PRINT_NETWORK_LOGS',
     ]
+
+    echo 'To override params in the PR comment, place jenkins according to following relation'
+    echo '{'
+    commentStringToParam.each {key, value ->
+        echo "\"$key\": \"$value\""
+    }
+    echo '}'
 
     // For every COMMENT
     allComments.each { comment ->
@@ -92,8 +112,8 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
                 echo "Parsed"
                 // For each top level key-value
                 contentJSON.each { repo, branch ->
-                    if (repoToParam[repo] && branch instanceof String) {
-                        result[repoToParam[repo]] = branch
+                    if (commentStringToParam[repo] && branch instanceof String) {
+                        result[commentStringToParam[repo]] = branch
                     }
                 }
             } catch (Exception e) {
