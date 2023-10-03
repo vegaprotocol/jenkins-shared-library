@@ -1332,7 +1332,6 @@ def jobs = [
         jenkinsfile: 'dsl/Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
-
         check: 'DSL Job',
     ],
     // Jenkins Configuration As Code
@@ -2516,7 +2515,6 @@ def jobs = [
         name: 'common/frontend-monorepo',
         repo: 'frontend-monorepo',
         numToKeep: 300,
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         check: 'Approbation Pipeline',
         branch: 'develop',
@@ -2530,7 +2528,6 @@ def jobs = [
     [
         name: 'common/vegawallet-desktop',
         repo: 'vegawallet-desktop',
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         branch: 'develop',
         disableConcurrentBuilds: true,
@@ -2543,7 +2540,6 @@ def jobs = [
     [
         name: 'common/vegawallet-browser',
         repo: 'vegawallet-browser',
-        useGithub: true,
         jenkinsfile: 'Jenkinsfile',
         branch: 'main',
         disableConcurrentBuilds: true,
