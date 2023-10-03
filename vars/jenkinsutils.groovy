@@ -62,8 +62,10 @@ Map<String, String> getJobInfo() {
     if (job_name.startsWith("PR-")) {
         job_name = currentBuild.getFullProjectName().split("/")[-2]
     }
+    String build_number = "${currentBuild.number}"
     return [
         build: triggerBuild,
+        build_number: build_number,
         job_name: job_name,
         job_url: job_url,
         pr: pr,
@@ -109,6 +111,9 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
     }
     if (jobInfo?.pr_repo) {
         monitoringURL += "var-pr_repo=${jobInfo.pr_repo}&"
+    }
+    if (jobInfo?.build_number) {
+        monitoringURL += "var-build_number=${jobInfo.build_number}&"
     }
     if (jobInfo?.started_by_user) {
         monitoringURL += "var-started_by_user=${jobInfo.started_by_user}&"

@@ -17,6 +17,7 @@ metrics:
             target_label: instance
     external_labels:
       jenkins_job: "${JENKINS_JOB_NAME}"
+      jenkins_build_number: "${JENKINS_BUILD_NUMBER}"
       jenkins_pr: "${JENKINS_PR}"
       jenkins_pr_job_number: "${JENKINS_PR_JOB_NUMBER}"
       jenkins_pr_repo: "${JENKINS_PR_REPO}"
@@ -93,11 +94,18 @@ integrations:
     enabled: false
   node_exporter:
     enabled: true
+    instance: ${AGENT_NAME}
     include_exporter_metrics: true
     disable_collectors:
       - "mdadm"
-    metric_relabel_configs:
-      - replacement: ${AGENT_NAME}
-        source_labels:
-          - __address__
-        target_label: instance
+  process_exporter:
+    enabled: true
+    instance: ${AGENT_NAME}
+    scrape_interval: 15s
+    gather_smaps: false
+    process_names:
+      - name: "{{.Comm}}"
+        comm:
+          - python
+          - pytest
+          - java
