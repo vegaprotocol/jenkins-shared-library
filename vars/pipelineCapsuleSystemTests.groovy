@@ -9,8 +9,12 @@ void call() {
   // this is default scenario for smoke test, but it will require changing for other types
   scenario = [
     'PR': [
-      'smoke a-g': [
-        pytestDirectory: "tests/[a-gA-G]*",
+      'smoke a-f': [
+        pytestDirectory: "tests/[a-fA-F]*",
+        mark: 'smoke'
+      ],
+      'smoke g': [
+        pytestDirectory: "tests/[gG]*",
         mark: 'smoke'
       ],
       'smoke h-k': [
