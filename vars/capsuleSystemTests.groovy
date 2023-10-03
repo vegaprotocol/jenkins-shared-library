@@ -82,7 +82,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             // Jenkins agent supports the /var/docker-ps.log
             vegautils.cleanExternalFile("/var/docker-ps.log")
             // Setup grafana-agent
-            grafanaAgent.configure("basic", [
+            grafanaAgent.configure("system-tests", [
               JENKINS_TEST_MARK: "${env.SYSTEM_TESTS_TEST_MARK}",
               JENKINS_TEST_DIRECTORY: "${ env.SYSTEM_TESTS_TEST_DIRECTORY ?: env.TEST_EXTRA_PYTEST_ARGS }",
             ])

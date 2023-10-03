@@ -101,3 +101,10 @@ integrations:
         source_labels:
           - __address__
         target_label: instance
+  process_exporter:
+    enabled: true
+    instance: ${AGENT_NAME}
+    scrape_interval: 15s
+    process_names:
+      - comm:
+          - python

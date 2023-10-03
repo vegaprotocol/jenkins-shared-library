@@ -33,7 +33,7 @@ void configure(String configName, Map<String, String> extraEnvs=[:]) {
     Map grafanaEnvs = defaultEnvs + extraEnvs
 
     Map<String, String> configFiles = [
-        "basic": "grafana-agent-basic.yaml",
+        "system-tests": "grafana-agent-system-tests.yaml",
         "node-only": "grafana-agent-node-only.yaml",
         "market-sim": "grafana-agent-market-sim.yaml",
         "snapshot": "grafana-agent-snapshot.yaml",
