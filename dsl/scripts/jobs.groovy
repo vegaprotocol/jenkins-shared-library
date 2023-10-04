@@ -1238,7 +1238,7 @@ def approbationParams(def config=[:]) {
         else if (config.type == 'frontend') {
             stringParam {
                 name('TESTS_ARG')
-                defaultValue('{/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
+                defaultValue('{/workspace/frontend-monorepo/libs/**/*.spec.{ts,js,tsx,jsx},/workspace/frontend-monorepo/apps/*-e2e/**/*.cy.{ts,js,tsx,jsx},/workspace/vegawallet-desktop/frontend/automation/e2e/**/*.test.{ts,js,tsx,jsx},/workspace/vegawallet-ui/apps/wallet-mock/src/test/**/*.test.{ts,js,tsx,jsx},/workspace/console-test/tests/**/*.py}')
                 description('--tests argument value')
                 trim(true)
             }
