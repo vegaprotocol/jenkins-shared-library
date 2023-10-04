@@ -51,11 +51,18 @@ integrations:
     enabled: false
   node_exporter:
     enabled: true
+    instance: ${AGENT_NAME}
     include_exporter_metrics: true
     disable_collectors:
       - "mdadm"
-    metric_relabel_configs:
-      - replacement: ${AGENT_NAME}
-        source_labels:
-          - __address__
-        target_label: instance
+  process_exporter:
+    enabled: true
+    instance: ${AGENT_NAME}
+    scrape_interval: 15s
+    gather_smaps: false
+    process_names:
+      - name: "{{.Comm}}"
+        comm:
+          - python
+          - postgres
+          - java
