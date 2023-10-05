@@ -45,7 +45,7 @@ void call(Map paramsOverrides=[:]) {
                             devopstools snapshot-compatibility load-snapshot \
                                 --vegacapsule-binary "vegacapsule" \
                                 --vega-binary "vega" \
-                                --vegacapsule-home "''' + networkDir + '''/testnet \
+                                --vegacapsule-home "''' + networkDir + '''/testnet" \
                                 --snapshot-location ./mainnet-snapshot
                         '''
                     }
