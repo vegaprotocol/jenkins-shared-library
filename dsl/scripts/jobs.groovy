@@ -1899,7 +1899,7 @@ def jobs = [
         numToKeep: 15,
         description: vegavisorManageNodeDescription(),
         useScmDefinition: false,
-        definition: libDefinition('pipelineNetworkManageNode()'),
+        definition: libDefinition('pipelineVegavisorManageNode()'),
         env: [
             NET_NAME: 'mainnet',
             ANSIBLE_PLAYBOOK: 'playbook-datanode-migration.yaml',
