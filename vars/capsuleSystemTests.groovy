@@ -144,7 +144,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                     branch: value.branch,
                     directory: value.directory ?: value.name.split('/')[1],
                     credentialsId: 'vega-ci-bot',
-                    timeout: 3,
+                    timeout: 10,
                   ])
                 }
             ]}
@@ -365,7 +365,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
             dir ('system-tests/scripts') {
               String makeAbsBinaryPath = vegautils.shellOutput('which make')
               String cwd = vegautils.shellOutput('pwd')
-              
+
               sh '''daemonize \
                 -o ''' + testNetworkDir + '''/nomad.log \
                 -e ''' + testNetworkDir + '''/nomad.log \
@@ -877,7 +877,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
                   allowEmptyArchive: true
               )
             }
-          
+
             vegautils.archiveExternalFile("/var/docker-ps.log")
           }
 
