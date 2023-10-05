@@ -76,6 +76,20 @@ jenkins:
         imageId: "141189256"
         installMonitoring: false
         instanceCap: 120
+        labelString: "performance-tests"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "c-16-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "141189256"
+        installMonitoring: false
+        instanceCap: 120
         labelString: "tiny tiny-cloud"
         labellessJobsAllowed: true
         name: "ubuntu"

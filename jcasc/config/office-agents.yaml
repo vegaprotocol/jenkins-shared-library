@@ -16,7 +16,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "performance-tests"
+      "labelString": "disabled"
+      # "labelString": "performance-tests"
       "launcher":
         "inbound":
           "webSocket": true
