@@ -30,15 +30,23 @@ void call(Map paramsOverrides=[:]) {
 
                     withCredentials([sshCredentials]) {
                         print('Random server for snapshot source: ' + selectedMainnetApiServer)
-                        sh label: 'Prepare mainnet genesis', script: '''
-                            devopstools snapshot-compatibility load-snapshot \
+
+                        sh label: 'Download mainnet snapshot', script: '''
+                            devopstools snapshot-compatibility download-mainnet-snapshot \
                                 --snapshot-remote-location "/home/vega/vega_home/state/node/snapshots" \
                                 --snapshot-server "''' + selectedMainnetApiServer + '''" \
                                 --snapshot-server-key-file "''' + PSSH_KEYFILE + '''" \
                                 --snapshot-server-user "''' + PSSH_USER + '''" \
+                                --local-temporary-destination ./mainnet-snapshot
+                        '''
+
+
+                        sh label: 'Load downloaded snapshot into generated network', script: '''
+                            devopstools snapshot-compatibility load-snapshot \
                                 --vegacapsule-binary "vegacapsule" \
                                 --vega-binary "vega" \
-                                --vegacapsule-home "''' + networkDir + '''/testnet"
+                                --vegacapsule-home "''' + networkDir + '''/testnet \
+                                --snapshot-location ./mainnet-snapshot
                         '''
                     }
 
