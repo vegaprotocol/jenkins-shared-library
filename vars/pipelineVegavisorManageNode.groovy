@@ -171,7 +171,7 @@ void call() {
             }
             stage('Build vega, data-node, vegawallet and visor') {
                 when {
-                    expression { params.VEGA_VERSION && params.PERFORM_NETWORK_OPERATIONS }
+                    expression { params.VEGA_VERSION }
                 }
                 steps {
                     dir('vega') {
@@ -280,7 +280,11 @@ void call() {
 
                                 dir('ansible') {
 
-                                    if (params.ACTION == 'create-node' && !params.SKIP_INFRA_PROVISION) {
+                                    if (
+                                        params.ACTION == 'create-node'
+                                        && !params.SKIP_INFRA_PROVISION
+                                        && env.ANSIBLE_PLAYBOOK_COMMON
+                                    ) {
                                         stage('Provision Infrastructure') {
                                             sh label: "ansible playbooks/playbook-barenode-common.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
@@ -295,24 +299,29 @@ void call() {
                                         }
                                     }
 
-                                    def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
-                                    stage(stageName) {
-                                        // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
-                                        sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
-                                            ansible-playbook \
-                                                ${params.DRY_RUN ? '--check' : ''} \
-                                                --diff \
-                                                -u "\${PSSH_USER}" \
-                                                --private-key "\${PSSH_KEYFILE}" \
-                                                --inventory inventories \
-                                                --limit "${NODE_NAME ?: params.NODE}" \
-                                                --tag "${params.ACTION}" \
-                                                --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
-                                                playbooks/${env.ANSIBLE_PLAYBOOK}
-                                        """
+                                    if (params.ANSIBLE_PLAYBOOK) {
+                                        def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
+                                        stage(stageName) {
+                                            // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
+                                            sh label: "ansible playbooks/${env.ANSIBLE_PLAYBOOK}", script: """#!/bin/bash -e
+                                                ansible-playbook \
+                                                    ${params.DRY_RUN ? '--check' : ''} \
+                                                    --diff \
+                                                    -u "\${PSSH_USER}" \
+                                                    --private-key "\${PSSH_KEYFILE}" \
+                                                    --inventory inventories \
+                                                    --limit "${NODE_NAME ?: params.NODE}" \
+                                                    --tag "${params.ACTION}" \
+                                                    --extra-vars '${ANSIBLE_VARS}' ${extraAnsibleArgs} \
+                                                    playbooks/${env.ANSIBLE_PLAYBOOK}
+                                            """
+                                        }
                                     }
 
-                                    if (!params.SKIP_INFRA_PROVISION) {
+                                    if (
+                                        !params.SKIP_INFRA_PROVISION
+                                        && params.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED
+                                    ) {
                                         stage('Non restart required changes') {
                                             sh label: "ansible playbooks/playbook-barenode-non-restart-required.yaml", script: """#!/bin/bash -e
                                                 ansible-playbook \
