@@ -76,7 +76,7 @@ jenkins:
         imageId: "141189256"
         installMonitoring: false
         instanceCap: 120
-        labelString: "performance-tests"
+        labelString: "disabled"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
