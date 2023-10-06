@@ -1048,7 +1048,7 @@ def snapshotCompatibilityParams(Map args=[:]) {
         }
         stringParam {
             name('CAPSULE_CONFIG')
-            defaultValue('capsule_config_mainnet_snapshot.hcl')
+            defaultValue('capsule_config_mainnet_snapshot_compatibility_develop.hcl')
             description('Run tests using the given vegacapsule config file')
             trim(true)
         }
