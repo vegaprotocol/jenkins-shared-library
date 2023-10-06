@@ -4,7 +4,8 @@ void call(Map paramsOverrides=[:]) {
         agentLabel: params.NODE_LABEL ?: '',
         systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
-            'NO_DATA_NODE_TEST_CASE': 'true'
+            'NO_DATA_NODE_TEST_CASE': 'true',
+            'NULL_BLOCK_CHAIN': 'true',
         ],
         fastFail: false,
         slackTitle: 'LNL Mainnet System Tests',
