@@ -13,24 +13,36 @@ void call() {
     scenario = [
     'PR': [
       'smoke a-f': [
-        pytestDirectory: "tests/[a-fA-F]*",
+        pytestDirectory: 'tests/[a-fA-F]*',
         mark: 'smoke'
       ],
       'smoke g': [
-        pytestDirectory: "tests/[gG]*",
+        pytestDirectory: 'tests/[gG]*',
         mark: 'smoke'
       ],
-      'smoke h-k': [
-        pytestDirectory: "tests/[h-kH-K]*",
+      'smoke auction': [
+        pytestDirectory: 'tests/matching_engine/auction_trading_test.py',
+        mark: 'smoke'
+      ],
+      'smoke continuous': [
+        pytestDirectory: 'tests/matching_engine/continuous_trading_test.py',
         mark: 'smoke'
       ],
       'smoke l-m': [
-        pytestDirectory: "tests/[l-mL-M]*",
+        pytestDirectory: 'tests/[l-mL-M]*',
         mark: 'smoke'
       ],
-      'smoke n-z': [
-        pytestArgs: "--ignore-glob 'tests/[a-mA-M]*'",
+      'smoke n-s': [
+        pytestArgs: "--ignore-glob 'tests/[n-sN-S]*'",
         mark: 'smoke'
+      ],
+      'smoke t-z': [
+        pytestArgs: 'tests/[t-zT-Z]*',
+        mark: 'smoke'
+      ],
+      'network_infra_smoke a-z': [
+        mark: 'network_infra_smoke',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra_smoke a-z': [
         mark: 'network_infra_smoke',
