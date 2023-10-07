@@ -169,8 +169,21 @@ void call() {
                         }
                         steps {
                             sh label: 'Reinforcement Learning Test', script: '''
-                                poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
+                                poetry run \
+                                    memray run --follow-fork --force --output rl-tests.memray.bin -m \
+                                    vega_sim.reinforcement.run_rl_agent --rl-max-it ${NUM_RL_ITERATIONS}
                             '''
+                        }
+                        post {
+                            always {
+                                sh label: 'print memray results', script: '''#!/bin/bash -e
+                                    COLUMNS=200 poetry run memray summary rl-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray summary --temporary-allocation-threshold 0 rl-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray stats --num-largest 30 rl-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray tree --biggest-allocs 30 rl-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray tree --temporary-allocation-threshold 0 --biggest-allocs 30 rl-tests.memray.bin || echo "Ignore error"
+                                '''
+                            }
                         }
                     }
                     stage('Fuzz Tests') {
@@ -183,7 +196,7 @@ void call() {
                             /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Fuzz Test', script: '''
                                 poetry run \
-                                    memray run --follow-fork --force --output vega-market-sim.memray.bin -m \
+                                    memray run --follow-fork --force --output fuzz-tests.memray.bin -m \
                                     vega_sim.scenario.fuzzed_markets.run_fuzz_test --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
@@ -193,11 +206,11 @@ void call() {
                             }
                             always {
                                 sh label: 'print memray results', script: '''#!/bin/bash -e
-                                    COLUMNS=200 poetry run memray summary vega-market-sim.memray.bin || echo "Ignore error"
-                                    COLUMNS=200 poetry run memray summary --temporary-allocation-threshold 0 vega-market-sim.memray.bin || echo "Ignore error"
-                                    COLUMNS=200 poetry run memray stats --num-largest 30 vega-market-sim.memray.bin || echo "Ignore error"
-                                    COLUMNS=200 poetry run memray tree --biggest-allocs 30 vega-market-sim.memray.bin || echo "Ignore error"
-                                    COLUMNS=200 poetry run memray tree --temporary-allocation-threshold 0 --biggest-allocs 30 vega-market-sim.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray summary fuzz-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray summary --temporary-allocation-threshold 0 fuzz-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray stats --num-largest 30 fuzz-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray tree --biggest-allocs 30 fuzz-tests.memray.bin || echo "Ignore error"
+                                    COLUMNS=200 poetry run memray tree --temporary-allocation-threshold 0 --biggest-allocs 30 fuzz-tests.memray.bin || echo "Ignore error"
                                 '''
                             }
                         }
