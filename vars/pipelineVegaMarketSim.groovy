@@ -249,7 +249,6 @@ void call() {
                     archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
                 }
 
-                sendSlackMessage()
                 retry(3) {
                     cleanWs()
                 }
