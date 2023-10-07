@@ -184,7 +184,7 @@ void call() {
                             sh label: 'Fuzz Test', script: '''
                                 poetry run \
                                     memray run --follow-fork --force --output vega-market-sim.memray.bin -m \
-                                    scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
+                                    vega_sim.scenario.fuzzed_markets.run_fuzz_test --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
                         post {
