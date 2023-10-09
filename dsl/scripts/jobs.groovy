@@ -350,6 +350,10 @@ def vegavisorManageNodeParams(args=[:]) {
             "metabase.vega.community",
             "test.vega.community",
         ]
+    } else if (args.name == "mainnet-test") {
+        nodesList = [
+            "test.vega.community",
+        ]
     }
 
     return vegavisorParamsBase(args) << {
@@ -1887,6 +1891,23 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
+        ),
+        disableConcurrentBuilds: false,
+    ],
+    [
+        name: 'private/Deployments/mainnet/DataNode-Migration',
+        numToKeep: 15,
+        description: vegavisorManageNodeDescription(),
+        useScmDefinition: false,
+        definition: libDefinition('pipelineVegavisorManageNode()'),
+        env: [
+            NET_NAME: 'mainnet',
+            ANSIBLE_PLAYBOOK: 'playbook-datanode-migration.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: '',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: '',
+        ],
+        parameters: vegavisorManageNodeParams(
+            name: 'mainnet-test',
         ),
         disableConcurrentBuilds: false,
     ],
