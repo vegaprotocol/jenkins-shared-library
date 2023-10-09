@@ -299,7 +299,7 @@ void call() {
                                         }
                                     }
 
-                                    if (params.ANSIBLE_PLAYBOOK) {
+                                    if (env.ANSIBLE_PLAYBOOK) {
                                         def stageName = params.ACTION.capitalize().replaceAll('-', ' ')
                                         stage(stageName) {
                                             // Note: environment variables PSSH_KEYFILE and PSSH_USER are set by withCredentials wrapper
@@ -320,7 +320,7 @@ void call() {
 
                                     if (
                                         !params.SKIP_INFRA_PROVISION
-                                        && params.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED
+                                        && env.ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED
                                     ) {
                                         stage('Non restart required changes') {
                                             sh label: "ansible playbooks/playbook-barenode-non-restart-required.yaml", script: """#!/bin/bash -e
