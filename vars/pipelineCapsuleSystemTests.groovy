@@ -38,12 +38,16 @@ void call() {
         pytestDirectory: 'tests/[e-gE-G]*',
         mark: 'full',
       ],
-      'full h-p': [
-        pytestDirectory: 'tests/[h-pH-P]*',
+      'full h-n': [
+        pytestDirectory: 'tests/[h-nH-N]*',
         mark: 'full',
       ],
-      'full q-s': [
-        pytestDirectory: 'tests/[q-sQ-S]*',
+      'full o-r': [
+        pytestDirectory: 'tests/[o-rO-R]*',
+        mark: 'full',
+      ],
+      'full s': [
+        pytestDirectory: 'tests/[sS]*',
         mark: 'full',
       ],
       'full t-z': [
