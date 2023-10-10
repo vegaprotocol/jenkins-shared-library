@@ -120,7 +120,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "ganache-debugging"
+      "labelString": "office-system-tests core-build office-machine vega-market-sim
+        office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -133,7 +134,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": ""
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
