@@ -62,7 +62,7 @@ jenkins:
         imageId: "141189256"
         installMonitoring: false
         instanceCap: 120
-        labelString: "office-system-tests core-build vega-market-sim cloud-machine"
+        labelString: "office-system-tests core-build vega-market-sim cloud-machine office-system-tests-lnl"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
