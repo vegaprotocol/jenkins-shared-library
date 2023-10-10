@@ -1,9 +1,8 @@
 "jenkins":
   "nodes":
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "office-system-tests core-build office-machine vega-market-sim
-      #   office-system-tests-lnl"
+      "labelString": "office-system-tests core-build office-machine vega-market-sim
+        office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -16,8 +15,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "performance-tests"
+      "labelString": "performance-tests"
       "launcher":
         "inbound":
           "webSocket": true
@@ -56,8 +54,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "tiny"
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
@@ -83,8 +80,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "office-system-tests core-build office-machine office-system-tests-lnl"
+      "labelString": "office-system-tests core-build office-machine office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -97,8 +93,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "tiny"
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
@@ -111,9 +106,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "office-system-tests core-build office-machine vega-market-sim
-      #   office-system-tests-lnl"
+      "labelString": "office-system-tests core-build office-machine vega-market-sim
+        office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -126,8 +120,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "ganache-debugging"
+      "labelString": "ganache-debugging"
       "launcher":
         "inbound":
           "webSocket": true
@@ -153,9 +146,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "office-system-tests core-build office-machine vega-market-sim
-      #   office-system-tests-lnl"
+      "labelString": "office-system-tests core-build office-machine vega-market-sim
+        office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -168,9 +160,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "office-system-tests core-build office-machine vega-market-sim
-      #   office-system-tests-lnl"
+      "labelString": "office-system-tests core-build office-machine vega-market-sim
+        office-system-tests-lnl"
       "launcher":
         "inbound":
           "webSocket": true
@@ -183,8 +174,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "tiny"
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
@@ -197,8 +187,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "tiny"
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
@@ -211,8 +200,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "disabled"
-      # "labelString": "tiny"
+      "labelString": "tiny"
       "launcher":
         "inbound":
           "webSocket": true
