@@ -30,12 +30,16 @@ void call() {
       ],
     ],
     'NIGHTLY': [
-      'full a-f': [
-        pytestDirectory: 'tests/[a-fA-F]*',
+      'full a-d': [
+        pytestDirectory: 'tests/[a-dA-D]*',
         mark: 'full',
       ],
-      'full g-n': [
-        pytestDirectory: 'tests/[g-nG-N]*',
+      'full e-g': [
+        pytestDirectory: 'tests/[e-gE-G]*',
+        mark: 'full',
+      ],
+      'full h-n': [
+        pytestDirectory: 'tests/[h-nH-N]*',
         mark: 'full',
       ],
       'full o-r': [
