@@ -2572,6 +2572,7 @@ def jobs = [
     ],
     [
         name: 'common/performance-tests',
+        disableConcurrentBuilds: true,
         useScmDefinition: false,
         numToKeep: 30,
         cron: '0 0 * * *',
