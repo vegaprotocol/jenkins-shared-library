@@ -97,13 +97,13 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
     def monitoring_url = new URIBuilder("https://monitoring.vega.community")
     monitoring_url.setPath("/d/system-tests")
     def jobInfo = getJobInfo()
-    if (extraVars?.agent) {
-        monitoring_url.addQueryParam("var-agent", extraVars.agent)
+    if (jobInfo?.agent) {
+        monitoring_url.addQueryParam("var-agent", jobInfo.agent)
     }
     if (extraVars?.job) {
         monitoring_url.addQueryParam("var-job", extraVars.job)
     } else if(jobInfo?.job_name) {
-        monitoring_url.addQueryParam("var-job", extraVars.job_name)
+        monitoring_url.addQueryParam("var-job", jobInfo.job_name)
     }
     if (extraVars?.test_mark) {
         monitoring_url.addQueryParam("var-test_mark", extraVars.test_mark)
@@ -112,19 +112,19 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
         monitoring_url.addQueryParam("var-test_directory", extraVars.test_directory)
     }
     if (jobInfo?.pr) {
-        monitoring_url.addQueryParam("var-pr", extraVars.pr)
+        monitoring_url.addQueryParam("var-pr", jobInfo.pr)
     }
     if (jobInfo?.pr_job_number) {
-        monitoring_url.addQueryParam("var-pr_job_number", extraVars.pr_job_number)
+        monitoring_url.addQueryParam("var-pr_job_number", jobInfo.pr_job_number)
     }
     if (jobInfo?.pr_repo) {
-        monitoring_url.addQueryParam("var-pr_repo", extraVars.pr_repo)
+        monitoring_url.addQueryParam("var-pr_repo", jobInfo.pr_repo)
     }
     if (jobInfo?.build_number) {
-        monitoring_url.addQueryParam("var-build_number", extraVars.build_number)
+        monitoring_url.addQueryParam("var-build_number", jobInfo.build_number)
     }
     if (jobInfo?.started_by_user) {
-        monitoring_url.addQueryParam("var-started_by_user", extraVars.started_by_user)
+        monitoring_url.addQueryParam("var-started_by_user", jobInfo.started_by_user)
     }
     // TODO ADD start from=1696896000000
     // TODO ADD end to=1696982399000
