@@ -574,6 +574,42 @@ void call() {
                                     }
                                 }
                             }
+                            stage('Set up referral program') {
+                                when {
+                                    expression {
+                                        params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                    }
+                                }
+                                steps {
+                                    withDevopstools(
+                                        command: 'propose referral --setup-referral-program'
+                                    )
+                                }
+                            }
+                            stage('Set up volume discount program') {
+                                when {
+                                    expression {
+                                        params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                    }
+                                }
+                                steps {
+                                    withDevopstools(
+                                        command: 'propose volume-discount --setup-volume-discount-program'
+                                    )
+                                }
+                            }
+                            stage('Update network params') {
+                                when {
+                                    epxression {
+                                        params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                    }
+                                }
+                                steps {
+                                    withDevopsTools(
+                                        command: 'incentive network-params'
+                                    )
+                                }
+                            }
                             stage('Top up bots') {
                                 when {
                                     allOf {
@@ -586,10 +622,11 @@ void call() {
                                     }
                                 }
                                 steps {
+                                    // propagate result only when bots need to join referral program
                                     build(
                                         job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
-                                        propagate: false,  // don't fail
-                                        wait: false, // don't wait
+                                        propagate: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
+                                        wait: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
                                     )
                                 }
                                 post {
@@ -603,6 +640,21 @@ void call() {
                                             stagesStatus[stagesHeaders.bots] = statuses.failed
                                         }
                                     }
+                                }
+                            }
+                            stage('Join bots to referral program') {
+                                when {
+                                    expression {
+                                        params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                    }
+                                }
+                                options {
+                                    lock(resource: "ethereum-minter-${env.NET_NAME}")
+                                }
+                                steps {
+                                    withDevopsTools(
+                                        command: 'bot referral --setup'
+                                    )
                                 }
                             }
                         }
