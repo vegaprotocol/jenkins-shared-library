@@ -1,4 +1,5 @@
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+import groovyx.net.http.URIBuilder
 
 
 Map<String, String> getJobInfo() {
