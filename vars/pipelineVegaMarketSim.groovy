@@ -235,8 +235,7 @@ void call() {
                     ].join(','), allowEmptyArchive: true)
                     // Jenkins does not allow to archive artifacts outside of the workspace
                     script {
-                        sh 'rm -r ./network_home/*'
-                        sh 'rmdir ./network_home'
+                        sh 'rm -r /tmp/vega-sim*'
                     }
                 }
                 catchError {
