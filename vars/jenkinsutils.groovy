@@ -64,6 +64,7 @@ Map<String, String> getJobInfo() {
     }
     String build_number = "${currentBuild.number}"
     return [
+        agent: "${env.NODE_NAME}",
         build: triggerBuild,
         build_number: build_number,
         job_name: job_name,
@@ -90,33 +91,39 @@ String getNicePrefixForJobDescription() {
 }
 
 String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
-    String monitoringURL = "https://monitoring.vega.community/d/system-tests?"
+    def monitoring_url = new URIBuilder("https://monitoring.vega.community")
+    monitoring_url.setPath("/d/system-tests")
     def jobInfo = getJobInfo()
+    if (extraVars?.agent) {
+        monitoring_url.addQueryParam("var-agent", extraVars.agent)
+    }
     if (extraVars?.job) {
-        monitoringURL += "var-job=${extraVars.job}&"
+        monitoring_url.addQueryParam("var-job", extraVars.job)
     } else if(jobInfo?.job_name) {
-        monitoringURL += "var-job=${jobInfo.job_name}&"
+        monitoring_url.addQueryParam("var-job", extraVars.job_name)
     }
     if (extraVars?.test_mark) {
-        monitoringURL += "var-test_mark=${extraVars.test_mark}&"
+        monitoring_url.addQueryParam("var-test_mark", extraVars.test_mark)
     }
     if (extraVars?.test_directory) {
-        monitoringURL += "var-test_directory=${extraVars.test_directory}&"
+        monitoring_url.addQueryParam("var-test_directory", extraVars.test_directory)
     }
     if (jobInfo?.pr) {
-        monitoringURL += "var-pr=${jobInfo.pr}&"
+        monitoring_url.addQueryParam("var-pr", extraVars.pr)
     }
     if (jobInfo?.pr_job_number) {
-        monitoringURL += "var-pr_job_number=${jobInfo.pr_job_number}&"
+        monitoring_url.addQueryParam("var-pr_job_number", extraVars.pr_job_number)
     }
     if (jobInfo?.pr_repo) {
-        monitoringURL += "var-pr_repo=${jobInfo.pr_repo}&"
+        monitoring_url.addQueryParam("var-pr_repo", extraVars.pr_repo)
     }
     if (jobInfo?.build_number) {
-        monitoringURL += "var-build_number=${jobInfo.build_number}&"
+        monitoring_url.addQueryParam("var-build_number", extraVars.build_number)
     }
     if (jobInfo?.started_by_user) {
-        monitoringURL += "var-started_by_user=${jobInfo.started_by_user}&"
+        monitoring_url.addQueryParam("var-started_by_user", extraVars.started_by_user)
     }
-    return monitoringURL
+    // TODO ADD start from=1696896000000
+    // TODO ADD end to=1696982399000
+    return monitoring_url.toString()
 }

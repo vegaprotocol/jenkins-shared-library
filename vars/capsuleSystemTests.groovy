@@ -100,7 +100,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               print("The box public IP is: " + jenkinsAgentIP)
               print("You may want to visit the nomad web interface: http://" + jenkinsAgentIP + ":4646")
               print("The nomad interface is available only when the tests are running")
-              currentBuild.description = "ssh ${jenkinsAgentIP}, nomad: http://" + jenkinsAgentIP + ":4646, Monitoring: ${monitoringDashboardURL}"
+              currentBuild.description = "nomad: http://" + jenkinsAgentIP + ":4646, ssh ${jenkinsAgentIP}, [${env.NODE_NAME}]"
               print("Monitoring Dashboard URL: " + monitoringDashboardURL)
 
               print("Parameters")
