@@ -1,3 +1,5 @@
+@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7')
+
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 import groovyx.net.http.URIBuilder
 
