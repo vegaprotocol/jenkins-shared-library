@@ -128,10 +128,12 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
         monitoring_url.addQueryParam("var-started_by_user", jobInfo.started_by_user)
     }
     print("currentBuild.startTimeInMillis: ${currentBuild.startTimeInMillis}")
-    Date start = TimeCategory.minus(new Date(), TimeCategory.getMilliseconds(currentBuild.startTimeInMillis as Integer))
-    Date end = TimeCategory.plus(start, TimeCategory.getHours(3))
-    print("start: ${start.getTime()}, end: ${end.getTime()}")
-    monitoring_url.addQueryParam("from", start.getTime())
-    monitoring_url.addQueryParam("end", end.getTime())
+    Long start = currentBuild.startTimeInMillis
+    Long end = start + 3 * 60 * 60 * 1000
+    // Date start = TimeCategory.minus(new Date(), TimeCategory.getMilliseconds(currentBuild.startTimeInMillis as Integer))
+    // Date end = TimeCategory.plus(start, TimeCategory.getHours(3))
+    print("start: ${start}, end: ${end}")
+    monitoring_url.addQueryParam("from", start)
+    monitoring_url.addQueryParam("end", end)
     return monitoring_url.toString()
 }
