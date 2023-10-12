@@ -234,7 +234,7 @@ void call() {
                         'network_home/**/**/replay',
                     ].join(','), allowEmptyArchive: true)
                     script {
-                        sh 'rm -r /tmp/vega-sim*'
+                        sh 'sudo rm -rf /tmp/vega-sim*'
                     }
                 }
                 catchError {
