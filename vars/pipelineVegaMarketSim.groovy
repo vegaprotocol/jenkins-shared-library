@@ -233,6 +233,9 @@ void call() {
                         'network_home/**/*.err',
                         'network_home/**/**/replay',
                     ].join(','), allowEmptyArchive: true)
+                    script {
+                        sh 'sudo rm -rf /tmp/vega-sim*'
+                    }
                 }
                 catchError {
                     archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
