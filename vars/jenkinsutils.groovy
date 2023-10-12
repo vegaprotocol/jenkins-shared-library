@@ -126,7 +126,10 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
     if (jobInfo?.started_by_user) {
         monitoring_url.addQueryParam("var-started_by_user", jobInfo.started_by_user)
     }
-    // TODO ADD start from=1696896000000
-    // TODO ADD end to=1696982399000
+    Date now = new Date();
+    int start = currentDate.getTime() - currentBuild.startTimeInMillis
+    int end = start + 3 * 60 * 60 * 1000
+    monitoring_url.addQueryParam("from", start)
+    monitoring_url.addQueryParam("end", end)
     return monitoring_url.toString()
 }
