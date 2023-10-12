@@ -151,10 +151,35 @@ void call() {
             }
             stage('Market actions') {
                 stages {
+                    stage('Create markets & provide lp'){
+                        when {
+                            expression {
+                                params.CREATE_MARKETS && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        steps {
+                            sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
+                            retry(3) {
+                                lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                    withDevopstools(
+                                        command: 'market propose --all'
+                                    )
+                                }
+                            }
+                            sleep 30 * 7
+                            retry(3) {
+                                lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                    withDevopstools(
+                                        command: 'market provide-lp'
+                                    )
+                                }
+                            }
+                        }
+                    }
                     stage('Set up referral program') {
                         when {
                             expression {
-                                params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
                         steps {
@@ -166,7 +191,7 @@ void call() {
                     stage('Set up volume discount program') {
                         when {
                             expression {
-                                params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
                         steps {
@@ -178,7 +203,7 @@ void call() {
                     stage('Update network params') {
                         when {
                             epxression {
-                                params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
                         steps {
@@ -191,10 +216,7 @@ void call() {
                         when {
                             allOf {
                                 expression {
-                                    params.TOP_UP_BOTS
-                                }
-                                expression {
-                                    params.ACTION != 'stop-network'
+                                    params.TOP_UP_BOTS && params.PERFORM_NETWORK_OPERATIONS
                                 }
                             }
                         }
@@ -210,11 +232,12 @@ void call() {
                     stage('Join bots to referral program') {
                         when {
                             expression {
-                                params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                                params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
                         options {
                             lock(resource: "ethereum-minter-${env.NET_NAME}")
+                            retry(3)
                         }
                         steps {
                             withDevopsTools(

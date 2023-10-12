@@ -549,16 +549,20 @@ void call() {
                                 }
                                 steps {
                                     sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
-                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
-                                        withDevopstools(
-                                            command: 'market propose --all'
-                                        )
+                                    retry(3) {
+                                        lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                            withDevopstools(
+                                                command: 'market propose --all'
+                                            )
+                                        }
                                     }
                                     sleep 30 * 7
-                                    lock(resource: "ethereum-minter-${env.NET_NAME}") {
-                                        withDevopstools(
-                                            command: 'market provide-lp'
-                                        )
+                                    retry(3) {
+                                        lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                            withDevopstools(
+                                                command: 'market provide-lp'
+                                            )
+                                        }
                                     }
                                 }
                                 post {
@@ -650,6 +654,7 @@ void call() {
                                 }
                                 options {
                                     lock(resource: "ethereum-minter-${env.NET_NAME}")
+                                    retry(3)
                                 }
                                 steps {
                                     withDevopsTools(
