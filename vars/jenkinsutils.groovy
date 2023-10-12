@@ -127,7 +127,6 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
     if (jobInfo?.started_by_user) {
         monitoring_url.addQueryParam("var-started_by_user", jobInfo.started_by_user)
     }
-    print("currentBuild.startTimeInMillis: ${currentBuild.startTimeInMillis}")
     Long start = currentBuild.startTimeInMillis
     Long end = start + 3 * 60 * 60 * 1000
     monitoring_url.addQueryParam("from", start)
