@@ -584,6 +584,9 @@ void call() {
                                         params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
                                     }
                                 }
+                                options {
+                                    retry(3)
+                                }
                                 steps {
                                     withDevopstools(
                                         command: 'propose referral --setup-referral-program'
@@ -596,6 +599,9 @@ void call() {
                                         params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
                                     }
                                 }
+                                options {
+                                    retry(3)
+                                }
                                 steps {
                                     withDevopstools(
                                         command: 'propose volume-discount --setup-volume-discount-program'
@@ -607,6 +613,9 @@ void call() {
                                     epxression {
                                         params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
                                     }
+                                }
+                                options {
+                                    retry(3)
                                 }
                                 steps {
                                     withDevopsTools(
@@ -624,6 +633,9 @@ void call() {
                                             params.ACTION != 'stop-network'
                                         }
                                     }
+                                }
+                                options {
+                                    retry(3)
                                 }
                                 steps {
                                     // propagate result only when bots need to join referral program
