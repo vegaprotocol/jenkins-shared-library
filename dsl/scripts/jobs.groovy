@@ -162,10 +162,42 @@ def vegavisorParamsBase(args=[:]) {
             defaultValue(args.get('UPDATE_CONFIGURATION', true))
             description('This performs all operations related to system configuration - packages, caddy server file etc. It effect is not dependent on any network action like "restart-network" or "create-node". You can set whatever you want there')
         }
-        booleanParam {
-            name('PERFORM_NETWORK_OPERATIONS')
-            defaultValue(true)
-            description('This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
+        if (! args.get('isNodeUpdate', false)) {
+            booleanParam {
+                name('PERFORM_NETWORK_OPERATIONS')
+                defaultValue(true)
+                description('This perform all operations related to blockchain state - configures data nodes, validators, installs vegavisor, checks block status etc.')
+            }
+            booleanParam {
+                name('CREATE_MARKETS')
+                defaultValue(args.get('CREATE_MARKETS', false))
+                description(h('create markets'))
+            }
+            booleanParam {
+                name('SETUP_REFERRAL_PROGRAM')
+                defaultValue(args.get('SETUP_REFERRAL_PROGRAM', false))
+                description('Set up Referral Program')
+            }
+            booleanParam {
+                name('SETUP_VOLUME_DISCOUNT_PROGRAM')
+                defaultValue(args.get('SETUP_VOLUME_DISCOUNT_PROGRAM', false))
+                description('Set up volume discount Program')
+            }
+            booleanParam {
+                name('UPDATE_NETWORK_PARAMS')
+                defaultValue(args.get('UPDATE_NETWORK_PARAMS', false))
+                description('Update network params')
+            }
+            booleanParam {
+                name('TOP_UP_BOTS')
+                defaultValue(args.get('TOP_UP_BOTS', false))
+                description(h('trigger top up job'))
+            }
+            booleanParam {
+                name('JOIN_BOTS_TO_REFERRAL_PROGRAM')
+                defaultValue(args.get('JOIN_BOTS_TO_REFERRAL_PROGRAM', false))
+                description('Join bots to referral program')
+            }
         }
         stringParam {
             name('VEGACAPSULE_BRANCH')
@@ -244,16 +276,6 @@ def vegavisorRestartNetworkParams(args=[:]) {
             name('USE_CHECKPOINT')
             defaultValue(args.get('USE_CHECKPOINT', true))
             description('This will download latest checkpoint and use it to restart the network with')
-        }
-        booleanParam {
-            name('CREATE_MARKETS')
-            defaultValue(args.get('CREATE_MARKETS', false))
-            description(h('create markets'))
-        }
-        booleanParam {
-            name('TOP_UP_BOTS')
-            defaultValue(args.get('TOP_UP_BOTS', false))
-            description(h('trigger top up job'))
         }
         stringParam {
             name('DEVOPSSCRIPTS_BRANCH')
@@ -356,7 +378,9 @@ def vegavisorManageNodeParams(args=[:]) {
         ]
     }
 
-    return vegavisorParamsBase(args) << {
+    return vegavisorParamsBase(args + [
+        isNodeUpdate: true
+    ]) << {
         choiceParam {
             name('NODE')
             choices(nodesList)
@@ -1452,6 +1476,10 @@ def jobs = [
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
+            SETUP_REFERRAL_PROGRAM: true,
+            SETUP_VOLUME_DISCOUNT_PROGRAM: true,
+            UPDATE_NETWORK_PARAMS: true,
+            JOIN_BOTS_TO_REFERRAL_PROGRAM: true,
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1493,7 +1521,13 @@ def jobs = [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            TOP_UP_BOTS: true,
+            SETUP_REFERRAL_PROGRAM: true,
+            SETUP_VOLUME_DISCOUNT_PROGRAM: true,
+            UPDATE_NETWORK_PARAMS: true,
+            JOIN_BOTS_TO_REFERRAL_PROGRAM: true,
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1556,7 +1590,9 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams(
+            SETUP_REFERRAL_PROGRAM: true,
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1587,7 +1623,9 @@ def jobs = [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            SETUP_REFERRAL_PROGRAM: true,
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1746,6 +1784,7 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
+            SETUP_REFERRAL_PROGRAM: true,
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1777,7 +1816,9 @@ def jobs = [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            SETUP_REFERRAL_PROGRAM: true,
+        ),
         disableConcurrentBuilds: true,
     ],
     [
