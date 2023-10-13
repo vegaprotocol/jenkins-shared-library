@@ -182,6 +182,9 @@ void call() {
                                 params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
+                        options {
+                            retry(3)
+                        }
                         steps {
                             withDevopstools(
                                 command: 'propose referral --setup-referral-program'
@@ -194,6 +197,9 @@ void call() {
                                 params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
+                        options {
+                            retry(3)
+                        }
                         steps {
                             withDevopstools(
                                 command: 'propose volume-discount --setup-volume-discount-program'
@@ -205,6 +211,9 @@ void call() {
                             expression {
                                 params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS
                             }
+                        }
+                        options {
+                            retry(3)
                         }
                         steps {
                             withDevopstools(
