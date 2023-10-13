@@ -140,8 +140,11 @@ def call() {
                                     ''' + PSSH_USER + '''@bots.vega.rocks \
                                     "sudo systemctl restart  bots-''' + env.NET_NAME + '''.service"'''
                             }
-                            sleep 60
-                            vegautils.waitForValidHTTPCode(researchBotsURL, 20, 5)
+
+                            retry(count: 3) {
+                                sleep 60
+                                vegautils.waitForValidHTTPCode(researchBotsURL, 20, 5)
+                            }
                         } catch(err) {
                             print(err)
                             currentBuild.result = 'UNSTABLE'
