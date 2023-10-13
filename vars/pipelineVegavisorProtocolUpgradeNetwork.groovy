@@ -217,7 +217,7 @@ void call() {
                         }
                         steps {
                             withDevopstools(
-                                command: 'incentive network-params'
+                                command: 'incentive network-params --update'
                             )
                         }
                     }
