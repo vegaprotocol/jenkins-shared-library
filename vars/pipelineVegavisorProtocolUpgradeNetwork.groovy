@@ -202,12 +202,12 @@ void call() {
                     }
                     stage('Update network params') {
                         when {
-                            epxression {
+                            expression {
                                 params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS
                             }
                         }
                         steps {
-                            withDevopsTools(
+                            withDevopstools(
                                 command: 'incentive network-params'
                             )
                         }
@@ -240,7 +240,7 @@ void call() {
                             retry(3)
                         }
                         steps {
-                            withDevopsTools(
+                            withDevopstools(
                                 command: 'bot referral --setup'
                             )
                         }
