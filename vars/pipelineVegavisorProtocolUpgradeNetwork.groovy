@@ -149,6 +149,116 @@ void call() {
                     }
                 }
             }
+            stage('Market actions') {
+                stages {
+                    stage('Create markets & provide lp'){
+                        when {
+                            expression {
+                                params.CREATE_MARKETS && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        steps {
+                            sleep 60 // TODO: Add wait for network to replay all of the ethereum events...
+                            retry(3) {
+                                lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                    withDevopstools(
+                                        command: 'market propose --all'
+                                    )
+                                }
+                            }
+                            sleep 30 * 7
+                            retry(3) {
+                                lock(resource: "ethereum-minter-${env.NET_NAME}") {
+                                    withDevopstools(
+                                        command: 'market provide-lp'
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    stage('Set up referral program') {
+                        when {
+                            expression {
+                                params.SETUP_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        options {
+                            retry(3)
+                        }
+                        steps {
+                            withDevopstools(
+                                command: 'propose referral --setup-referral-program'
+                            )
+                        }
+                    }
+                    stage('Set up volume discount program') {
+                        when {
+                            expression {
+                                params.SETUP_VOLUME_DISCOUNT_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        options {
+                            retry(3)
+                        }
+                        steps {
+                            withDevopstools(
+                                command: 'propose volume-discount --setup-volume-discount-program'
+                            )
+                        }
+                    }
+                    stage('Update network params') {
+                        when {
+                            expression {
+                                params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        options {
+                            retry(3)
+                        }
+                        steps {
+                            withDevopstools(
+                                command: 'incentive network-params'
+                            )
+                        }
+                    }
+                    stage('Top up bots') {
+                        when {
+                            allOf {
+                                expression {
+                                    params.TOP_UP_BOTS && params.PERFORM_NETWORK_OPERATIONS
+                                }
+                            }
+                        }
+                        options {
+                            retry(3)
+                        }
+                        steps {
+                            // propagate result only when bots need to join referral program
+                            build(
+                                job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
+                                propagate: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
+                                wait: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
+                            )
+                        }
+                    }
+                    stage('Join bots to referral program') {
+                        when {
+                            expression {
+                                params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS
+                            }
+                        }
+                        options {
+                            lock(resource: "ethereum-minter-${env.NET_NAME}")
+                            retry(3)
+                        }
+                        steps {
+                            withDevopstools(
+                                command: 'bot referral --setup'
+                            )
+                        }
+                    }
+                }
+            }
             stage('Update vegawallet service') {
                 when {
                     expression { DOCKER_VERSION }
