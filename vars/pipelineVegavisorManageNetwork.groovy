@@ -610,7 +610,7 @@ void call() {
                             }
                             stage('Update network params') {
                                 when {
-                                    epxression {
+                                    expression {
                                         params.UPDATE_NETWORK_PARAMS && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
                                     }
                                 }
