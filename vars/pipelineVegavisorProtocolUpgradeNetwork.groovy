@@ -229,6 +229,9 @@ void call() {
                                 }
                             }
                         }
+                        options {
+                            retry(3)
+                        }
                         steps {
                             // propagate result only when bots need to join referral program
                             build(
