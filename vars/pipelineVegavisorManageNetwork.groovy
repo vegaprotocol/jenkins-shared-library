@@ -618,7 +618,7 @@ void call() {
                                     retry(3)
                                 }
                                 steps {
-                                    withDevopsTools(
+                                    withDevopstools(
                                         command: 'incentive network-params'
                                     )
                                 }
@@ -669,7 +669,7 @@ void call() {
                                     retry(3)
                                 }
                                 steps {
-                                    withDevopsTools(
+                                    withDevopstools(
                                         command: 'bot referral --setup'
                                     )
                                 }
