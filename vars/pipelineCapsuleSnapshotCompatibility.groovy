@@ -2,14 +2,13 @@
 void call(Map paramsOverrides=[:]) {
     capsuleSystemTests([
         slackChannel: '#snapshot-notify',
-        slackTitle: 'Mainnet snapshot compatibility(nullchain network)',
+        slackTitle: 'Mainnet snapshot compatibility(nullchain)',
         agentLabel: params.NODE_LABEL ?: '',
         extraEnvVars: [
             'NO_DATA_NODE_TEST_CASE': 'true',
             'NULL_BLOCK_CHAIN': 'true',
         ],
         fastFail: false,
-        slackTitle: 'LNL Mainnet System Tests',
         hooks: [
             postNetworkGenerate: [
                 'Download core snapshot from mainnet API': {
