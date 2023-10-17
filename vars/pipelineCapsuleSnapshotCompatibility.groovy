@@ -1,8 +1,9 @@
 /* groovylint-disable DuplicateStringLiteral, LineLength */
 void call(Map paramsOverrides=[:]) {
     capsuleSystemTests([
+        slackChannel: '#snapshot-notify',
+        slackTitle: 'Mainnet snapshot compatibility(nullchain network)',
         agentLabel: params.NODE_LABEL ?: '',
-        systemTestsBranch: 'lnl-pipeline',
         extraEnvVars: [
             'NO_DATA_NODE_TEST_CASE': 'true',
             'NULL_BLOCK_CHAIN': 'true',
