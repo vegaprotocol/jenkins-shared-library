@@ -1,8 +1,9 @@
 "jenkins":
   "nodes":
   - "permanent":
-      "labelString": "office-system-tests core-build office-machine vega-market-sim
-        office-system-tests-lnl"
+      # "labelString": "office-system-tests core-build office-machine vega-market-sim
+      #   office-system-tests-lnl"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -80,7 +81,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "office-system-tests core-build office-machine office-system-tests-lnl"
+      # "labelString": "office-system-tests core-build office-machine office-system-tests-lnl"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
