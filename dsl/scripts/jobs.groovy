@@ -2182,6 +2182,94 @@ def jobs = [
         cron: 'H 0 * * *',
     ],
     //
+    // System-Tests NBC
+    //
+    [
+        name: 'common/system-tests-nbc',
+        description: 'System Tests on Null Block Chain',
+        useScmDefinition: false,
+        definition: libDefinition('pipelineSystemTestsNBC()'),
+        parameters: {
+            stringParam {
+                name('ORIGIN_REPO')
+                defaultValue('vegaprotocol/vega')
+                description('repository which acts as vega source code (used for forks builds)')
+                trim(true)
+            }
+            stringParam {
+                name('VEGA_VERSION')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/vega repository')
+                trim(true)
+            }
+            stringParam {
+                name('VEGACAPSULE_VERSION')
+                defaultValue('main')
+                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+                trim(true)
+            }
+            stringParam {
+                name('SYSTEM_TESTS_NBC_BRANCH')
+                defaultValue('develop')
+                description('Git branch, tag or hash of the vegaprotocol/system-tests-nbc repository')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('45')
+                description('Number of minutes after which the job will stop')
+                trim(true)
+            }
+            stringParam {
+                name('TEST_FUNCTION')
+                defaultValue('')
+                description('Defines specified functions to run(specifies value for the pytest -k param)')
+                trim(true)
+            }
+            stringParam {
+                name('PARALLEL_WORKERS')
+                defaultValue('1')
+                description('Defines number of parallel tests (specifies value for the pytest -n param)')
+                trim(true)
+            }
+            stringParam {
+                name('LOG_LEVEL')
+                defaultValue('INFO')
+                description('Log level for the pytest (INFO,DEBUG,WARN,ERROR)')
+                trim(true)
+            }
+            booleanParam {
+                name('RUN_EXTRA_TESTS')
+                defaultValue(false)
+                description('Run extra tests that you don\'t always want to run')
+            }
+            booleanParam {
+                name('RUN_LEARNING')
+                defaultValue(false)
+                description('Run a long reinforcement learning test')
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('vega-market-sim')
+                description('Jenkins label for running pipeline (empty means any node)')
+                trim(true)
+            }
+            booleanParam {
+                name('BRANCH_RUN')
+                defaultValue(true)
+                description('Is this a branch or main run')
+            }
+        },
+        copyArtifacts: true,
+        daysToKeep: 5,
+    ],
+    //
     // Vega Market Simulator
     //
     [
