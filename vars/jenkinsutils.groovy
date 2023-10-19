@@ -130,6 +130,6 @@ String getMonitoringDashboardURL(Map<String, String> extraVars=[:]) {
     Long start = currentBuild.startTimeInMillis
     Long end = start + 3 * 60 * 60 * 1000
     monitoring_url.addQueryParam("from", start)
-    monitoring_url.addQueryParam("end", end)
+    monitoring_url.addQueryParam("to", end)
     return monitoring_url.toString()
 }
