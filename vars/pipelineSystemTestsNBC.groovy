@@ -110,12 +110,21 @@ void call() {
                 options { retry(3) }
                 steps {
                     sh label: 'Build binaries', script: '''
-                        make build_deps \
-                            && make build_proto
+                        make build_deps
                     '''
                     sh label: 'echo stuff', script: '''
                         ls -lah ./vega_sim/bin
-                        ls -lah ./vega_sim/proto"
+                    '''
+                }
+            }
+            stage('Build Protos') {
+                options { retry(3) }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        make build_proto
+                    '''
+                    sh label: 'echo stuff', script: '''
+                        ls -lah ./vega_sim/proto
                     '''
                 }
             }
