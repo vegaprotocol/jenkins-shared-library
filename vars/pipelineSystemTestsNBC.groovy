@@ -111,7 +111,7 @@ void call() {
                 steps {
                     sh label: 'Build binaries', script: '''
                         make build_deps \
-                            && make build_proto"
+                            && make build_proto
                     '''
                     sh label: 'echo stuff', script: '''
                         ls -lah ./vega_sim/bin
