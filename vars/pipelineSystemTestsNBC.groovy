@@ -120,6 +120,10 @@ void call() {
             stage('Build Protos') {
                 options { retry(3) }
                 steps {
+                    dir('extern/vega') {
+                        sh 'printenv'
+                        sh './script/gettools.sh'
+                    }
                     sh label: 'Build binaries', script: '''
                         make build_proto
                     '''
