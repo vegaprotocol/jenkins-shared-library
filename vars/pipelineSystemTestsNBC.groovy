@@ -25,6 +25,7 @@ void call() {
             TEST_FUNCTION = "${testFunction}"
             LOG_LEVEL = "${logLevel}"
             GOBIN = "${env.WORKSPACE}/gobin"
+            PATH = "${env.GOBIN}:${env.PATH}"
         }
 
         stages {
