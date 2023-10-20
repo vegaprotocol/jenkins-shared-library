@@ -110,7 +110,7 @@ void call() {
             stage('Poetry install deps') {
                 options { retry(3) }
                 steps {
-                    sh label: 'Build binaries', script: '''
+                    sh label: 'poetry install', script: '''
                         poetry install
                     '''
                 }
@@ -133,7 +133,7 @@ void call() {
                         sh 'printenv'
                         sh './script/gettools.sh'
                     }
-                    sh label: 'Build binaries', script: '''
+                    sh label: 'build proto', script: '''
                         make build_proto
                     '''
                     sh label: 'echo stuff', script: '''
