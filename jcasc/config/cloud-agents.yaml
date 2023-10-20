@@ -1,0 +1,37 @@
+jenkins:
+  clouds:
+    - digitalOcean:
+        authTokenCredentialId: "digitalocean-token"
+        connectionRetryWait: 10
+        instanceCap: 180
+        name: "fra1"
+        privateKeyCredentialId: "ubuntu-ansible-key"
+        sshKeyId: 35449484
+        templates:
+        - &template
+          idleTerminationInMinutes: 10
+          imageId: "141189256"
+          installMonitoring: false
+          instanceCap: 120
+          labellessJobsAllowed: false
+          name: "ubuntu"
+          numExecutors: 1
+          regionId: "fra1"
+          setupPrivateNetworking: false
+          sshPort: 22
+          username: "ubuntu"
+          workspacePath: "/jenkins/"
+          labelString: "god-mode"
+          sizeId: "s-8vcpu-32gb-640gb-intel"
+        - <<: *template
+          labelString: "big big-cloud cloud-machine"
+          sizeId: "s-8vcpu-16gb-intel"
+        - <<: *template
+          labellessJobsAllowed: true
+          labelString: "medium medium-cloud cloud-machine"
+          sizeId: "s-4vcpu-8gb-intel"
+        - idleTerminationInMinutes: 10
+          labelString: "tiny tiny-cloud"
+          sizeId: "s-2vcpu-4gb"
+        timeoutMinutes: 10
+        usePrivateNetworking: false

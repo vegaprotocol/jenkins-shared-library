@@ -968,7 +968,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
+            defaultValue(args.get('NODE_LABEL', 'big || medium'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -1449,7 +1449,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('core-build')
+                defaultValue('big || medium')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2076,13 +2076,13 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 'office-system-tests-lnl',
+            NODE_LABEL: 'big',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
             RUN_SOAK_TEST: false,
         ),
         copyArtifacts: true,
         daysToKeep: 10,
-        cron: 'H 3 * * *',
+        cron: 'H 0 * * *',
     ],
     [
         name: 'common/system-tests-snapshot-compatibility',
@@ -2091,7 +2091,7 @@ def jobs = [
         parameters: snapshotCompatibilityParams(),
         copyArtifacts: true,
         daysToKeep: 10,
-        cron: 'H 2 * * *',
+        cron: 'H 1 * * *',
     ],
     [
         name: 'common/system-tests',
@@ -2111,7 +2111,7 @@ def jobs = [
         parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
         copyArtifacts: true,
         daysToKeep: 10,
-        cron: 'H 0 * * *',
+        cron: 'H 2 * * *',
     ],
     //
     // Vegavisor automatic download and PUP
@@ -2172,7 +2172,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('office-system-tests')
+                defaultValue('big || medium')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2256,7 +2256,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('vega-market-sim')
+                defaultValue('big')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2704,7 +2704,7 @@ def jobs = [
         disableConcurrentBuilds: true,
         useScmDefinition: false,
         numToKeep: 30,
-        cron: '0 0 * * *',
+        cron: 'H 1 * * *',
         definition: libDefinition('pipelinePerformanceTest()'),
         parameters: {
             stringParam {
