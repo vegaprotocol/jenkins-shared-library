@@ -149,6 +149,10 @@ def multibranchJobs = [
     [
         name: 'vega-market-sim',
     ],
+    [
+        name: 'private/system-tests-nbc',
+        repoName: 'system-tests-nbc',
+    ],
 ]
 
 multibranchJobs.each {
