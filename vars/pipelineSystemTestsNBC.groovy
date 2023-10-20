@@ -106,22 +106,19 @@ void call() {
                     }
                 }
             }
-            // stage('Build Binaries') {
-            //     options { retry(3) }
-            //     steps {
-            //         // We have to install cuda toolkit for some scenarios in the vega-market-sim
-            //         // transformers[torch] - must be installed because poetry does not install it
-            //         // correctly for some reasons.
-            //         //
-            //         // cuda toolkit should be moved into the jenkins agent image and should be
-            //         // available before this pipeline
-            //         sh label: 'Build binaries', script: '''
-            //             make build_deps \
-            //                 && poetry install -E learning \
-            //                 && poetry run python -m pip install "transformers[torch]"
-            //         '''
-            //     }
-            // }
+            stage('Build Binaries') {
+                options { retry(3) }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        make build_deps \
+                            && make build_proto"
+                    '''
+                    sh label: 'echo stuff', script: '''
+                        ls -lah ./vega_sim/bin
+                        ls -lah ./vega_sim/proto"
+                    '''
+                }
+            }
             stage('Tests') {
                 parallel {
                     stage('Example stage 1') {
