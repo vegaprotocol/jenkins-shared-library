@@ -107,6 +107,14 @@ void call() {
                     }
                 }
             }
+            stage('Poetry install deps') {
+                options { retry(3) }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        poetry install
+                    '''
+                }
+            }
             stage('Build Binaries') {
                 options { retry(3) }
                 steps {
