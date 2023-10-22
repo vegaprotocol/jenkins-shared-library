@@ -157,11 +157,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Example stage 2') {
-                        steps {
-                            echo "System Tests NBC example test stage 2"
-                        }
-                    }
                     // stage('Integration Tests') {
                     //     when {
                     //         expression {
