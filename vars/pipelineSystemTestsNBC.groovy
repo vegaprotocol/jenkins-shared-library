@@ -143,9 +143,18 @@ void call() {
             }
             stage('Tests') {
                 parallel {
-                    stage('Example stage 1') {
+                    stage('Spam Tests') {
                         steps {
-                            echo "System Tests NBC example test stage 1"
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Run Spam Tests', script: '''
+                                poetry run scripts/run-spam-test.sh ${BUILD_NUMBER}
+                            '''
+                        }
+                        post {
+                            always {
+                                junit checksName: 'Spam Tests results',
+                                    testResults: 'test_logs/*-spam/spam-test-results.xml'
+                            }
                         }
                     }
                     stage('Example stage 2') {
