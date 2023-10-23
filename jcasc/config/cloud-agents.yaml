@@ -24,11 +24,11 @@ jenkins:
           labelString: "god-mode"
           sizeId: "s-8vcpu-32gb-640gb-intel"
         - <<: *template
-          labelString: "big big-cloud cloud-machine"
+          labelString: "big big-cloud"
           sizeId: "s-8vcpu-16gb-intel"
         - <<: *template
           labellessJobsAllowed: true
-          labelString: "medium medium-cloud cloud-machine"
+          labelString: "medium medium-cloud"
           sizeId: "s-4vcpu-8gb-intel"
         - idleTerminationInMinutes: 10
           labelString: "tiny tiny-cloud"
