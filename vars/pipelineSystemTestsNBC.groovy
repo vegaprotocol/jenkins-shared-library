@@ -255,24 +255,24 @@ void call() {
                         grafanaAgent.cleanup()
                     }
                 }
-                // catchError {
-                //     // Jenkins does not allow to archive artifacts outside of the workspace
-                //     script {
-                //         sh 'mkdir -p ./network_home'
-                //         sh 'cp -r /tmp/vega-sim* ./network_home/'
-                //     }
-                //     archiveArtifacts(artifacts: [
-                //         'network_home/**/*.out',
-                //         'network_home/**/*.err',
-                //         'network_home/**/**/replay',
-                //     ].join(','), allowEmptyArchive: true)
-                //     script {
-                //         sh 'sudo rm -rf /tmp/vega-sim*'
-                //     }
-                // }
-                // catchError {
-                //     archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
-                // }
+                catchError {
+                    // Jenkins does not allow to archive artifacts outside of the workspace
+                    script {
+                        sh 'mkdir -p ./network_home'
+                        sh 'cp -r /tmp/vega-sim* ./network_home/'
+                    }
+                    archiveArtifacts(artifacts: [
+                        'network_home/**/*.out',
+                        'network_home/**/*.err',
+                        'network_home/**/**/replay',
+                    ].join(','), allowEmptyArchive: true)
+                    script {
+                        sh 'sudo rm -rf /tmp/vega-sim*'
+                    }
+                }
+                catchError {
+                    archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
+                }
 
                 sendSlackMessage()
                 retry(3) {
