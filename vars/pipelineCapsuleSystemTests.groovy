@@ -144,7 +144,12 @@ void call() {
                   }
                   if (params.SCENARIO == 'NIGHTLY') {
                     childParams += [booleanParam(name: 'ARCHIVE_VEGA_BINARY', value: true)]
+                    childParams += [string(name:'NODE_LABEL'), value: 'big']
                   }
+                  if (params.SCENARIO == 'PR') {
+                    childParams += [string(name:'NODE_LABEL'), value: 'big || medium']
+                  }
+
                   if (params.SCENARIO == 'NIGHTLY' && params.SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES == '') {
                     childParams += [stringParam(
                       name: 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES',
