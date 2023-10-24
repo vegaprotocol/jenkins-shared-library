@@ -25,6 +25,7 @@ void call() {
             TEST_FUNCTION = "${testFunction}"
             LOG_LEVEL = "${logLevel}"
             GOBIN = "${env.WORKSPACE}/gobin"
+            PATH = "${env.GOBIN}:${env.PATH}"
         }
 
         stages {
@@ -106,32 +107,54 @@ void call() {
                     }
                 }
             }
-            // stage('Build Binaries') {
-            //     options { retry(3) }
-            //     steps {
-            //         // We have to install cuda toolkit for some scenarios in the vega-market-sim
-            //         // transformers[torch] - must be installed because poetry does not install it
-            //         // correctly for some reasons.
-            //         //
-            //         // cuda toolkit should be moved into the jenkins agent image and should be
-            //         // available before this pipeline
-            //         sh label: 'Build binaries', script: '''
-            //             make build_deps \
-            //                 && poetry install -E learning \
-            //                 && poetry run python -m pip install "transformers[torch]"
-            //         '''
-            //     }
-            // }
+            stage('Poetry install deps') {
+                options { retry(3) }
+                steps {
+                    sh label: 'poetry install', script: '''
+                        poetry install
+                    '''
+                }
+            }
+            stage('Build Binaries') {
+                options { retry(3) }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        make build_deps
+                    '''
+                    sh label: 'echo stuff', script: '''
+                        ls -lah ./vega_sim/bin
+                    '''
+                }
+            }
+            stage('Build Protos') {
+                options { retry(3) }
+                steps {
+                    dir('extern/vega') {
+                        sh 'printenv'
+                        sh './script/gettools.sh'
+                    }
+                    sh label: 'build proto', script: '''
+                        make build_proto
+                    '''
+                    sh label: 'list built proto files', script: '''
+                        ls -lah ./vega_sim/proto
+                    '''
+                }
+            }
             stage('Tests') {
                 parallel {
-                    stage('Example stage 1') {
+                    stage('Spam Tests') {
                         steps {
-                            echo "System Tests NBC example test stage 1"
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Run Spam Tests', script: '''
+                                poetry run scripts/run-spam-test.sh ${BUILD_NUMBER}
+                            '''
                         }
-                    }
-                    stage('Example stage 2') {
-                        steps {
-                            echo "System Tests NBC example test stage 2"
+                        post {
+                            always {
+                                junit checksName: 'Spam Tests results',
+                                    testResults: 'test_logs/*-spam/spam-test-results.xml'
+                            }
                         }
                     }
                     // stage('Integration Tests') {
@@ -232,24 +255,24 @@ void call() {
                         grafanaAgent.cleanup()
                     }
                 }
-                // catchError {
-                //     // Jenkins does not allow to archive artifacts outside of the workspace
-                //     script {
-                //         sh 'mkdir -p ./network_home'
-                //         sh 'cp -r /tmp/vega-sim* ./network_home/'
-                //     }
-                //     archiveArtifacts(artifacts: [
-                //         'network_home/**/*.out',
-                //         'network_home/**/*.err',
-                //         'network_home/**/**/replay',
-                //     ].join(','), allowEmptyArchive: true)
-                //     script {
-                //         sh 'sudo rm -rf /tmp/vega-sim*'
-                //     }
-                // }
-                // catchError {
-                //     archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
-                // }
+                catchError {
+                    // Jenkins does not allow to archive artifacts outside of the workspace
+                    script {
+                        sh 'mkdir -p ./network_home'
+                        sh 'cp -r /tmp/vega-sim* ./network_home/'
+                    }
+                    archiveArtifacts(artifacts: [
+                        'network_home/**/*.out',
+                        'network_home/**/*.err',
+                        'network_home/**/**/replay',
+                    ].join(','), allowEmptyArchive: true)
+                    script {
+                        sh 'sudo rm -rf /tmp/vega-sim*'
+                    }
+                }
+                catchError {
+                    archiveArtifacts(artifacts: 'test_logs/**/*.test.log', allowEmptyArchive: true)
+                }
 
                 sendSlackMessage()
                 retry(3) {
