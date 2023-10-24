@@ -136,7 +136,7 @@ void call() {
                     sh label: 'build proto', script: '''
                         make build_proto
                     '''
-                    sh label: 'echo stuff', script: '''
+                    sh label: 'list built proto files', script: '''
                         ls -lah ./vega_sim/proto
                     '''
                 }
