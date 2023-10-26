@@ -27,19 +27,6 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins002-tiny-2"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
       "labelString": "performance-tests"
       "launcher":
         "inbound":
@@ -49,7 +36,7 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins003-big-1"
+      "name": "jenkins003-performance-1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -62,11 +49,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins006-big-1"
+      "name": "jenkins005-big-1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office"
+      "labelString": "medium medium-office"
       "launcher":
         "inbound":
           "webSocket": true
@@ -75,7 +62,59 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins006-big-2"
+      "name": "jenkins005-medium-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "tiny tiny-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins005-tiny-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "tiny tiny-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins005-tiny-2"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins006-medium-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins006-medium-2"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -89,5 +128,57 @@
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
       "name": "jenkins006-tiny-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "big big-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins007-big-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins007-medium-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "big big-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins008-big-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins008-medium-1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
