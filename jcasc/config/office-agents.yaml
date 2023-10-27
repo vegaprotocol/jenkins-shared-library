@@ -1,7 +1,7 @@
 "jenkins":
   "nodes":
   - "permanent":
-      "labelString": "tiny tiny-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -14,7 +14,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -40,7 +40,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office"
+      "labelString": "big big-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -53,7 +53,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -66,7 +66,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -79,7 +79,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -92,7 +92,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office"
+      "labelString": "medium medium-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -105,7 +105,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office"
+      "labelString": "medium medium-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -118,7 +118,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office"
+      "labelString": "tiny tiny-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -131,7 +131,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office"
+      "labelString": "big big-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -144,7 +144,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office"
+      "labelString": "medium medium-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -157,7 +157,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office"
+      "labelString": "big big-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
@@ -170,7 +170,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office"
+      "labelString": "medium medium-office snapshot-testing"
       "launcher":
         "inbound":
           "webSocket": true
