@@ -1342,7 +1342,7 @@ def snapshotParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL','cloud-machine'))
+            defaultValue(args.get('NODE_LABEL','snapshot-testing'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
