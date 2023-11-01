@@ -764,25 +764,24 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
 }
 
 boolean checkServerListening(String serverHost, int serverPort) {
-//   timeoutMs = 1000
-//   Socket s = null
-//   try {
-//     s = new Socket()
-//     s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
-//     return true
-//   } catch (Exception e) {
-//     return false
-//   } finally {
-//     if(s != null) {
-//     try {s.close();}
-//     catch(Exception e){}
-//     }
-//   }
-
-    return vegautils.shellCommand('nc -zvw2 ' + serverHost + ' ' + serverPort) == 0
+  timeoutMs = 1000
+  Socket s = null
+  try {
+    s = new Socket()
+    s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
+    return true
+  } catch (Exception e) {
+    return false
+  } finally {
+    if(s != null) {
+    try {s.close();}
+    catch(Exception e){}
+    }
+  }
 }
 
 def getSeedsAndRPCServers(String cometURL) {
+  print('Commet URL: ' + cometURL + '/net_info')
   def net_info_req = new URL("${cometURL}/net_info").openConnection()
   def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
 
