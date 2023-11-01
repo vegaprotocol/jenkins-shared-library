@@ -784,6 +784,7 @@ boolean checkServerListening(String serverHost, int serverPort) {
 // When validators or any peer of the network parameters
 // does not expose required endpoints, let's add our own servers
 // to provide minimal number of peers required to start the networks
+@NonCPS
 Tuple2<List, List> appendMinimumSeedsAndRPCServers(String networkName, List<String> seeds, List<String> rpcServers) {
     Map<String, List<String>> internalNodes = [
         "mainnet": ["api0.vega.community", "api1.vega.community", "api2.vega.community", "api3.vega.community"]
