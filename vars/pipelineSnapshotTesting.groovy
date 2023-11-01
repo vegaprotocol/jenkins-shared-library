@@ -789,29 +789,39 @@ def getSeedsAndRPCServers(String cometURL) {
   for(peer in net_info.result.peers) {
     // Get domain/IP address and port
     def addr = peer.node_info.listen_addr.minus('tcp://').split(":")
+    print("Checking RPC peer: " + addr)
     if(addr.size()<2) {
+      print("   > RPC address rejected: size < 2")
       continue
     }
     def port = addr[1] as int
     addr = addr[0]
     if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
+      print("   > RPC address rejected: localhost")
       continue
     }
     if(addr.startsWith("be")) {  // remove Block Explorers - as not stable
+      print("   > RPC address rejected: block explorer")
       continue
     }
     if( ! checkServerListening(addr, port)) {
+      print("   > RPC address rejected: not listening")
       continue
     }
     // Get RPC port
     def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
+    print("Checking RPC port: " + rpc_port)
     if(rpc_port.size()<2) {
+      print("   > RPC port rejected: size < 2")
       continue
     }
     rpc_port = rpc_port[1] as int
     if( ! checkServerListening(addr, rpc_port)) {
+      print("   > RPC port rejected: not listening")
       continue
     }
+
+    print("   > Done")
     // Get Peer ID
     def comet_peer_id = peer.node_info.id
     // Append result lists
