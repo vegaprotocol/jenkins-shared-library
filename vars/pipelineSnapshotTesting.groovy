@@ -691,9 +691,9 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         int datanode_height = headerMatcher[0][1] as int
         def stats = new groovy.json.JsonSlurperClassic().parseText(localServerStatsBody)
         int core_height = stats.statistics.blockHeight as int
-        if ((core_height - datanode_height).abs() > 10) {
+        if ((core_height - datanode_height).abs() > 30) {
             if (debug) {
-                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 10 blocks behind core (${core_height}) for local data-node")
+                println("Data Node healthcheck failed: data node (${datanode_height}) is more than 30 blocks behind core (${core_height}) for local data-node")
             }
             return false
         }
