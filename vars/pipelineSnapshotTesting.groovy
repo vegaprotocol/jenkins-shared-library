@@ -802,7 +802,7 @@ List<String> appendMinimumRPCServers(String networkName, List<String> rpcServers
         }
     }
     
-    return new Tuple2(seeds.unique { a, b -> a <=> b }, rpcServers)
+    return rpcServers
 }
 
 def getSeedsAndRPCServers(String cometURL) {
@@ -834,13 +834,6 @@ def getSeedsAndRPCServers(String cometURL) {
       print("   > RPC address rejected: not listening")
       continue
     }
-    // Get RPC port
-    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
-    print("Checking RPC port: " + rpc_port)
-    if(rpc_port.size()<2) {
-      print("   > RPC port rejected: size < 2")
-      continue
-    }
 
     // Get Peer ID
     def comet_peer_id = peer.node_info.id
@@ -848,7 +841,13 @@ def getSeedsAndRPCServers(String cometURL) {
     SEEDS.add("${comet_peer_id}@${addr}:${port}")
     print("   > SEED added ${comet_peer_id}@${addr}:${port}")
     
-
+    // Get RPC port
+    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
+    print("Checking RPC port: " + rpc_port)
+    if(rpc_port.size()<2) {
+      print("   > RPC port rejected: size < 2")
+      continue
+    }
     rpc_port = rpc_port[1] as int
     if( ! checkServerListening(addr, rpc_port)) {
       print("   > RPC port rejected: not listening")
