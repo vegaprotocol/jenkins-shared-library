@@ -239,6 +239,7 @@ void call(Map config=[:]) {
 
                                 // Get data from TM
                                 (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                                (SEEDS, RPC_SERVERS) = appendMinimumSeedsAndRPCServers(env.NET_NAME, SEEDS, RPC_SERVERS)
                                 Collections.shuffle(SEEDS as List)
                                 Collections.shuffle(RPC_SERVERS as List)
                                 SEEDS = SEEDS.take(2).join(",")
@@ -778,6 +779,35 @@ boolean checkServerListening(String serverHost, int serverPort) {
     catch(Exception e){}
     }
   }
+}
+
+// When validators or any peer of the network parameters
+// does not expose required endpoints, let's add our own servers
+// to provide minimal number of peers required to start the networks
+Tuple2<List, List> appendMinimumSeedsAndRPCServers(String networkName, List<String> seeds, List<String> rpcServers) {
+    Map<String, List<String>> internalNodes = [
+        "mainnet": ["api0.vega.community", "api1.vega.community", "api2.vega.community", "api3.vega.community"]
+    ]
+
+    if (networkName != "mainnet") {
+        return new Tuple2(seeds, rpcServers)
+    }
+
+    // Tendermint requires at least 2 seeds and rpc ports otherwise it fails
+    if (seeds.size() < 2) {
+        newSeeds = internalNodes[networkName].stream().limit(2);
+        seeds = seeds + newSeeds.collect {
+            it + ':26656'
+        }
+    }
+    if (rpcServers.size() < 2) {
+        newRpcServers = internalNodes[networkName].stream().limit(2);
+        rpcServers = rpcServers + newRpcServers.collect {
+            it + ':26657'
+        }
+    }
+    
+    return new Tuple2(seeds.unique { a, b -> a <=> b }, rpcServers)
 }
 
 def getSeedsAndRPCServers(String cometURL) {
