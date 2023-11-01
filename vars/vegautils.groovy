@@ -48,7 +48,7 @@ int shellCommand(String command, boolean silent = false) {
   }
 
   return sh(returnStatus: true,
-    script: command).trim() as int
+    script: command) as int
 }
 
 Map<String, ?> networkStatistics(Map args=[:]) {
