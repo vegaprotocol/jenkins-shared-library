@@ -42,6 +42,15 @@ String shellOutput(String command, boolean silent = false) {
     script: command).trim()
 }
 
+int shellCommand(String command, boolean silent = false) {
+  if (silent) {
+    command = '#!/bin/bash +x\n' + command
+  }
+
+  return sh(returnStatus: true,
+    script: command).trim() as int
+}
+
 Map<String, ?> networkStatistics(Map args=[:]) {
   String netName = args.get("netName", "")
   int nodesRetry = args.get("nodesRetry", 5)

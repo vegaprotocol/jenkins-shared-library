@@ -764,20 +764,22 @@ void sendSlackMessage(String vegaNetwork, String extraMsg, String catchupTime) {
 }
 
 boolean checkServerListening(String serverHost, int serverPort) {
-  timeoutMs = 1000
-  Socket s = null
-  try {
-    s = new Socket()
-    s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
-    return true
-  } catch (Exception e) {
-    return false
-  } finally {
-    if(s != null) {
-    try {s.close();}
-    catch(Exception e){}
-    }
-  }
+//   timeoutMs = 1000
+//   Socket s = null
+//   try {
+//     s = new Socket()
+//     s.connect(new InetSocketAddress(serverHost, serverPort), timeoutMs);
+//     return true
+//   } catch (Exception e) {
+//     return false
+//   } finally {
+//     if(s != null) {
+//     try {s.close();}
+//     catch(Exception e){}
+//     }
+//   }
+
+    return vegautils.shellCommand('nc -zvw2 ' + serverHost + ' ' + serverPort) == 0
 }
 
 def getSeedsAndRPCServers(String cometURL) {
