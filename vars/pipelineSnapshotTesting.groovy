@@ -400,7 +400,7 @@ void call(Map config=[:]) {
                             'Checks': {
                                 nicelyStopAfter(Integer.toString(params.TIMEOUT.toInteger() - 1)) {
                                     int startAt = currentBuild.duration
-                                    sleep(time: '120', unit:'SECONDS')
+                                    sleep(time: '60', unit:'SECONDS')
                                     // run at 20sec, 50sec, 1min20sec, 1min50sec, 2min20sec, ... since start
                                     int runEverySec = 10
                                     int runEveryMs = runEverySec * 1000
@@ -475,6 +475,12 @@ void call(Map config=[:]) {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                } else {
+                                                    // Remvoe previous penalties if data-node was able to recover and it is healthy now
+                                                    notHealthyAgainCount -= 1
+                                                    if (notHealthyAgainCount < 0) {
+                                                        notHealthyAgainCount = 0
+                                                    }
                                                 }
                                             }
                                         }
@@ -700,9 +706,9 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
         // when there is a lot of happening on the network data-node can have some hiccup, especially on our poor hardware when its creating the network history snapshot.
-        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(30)) < current_time) {
+        if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
             if (debug) {
-                println("Data Node healthcheck failed: core (${vega_time}) is more than 30 seconds behind now (${current_time}) for local data-node")
+                println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for local data-node")
             }
             return false
         }
