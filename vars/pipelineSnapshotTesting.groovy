@@ -239,6 +239,7 @@ void call(Map config=[:]) {
 
                                 // Get data from TM
                                 (SEEDS, RPC_SERVERS) = getSeedsAndRPCServers(remoteServerCometBFT)
+                                RPC_SERVERS = appendMinimumRPCServers(env.NET_NAME, RPC_SERVERS)
                                 Collections.shuffle(SEEDS as List)
                                 Collections.shuffle(RPC_SERVERS as List)
                                 SEEDS = SEEDS.take(2).join(",")
@@ -474,6 +475,15 @@ void call(Map config=[:]) {
                                                 if ( !isLocalDataNodeHealthy(true) ) {
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
+                                                } else {
+                                                    if (notHealthyAgainCount > 0) {
+                                                        println("!!!!!!!!!!!!!! Penalties for non-healthy node decreased by 1 !!!!!!!!!!!!!")
+                                                    }
+                                                    // Remvoe previous penalties if data-node was able to recover and it is healthy now
+                                                    notHealthyAgainCount -= 1
+                                                    if (notHealthyAgainCount < 0) {
+                                                        notHealthyAgainCount = 0
+                                                    }
                                                 }
                                             }
                                         }
@@ -698,6 +708,7 @@ boolean isLocalDataNodeHealthy(boolean debug = false) {
         }
         Date vega_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.vegaTime.split("\\.")[0])
         Date current_time = Date.parse("yyyy-MM-dd'T'HH:mm:ss", stats.statistics.currentTime.split("\\.")[0])
+        // when there is a lot of happening on the network data-node can have some hiccup, especially on our poor hardware when its creating the network history snapshot.
         if (TimeCategory.plus(vega_time, TimeCategory.getSeconds(10)) < current_time) {
             if (debug) {
                 println("Data Node healthcheck failed: core (${vega_time}) is more than 10 seconds behind now (${current_time}) for local data-node")
@@ -780,7 +791,32 @@ boolean checkServerListening(String serverHost, int serverPort) {
   }
 }
 
+// When validators or any peer of the network parameters
+// does not expose required endpoints, let's add our own servers
+// to provide minimal number of peers required to start the networks
+@NonCPS
+List<String> appendMinimumRPCServers(String networkName, List<String> rpcServers) {
+    Map<String, List<String>> internalNodes = [
+        "mainnet": ["api0.vega.community", "api1.vega.community", "api2.vega.community", "api3.vega.community"]
+    ]
+
+    if (networkName != "mainnet") {
+        return rpcServers
+    }
+
+    // Tendermint requires at least 2 seeds and rpc ports otherwise it fails
+    if (rpcServers.size() < 2) {
+        newRpcServers = internalNodes[networkName].stream().limit(2);
+        rpcServers = rpcServers + newRpcServers.collect {
+            it + ':26657'
+        }
+    }
+    
+    return rpcServers
+}
+
 def getSeedsAndRPCServers(String cometURL) {
+  print('Commet URL: ' + cometURL + '/net_info')
   def net_info_req = new URL("${cometURL}/net_info").openConnection()
   def net_info = new groovy.json.JsonSlurperClassic().parseText(net_info_req.getInputStream().getText())
 
@@ -789,33 +825,46 @@ def getSeedsAndRPCServers(String cometURL) {
   for(peer in net_info.result.peers) {
     // Get domain/IP address and port
     def addr = peer.node_info.listen_addr.minus('tcp://').split(":")
+    print("Checking RPC peer: " + addr)
     if(addr.size()<2) {
+      print("   > RPC address rejected: size < 2")
       continue
     }
     def port = addr[1] as int
     addr = addr[0]
     if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
+      print("   > RPC address rejected: localhost")
       continue
     }
     if(addr.startsWith("be")) {  // remove Block Explorers - as not stable
+      print("   > RPC address rejected: block explorer")
       continue
     }
     if( ! checkServerListening(addr, port)) {
+      print("   > RPC address rejected: not listening")
       continue
     }
-    // Get RPC port
-    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
-    if(rpc_port.size()<2) {
-      continue
-    }
-    rpc_port = rpc_port[1] as int
-    if( ! checkServerListening(addr, rpc_port)) {
-      continue
-    }
+
     // Get Peer ID
     def comet_peer_id = peer.node_info.id
     // Append result lists
     SEEDS.add("${comet_peer_id}@${addr}:${port}")
+    print("   > SEED added ${comet_peer_id}@${addr}:${port}")
+    
+    // Get RPC port
+    def rpc_port = peer.node_info.other.rpc_address.minus('tcp://').split(":")
+    print("Checking RPC port: " + rpc_port)
+    if(rpc_port.size()<2) {
+      print("   > RPC port rejected: size < 2")
+      continue
+    }
+    rpc_port = rpc_port[1] as int
+    if( ! checkServerListening(addr, rpc_port)) {
+      print("   > RPC port rejected: not listening")
+      continue
+    }
+
+    print("   > Done")
     RPC_SERVERS.add("${addr}:${rpc_port}")
   }
   new Tuple2(SEEDS, RPC_SERVERS)
