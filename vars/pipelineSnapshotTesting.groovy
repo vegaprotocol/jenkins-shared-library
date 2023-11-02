@@ -476,6 +476,9 @@ void call(Map config=[:]) {
                                                     notHealthyAgainCount += 1
                                                     println("!!!!!!!!!!!!!! Data Node is not healthy again !!!!!!!!!!!!!")
                                                 } else {
+                                                    if (notHealthyAgainCount > 0) {
+                                                        println("!!!!!!!!!!!!!! Penalties for non-healthy node decreased by 1 !!!!!!!!!!!!!")
+                                                    }
                                                     // Remvoe previous penalties if data-node was able to recover and it is healthy now
                                                     notHealthyAgainCount -= 1
                                                     if (notHealthyAgainCount < 0) {
