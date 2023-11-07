@@ -1479,7 +1479,7 @@ def jobs = [
             SETUP_REFERRAL_PROGRAM: true,
             SETUP_VOLUME_DISCOUNT_PROGRAM: true,
             UPDATE_NETWORK_PARAMS: true,
-            JOIN_BOTS_TO_REFERRAL_PROGRAM: true,
+            JOIN_BOTS_TO_REFERRAL_PROGRAM: false, // team feature is enabled
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1591,7 +1591,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
-            SETUP_REFERRAL_PROGRAM: true,
+            SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1624,7 +1624,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            SETUP_REFERRAL_PROGRAM: true,
+            SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1817,7 +1817,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            SETUP_REFERRAL_PROGRAM: true,
+            SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
     ],
