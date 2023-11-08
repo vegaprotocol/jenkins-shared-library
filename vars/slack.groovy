@@ -112,3 +112,28 @@ void slackSendDeployStatus(Map config) {
         message: msg,
     )
 }
+
+void sendSlackMessage(Map config) {
+    String slackChannel = config.get('channel', '#env-deploy')
+    String jobURL = config.get('jobURL', env.RUN_DISPLAY_URL)
+    String duration = currentBuild.durationString - ' and counting'
+
+    msg = ":boom: ${msg}. <${jobURL}|Jenkins> :scream:"
+    color = 'danger'
+
+    if (currentResult == 'SUCCESS') {
+        msg = ":rocket: ${msg}. :astronaut:"
+        color = 'good'
+    } else if (currentResult == 'ABORTED') {
+        msg = ":black_circle: ${msg}. See details in <${jobURL}|Jenkins> :gear:"
+        color = '#000000'
+    }
+
+    msg += " (${duration})"
+
+    slackSend(
+        channel: slackChannel,
+        color: color,
+        message: msg,
+    )
+}
