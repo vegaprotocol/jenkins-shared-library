@@ -1982,7 +1982,7 @@ def jobs = [
             }
             stringParam {
                 name('TIMEOUT')
-                defaultValue('200')
+                defaultValue('480')
                 description('Global timeout in minutes')
                 trim(true)
             }
