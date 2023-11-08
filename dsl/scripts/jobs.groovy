@@ -2007,7 +2007,7 @@ def jobs = [
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // automatic backup every 6h
-            'H */6 * * * %' + [
+            'H 2 * * * %' + [
                 'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),
