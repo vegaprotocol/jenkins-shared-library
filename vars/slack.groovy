@@ -117,15 +117,15 @@ void sendSlackMessage(Map config) {
     String slackChannel = config.get('channel', '#env-deploy')
     String jobURL = config.get('jobURL', env.RUN_DISPLAY_URL)
     String duration = currentBuild.durationString - ' and counting'
-
-    msg = ":boom: ${msg}. <${jobURL}|Jenkins> :scream:"
+    String userMessage = config.get('msg', '')
+    msg = ":boom: ${userMessage}. <${jobURL}|Jenkins> :scream:"
     color = 'danger'
 
     if (currentResult == 'SUCCESS') {
-        msg = ":rocket: ${msg}. :astronaut:"
+        msg = ":rocket: ${userMessage}. :astronaut:"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: ${msg}. See details in <${jobURL}|Jenkins> :gear:"
+        msg = ":black_circle: ${userMessage}. See details in <${jobURL}|Jenkins> :gear:"
         color = '#000000'
     }
 
