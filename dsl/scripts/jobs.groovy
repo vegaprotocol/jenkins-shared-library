@@ -1473,6 +1473,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
+            NODE_LABEL: 'ops-tasks-tiny',
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
@@ -1497,6 +1498,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -1522,6 +1524,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 'ops-tasks-tiny',
             TOP_UP_BOTS: true,
             SETUP_REFERRAL_PROGRAM: true,
             SETUP_VOLUME_DISCOUNT_PROGRAM: true,
@@ -1541,7 +1544,9 @@ def jobs = [
             TRADERBOT: false,
             LIQBOT: false,
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
@@ -1592,6 +1597,7 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             SETUP_REFERRAL_PROGRAM: false,
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1609,6 +1615,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1624,6 +1631,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
@@ -1639,7 +1647,9 @@ def jobs = [
             TRADERBOT: true,
             LIQBOT: false,
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
@@ -1688,7 +1698,9 @@ def jobs = [
             ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
-        parameters: vegavisorRestartNetworkParams(),
+        parameters: vegavisorRestartNetworkParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1705,6 +1717,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1721,7 +1734,9 @@ def jobs = [
             TRADERBOT: false,
             LIQBOT: false,
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
     ],
@@ -1763,7 +1778,9 @@ def jobs = [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
         ],
-        parameters: vegavisorProtocolUpgradeParams(),
+        parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         disableConcurrentBuilds: true,
     ],
     //
@@ -1785,6 +1802,7 @@ def jobs = [
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
             SETUP_REFERRAL_PROGRAM: true,
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1802,6 +1820,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1817,6 +1836,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
         ],
         parameters: vegavisorProtocolUpgradeParams(
+            NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
@@ -1832,7 +1852,9 @@ def jobs = [
             TRADERBOT: true,
             LIQBOT: true,
         ],
-        parameters: vegavisorTopupBotsParams(),
+        parameters: vegavisorTopupBotsParams(
+            NODE_LABEL: 'ops-tasks-tiny',
+        ),
         cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
     ],
@@ -1883,6 +1905,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1932,6 +1955,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
+            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
     ],

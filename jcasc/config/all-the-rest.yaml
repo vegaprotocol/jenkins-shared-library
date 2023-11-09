@@ -90,7 +90,7 @@ jenkins:
         imageId: "141189256"
         installMonitoring: false
         instanceCap: 120
-        labelString: "tiny tiny-cloud snapshot-testing"
+        labelString: "tiny tiny-cloud snapshot-testing ops-tasks-tiny"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
