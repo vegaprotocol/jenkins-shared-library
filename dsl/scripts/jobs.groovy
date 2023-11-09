@@ -1982,7 +1982,7 @@ def jobs = [
             }
             stringParam {
                 name('TIMEOUT')
-                defaultValue('200')
+                defaultValue('480')
                 description('Global timeout in minutes')
                 trim(true)
             }
@@ -2007,7 +2007,7 @@ def jobs = [
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // automatic backup every 6h
-            'H */6 * * * %' + [
+            'H 2 * * * %' + [
                 'SERVER=api0.vega.community',
             ].join(';'),
         ].join('\n'),

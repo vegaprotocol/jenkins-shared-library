@@ -142,10 +142,17 @@ def call() {
             }
         }
         post {
+            failure {
+                script {
+                    slack.sendSlackMessage channel: '#ops-alerts', name: 'Backup on ' + server + ' failed'
+                }
+            }
+            success {
+                script {
+                    slack.sendSlackMessage channel: '#ops-alerts', name: 'Backup on ' + server + ' finished successfully'
+                }
+            }
             always {
-                // script {
-                //     slack.slackSendCIStatus channel: '#tbd...', name: env.JOB_NAME, branch: 'Top-Up'
-                // }
                 cleanWs()
             }
         }
