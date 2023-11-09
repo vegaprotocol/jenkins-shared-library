@@ -118,6 +118,7 @@ void sendSlackMessage(Map config) {
     String jobURL = config.get('jobURL', env.RUN_DISPLAY_URL)
     String duration = currentBuild.durationString - ' and counting'
     String userMessage = config.get('msg', '')
+    String currentResult = currentBuild.result ?: currentBuild.currentResult
     msg = ":boom: ${userMessage}. <${jobURL}|Jenkins> :scream:"
     color = 'danger'
 
