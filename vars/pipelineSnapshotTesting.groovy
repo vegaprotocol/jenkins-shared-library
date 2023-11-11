@@ -832,6 +832,11 @@ def getSeedsAndRPCServers(String cometURL) {
     }
     def port = addr[1] as int
     addr = addr[0]
+
+    if (adds.indexOf("metabase") >= 0) { // do not use metabase servers
+        continue
+    }
+
     if(["0.0.0.0", "127.0.0.1"].contains(addr)) {
       print("   > RPC address rejected: localhost")
       continue
