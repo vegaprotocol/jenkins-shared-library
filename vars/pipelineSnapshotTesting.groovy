@@ -833,7 +833,7 @@ def getSeedsAndRPCServers(String cometURL) {
     def port = addr[1] as int
     addr = addr[0]
 
-    if (adds.indexOf("metabase") >= 0) { // do not use metabase servers
+    if (addr.indexOf("metabase") >= 0) { // do not use metabase servers
         continue
     }
 
