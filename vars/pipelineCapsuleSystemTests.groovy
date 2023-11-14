@@ -12,17 +12,37 @@ void call() {
     // this is default scenario for smoke test, but it will require changing for other types
     scenario = [
     'PR': [
-      'smoke a-g': [
-        pytestDirectory: 'tests/[a-gA-G]*',
+      'smoke a-f': [
+        pytestDirectory: 'tests/[a-fA-F]*',
         mark: 'smoke'
       ],
-      'smoke h-m': [
-        pytestDirectory: 'tests/[h-mH-M]*',
+      'smoke g': [
+        pytestDirectory: 'tests/[gG]*',
         mark: 'smoke'
       ],
-      'smoke n-z': [
-        pytestArgs: "--ignore-glob 'tests/[a-mA-M]*'",
+      'smoke auction': [
+        pytestDirectory: 'tests/matching_engine/auction_trading_test.py',
         mark: 'smoke'
+      ],
+      'smoke continuous': [
+        pytestDirectory: 'tests/matching_engine/continuous_trading_test.py',
+        mark: 'smoke'
+      ],
+      'smoke l-m': [
+        pytestDirectory: 'tests/[l-mL-M]*',
+        mark: 'smoke'
+      ],
+      'smoke n-s': [
+        pytestArgs: "--ignore-glob 'tests/[n-sN-S]*'",
+        mark: 'smoke'
+      ],
+      'smoke t-z': [
+        pytestArgs: 'tests/[t-zT-Z]*',
+        mark: 'smoke'
+      ],
+      'network_infra_smoke a-z': [
+        mark: 'network_infra_smoke',
+        capsuleConfig: 'capsule_config_network_infra.hcl'
       ],
       'network_infra_smoke a-z': [
         mark: 'network_infra_smoke',
