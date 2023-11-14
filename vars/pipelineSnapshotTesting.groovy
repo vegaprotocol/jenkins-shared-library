@@ -391,6 +391,7 @@ void call(Map config=[:]) {
                                 )
                                 archiveArtifacts(
                                     artifacts: 'vega_config/**/*',
+                                    excludes: """vega_config/state/data-node/**""",
                                     allowEmptyArchive: true
                                 )
                                 if ( !nice && isDataNodeHealthy(remoteServerDataNode) ) {
