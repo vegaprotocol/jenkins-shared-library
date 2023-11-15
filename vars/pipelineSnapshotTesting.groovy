@@ -172,7 +172,9 @@ void call(Map config=[:]) {
                                         """
                                 }
                                 int swarmPort = vegautils.shellOutput('./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.SwarmPort') as int
-                                String peerId = vegautils.shellOutput('./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.PeerID') as int
+                                String peerId = vegautils.shellOutput('./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.PeerID')
+                                    .replaceAll('"', '')
+                                    .replaceAll("'", "")
 
                                 NETWORK_HISTORY_PEERS = sh(
                                     label: 'read persistent peers',
