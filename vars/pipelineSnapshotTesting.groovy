@@ -171,11 +171,16 @@ void call(Map config=[:]) {
                                             scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i \"\${PSSH_KEYFILE}\" \"\${PSSH_USER}\"@\"${remoteServerDataNode}\":/home/vega/vega_home/config/data-node/config.toml data-node-config.toml
                                         """
                                 }
+                                int swarmPort = vegautils.shellOutput('./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.SwarmPort') as int
+                                String peerId = vegautils.shellOutput('./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.PeerID') as int
+
                                 NETWORK_HISTORY_PEERS = sh(
                                     label: 'read persistent peers',
-                                    script: "./dasel -f data-node-config.toml -w json -c ${env.HISTORY_KEY}.Store.BootstrapPeers",
+                                    script: "./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.BootstrapPeers",
                                     returnStdout: true
                                 ).trim()
+                                NETWORK_HISTORY_PEERS = NETWORK_HISTORY_PEERS + ',/dns/' + remoteServerDataNode + '/tcp/' + swarmPort + '/ipfs/' + peerId
+
                                 echo "NETWORK_HISTORY_PEERS=${NETWORK_HISTORY_PEERS}"
                             },
                             'vega core binary': {
@@ -305,7 +310,7 @@ void call(Map config=[:]) {
                             'data-node': {
                                 sh label: 'set data-node config',
                                     script: """#!/bin/bash -e
-                                        ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFrom${env.HISTORY_KEY} true
+                                        ./dasel put bool -f vega_config/config/data-node/config.toml AutoInitialiseFromNetworkHistory true
                                         ./dasel put bool -f vega_config/config/data-node/config.toml SQLStore.UseEmbedded false
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Host 127.0.0.1
                                         ./dasel put int -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Port 5432
