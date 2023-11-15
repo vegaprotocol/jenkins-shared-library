@@ -33,6 +33,10 @@ void call(Map config = [:]) {
             string(name: 'JENKINS_AGENT_LABEL', value: config.agent ?: pipelineDefaults.st.agent),
             string(name: 'TIMEOUT', value: config.timeout ? "${config.timeout}" : pipelineDefaults.st.timeout),
 
+            // Env var DEFAULT_PRODUCT
+            string(name: 'DEFAULT_PRODUCT', "Perps"),
+
+
             // Debug
             booleanParam(
                 name: 'SYSTEM_TESTS_DEBUG',
