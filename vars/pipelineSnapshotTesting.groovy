@@ -181,7 +181,9 @@ void call(Map config=[:]) {
                                     script: "./dasel -f data-node-config.toml -w json -c NetworkHistory.Store.BootstrapPeers",
                                     returnStdout: true
                                 ).trim()
-                                NETWORK_HISTORY_PEERS = NETWORK_HISTORY_PEERS + ',/dns/' + remoteServerDataNode + '/tcp/' + swarmPort + '/ipfs/' + peerId
+                                NETWORK_HISTORY_PEERS = NETWORK_HISTORY_PEERS
+                                    .replaceAll("]", "") + 
+                                    ',"/dns/' + remoteServerDataNode + '/tcp/' + swarmPort + '/ipfs/' + peerId +'"]'
 
                                 echo "NETWORK_HISTORY_PEERS=${NETWORK_HISTORY_PEERS}"
                             },
