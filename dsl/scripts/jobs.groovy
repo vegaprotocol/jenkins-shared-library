@@ -1325,7 +1325,7 @@ def snapshotParams(args=[:]) {
     return {
         stringParam {
             name('TIMEOUT')
-            defaultValue(args.get('TIMEOUT','10'))
+            defaultValue(args.get('TIMEOUT','17'))
             description('Number of minutes after which the node will stop')
             trim(true)
         }
@@ -2474,7 +2474,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
@@ -2488,7 +2488,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
@@ -2517,7 +2517,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
@@ -2533,7 +2533,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     [
@@ -2548,7 +2548,7 @@ def jobs = [
         parameters: snapshotParams(),
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTesting()'),
-        cron: "H/12 * * * *",
+        cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     // review deprecation of this job
