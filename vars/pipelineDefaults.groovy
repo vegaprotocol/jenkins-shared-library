@@ -51,7 +51,7 @@ Map st = dv + [
 Map capsuleSystemTests = [
     branchVega: 'develop',
     branchSystemTests: 'develop',
-    branchVegaCapsule: 'main',
+    branchVegaCapsule: 'develop',
     branchVegatools: 'develop',
     branchDevopsInfra: 'master',
     branchDevopsScripts: 'main',
