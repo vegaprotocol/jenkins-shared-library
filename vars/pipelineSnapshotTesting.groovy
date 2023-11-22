@@ -323,7 +323,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml SQLStore.ConnectionConfig.Database vega
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Level "Debug"
-                                        ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.RetryTimeout "60s"
+                                        ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.RetryTimeout "300s"
                                         ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount 2001
                                         ./dasel put bool -f vega_config/config/data-node/config.toml Metrics.Enabled true
                                         ./dasel put int -f vega_config/config/data-node/config.toml Metrics.Port 2113
