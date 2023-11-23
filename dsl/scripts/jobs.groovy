@@ -201,7 +201,7 @@ def vegavisorParamsBase(args=[:]) {
         }
         stringParam {
             name('VEGACAPSULE_BRANCH')
-            defaultValue('main')
+            defaultValue('develop')
             description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             trim(true)
         }
@@ -887,7 +887,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('VEGACAPSULE_BRANCH')
-            defaultValue('main')
+            defaultValue('develop')
             description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
             trim(true)
         }
@@ -2173,7 +2173,7 @@ def jobs = [
             }
             stringParam {
                 name('VEGACAPSULE_BRANCH')
-                defaultValue('main')
+                defaultValue('develop')
                 description('git branch, tag or hash of the vegaprotocol/vegacapsule repository')
                 trim(true)
             }
@@ -2739,7 +2739,7 @@ def jobs = [
             }
             stringParam {
                 name('VEGACAPSULE_BRANCH')
-                defaultValue('main')
+                defaultValue('develop')
                 description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
                 trim(true)
             }
