@@ -234,6 +234,11 @@ void call(Map config=[:]) {
                                 def snapshot_req = new URL("https://${remoteServerDataNode}/api/v2/snapshots").openConnection()
                                 def snapshot = new groovy.json.JsonSlurperClassic().parseText(snapshot_req.getInputStream().getText())
                                 def snapshotInfo = snapshot['coreSnapshots']['edges'][0]['node']
+                                // Do not select latest snapshot if available
+                                if (snapshot['coreSnapshots']['edges'].size() > 2) {
+                                    snapshotInfo = snapshot['coreSnapshots']['edges'][2]['node']
+                                }
+                                
                                 SNAPSHOT_HEIGHT = snapshotInfo['blockHeight']
                                 SNAPSHOT_HASH = snapshotInfo['blockHash']
                                 println("SNAPSHOT_HEIGHT='${SNAPSHOT_HEIGHT}' - also used as trusted block height in tendermint statesync config")
