@@ -14,7 +14,7 @@ def call() {
             PGPASSWORD = credentials("PERFORMANCE_DB_PASSWORD")
         }
         options {
-              timeout(time: 6, unit: 'HOURS')
+              timeout(time: 12, unit: 'HOURS')
         }
         stages {
             stage('get source codes') {
@@ -37,7 +37,7 @@ def call() {
                                     branch: value.branch,
                                     directory: directory,
                                     credentialsId: 'vega-ci-bot',
-                                    timeout: 2,
+                                    timeout: 5,
                                 ])
                                 if (value.install) {
                                     dir(directory) {
