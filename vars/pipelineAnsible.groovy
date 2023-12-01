@@ -19,7 +19,7 @@ void call() {
                             vegaUrl: 'ansible',
                         )
 
-                        dif('ansible') {
+                        dir('ansible') {
                                 withCredentials([
                                     usernamePassword(
                                         credentialsId: 'hashi-corp-vault-jenkins-approle', 
