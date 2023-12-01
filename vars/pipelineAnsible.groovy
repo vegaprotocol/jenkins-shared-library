@@ -10,7 +10,12 @@ void call() {
             ansiColor('xterm')
         }
         stages {
-            stage('Restart node') {
+            stage('Ansible') {
+                environment {
+                    ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
+                    HASHICORP_VAULT_ADDR = 'https://vault.ops.vega.xyz'
+                }
+
                 steps {
                     script {
                         gitClone(
@@ -19,7 +24,7 @@ void call() {
                             vegaUrl: 'ansible',
                         )
 
-                        dif('ansible') {
+                        dir('ansible') {
                                 withCredentials([
                                     usernamePassword(
                                         credentialsId: 'hashi-corp-vault-jenkins-approle', 
