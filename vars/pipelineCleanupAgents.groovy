@@ -145,6 +145,12 @@ void call() {
                                             }
                                         }
                                         cleanWs()
+
+                                        timeout(time: 30, unit: 'SECONDS') {
+                                            try {
+                                                sh 'sudo systemctl reboot'
+                                            } catch (e) {}
+                                        }
                                     }
                                 }
                             ]}
