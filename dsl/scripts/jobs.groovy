@@ -2805,7 +2805,64 @@ def jobs = [
                 trim(true)
             }
         }
-    ]
+    ],
+    [
+        name: 'private/Automations/run-ansible-playbook',
+        useScmDefinition: false,
+        numToKeep: 50,
+        description: h('This job is used to run the playbook file'),
+        disableConcurrentBuilds: false,
+        definition: libDefinition('pipelineAnsible()'),
+        parameters: {
+            stringParam {
+                name('NODE_LABEL')
+                defaultValue('')
+                description('Define node this pipeline runs on')
+                trim(true)
+            }
+            stringParam {
+                name('TIMEOUT')
+                defaultValue('30')
+                description('Global timeout for the pipeline run')
+                trim(true)
+            }
+            stringParam {
+                name('ANSIBLE_BRANCH')
+                defaultValue('master')
+                description('Git branch, tag or hash of the vegaprotocol/ansible repository')
+                trim(true)
+            }
+            booleanParam {
+                name('DRY_RUN')
+                defaultValue(false)
+                description('Run dry run without applying changes.')
+            }
+            stringParam {
+                name('HOST_LIMIT')
+                defaultValue('')
+                description('Value for the --limit flag in the ansible-playbook command')
+                trim(true)
+            }
+            stringParam {
+                name('EXTRA_PARAMS')
+                defaultValue('')
+                description('Any extra flags/params for the ansible-playbook command')
+                trim(true)
+            }
+            stringParam {
+                name('PLAYBOOK_FILE')
+                defaultValue('')
+                description('Playbook filename. File must exist in the ansible/playbooks folder')
+                trim(true)
+            }
+            stringParam {
+                name('JENKINS_SHARED_LIB_BRANCH')
+                defaultValue('main')
+                description('Branch of jenkins-shared-library from which pipeline should be run')
+                trim(true)
+            }
+        }
+    ],
 ]
 
 // MAIN
