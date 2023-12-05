@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     configsUrls = [
-                        'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/office-agents.yaml',
+                        // 'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/office-agents.yaml',
                         'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/office-agents-manual.yaml',
                         'https://raw.githubusercontent.com/vegaprotocol/jenkins-shared-library/main/jcasc/config/all-the-rest.yaml',
                     ]
