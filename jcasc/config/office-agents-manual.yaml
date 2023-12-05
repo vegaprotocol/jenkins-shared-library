@@ -10,6 +10,58 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins001-tiny-1"
+      "name": "jenkins-big-1-r530"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "big big-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-big-2-r530"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-1-supermicro"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-big-1-supermicro"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-2-supermicro"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
