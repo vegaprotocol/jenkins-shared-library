@@ -1,0 +1,15 @@
+"jenkins":
+  "nodes":
+  - "permanent":
+      "labelString": "big big-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins001-tiny-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
