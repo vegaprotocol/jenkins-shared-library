@@ -37,8 +37,7 @@ cat > /etc/systemd/system/jenkins-agent.service <<EOF
 [Unit]
 Description=Jenkins Agent service
 After=network.target
-StartLimitIntervalSec=0[Service]
-Type=simple
+StartLimitIntervalSec=0
 
 [Service]
 Restart=always
