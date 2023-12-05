@@ -3,6 +3,8 @@
 : ${AGENT_NAME:=default}
 : ${AGENT_SECRET:=default}
 
+export DEBIAN_FRONTEND=noninteractive
+
 jenkins_url="jenkins.vega.rocks"
 
 apt-get update
