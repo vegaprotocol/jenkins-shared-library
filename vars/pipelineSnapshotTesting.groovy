@@ -603,6 +603,7 @@ void call(Map config=[:]) {
                 }
                 stage('cleanup') {
                     script {
+                        sh '''docker ps | grep timescaledb | awk '{ print $1 }' | xargs docker kill'''
                         // cleanup grafana
                         grafanaAgent.stop()
                         grafanaAgent.cleanup()
