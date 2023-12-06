@@ -68,7 +68,7 @@
 
       
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
@@ -81,7 +81,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
@@ -120,7 +120,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
@@ -133,7 +133,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
@@ -146,7 +146,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
@@ -185,7 +185,7 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny"
+      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
       "launcher":
         "inbound":
           "webSocket": true
