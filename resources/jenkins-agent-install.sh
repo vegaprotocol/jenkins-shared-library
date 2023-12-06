@@ -24,12 +24,12 @@ apt-get install -y ansible
 apt-get install -f
 # apt-get upgrade -y
 
-adduser --disabled-password --gecos "" ubuntu
+adduser --disabled-password --gecos "" ubuntu || echo "Ubuntu user already exists"
 cat > /etc/sudoers.d/ubuntu-user <<EOF
 ubuntu ALL=(ALL) NOPASSWD:ALL
 EOF
 
-mkdir /jenkins
+mkdir -p /jenkins
 curl -L -o /jenkins/agent.jar https://${JENKINS_URL}/jnlpJars/agent.jar
 
 chown -R ubuntu:ubuntu /jenkins
