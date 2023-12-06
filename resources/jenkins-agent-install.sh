@@ -24,7 +24,7 @@ apt-get install -y ansible
 apt-get install -f
 # apt-get upgrade -y
 
-adduser --disabled-password --gecos "" ubuntu || echo "Ubuntu user already exists"
+id ubuntu || adduser --disabled-password --gecos "" ubuntu
 cat > /etc/sudoers.d/ubuntu-user <<EOF
 ubuntu ALL=(ALL) NOPASSWD:ALL
 EOF
