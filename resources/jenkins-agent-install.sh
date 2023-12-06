@@ -1,13 +1,14 @@
 #!/bin/bash
-# detailed instructions -> https://github.com/vegaprotocol/devops-infra/issues/2023
+set -x
+
 : ${AGENT_NAME:=default}
 : ${AGENT_SECRET:=default}
 : ${JENKINS_URL:="jenkins.vega.rocks"}
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update
-dpkg --configure -a
-apt-get update
+apt-get update;
+dpkg --configure -a;
+apt-get update;
 apt-get install -y \
     curl \
     openjdk-17-jdk \
@@ -17,14 +18,15 @@ apt-get install -y \
     software-properties-common \
     ca-certificates \
     apt-transport-https \
-    git
-apt-add-repository -y ppa:ansible/ansible
-apt-get update
-apt-get install -y ansible
-apt-get install -f
+    git;
+apt-add-repository -y ppa:ansible/ansible;
+apt-get update;
+apt-get install -y ansible;
+apt-get install -f;
 # apt-get upgrade -y
 
-id ubuntu || adduser --disabled-password --gecos "" ubuntu
+id ubuntu || adduser --disabled-password --gecos "" ubuntu ;
+
 cat > /etc/sudoers.d/ubuntu-user <<EOF
 ubuntu ALL=(ALL) NOPASSWD:ALL
 EOF
