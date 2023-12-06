@@ -2196,7 +2196,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('office-system-tests')
+                defaultValue('visor-autoinstall-and-pup')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
