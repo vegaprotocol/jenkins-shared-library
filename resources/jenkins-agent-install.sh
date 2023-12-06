@@ -5,7 +5,8 @@
 : ${JENKINS_URL:="jenkins.vega.rocks"}
 export DEBIAN_FRONTEND=noninteractive
 
-
+apt-get update
+dpkg --configure -a
 apt-get update
 apt-get install -y \
     curl \
