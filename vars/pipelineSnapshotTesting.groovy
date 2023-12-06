@@ -21,6 +21,9 @@ void call(Map config=[:]) {
     String jenkinsAgentIP
     String monitoringDashboardURL
 
+    // config params
+    NETWORK_HISTORY_INITIALISE_MIN_BLOCKS = 1000
+
     // api output placeholders
     def TM_VERSION
     def RPC_SERVERS
@@ -329,7 +332,7 @@ void call(Map config=[:]) {
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.TimeOut "4h"
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.Level "Info"
                                         ./dasel put string -f vega_config/config/data-node/config.toml NetworkHistory.RetryTimeout "120s"
-                                        ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount 2001
+                                        ./dasel put int -f vega_config/config/data-node/config.toml NetworkHistory.Initialise.MinimumBlockCount ${NETWORK_HISTORY_INITIALISE_MIN_BLOCKS}
                                         ./dasel put bool -f vega_config/config/data-node/config.toml Metrics.Enabled true
                                         ./dasel put int -f vega_config/config/data-node/config.toml Metrics.Port 2113
                                         sed -i 's|.*BootstrapPeers.*|    BootstrapPeers = ${NETWORK_HISTORY_PEERS}|g' vega_config/config/data-node/config.toml
