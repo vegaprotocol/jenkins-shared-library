@@ -38,8 +38,10 @@ chown -R ubuntu:ubuntu /jenkins
 cat > /etc/systemd/system/jenkins-agent.service <<EOF
 [Unit]
 Description=Jenkins Agent service
-After=network.target
 StartLimitIntervalSec=0
+After=network-online.target
+Wants=network-online.target
+
 
 [Service]
 Type=simple
