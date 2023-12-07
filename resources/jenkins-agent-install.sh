@@ -32,7 +32,6 @@ ubuntu ALL=(ALL) NOPASSWD:ALL
 EOF
 
 mkdir -p /jenkins
-curl -L -o /jenkins/agent.jar https://${JENKINS_URL}/jnlpJars/agent.jar
 
 chown -R ubuntu:ubuntu /jenkins
 
@@ -43,10 +42,14 @@ After=network.target
 StartLimitIntervalSec=0
 
 [Service]
+Type=simple
 Restart=always
 RestartSec=1
 User=ubuntu
-ExecStart=java -jar /jenkins/agent.jar -jnlpUrl https://${JENKINS_URL}/computer/${AGENT_NAME}/jenkins-agent.jnlp -secret ${AGENT_SECRET} -workDir /jenkins
+ExecStartPre=mkdir -p /jenkins
+ExecStartPre=rm -f /jenkins/agent.jar || echo 'OK'
+ExecStartPre=curl -L -o /jenkins/agent.jar https://${JENKINS_URL}/jnlpJars/agent.jar
+ExecStart=java -Xms1g -Xmx2g  -XX:+UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:+UnlockDiagnosticVMOptions -XX:G1SummarizeRSetStatsPeriod=1 -Djenkins.websocket.pingInterval=10 -jar /jenkins/agent.jar -jnlpUrl https://${JENKINS_URL}/computer/${AGENT_NAME}/jenkins-agent.jnlp -secret ${AGENT_SECRET} -workDir /jenkins
 
 [Install]
 WantedBy=multi-user.target
