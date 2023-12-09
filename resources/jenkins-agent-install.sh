@@ -39,8 +39,8 @@ cat > /etc/systemd/system/jenkins-agent.service <<EOF
 [Unit]
 Description=Jenkins Agent service
 StartLimitIntervalSec=0
-After=network-online.target
-Wants=network-online.target
+After=network-online.target nss-lookup.target
+Wants=network-online.target nss-lookup.target
 
 
 [Service]
