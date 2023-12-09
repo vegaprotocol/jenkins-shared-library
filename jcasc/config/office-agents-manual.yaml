@@ -27,6 +27,45 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
+      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-1-r530"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-2-r530"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-3-r530"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
       "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "launcher":
         "inbound":
@@ -63,6 +102,32 @@
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
       "name": "jenkins-medium-2-supermicro"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-3-supermicro"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins-medium-4-supermicro"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
 
