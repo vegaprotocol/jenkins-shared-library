@@ -51,7 +51,9 @@ User=ubuntu
 ExecStartPre=mkdir -p /jenkins
 ExecStartPre=rm -f /jenkins/agent.jar || echo 'OK'
 ExecStartPre=curl -L -o /jenkins/agent.jar https://${JENKINS_URL}/jnlpJars/agent.jar
-ExecStart=java -Xms1g -Xmx2g  -XX:+UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:+UnlockDiagnosticVMOptions -XX:G1SummarizeRSetStatsPeriod=1 -Djenkins.websocket.pingInterval=10 -jar /jenkins/agent.jar -jnlpUrl https://${JENKINS_URL}/computer/${AGENT_NAME}/jenkins-agent.jnlp -secret ${AGENT_SECRET} -workDir /jenkins
+
+# https://www.jenkins.io/blog/2016/11/21/gc-tuning/
+ExecStart=java -Djdk.nativeCrypto=false -XX:+UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:+UnlockDiagnosticVMOptions -XX:G1SummarizeRSetStatsPeriod=1 -Djenkins.websocket.pingInterval=10 -jar /jenkins/agent.jar -jnlpUrl https://${JENKINS_URL}/computer/${AGENT_NAME}/jenkins-agent.jnlp -secret ${AGENT_SECRET} -workDir /jenkins
 
 [Install]
 WantedBy=multi-user.target
