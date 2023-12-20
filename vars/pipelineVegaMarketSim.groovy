@@ -9,7 +9,7 @@ void call() {
     String monitoringDashboardURL
     pipeline {
         agent {
-            label params.NODE_LABEL
+            label 'vega-market-sim-go-1.21'
         }
         options {
             skipDefaultCheckout()
