@@ -104,7 +104,7 @@ jenkins:
         # go 1.21
 
       - idleTerminationInMinutes: 10
-        imageId: "146593539"
+        imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
         labelString: "god-mode-go-1.21 performance-tests-go-1.21"
@@ -118,7 +118,7 @@ jenkins:
         username: "ubuntu"
         workspacePath: "/jenkins/"
       - idleTerminationInMinutes: 10
-        imageId: "146593539"
+        imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
         labelString: "office-system-tests-go-1.21 core-build-go-1.21 vega-market-sim-go-1.21 cloud-machine-go-1.21 office-system-tests-lnl-go-1.21 visor-autoinstall-and-pup-go-1.21"
@@ -132,7 +132,7 @@ jenkins:
         username: "ubuntu"
         workspacePath: "/jenkins/"
       - idleTerminationInMinutes: 10
-        imageId: "146593539"
+        imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
         labelString: "disabled"
@@ -146,7 +146,7 @@ jenkins:
         username: "ubuntu"
         workspacePath: "/jenkins/"
       - idleTerminationInMinutes: 10
-        imageId: "146593539"
+        imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
         labelString: "tiny-go-1.21 tiny-cloud-go-1.21 snapshot-testing-go-1.21 ops-tasks-tiny-go-1.21"
