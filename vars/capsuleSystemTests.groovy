@@ -134,7 +134,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               // [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ?: ], // TODO: Remove me
               [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
-              [ name: 'vegaprotocol/devopstools', branch: params.DEVOPSTOOLS_BRANCH ],
+              [ name: 'vegaprotocol/devopstools', branch: 'go-1.21' ],
             ]
             def reposSteps = [failFast: true] + repositories.collectEntries{value -> [
                 value.name,
