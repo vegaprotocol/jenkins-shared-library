@@ -1,7 +1,8 @@
 "jenkins":
   "nodes":
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -14,7 +15,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -27,7 +29,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -40,7 +43,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -53,7 +57,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -66,7 +71,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -79,7 +85,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -92,7 +99,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -105,7 +113,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -118,7 +127,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -133,7 +143,8 @@
 
       
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -146,7 +157,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -172,7 +184,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -185,7 +198,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -198,7 +212,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -211,7 +226,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -224,7 +240,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -237,7 +254,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -250,7 +268,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -263,7 +282,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -276,7 +296,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -289,7 +310,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true
@@ -302,7 +324,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
       "launcher":
         "inbound":
           "webSocket": true

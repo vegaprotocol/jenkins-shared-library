@@ -100,6 +100,65 @@ jenkins:
         sshPort: 22
         username: "ubuntu"
         workspacePath: "/jenkins/"
+
+        # go 1.21
+
+      - idleTerminationInMinutes: 10
+        imageId: "146593539"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "god-mode-go-1.21 performance-tests-go-1.21"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-8vcpu-32gb-640gb-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "146593539"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "office-system-tests-go-1.21 core-build-go-1.21 vega-market-sim-go-1.21 cloud-machine-go-1.21 office-system-tests-lnl-go-1.21 visor-autoinstall-and-pup-go-1.21"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-8vcpu-16gb-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "146593539"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "disabled"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "c-16-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "146593539"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "tiny-go-1.21 tiny-cloud-go-1.21 snapshot-testing-go-1.21 ops-tasks-tiny-go-1.21"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-2vcpu-4gb"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
       timeoutMinutes: 10
       usePrivateNetworking: false
   crumbIssuer:
