@@ -231,7 +231,7 @@ def vegavisorParamsBase(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL','tiny'))
+            defaultValue(args.get('NODE_LABEL','tiny-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -522,7 +522,7 @@ def vegavisorTopupBotsParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            defaultValue(args.get('NODE_LABEL', 'tiny-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -599,7 +599,7 @@ def networkApplyNonRestartChangesParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            defaultValue(args.get('NODE_LABEL', 'tiny-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -715,7 +715,7 @@ def zfsBackupParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            defaultValue(args.get('NODE_LABEL', 'tiny-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -802,7 +802,7 @@ def createNewNodeFromBackupParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            defaultValue(args.get('NODE_LABEL', 'tiny-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -851,7 +851,7 @@ def fleetUpdateMachineParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue('tiny')
+            defaultValue('tiny-go-1.21')
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -968,7 +968,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'office-system-tests'))
+            defaultValue(args.get('NODE_LABEL', 'office-system-tests-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -1314,7 +1314,7 @@ def approbationParams(def config=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(config.get('NODE_LABEL','approbation'))
+            defaultValue(config.get('NODE_LABEL','approbation-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -1342,7 +1342,7 @@ def snapshotParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL','snapshot-testing'))
+            defaultValue(args.get('NODE_LABEL','snapshot-testing-go-1.21'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -1449,7 +1449,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('core-build')
+                defaultValue('core-build-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -1473,7 +1473,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
             CREATE_MARKETS: true,
@@ -1498,7 +1498,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -1524,7 +1524,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
             TOP_UP_BOTS: true,
             SETUP_REFERRAL_PROGRAM: true,
             SETUP_VOLUME_DISCOUNT_PROGRAM: true,
@@ -1545,7 +1545,7 @@ def jobs = [
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
@@ -1597,7 +1597,7 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             SETUP_REFERRAL_PROGRAM: false,
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1615,7 +1615,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1631,7 +1631,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
@@ -1648,7 +1648,7 @@ def jobs = [
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
@@ -1699,7 +1699,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1717,7 +1717,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1735,7 +1735,7 @@ def jobs = [
             LIQBOT: false,
         ],
         parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
@@ -1779,7 +1779,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'mainnet-mirror',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1802,7 +1802,7 @@ def jobs = [
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
             SETUP_REFERRAL_PROGRAM: true,
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1820,7 +1820,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1836,7 +1836,7 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
@@ -1853,7 +1853,7 @@ def jobs = [
             LIQBOT: true,
         ],
         parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
@@ -1905,7 +1905,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1955,7 +1955,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
-            NODE_LABEL: 'ops-tasks-tiny',
+            NODE_LABEL: 'ops-tasks-tiny-go-1.21',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -2000,7 +2000,7 @@ def jobs = [
         parameters: {
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('tiny')
+                defaultValue('tiny-go-1.21')
                 description('The node label pipeline is going to run on')
                 trim(true)
             }
@@ -2100,7 +2100,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleLNL()'),
         parameters: lnlSystemTestsparams(
-            NODE_LABEL: 'office-system-tests-lnl',
+            NODE_LABEL: 'office-system-tests-lnl-go-1.21',
             RUN_PROTOCOL_UPGRADE_PROPOSAL: true,
             RUN_SOAK_TEST: false,
         ),
@@ -2196,7 +2196,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('visor-autoinstall-and-pup')
+                defaultValue('visor-autoinstall-and-pup-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2280,7 +2280,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('vega-market-sim')
+                defaultValue('vega-market-sim-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2368,7 +2368,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('vega-market-sim')
+                defaultValue('vega-market-sim-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2447,7 +2447,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('vega-market-sim')
+                defaultValue('vega-market-sim-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2585,7 +2585,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('tiny')
+                defaultValue('tiny-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
@@ -2648,7 +2648,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('tiny')
+                defaultValue('tiny-go-1.21')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }

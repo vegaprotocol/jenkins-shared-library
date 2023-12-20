@@ -60,7 +60,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
 
   pipeline {
     agent {
-      label agentLabel
+      label 'office-system-tests-go-1.21'
     }
     environment {
       PATH = "${env.WORKSPACE}/gobin:${env.PATH}:${env.WORKSPACE}/bin"

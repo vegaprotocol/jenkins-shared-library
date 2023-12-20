@@ -20,7 +20,7 @@ void call() {
 
     pipeline {
         agent {
-            label params.NODE_LABEL
+            label 'visor-autoinstall-and-pup-go-1.21'
         }
 
         options {
