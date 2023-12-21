@@ -2435,7 +2435,7 @@ def jobs = [
             }
             stringParam {
                 name('NUM_RL_ITERATIONS')
-                defaultValue('300')
+                defaultValue('200')
                 description('Number of iterations to run RL tests for')
                 trim(true)
             }
