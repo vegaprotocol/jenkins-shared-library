@@ -1480,7 +1480,7 @@ def jobs = [
             SETUP_REFERRAL_PROGRAM: true,
             SETUP_VOLUME_DISCOUNT_PROGRAM: true,
             UPDATE_NETWORK_PARAMS: true,
-            JOIN_BOTS_TO_REFERRAL_PROGRAM: false, // team feature is enabled
+            JOIN_BOTS_TO_REFERRAL_PROGRAM: true,
         ),
         disableConcurrentBuilds: true,
     ],
