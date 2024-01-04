@@ -44,6 +44,65 @@ jenkins:
       privateKeyCredentialId: "ubuntu-ansible-key"
       sshKeyId: 35449484
       templates:
+      # GO 1.20
+      - idleTerminationInMinutes: 10
+        imageId: "141189256"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "god-mode-go-1.20 performance-tests-go-1.20"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-8vcpu-32gb-640gb-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "141189256"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "office-system-tests-go-1.20 core-build-go-1.20 vega-market-sim-go-1.20 cloud-machine-go-1.20 office-system-tests-lnl-go-1.20 visor-autoinstall-and-pup-go-1.20"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-8vcpu-16gb-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "141189256"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "disabled"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "c-16-intel"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "141189256"
+        installMonitoring: false
+        instanceCap: 120
+        labelString: "tiny-go-1.20 tiny-cloud-go-1.20 snapshot-testing-go-1.20 ops-tasks-tiny-go-1.20"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "s-2vcpu-4gb"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+
+      # GO 1.21
       - idleTerminationInMinutes: 10
         imageId: "146595723"
         installMonitoring: false
