@@ -152,6 +152,12 @@ void call() {
                       )
                     ]
                   }
+                  if (params.DOWNSTREAM_NODE_LABEL && params.DOWNSTREAM_NODE_LABEL != '') {
+                    childParams += [stringParam(
+                      name: 'NODE_LABEL',
+                      value: params.DOWNSTREAM_NODE_LABEL,
+                    )]
+                  }
                   RunWrapper downstreamBuild = build(
                     job: downstreamBuildName,
                     parameters: childParams,

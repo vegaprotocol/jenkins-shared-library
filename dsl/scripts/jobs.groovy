@@ -975,6 +975,17 @@ def systemTestsParamsGeneric(args=[:]) {
     }
 }
 
+def systemTestsParentJob(args=[:]) {
+    systemTestsParamsGeneric(args) << {
+        stringParam {
+            name('DOWNSTREAM_NODE_LABEL')
+            defaultValue('')
+            description('Set the NODE LABEL for downstream jobs')
+            trim(true)
+        }
+    }
+}
+
 def systemTestsParamsWrapper() {
     return systemTestsParamsGeneric() << {
         stringParam {
@@ -2122,7 +2133,7 @@ def jobs = [
         description: 'This job is just a functional wrapper over techincal call of old system-tests job. If you wish to trigger specific system-tests run go to https://jenkins.ops.vega.xyz/job/common/job/system-tests-wrapper/',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric('SCENARIO': 'PR'),
+        parameters: systemTestsParentJob('SCENARIO': 'PR'),
         copyArtifacts: true,
         daysToKeep: 10,
     ],
@@ -2132,7 +2143,7 @@ def jobs = [
         description: 'This job is executed every 24h to ensure stability of the system',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSystemTests()'),
-        parameters: systemTestsParamsGeneric('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
+        parameters: systemTestsParentJob('SCENARIO': 'NIGHTLY', 'TIMEOUT': '1800'),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 0 * * *',
