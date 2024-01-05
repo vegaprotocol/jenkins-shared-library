@@ -15,6 +15,7 @@ void call(Map config = [:]) {
       string(name: 'VEGACAPSULE_BRANCH', value: config.vegacapsule ?: pipelineDefaults.capsuleSystemTests.branchVegaCapsule),
       string(name: 'VEGATOOLS_BRANCH', value: config.vegatools ?:  pipelineDefaults.capsuleSystemTests.branchVegatools),
       string(name: 'DEVOPS_INFRA_BRANCH', value: config.devopsInfra ?: pipelineDefaults.capsuleSystemTests.branchDevopsInfra),
+      string(name: 'DEVOPSTOOLS_BRANCH', value: config.devopstools ?: pipelineDefaults.capsuleSystemTests.branchDevopsTools),
       string(name: 'DEVOPSSCRIPTS_BRANCH', value: config.devopsScripts ?: pipelineDefaults.capsuleSystemTests.branchDevopsScripts),
       string(name: 'JENKINS_SHARED_LIB_BRANCH', value: config.jenkinsSharedLib ?: pipelineDefaults.capsuleSystemTests.jenkinsSharedLib),
       string(name: 'NODE_LABEL', value: config.nodeLabel ?: pipelineDefaults.capsuleSystemTests.nodeLabel),
