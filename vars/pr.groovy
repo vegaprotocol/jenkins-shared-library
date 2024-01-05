@@ -77,6 +77,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'devopsscripts': 'DEVOPSSCRIPTS_BRANCH',
         'vega-version': 'VEGA_VERSION',
         'node-label': 'NODE_LABEL',
+        'downstream-node-label': 'DOWNSTREAM_NODE_LABEL',
         'vega-branch-upgrade': 'VEGA_BRANCH_UPGRADE',
         'extra-pytest-args': 'TEST_EXTRA_PYTEST_ARGS',
         'network-param-overrides': 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES',
