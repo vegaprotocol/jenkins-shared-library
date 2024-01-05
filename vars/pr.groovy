@@ -88,6 +88,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'run-soak-test': 'RUN_SOAK_TEST',
         'run-protocol-upgrade-proposal': 'RUN_PROTOCOL_UPGRADE_PROPOSAL',
         'print-network-logs': 'PRINT_NETWORK_LOGS',
+        'extra-envs': 'EXTRA_ENVS',
     ]
 
     echo 'To override params in the PR comment, place jenkins according to following relation'
