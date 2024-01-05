@@ -75,6 +75,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'deploy-to-devnet': 'DEPLOY_TO_DEVNET',
         'devops-infra': 'DEVOPS_INFRA_BRANCH',
         'devopsscripts': 'DEVOPSSCRIPTS_BRANCH',
+        'devopstools': 'DEVOPSTOOLS_BRANCH',
         'vega-version': 'VEGA_VERSION',
         'node-label': 'NODE_LABEL',
         'downstream-node-label': 'DOWNSTREAM_NODE_LABEL',
