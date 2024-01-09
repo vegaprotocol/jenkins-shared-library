@@ -81,6 +81,7 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'downstream-node-label': 'DOWNSTREAM_NODE_LABEL',
         'vega-branch-upgrade': 'VEGA_BRANCH_UPGRADE',
         'extra-pytest-args': 'TEST_EXTRA_PYTEST_ARGS',
+        'default-product': 'DEFAULT_PRODUCT',
         'network-param-overrides': 'SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES',
         'system-tests-debug': 'SYSTEM_TESTS_DEBUG',
         'timeout': 'TIMEOUT',

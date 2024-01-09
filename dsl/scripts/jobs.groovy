@@ -916,6 +916,12 @@ def systemTestsParamsGeneric(args=[:]) {
             trim(true)
         }
         stringParam {
+            name('DEFAULT_PRODUCT')
+            defaultValue('')
+            description('Product used in markets that do not define one e.g. Future, Perpetual')
+            trim(true)
+        }
+        stringParam {
             name('SYSTEM_TESTS_NETWORK_PARAM_OVERRIDES')
             defaultValue('')
             description('Override network parameters at the beginning of the run.')
