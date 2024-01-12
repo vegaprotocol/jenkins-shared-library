@@ -1180,7 +1180,7 @@ def approbationParams(def config=[:]) {
 
         stringParam {
             name('APPROBATION_TAG')
-            defaultValue('v4.6.1')
+            defaultValue('v4.7.0')
             description('Approbation image tag. latest or specific version with v prefix')
             trim(true)
         }
