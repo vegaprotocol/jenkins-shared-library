@@ -370,6 +370,7 @@ def vegavisorManageNodeParams(args=[:]) {
             "m3.vega.community",
             "m4.vega.community",
             "metabase.vega.community",
+            "dune.vega.community",
             "test.vega.community",
         ]
     } else if (args.name == "mainnet-test") {
