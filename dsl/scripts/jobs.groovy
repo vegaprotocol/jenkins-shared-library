@@ -2531,6 +2531,7 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
             HISTORY_KEY: 'NetworkHistory',
+            NODES_DENYLIST: 'n00.testnet.vega.rocks,n00.testnet.vega.xyz'
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
