@@ -145,15 +145,20 @@ void call(Map config=[:]) {
                             def denyList = (env.NODES_DENYLIST as String).split(',')
                             networkNodes = networkNodes.findAll{ server -> !denyList.contains(server) }
                         }
+                        if (env.NODES_DENYLIST) {
+                            def denyList = (env.NODES_DENYLIST as String).split(',')
+                            tendermintNodes = tendermintNodes.findAll{ server -> !denyList.contains(server) }
+                        }
 
                         Collections.shuffle(networkNodes)
 
                         remoteServerDataNode = networkNodes[0]
                         remoteServerCometBFT = tendermintNodes[0]
+
                         if (!remoteServerCometBFT.contains("http")) {
                             remoteServerCometBFT = 'https://' + remoteServerCometBFT
                         }
-
+                        
 
                         echo "Found available server: ${remoteServerDataNode} (${remoteServerCometBFT})"
                     }
