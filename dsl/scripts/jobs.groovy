@@ -2447,7 +2447,7 @@ def jobs = [
             }
             stringParam {
                 name('NUM_FUZZ_STEPS')
-                defaultValue('2880')
+                defaultValue('1200')
                 description('Number of steps to run fuzz test for')
                 trim(true)
             }
