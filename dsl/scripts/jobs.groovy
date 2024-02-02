@@ -1712,9 +1712,9 @@ def jobs = [
         env: [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
-            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
             NODE_LABEL: 'ops-tasks-tiny',
@@ -1729,9 +1729,9 @@ def jobs = [
         definition: libDefinition('pipelineNetworkManageNode71()'),
         env: [
             NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode71.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode71-common.yaml',
-            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode71-non-restart-required.yaml',
+            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
+            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
+            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
