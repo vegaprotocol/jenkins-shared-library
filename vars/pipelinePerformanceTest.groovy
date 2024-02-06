@@ -84,7 +84,7 @@ def call() {
                     allowEmptyArchive: true,
                 )
                 archiveArtifacts(
-                    artifacts: 'performance/results.sql',
+                    artifacts: 'performance/results/**',
                     allowEmptyArchive: true,
                 )
                 archiveArtifacts(
