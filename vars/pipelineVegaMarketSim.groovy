@@ -174,6 +174,9 @@ void call() {
                         }
                     }
                     stage('Fuzz Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
                         when {
                             expression {
                                 params.RUN_LEARNING == true
