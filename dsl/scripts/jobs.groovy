@@ -499,7 +499,7 @@ def vegavisorTopupBotsParams(args=[:]) {
     return {
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('main')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -930,7 +930,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('main')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -1616,6 +1616,8 @@ def jobs = [
         parameters: vegavisorRestartNetworkParams(
             SETUP_REFERRAL_PROGRAM: false,
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
+            
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1634,6 +1636,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1651,6 +1654,7 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(
             NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1667,6 +1671,7 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
@@ -1683,6 +1688,7 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'stagnet1',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1697,6 +1703,7 @@ def jobs = [
         ],
         parameters: zfsBackupParams(
             name: 'stagnet1',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1718,6 +1725,7 @@ def jobs = [
         ],
         parameters: vegavisorRestartNetworkParams(
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1736,6 +1744,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1754,6 +1763,7 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
@@ -1770,6 +1780,7 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet-mirror',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1784,6 +1795,7 @@ def jobs = [
         ],
         parameters: zfsBackupParams(
             name: 'mainnet-mirror',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1798,6 +1810,7 @@ def jobs = [
         ],
         parameters: vegavisorProtocolUpgradeParams(
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1821,6 +1834,7 @@ def jobs = [
             USE_CHECKPOINT: true,
             SETUP_REFERRAL_PROGRAM: true,
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1839,6 +1853,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1856,6 +1871,7 @@ def jobs = [
         parameters: vegavisorProtocolUpgradeParams(
             NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1872,6 +1888,7 @@ def jobs = [
         ],
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
@@ -1888,6 +1905,7 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'testnet',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1902,6 +1920,7 @@ def jobs = [
         ],
         parameters: zfsBackupParams(
             name: 'testnet',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1924,6 +1943,7 @@ def jobs = [
             name: 'validators-testnet',
             sentryNodes: true,
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1939,6 +1959,7 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'validators-testnet',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1953,6 +1974,7 @@ def jobs = [
         ],
         parameters: zfsBackupParams(
             name: 'validators-testnet',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1974,6 +1996,7 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
             NODE_LABEL: 'ops-tasks-tiny',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1991,6 +2014,7 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-test',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -2006,6 +2030,7 @@ def jobs = [
         ],
         parameters: networkApplyNonRestartChangesParams(
             name: 'mainnet',
+            DEVOPSTOOLS_BRANCH: 'v0.73.x',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -2655,7 +2680,7 @@ def jobs = [
             }
             stringParam {
                 name('DEVOPSTOOLS_VERSION')
-                defaultValue('main')
+                defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
                 description('Branch/commit for the vegaprotocol/devopstools repository')
                 trim(true)
             }
