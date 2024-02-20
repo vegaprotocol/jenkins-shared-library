@@ -162,7 +162,7 @@ void call() {
                             retry(3) {
                                 lock(resource: "ethereum-minter-${env.NET_NAME}") {
                                     withDevopstools(
-                                        command: 'market propose --all'
+                                        command: 'market propose'
                                     )
                                 }
                             }
