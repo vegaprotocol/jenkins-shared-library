@@ -1188,7 +1188,7 @@ def approbationParams(def config=[:]) {
 
         stringParam {
             name('SPECS_BRANCH')
-            defaultValue('palazzo')
+            defaultValue('colosseo')
             description('Git branch, tag or hash of the vegaprotocol/specs repository')
             trim(true)
         }
