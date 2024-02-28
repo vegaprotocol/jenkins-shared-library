@@ -11,7 +11,7 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-big-1-r530"
+      "name": "jenkins002-m1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -25,7 +25,7 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-big-2-r530"
+      "name": "jenkins005-t1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -39,7 +39,7 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-1-r530"
+      "name": "jenkins005-m1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -53,7 +53,7 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-2-r530"
+      "name": "jenkins006-t1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
@@ -67,11 +67,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-3-r530"
+      "name": "jenkins006-m1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "labelString": "disabled"
       "launcher":
         "inbound":
@@ -81,11 +81,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-1-supermicro"
+      "name": "jenkins006-m2"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "labelString": "disabled"
       "launcher":
         "inbound":
@@ -95,11 +95,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-big-1-supermicro"
+      "name": "jenkins006-b1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "labelString": "disabled"
       "launcher":
         "inbound":
@@ -109,11 +109,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-2-supermicro"
+      "name": "jenkins006-b1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "labelString": "disabled"
       "launcher":
         "inbound":
@@ -123,11 +123,11 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-3-supermicro"
+      "name": "jenkins007-t1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
       "labelString": "disabled"
       "launcher":
         "inbound":
@@ -137,203 +137,329 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins-medium-4-supermicro"
+      "name": "jenkins008-m1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
+  - "permanent":
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins008-m2"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "disabled"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins008-b1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-2-r530"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-3-r530"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-1-supermicro"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-big-1-supermicro"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-2-supermicro"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-3-supermicro"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins-medium-4-supermicro"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
 
       
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins001-tiny-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins002-tiny-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      "labelString": "performance-tests"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins003-performance-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins005-big-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins005-medium-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins005-tiny-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins005-tiny-2"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins006-medium-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins006-medium-2"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins006-tiny-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins007-big-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins007-medium-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins008-big-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins008-medium-1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins001-tiny-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins002-tiny-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       "labelString": "performance-tests"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins003-performance-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins005-big-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins005-medium-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins005-tiny-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins005-tiny-2"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins006-medium-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins006-medium-2"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins006-tiny-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins007-big-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins007-medium-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins008-big-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
+#   - "permanent":
+#       # "labelString": "medium medium-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+#       "labelString": "disabled"
+#       "launcher":
+#         "inbound":
+#           "webSocket": true
+#           "workDirSettings":
+#             "disabled": false
+#             "failIfWorkDirIsMissing": false
+#             "internalDir": "remoting"
+#       "mode": "EXCLUSIVE"
+#       "name": "jenkins008-medium-1"
+#       "remoteFS": "/jenkins"
+#       "retentionStrategy": "always"
