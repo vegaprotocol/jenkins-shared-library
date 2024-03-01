@@ -107,7 +107,7 @@ jenkins:
         imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
-        labelString: "god-mode performance-tests"
+        labelString: "god-mode"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1
