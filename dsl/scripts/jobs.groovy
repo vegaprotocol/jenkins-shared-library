@@ -452,6 +452,7 @@ def vegavisorManageNodeParams(args=[:]) {
 def vegavisorProtocolUpgradeParams(args=[:]) {
     return vegavisorParamsBase(args + [
         'UPDATE_CONFIGURATION': false,
+        'NODE_LABEL': 'protocol-upgrade',
     ]) << {
         stringParam {
             name('UPGRADE_BLOCK')
@@ -1542,7 +1543,6 @@ def jobs = [
             ANSIBLE_LIMIT: 'devnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
             TOP_UP_BOTS: true,
             SETUP_REFERRAL_PROGRAM: true,
             SETUP_VOLUME_DISCOUNT_PROGRAM: true,
@@ -1649,7 +1649,6 @@ def jobs = [
             ANSIBLE_LIMIT: 'stagnet1',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
@@ -1796,9 +1795,7 @@ def jobs = [
             NET_NAME: 'mainnet-mirror',
             ANSIBLE_LIMIT: 'mainnet-mirror',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     //
@@ -1854,7 +1851,6 @@ def jobs = [
             ANSIBLE_LIMIT: 'fairground',
         ],
         parameters: vegavisorProtocolUpgradeParams(
-            NODE_LABEL: 'ops-tasks-tiny',
             SETUP_REFERRAL_PROGRAM: false,
         ),
         disableConcurrentBuilds: true,
