@@ -380,7 +380,8 @@ def vegavisorManageNodeParams(args=[:]) {
     }
 
     return vegavisorParamsBase(args + [
-        isNodeUpdate: true
+        isNodeUpdate: true,
+        NODE_LABEL: 'manage-node',
     ]) << {
         choiceParam {
             name('NODE')
@@ -1517,7 +1518,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'devnet1',
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         parameterizedCron: [
@@ -1633,7 +1633,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'stagnet1',
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1734,7 +1733,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet-mirror',
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1817,7 +1815,6 @@ def jobs = [
         parameters: vegavisorRestartNetworkParams(
             USE_CHECKPOINT: true,
             SETUP_REFERRAL_PROGRAM: true,
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: true,
     ],
@@ -1835,7 +1832,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'testnet',
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
         // restart a random node every 30min
@@ -1919,7 +1915,6 @@ def jobs = [
         parameters: vegavisorManageNodeParams(
             name: 'validators-testnet',
             sentryNodes: true,
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
     ],
@@ -1969,7 +1964,6 @@ def jobs = [
         ],
         parameters: vegavisorManageNodeParams(
             name: 'mainnet',
-            NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: false,
     ],
