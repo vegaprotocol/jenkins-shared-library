@@ -149,7 +149,7 @@ jenkins:
         imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
-        labelString: "tiny tiny-cloud snapshot-testing ops-tasks-tiny approbation"
+        labelString: "tiny tiny-cloud snapshot-testing ops-tasks-tiny approbation zfs-backup"
         labellessJobsAllowed: true
         name: "ubuntu"
         numExecutors: 1

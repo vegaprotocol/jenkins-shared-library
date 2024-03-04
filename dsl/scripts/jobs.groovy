@@ -716,7 +716,7 @@ def zfsBackupParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue(args.get('NODE_LABEL', 'tiny'))
+            defaultValue(args.get('NODE_LABEL', 'zfs-backup'))
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }

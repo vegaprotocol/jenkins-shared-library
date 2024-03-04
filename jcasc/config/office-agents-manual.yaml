@@ -2,7 +2,7 @@
   "nodes":
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -30,7 +30,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -44,7 +44,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -58,7 +58,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -72,7 +72,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -86,7 +86,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -100,7 +100,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -114,7 +114,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -128,7 +128,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -142,7 +142,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
@@ -156,7 +156,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "disabled"
+      "labelString": "zfs-backup"
       "launcher":
         "inbound":
           "webSocket": true
