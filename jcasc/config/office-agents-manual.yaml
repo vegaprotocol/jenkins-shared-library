@@ -2,7 +2,7 @@
   "nodes":
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -11,12 +11,40 @@
             "failIfWorkDirIsMissing": false
             "internalDir": "remoting"
       "mode": "EXCLUSIVE"
-      "name": "jenkins002-m1"
+      "name": "jenkins004-t1"
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny zfs-backup protocol-upgrade approbation manage-node"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins004-m1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins004-m2"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -30,7 +58,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -44,7 +72,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -58,7 +86,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -72,7 +100,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -86,7 +114,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -100,7 +128,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "zoffice-tiny office-medium office-big fs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "zoffice-tiny tiny office-medium office-big fs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -114,7 +142,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny zfs-backup protocol-upgrade approbation manage-node"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -128,7 +156,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -142,7 +170,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -156,7 +184,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
