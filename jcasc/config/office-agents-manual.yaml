@@ -1,8 +1,8 @@
 "jenkins":
   "nodes":
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -15,8 +15,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -29,8 +29,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -85,8 +85,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -99,8 +99,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
@@ -113,22 +113,8 @@
       "remoteFS": "/jenkins"
       "retentionStrategy": "always"
   - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
-      "launcher":
-        "inbound":
-          "webSocket": true
-          "workDirSettings":
-            "disabled": false
-            "failIfWorkDirIsMissing": false
-            "internalDir": "remoting"
-      "mode": "EXCLUSIVE"
-      "name": "jenkins006-b1"
-      "remoteFS": "/jenkins"
-      "retentionStrategy": "always"
-  - "permanent":
-      # "labelString": "big big-office snapshot-testing office-system-tests visor-autoinstall-and-pup"
-      "labelString": "zoffice-tiny tiny office-medium office-big fs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "disabled"
+      # "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
       "launcher":
         "inbound":
           "webSocket": true
