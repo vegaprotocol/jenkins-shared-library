@@ -12,7 +12,7 @@ List<String> dockerImages(){
 Map<String, String> gitRepositories() {
     return [
         'vegaprotocol/vega': 'develop',
-        'vegaprotocol/vegacapsule': 'main',
+        'vegaprotocol/vegacapsule': 'develop',
         'vegaprotocol/vegatools': 'develop',
         'vegaprotocol/devopsscripts': 'main',
         'vegaprotocol/devopstools': 'main',
