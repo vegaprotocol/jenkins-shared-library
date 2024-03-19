@@ -2,7 +2,7 @@
   "nodes":
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -16,7 +16,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -30,7 +30,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -58,7 +58,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -72,7 +72,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -86,7 +86,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -100,7 +100,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -114,7 +114,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -142,7 +142,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -156,7 +156,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -170,7 +170,7 @@
       "retentionStrategy": "always"
   - "permanent":
       # "labelString": "disabled"
-      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node core-build"
+      "labelString": "office-tiny tiny office-medium office-big zfs-backup protocol-upgrade approbation manage-node"
       "launcher":
         "inbound":
           "webSocket": true
@@ -283,7 +283,7 @@
 
       
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
@@ -297,7 +297,7 @@
 #       "remoteFS": "/jenkins"
 #       "retentionStrategy": "always"
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
@@ -338,7 +338,7 @@
 #       "remoteFS": "/jenkins"
 #       "retentionStrategy": "always"
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
@@ -352,7 +352,7 @@
 #       "remoteFS": "/jenkins"
 #       "retentionStrategy": "always"
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
@@ -366,7 +366,7 @@
 #       "remoteFS": "/jenkins"
 #       "retentionStrategy": "always"
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
@@ -408,7 +408,7 @@
 #       "remoteFS": "/jenkins"
 #       "retentionStrategy": "always"
 #   - "permanent":
-#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node core-build"
+#       # "labelString": "tiny tiny-office ops-tasks-tiny approbation manage-node"
 #       "labelString": "disabled"
 #       "launcher":
 #         "inbound":
