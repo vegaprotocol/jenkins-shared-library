@@ -2442,6 +2442,12 @@ def jobs = [
                 trim(true)
             }
             stringParam {
+                name('NUM_BENCHMARK_STEPS')
+                defaultValue('600')
+                description('Number of steps to run benchmark tests for')
+                trim(true)
+            }
+            stringParam {
                 name('NUM_RL_ITERATIONS')
                 defaultValue('200')
                 description('Number of iterations to run RL tests for')

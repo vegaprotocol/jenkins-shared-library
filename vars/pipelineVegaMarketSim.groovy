@@ -195,6 +195,27 @@ void call() {
                             }
                         }
                     }
+                    stage('Benchmark Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'BTC/USDT', script: '''
+                                poetry run python -m vega_sim.scenario.benchmark.run -m mainnet -s 600 -o
+                            '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: 'plots/**/*.png'
+                            }
+                        }
+                    }
                     stage('Generate Plots') {
                         when {
                             expression {
