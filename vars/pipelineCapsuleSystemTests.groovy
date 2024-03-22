@@ -42,8 +42,12 @@ void call() {
         pytestDirectory: 'tests/[h-nH-N]*',
         mark: 'full',
       ],
-      'full o-r': [
-        pytestDirectory: 'tests/[o-rO-R]*',
+      'full o-q': [
+        pytestDirectory: 'tests/[o-qO-Q]*',
+        mark: 'full',
+      ],
+      'full r': [
+        pytestDirectory: 'tests/[rR]*',
         mark: 'full',
       ],
       'full s': [
@@ -78,10 +82,6 @@ void call() {
         pytestDirectory: 'tests/validators/[r-zR-Z]*',
         mark: 'network_infra',
         capsuleConfig: 'capsule_config_network_infra.hcl'
-      ],
-      'fuzz': [
-        pytestDirectory: 'tests/fuzz*',
-        mark: 'fuzz',
       ],
     ]
   ][params.SCENARIO]
