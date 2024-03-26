@@ -206,8 +206,29 @@ void call() {
                         }
                         steps {
                             /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'BTC/USDT', script: '''
+                            sh label: 'Mainnet', script: '''
                                 poetry run python -m vega_sim.scenario.benchmark.run -m mainnet -s 600 -o
+                            '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: 'plots/**/*.png'
+                            }
+                        }
+                    }
+                    stage('Fuzzing Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Mainnet', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run -m overnight -s 600 -o
                             '''
                         }
                         post {
