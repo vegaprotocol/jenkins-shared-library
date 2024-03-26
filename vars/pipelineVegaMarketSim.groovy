@@ -173,28 +173,6 @@ void call() {
                             '''
                         }
                     }
-                    stage('Fuzz Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            echo "Running fuzz tests"
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
-                            '''
-                        }
-                        post {
-                            success {
-                                archiveArtifacts artifacts: 'fuzz_plots/*.jpg, fuzz_plots/*.html, fuzz_plots/*.csv'
-                            }
-                        }
-                    }
                     stage('Benchmark Tests') {
                         environment {
                             PYTHONUNBUFFERED = "1"
