@@ -161,37 +161,54 @@ void call() {
                             }
                         }
                     }
-                    stage('RL Tests') {
+                    // stage('RL Tests') {
+                    //     when {
+                    //         expression {
+                    //             params.RUN_LEARNING == true
+                    //         }
+                    //     }
+                    //     steps {
+                    //         sh label: 'Reinforcement Learning Test', script: '''
+                    //             poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
+                    //         '''
+                    //     }
+                    // }
+                    // stage('Benchmark Tests') {
+                    //     environment {
+                    //         PYTHONUNBUFFERED = "1"
+                    //     }
+                    //     when {
+                    //         expression {
+                    //             params.RUN_LEARNING == true
+                    //         }
+                    //     }
+                    //     steps {
+                    //         /* groovylint-disable-next-line GStringExpressionWithinString */
+                    //         sh label: 'Mainnet', script: '''
+                    //             poetry run python -m vega_sim.scenario.benchmark.run -m mainnet -s 600 -o
+                    //         '''
+                    //     }
+                    //     post {
+                    //         success {
+                    //             archiveArtifacts artifacts: 'plots/**/*.png'
+                    //         }
+                    //     }
+                    // }
+                    stage('Fuzzing Tests') {
+  
                         when {
                             expression {
                                 params.RUN_LEARNING == true
                             }
                         }
                         steps {
-                            sh label: 'Reinforcement Learning Test', script: '''
-                                poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
-                            '''
-                        }
-                    }
-                    stage('Fuzz Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            echo "Running fuzz tests"
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
+                            sh label: 'Fuzzing', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run -m overnight -s 600 -o
                             '''
                         }
                         post {
                             success {
-                                archiveArtifacts artifacts: 'fuzz_plots/*.jpg, fuzz_plots/*.html, fuzz_plots/*.csv'
+                                archiveArtifacts artifacts: 'plots/**/*.png'
                             }
                         }
                     }
