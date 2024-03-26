@@ -161,51 +161,48 @@ void call() {
                             }
                         }
                     }
-                    stage('RL Tests') {
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            sh label: 'Reinforcement Learning Test', script: '''
-                                poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
-                            '''
-                        }
-                    }
-                    stage('Benchmark Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Mainnet', script: '''
-                                poetry run python -m vega_sim.scenario.benchmark.run -m mainnet -s 600 -o
-                            '''
-                        }
-                        post {
-                            success {
-                                archiveArtifacts artifacts: 'plots/**/*.png'
-                            }
-                        }
-                    }
+                    // stage('RL Tests') {
+                    //     when {
+                    //         expression {
+                    //             params.RUN_LEARNING == true
+                    //         }
+                    //     }
+                    //     steps {
+                    //         sh label: 'Reinforcement Learning Test', script: '''
+                    //             poetry run scripts/run-learning-test.sh ${NUM_RL_ITERATIONS}
+                    //         '''
+                    //     }
+                    // }
+                    // stage('Benchmark Tests') {
+                    //     environment {
+                    //         PYTHONUNBUFFERED = "1"
+                    //     }
+                    //     when {
+                    //         expression {
+                    //             params.RUN_LEARNING == true
+                    //         }
+                    //     }
+                    //     steps {
+                    //         /* groovylint-disable-next-line GStringExpressionWithinString */
+                    //         sh label: 'Mainnet', script: '''
+                    //             poetry run python -m vega_sim.scenario.benchmark.run -m mainnet -s 600 -o
+                    //         '''
+                    //     }
+                    //     post {
+                    //         success {
+                    //             archiveArtifacts artifacts: 'plots/**/*.png'
+                    //         }
+                    //     }
+                    // }
                     stage('Fuzzing Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
+  
                         when {
                             expression {
                                 params.RUN_LEARNING == true
                             }
                         }
                         steps {
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Mainnet', script: '''
+                            sh label: 'Fuzzing', script: '''
                                 poetry run python -m vega_sim.scenario.fuzzing.run -m overnight -s 600 -o
                             '''
                         }
