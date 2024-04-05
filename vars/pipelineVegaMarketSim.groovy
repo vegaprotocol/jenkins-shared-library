@@ -120,7 +120,7 @@ void call() {
                 steps {
                     sh label: 'Build binaries', script: '''
                         make build_deps \
-                            && poetry install"
+                            && poetry install
                     '''
                 }
             }
