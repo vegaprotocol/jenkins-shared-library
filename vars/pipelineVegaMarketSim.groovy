@@ -106,39 +106,44 @@ void call() {
                     }
                 }
             }
-            stage('Build Binaries') {
+
+            stage('Build Binaries: Light Deps') {                    
                 options { 
                     retry(3) 
                 }
 
-                stage('Light Deps') {
-                    when {
-                        expression {
-                            params.RUN_LEARNING == false
-                        }
-                    }
-                    steps {
-                        sh label: 'Build binaries', script: '''
-                            make build_deps \
-                                && poetry install"
-                        '''
+                when {
+                    expression {
+                        params.RUN_LEARNING == false
                     }
                 }
-                stage('Full Deps') {
-                    when {
-                        expression {
-                            params.RUN_LEARNING == true
-                        }
-                    }
-                    steps {
-                        sh label: 'Build binaries', script: '''
-                            make build_deps \
-                                && poetry install -E learning \
-                                && poetry run python -m pip install "transformers[torch]"
-                        '''
-                    }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        make build_deps \
+                            && poetry install"
+                    '''
                 }
             }
+            
+            stage('Build Binaries: Full Deps') {                    
+                options { 
+                    retry(3) 
+                }
+
+                when {
+                    expression {
+                        params.RUN_LEARNING == true
+                    }
+                }
+                steps {
+                    sh label: 'Build binaries', script: '''
+                        make build_deps \
+                            && poetry install -E learning \
+                            && poetry run python -m pip install "transformers[torch]"
+                    '''
+                }
+            }
+            
             stage('Tests') {
                 parallel {
                     stage('Integration Tests') {
