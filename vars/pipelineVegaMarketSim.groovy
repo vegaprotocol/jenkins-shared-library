@@ -108,18 +108,33 @@ void call() {
             }
             stage('Build Binaries') {
                 options { retry(3) }
-                steps {
-                    // We have to install cuda toolkit for some scenarios in the vega-market-sim
-                    // transformers[torch] - must be installed because poetry does not install it
-                    // correctly for some reasons.
-                    //
-                    // cuda toolkit should be moved into the jenkins agent image and should be
-                    // available before this pipeline
-                    sh label: 'Build binaries', script: '''
-                        make build_deps \
-                            && poetry install -E learning \
-                            && poetry run python -m pip install "transformers[torch]"
-                    '''
+                    stage('Light Deps') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == false
+                            }
+                        }
+                        steps {
+                            sh label: 'Build binaries', script: '''
+                                make build_deps \
+                                    && poetry install"
+                            '''
+                        }
+                    }
+                    stage('Full Deps') {
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            sh label: 'Build binaries', script: '''
+                                make build_deps \
+                                    && poetry install -E learning \
+                                    && poetry run python -m pip install "transformers[torch]"
+                            '''
+                        }
+                    }
                 }
             }
             stage('Tests') {
