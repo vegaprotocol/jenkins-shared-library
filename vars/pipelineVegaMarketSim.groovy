@@ -195,7 +195,7 @@ void call() {
                             '''
                         }
                     }
-                    stage('Fuzz Tests') {
+                    stage('Full Fuzzing Tests') {
                         environment {
                             PYTHONUNBUFFERED = "1"
                         }
@@ -205,15 +205,32 @@ void call() {
                             }
                         }
                         steps {
-                            echo "Running fuzz tests"
+                            echo "Running full fuzzing tests"
                             /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS} --core-metrics-port 2102 --data-node-metrics-port 2123
+                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS}
+                            '''
+                        }
+                    }
+                    stage('Sensible Fuzzing Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            echo "Running sensible fuzzing tests"
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Sensible Fuzzing', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run -m overnight -s ${NUM_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
                         post {
                             success {
-                                archiveArtifacts artifacts: 'fuzz_plots/*.jpg, fuzz_plots/*.html, fuzz_plots/*.csv'
+                                archiveArtifacts artifacts: 'plots/**/*.png'
                             }
                         }
                     }
