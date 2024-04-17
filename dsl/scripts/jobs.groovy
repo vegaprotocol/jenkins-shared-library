@@ -207,7 +207,7 @@ def vegavisorParamsBase(args=[:]) {
         }
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue(args.get('DEVOPSTOOLS_BRANCH','main'))
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH','v0.75.8'))
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -501,7 +501,7 @@ def vegavisorTopupBotsParams(args=[:]) {
     return {
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('main')
+            defaultValue('v0.75.8')
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -932,7 +932,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('main')
+            defaultValue('v0.75.8')
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -2633,7 +2633,7 @@ def jobs = [
             }
             stringParam {
                 name('DEVOPSTOOLS_VERSION')
-                defaultValue('main')
+                defaultValue('v0.75.8')
                 description('Branch/commit for the vegaprotocol/devopstools repository')
                 trim(true)
             }
