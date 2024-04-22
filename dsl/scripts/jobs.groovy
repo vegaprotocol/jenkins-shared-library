@@ -1370,7 +1370,7 @@ def snapshotParams(args=[:]) {
             name('DEVOPSTOOLS_BRANCH')
             defaultValue(args.get('DEVOPSTOOLS_BRANCH', 'main'))
             description('Branch for the devopstools')
-            trum(true)
+            trim(true)
         }
     }
 }
