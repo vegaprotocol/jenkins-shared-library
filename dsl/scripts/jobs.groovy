@@ -1366,6 +1366,12 @@ def snapshotParams(args=[:]) {
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
+        stringParam {
+            name('DEVOPSTOOLS_BRANCH')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH', 'main'))
+            description('Branch for the devopstools')
+            trum(true)
+        }
     }
 }
 
@@ -2542,7 +2548,9 @@ def jobs = [
             NET_NAME: 'mainnet',
             HISTORY_KEY: 'NetworkHistory'
         ],
-        parameters: snapshotParams(),
+        parameters: snapshotParams(
+            DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes'
+        ),
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTesting()'),
         cron: "H/20 * * * *",
