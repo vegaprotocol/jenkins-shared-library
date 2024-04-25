@@ -1995,6 +1995,7 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/mainnet/Backup',
+        disabled: true,
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineBackupNodeZFS()'),
