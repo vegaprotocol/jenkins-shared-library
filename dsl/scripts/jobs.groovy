@@ -1995,7 +1995,6 @@ def jobs = [
     ],
     [
         name: 'private/Deployments/mainnet/Backup',
-        disabled: true,
         description: devopsInfraDocs,
         useScmDefinition: false,
         definition: libDefinition('pipelineBackupNodeZFS()'),
@@ -2554,6 +2553,22 @@ def jobs = [
         ),
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTesting()'),
+        cron: "H/20 * * * *",
+        disableConcurrentBuilds: true,
+    ],
+    [
+        name: 'private/Snapshots/Mainnet-New',
+        // disabled: true,
+        numToKeep: 2500,
+        useScmDefinition: false,
+        env: [
+            NET_NAME: 'mainnet',
+        ],
+        parameters: snapshotParams(
+            DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes'
+        ),
+        daysToKeep: 21,
+        definition: libDefinition('pipelineSnapshotTestingNew()'),
         cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
