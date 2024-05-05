@@ -1356,7 +1356,7 @@ def snapshotParams(args=[:]) {
         }
         stringParam {
             name('JENKINS_SHARED_LIB_BRANCH')
-            defaultValue('main')
+            defaultValue(args.get('JENKINS_SHARED_LIB_BRANCH', 'main'))
             description('Branch of jenkins-shared-library from which pipeline should be run')
             trim(true)
         }
@@ -2562,10 +2562,11 @@ def jobs = [
         numToKeep: 2500,
         useScmDefinition: false,
         env: [
-            NET_NAME: 'mainnet',
+            NET_NAME: 'mainnet',snapshotParams
         ],
         parameters: snapshotParams(
-            DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes'
+            DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes',
+            JENKINS_SHARED_LIB_BRANCH: 'new-snapshot-testing'
         ),
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTestingNew()'),
