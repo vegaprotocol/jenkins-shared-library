@@ -137,16 +137,16 @@ void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime) {
     String color = ''
 
     if (currentResult == 'SUCCESS') {
-        msg = ":large_green_circle: (NEW - ignore it) Snapshot testing (${vegaNetwork}) - SUCCESS - <${jobURL}|${jobName}>"
+        msg = ":large_green_circle: Snapshot testing (${vegaNetwork}) - SUCCESS - <${jobURL}|${jobName}>"
         color = 'good'
     } else if (currentResult == 'ABORTED') {
-        msg = ":black_circle: (NEW - ignore it) Snapshot testing (${vegaNetwork}) - ABORTED - <${jobURL}|${jobName}>"
+        msg = ":black_circle: Snapshot testing (${vegaNetwork}) - ABORTED - <${jobURL}|${jobName}>"
         color = '#000000'
     } else if (currentBuild == "UNSTABLE") {
-        msg = ":interrobang: (NEW - ignore it) Snapshot testing(${vegaNetwork}) - UNSTABLE - <${jobURL}|${jobName}>"
+        msg = ":interrobang: Snapshot testing(${vegaNetwork}) - UNSTABLE - <${jobURL}|${jobName}>"
         color = "#FFA500"
     } else {
-        msg = ":red_circle: (NEW - ignore it) Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
+        msg = ":red_circle: Snapshot testing (${vegaNetwork}) - FAILED - <${jobURL}|${jobName}>"
         color = 'danger'
     }
 
