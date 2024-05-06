@@ -2562,7 +2562,7 @@ def jobs = [
         numToKeep: 2500,
         useScmDefinition: false,
         env: [
-            NET_NAME: 'mainnet',snapshotParams
+            NET_NAME: 'mainnet',
         ],
         parameters: snapshotParams(
             DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes',
