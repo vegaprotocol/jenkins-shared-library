@@ -56,7 +56,7 @@ void call(Map config=[:]) {
 
             stage('Run tests') {
                 try {
-                    sh './dist/snapshot-testing run --duration ' + (params.TIMEOUT.toInteger()*60) + 's --environment mainnet --work-dir ./work-dir'
+                    sh './dist/snapshot-testing run --duration ' + (params.TIMEOUT.toInteger()*60) + 's --environment ' + env.NET_NAME + ' --work-dir ./work-dir'
                 } catch (e) {
                     failed = true
                     print('FAILURE: ' + e)
