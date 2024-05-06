@@ -66,6 +66,8 @@ void call(Map config=[:]) {
             stage('Process results') {
                 currentBuild.result = 'SUCCESS'
                 reason = "Unknown failure"
+                String catchupDuration = "N/A"
+
                 if (failed == true) {
                     currentBuild.result = 'FAILURE'
                 } else {
@@ -90,15 +92,21 @@ void call(Map config=[:]) {
                                 reason = results["reason"] ?: "Unknown reason"
                                 break
                         }
+                        catchupDuration = results["catchup-duration"] ?: "N/A"
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
                     }
                     
-                    sendSlackMessage(env.NET_NAME, reason, null)
+                    sendSlackMessage(env.NET_NAME, reason, catchupDuration)
                 }
             }
+        }
 
+        stage('Node logs') {
+            print('Logs have been moved to the artifacts.')
+            print('See the following directory for logs:')
+            print(env.BUILD_URL + 'artifact/work-dir/logs/')
         }
 
         stage('Archive artifacts') {
@@ -142,7 +150,7 @@ void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime) {
         color = 'danger'
     }
 
-    if (catchupTime != null) {
+    if (catchupTime != null && catchupTime != "N/A") {
         msg += " (catch up in ${catchupTime})"
     }
 
