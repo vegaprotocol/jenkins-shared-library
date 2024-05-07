@@ -2499,11 +2499,10 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'mainnet-mirror',
-            HISTORY_KEY: 'NetworkHistory',
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
-        definition: libDefinition('pipelineSnapshotTesting()'),
+        definition: libDefinition('pipelineSnapshotTestingNew()'),
         // cron: "H/12 * * * *",
         disableConcurrentBuilds: true,
     ],
@@ -2514,8 +2513,6 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'fairground',
-            HISTORY_KEY: 'NetworkHistory',
-            NODES_DENYLIST: 'n00.testnet.vega.rocks,n00.testnet.vega.xyz,n00.tm.testnet.vega.rocks,n00.tm.testnet.vega.xyz'
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
@@ -2530,12 +2527,10 @@ def jobs = [
         useScmDefinition: false,
         env: [
             NET_NAME: 'validators-testnet',
-            HISTORY_KEY: 'NetworkHistory',
-            NODES_DENYLIST: 'n01.validators-testnet.vega.rocks'
         ],
         parameters: snapshotParams(),
         daysToKeep: 4,
-        definition: libDefinition('pipelineSnapshotTesting()'),
+        definition: libDefinition('pipelineSnapshotTestingNew()'),
         cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
@@ -2554,23 +2549,6 @@ def jobs = [
         daysToKeep: 21,
         definition: libDefinition('pipelineSnapshotTestingNew()'),
         cron: "H/20 * * * *",
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Snapshots/Mainnet-New',
-        // disabled: true,
-        numToKeep: 2500,
-        useScmDefinition: false,
-        env: [
-            NET_NAME: 'mainnet',
-        ],
-        parameters: snapshotParams(
-            DEVOPSTOOLS_BRANCH: 'fix-healthy-nodes',
-            JENKINS_SHARED_LIB_BRANCH: 'new-snapshot-testing'
-        ),
-        daysToKeep: 21,
-        definition: libDefinition('pipelineSnapshotTestingNew()'),
-        // cron: "H/20 * * * *",
         disableConcurrentBuilds: true,
     ],
     // review deprecation of this job
