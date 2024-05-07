@@ -97,9 +97,9 @@ void call(Map config=[:]) {
                         print(e)
                         currentBuild.result = 'FAILURE'
                     }
-                    
-                    sendSlackMessage(env.NET_NAME, reason, catchupDuration)
                 }
+                    
+                sendSlackMessage(env.NET_NAME, reason, catchupDuration)
             }
         }
 
