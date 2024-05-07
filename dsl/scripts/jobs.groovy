@@ -2514,7 +2514,9 @@ def jobs = [
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: snapshotParams(),
+        parameters: snapshotParams(
+            NODE_LABEL: 'jenkins008-m1'
+        ),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTestingNew()'),
         cron: "H/20 * * * *",
