@@ -42,7 +42,7 @@ void call(Map config=[:]) {
             stage('Clone snapshot-testing') {
                 gitClone([
                     url: 'git@github.com:vegaprotocol/snapshot-testing.git',
-                    branch: 'fix-height-increase-alert',
+                    branch: 'main',
                     credentialsId: 'vega-ci-bot',
                     directory: 'snapshot-testing'
                 ])
@@ -163,9 +163,6 @@ void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime, St
     msg += " (${duration})"
 
     if (extraLogLines.length() > 0) {
-        echo "EXTRA LOG LINES: " + extraLogLines;
-        echo "\n\n\n"
-
         msg += "\n\nSnapshot-testing attached logs:\n"
         msg += "```"
         msg += extraLogLines
