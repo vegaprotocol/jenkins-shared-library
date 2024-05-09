@@ -135,6 +135,20 @@ jenkins:
         imageId: "146595723"
         installMonitoring: false
         instanceCap: 120
+        labelString: "vega-market-sim-nightly-long-run"
+        labellessJobsAllowed: true
+        name: "ubuntu"
+        numExecutors: 1
+        regionId: "fra1"
+        setupPrivateNetworking: false
+        sizeId: "g-8vcpu-32gb"
+        sshPort: 22
+        username: "ubuntu"
+        workspacePath: "/jenkins/"
+      - idleTerminationInMinutes: 10
+        imageId: "146595723"
+        installMonitoring: false
+        instanceCap: 120
         labelString: "disabled"
         labellessJobsAllowed: true
         name: "ubuntu"
