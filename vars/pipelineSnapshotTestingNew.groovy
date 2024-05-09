@@ -94,7 +94,7 @@ void call(Map config=[:]) {
                                 break
                         }
                         catchupDuration = results["catchup-duration"] ?: "N/A"
-                        extraLogLines = results["visor-extra-log-line"] ?: ""
+                        extraLogLines = results["visor-extra-log-lines"] ?: ""
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
@@ -163,7 +163,10 @@ void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime, St
     msg += " (${duration})"
 
     if (extraLogLines.length() > 0) {
-        msg += "\n\nSnapshot-testing attached logs:"
+        echo "EXTRA LOG LINES: " + extraLogLines;
+        echo "\n\n\n"
+
+        msg += "\n\nSnapshot-testing attached logs:\n"
         msg += "```"
         msg += extraLogLines
         msg += "```"
