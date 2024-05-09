@@ -2449,7 +2449,7 @@ def jobs = [
             }
             stringParam {
                 name('NODE_LABEL')
-                defaultValue('vega-market-sim')
+                defaultValue('vega-market-sim-nightly-long-run')
                 description('Jenkins label for running pipeline (empty means any node)')
                 trim(true)
             }
