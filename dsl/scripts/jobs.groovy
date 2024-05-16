@@ -1403,7 +1403,7 @@ def vegaMarketSimParams(args=[:]) {
         }
         stringParam {
             name('NODE_LABEL')
-            defaultValue('vega-market-sim')
+            defaultValue('vega-market-sim-nightly-long-run')
             description('Jenkins label for running pipeline (empty means any node)')
             trim(true)
         }
@@ -2107,9 +2107,9 @@ def jobs = [
         disableConcurrentBuilds: false,
         parameterizedCron: [
             // automatic backup every 6h
-            'H 2 * * * %' + [
-                'SERVER=api0.vega.community',
-            ].join(';'),
+            // 'H 2 * * * %' + [
+            //     'SERVER=api0.vega.community',
+            // ].join(';'),
         ].join('\n'),
     ],
     [

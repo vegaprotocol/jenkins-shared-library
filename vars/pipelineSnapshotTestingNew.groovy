@@ -67,6 +67,7 @@ void call(Map config=[:]) {
                 currentBuild.result = 'SUCCESS'
                 reason = "Unknown failure"
                 String catchupDuration = "N/A"
+                String extraLogLines = ""
 
                 if (failed == true) {
                     currentBuild.result = 'FAILURE'
@@ -93,13 +94,14 @@ void call(Map config=[:]) {
                                 break
                         }
                         catchupDuration = results["catchup-duration"] ?: "N/A"
+                        extraLogLines = results["visor-extra-log-lines"] ?: ""
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
                     }
                 }
                     
-                sendSlackMessage(env.NET_NAME, reason, catchupDuration)
+                sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
             }
         }
 
@@ -125,7 +127,7 @@ void call(Map config=[:]) {
 }
 
 
-void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime) {
+void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime, String extraLogLines) {
     String slackChannel = '#snapshot-notify'
     String slackFailedChannel = '#snapshot-notify-failed'
     String jobURL = env.RUN_DISPLAY_URL
@@ -159,6 +161,13 @@ void sendSlackMessage(String vegaNetwork,  String reason, String catchupTime) {
     }
 
     msg += " (${duration})"
+
+    if (extraLogLines.length() > 0) {
+        msg += "\n\nSnapshot-testing attached logs:\n"
+        msg += "```"
+        msg += extraLogLines
+        msg += "```"
+    }
 
     echo "${msg}"
 
