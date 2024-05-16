@@ -1341,6 +1341,80 @@ def approbationParams(def config=[:]) {
     }
 }
 
+def vegaMarketSimParams(args=[:]) {
+    return {
+        stringParam {
+            name('ORIGIN_REPO')
+            defaultValue('vegaprotocol/vega')
+            description('repository which acts as vega source code (used for forks builds)')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_VERSION')
+            defaultValue(args.get('VEGA_VERSION','develop'))
+            description('Git branch, tag or hash of the vegaprotocol/vega repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGACAPSULE_VERSION')
+            defaultValue('main')
+            description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
+            trim(true)
+        }
+        stringParam {
+            name('VEGA_MARKET_SIM_BRANCH')
+            defaultValue('develop')
+            description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
+            trim(true)
+        }
+        stringParam {
+            name('TIMEOUT')
+            defaultValue('1440')
+            description('Number of minutes after which the job will stop')
+            trim(true)
+        }
+        booleanParam {
+            name('RUN_EXTRA_TESTS')
+            defaultValue(false)
+            description('Run extra tests that you don\'t always want to run')
+        }
+        booleanParam {
+            name('RUN_LEARNING')
+            defaultValue(true)
+            description('Run a long reinforcement learning test')
+        }
+        stringParam {
+            name('NUM_FUZZ_STEPS')
+            defaultValue('1200')
+            description('Number of steps to run fuzz test for')
+            trim(true)
+        }
+        stringParam {
+            name('NUM_RL_ITERATIONS')
+            defaultValue('200')
+            description('Number of iterations to run RL tests for')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
+            trim(true)
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue('vega-market-sim')
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+        booleanParam {
+            name('BRANCH_RUN')
+            defaultValue(false)
+            description('Is this a branch or main run')
+        }
+    }
+}
+
 def snapshotParams(args=[:]) {
     return {
         stringParam {
@@ -2388,77 +2462,7 @@ def jobs = [
         description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
-        parameters: {
-            stringParam {
-                name('ORIGIN_REPO')
-                defaultValue('vegaprotocol/vega')
-                description('repository which acts as vega source code (used for forks builds)')
-                trim(true)
-            }
-            stringParam {
-                name('VEGA_VERSION')
-                defaultValue('develop')
-                description('Git branch, tag or hash of the vegaprotocol/vega repository')
-                trim(true)
-            }
-            stringParam {
-                name('VEGACAPSULE_VERSION')
-                defaultValue('main')
-                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-                trim(true)
-            }
-            stringParam {
-                name('VEGA_MARKET_SIM_BRANCH')
-                defaultValue('develop')
-                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-                trim(true)
-            }
-            stringParam {
-                name('TIMEOUT')
-                defaultValue('1440')
-                description('Number of minutes after which the job will stop')
-                trim(true)
-            }
-            booleanParam {
-                name('RUN_EXTRA_TESTS')
-                defaultValue(false)
-                description('Run extra tests that you don\'t always want to run')
-            }
-            booleanParam {
-                name('RUN_LEARNING')
-                defaultValue(true)
-                description('Run a long reinforcement learning test')
-            }
-            stringParam {
-                name('NUM_FUZZ_STEPS')
-                defaultValue('1200')
-                description('Number of steps to run fuzz test for')
-                trim(true)
-            }
-            stringParam {
-                name('NUM_RL_ITERATIONS')
-                defaultValue('200')
-                description('Number of iterations to run RL tests for')
-                trim(true)
-            }
-            stringParam {
-                name('JENKINS_SHARED_LIB_BRANCH')
-                defaultValue('main')
-                description('Branch of jenkins-shared-library from which pipeline should be run')
-                trim(true)
-            }
-            stringParam {
-                name('NODE_LABEL')
-                defaultValue('vega-market-sim')
-                description('Jenkins label for running pipeline (empty means any node)')
-                trim(true)
-            }
-            booleanParam {
-                name('BRANCH_RUN')
-                defaultValue(false)
-                description('Is this a branch or main run')
-            }
-        },
+        parameters: vegaMarketSimParams(),
         copyArtifacts: true,
         daysToKeep: 5,
         cron: 'H 0 * * *',
@@ -2468,77 +2472,9 @@ def jobs = [
         description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
-        parameters: {
-            stringParam {
-                name('ORIGIN_REPO')
-                defaultValue('vegaprotocol/vega')
-                description('repository which acts as vega source code (used for forks builds)')
-                trim(true)
-            }
-            stringParam {
-                name('VEGA_VERSION')
-                defaultValue('master')
-                description('Git branch, tag or hash of the vegaprotocol/vega repository')
-                trim(true)
-            }
-            stringParam {
-                name('VEGACAPSULE_VERSION')
-                defaultValue('main')
-                description('Git branch, tag or hash of the vegaprotocol/vegacapsule repository')
-                trim(true)
-            }
-            stringParam {
-                name('VEGA_MARKET_SIM_BRANCH')
-                defaultValue('develop')
-                description('Git branch, tag or hash of the vegaprotocol/vega-market-sim repository')
-                trim(true)
-            }
-            stringParam {
-                name('TIMEOUT')
-                defaultValue('1440')
-                description('Number of minutes after which the job will stop')
-                trim(true)
-            }
-            booleanParam {
-                name('RUN_EXTRA_TESTS')
-                defaultValue(false)
-                description('Run extra tests that you don\'t always want to run')
-            }
-            booleanParam {
-                name('RUN_LEARNING')
-                defaultValue(true)
-                description('Run a long reinforcement learning test')
-            }
-            stringParam {
-                name('NUM_FUZZ_STEPS')
-                defaultValue('1200')
-                description('Number of steps to run fuzz test for')
-                trim(true)
-            }
-            stringParam {
-                name('NUM_RL_ITERATIONS')
-                defaultValue('200')
-                description('Number of iterations to run RL tests for')
-                trim(true)
-            }
-            stringParam {
-                name('JENKINS_SHARED_LIB_BRANCH')
-                defaultValue('main')
-                description('Branch of jenkins-shared-library from which pipeline should be run')
-                trim(true)
-            }
-            stringParam {
-                name('NODE_LABEL')
-                defaultValue('vega-market-sim')
-                description('Jenkins label for running pipeline (empty means any node)')
-                trim(true)
-            }
-            booleanParam {
-                name('BRANCH_RUN')
-                defaultValue(false)
-                description('Is this a branch or main run')
-            }
-        },
+        parameters: vegaMarketSimParams(
+            VEGA_VERSION: 'master',
+        ),
         copyArtifacts: true,
         daysToKeep: 5,
         cron: 'H 0 * * *',
