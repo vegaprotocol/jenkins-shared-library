@@ -932,7 +932,7 @@ def systemTestsParamsGeneric(args=[:]) {
         }
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('v0.75.8')
+            defaultValue(args.get('DEVOPSTOOLS_BRANCH', 'v0.75.8'))
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
             trim(true)
         }
@@ -2114,7 +2114,9 @@ def jobs = [
         name: 'common/system-tests-snapshot-compatibility',
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
-        parameters: snapshotCompatibilityParams(),
+        parameters: snapshotCompatibilityParams(
+            DEVOPSTOOLS_BRANCH: '0e2fb49648ec65ab6efa00c7979c3130ed3168d7',
+        ),
         copyArtifacts: true,
         daysToKeep: 10,
         cron: 'H 2 * * *',
