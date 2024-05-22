@@ -1423,11 +1423,6 @@ def snapshotParams(args=[:]) {
             description('Number of minutes after which the node will stop')
             trim(true)
         }
-        booleanParam {
-            name('BACKUP_SNAPSHOTS')
-            defaultValue(false)
-            description('Backup the latest snapshots in the vegaprotocol/snapshot-backups repository')
-        }
         stringParam {
             name('JENKINS_SHARED_LIB_BRANCH')
             defaultValue(args.get('JENKINS_SHARED_LIB_BRANCH', 'main'))
@@ -1441,8 +1436,8 @@ def snapshotParams(args=[:]) {
             trim(true)
         }
         stringParam {
-            name('DEVOPSTOOLS_BRANCH')
-            defaultValue(args.get('DEVOPSTOOLS_BRANCH', 'main'))
+            name('SNAPSHOT_TESTING_BRANCH')
+            defaultValue(args.get('SNAPSHOT_TESTING_BRANCH', 'main'))
             description('Branch for the devopstools')
             trim(true)
         }
