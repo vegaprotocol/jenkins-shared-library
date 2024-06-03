@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 void call(Map config=[:]) {
     Boolean failed = false
 
@@ -95,6 +97,11 @@ void call(Map config=[:]) {
                         }
                         catchupDuration = results["catchup-duration"] ?: "N/A"
                         extraLogLines = results["visor-extra-log-lines"] ?: ""
+                        
+                        String snapshotsFrom = results["snapshot-min"] ?: 'UNKNOWN'
+                        String snapshotsTo = results["snapshot-max"] ?: 'UNKNOWN'
+                        
+                        archiveArtifactsToS3(env.NET_NAME, './work-dir', snapshotsFrom, snapshotsTo)
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
@@ -102,6 +109,7 @@ void call(Map config=[:]) {
                 }
                     
                 sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
+                
             }
         }
 
@@ -123,6 +131,39 @@ void call(Map config=[:]) {
             )
         }
 
+    }
+}
+
+void archiveArtifactsToS3(String envName, String dirName, String minSnapshot, String maxSnapshot) {
+    // We are not interested in archiving non mainnet chain data
+    if (envName != "mainnet") {
+        return
+    }
+
+    Date date = new Date()
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+    String dateString = sdf.format(date)
+
+    String snapshotName = dateString + '-' + minSnapshot + '-' + maxSnapshot + '.tar.gz'
+
+    sh '''tar \
+        -I 'gzip -9' \
+        --exclude ''' + dirName + '''/vega.sock \
+        --exclude ''' + dirName + '''/bins \
+        --exclude ''' + dirName + '''/vega_home/state/data-node/networkhistory/store/ipfs/blocks \
+        -cvf  ''' + snapshotName + ''' \
+    ./''' + dirName
+
+     withCredentials([
+        usernamePassword(
+            credentialsId:  envName.toLowerCase() + '-snapshot-history-aws-key', 
+            passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+            usernameVariable: 'AWS_ACCESS_KEY_ID'
+        ),
+        string(credentialsId: envName.toLowerCase() + '-snapshot-history-bucket-name', variable: 'BUCKET_NAME')
+    ]) {
+        sh 'GOBIN="$(pwd)" go install github.com/opendevsecops/go-s3cp@8b07da75e3cd053a4543423a18605358e696fefe'
+        sh '''AWS_REGION=us-east-1 ./go-s3cp --from ./''' + snapshotName + ''' --to s3://''' + BUCKET_NAME + '''/''' + snapshotName
     }
 }
 
