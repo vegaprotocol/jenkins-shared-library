@@ -278,12 +278,6 @@ def vegavisorRestartNetworkParams(args=[:]) {
             description('This will download latest checkpoint and use it to restart the network with')
         }
         stringParam {
-            name('DEVOPSSCRIPTS_BRANCH')
-            defaultValue('main')
-            description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            trim(true)
-        }
-        stringParam {
             name('CHECKPOINT_STORE_BRANCH')
             defaultValue('main')
             description('Git branch, tag or hash of the vegaprotocol/checkpoint-store repository')
@@ -501,14 +495,8 @@ def vegavisorTopupBotsParams(args=[:]) {
     return {
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('v0.75.8')
+            defaultValue('main')
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
-            trim(true)
-        }
-        stringParam {
-            name('ADDITIONAL_TRADER_BOTS_IDS')
-            defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
-            description('When there is one than more instane of traderbot, pass their ids(coma separated)')
             trim(true)
         }
         stringParam {
@@ -1571,6 +1559,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
+            DEVOPSTOOLS_BRANCH: 'main',
             NODE_LABEL: 'ops-tasks-tiny',
             TOP_UP_BOTS: true,
             USE_CHECKPOINT: false,
@@ -1640,7 +1629,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H/15 * * * *',
+        // cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1689,6 +1678,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
+            DEVOPSTOOLS_BRANCH: 'main',
             SETUP_REFERRAL_PROGRAM: false,
             NODE_LABEL: 'ops-tasks-tiny',
         ),
@@ -1738,7 +1728,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 11 * * *',
+        // cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1787,6 +1777,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
+            DEVOPSTOOLS_BRANCH: 'main',
             NODE_LABEL: 'ops-tasks-tiny',
         ),
         disableConcurrentBuilds: true,
@@ -1821,7 +1812,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 10 * * *',
+        // cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1882,6 +1873,7 @@ def jobs = [
             ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
         ],
         parameters: vegavisorRestartNetworkParams(
+            DEVOPSTOOLS_BRANCH: 'main',
             USE_CHECKPOINT: true,
             SETUP_REFERRAL_PROGRAM: true,
         ),
@@ -1931,7 +1923,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 12 * * *',
+        // cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
     ],
     [

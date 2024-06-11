@@ -168,7 +168,8 @@ void call() {
                             gitClone(
                                 directory: 'devopstools',
                                 vegaUrl: 'devopstools',
-                                branch: params.DEVOPSTOOLS_BRANCH)
+                                branch: params.DEVOPSTOOLS_BRANCH,
+                            )
                             dir ('devopstools') {
                                 sh 'go mod download'
                             }
@@ -517,6 +518,7 @@ void call() {
                             sleep 180
                             lock(resource: "ethereum-minter-${env.NET_NAME}") {
                                 withDevopstools(
+                                    newDevopsTools: true,
                                     command: 'network self-delegate'
                                 )
                             }
@@ -536,7 +538,7 @@ void call() {
                     }
                     stage('Market actions') {
                         stages {
-                            stage('Create markets & provide lp'){
+                            stage('Create markets'){
                                 when {
                                     allOf {
                                         expression {
@@ -552,18 +554,12 @@ void call() {
                                     retry(3) {
                                         lock(resource: "ethereum-minter-${env.NET_NAME}") {
                                             withDevopstools(
+                                                newDevopsTools: true,
                                                 command: 'market propose'
                                             )
                                         }
                                     }
-                                    sleep 30 * 7
-                                    retry(3) {
-                                        lock(resource: "ethereum-minter-${env.NET_NAME}") {
-                                            withDevopstools(
-                                                command: 'market provide-lp'
-                                            )
-                                        }
-                                    }
+                                    sleep 60
                                 }
                                 post {
                                     success {
@@ -589,7 +585,8 @@ void call() {
                                 }
                                 steps {
                                     withDevopstools(
-                                        command: 'propose referral --setup-referral-program'
+                                        newDevopsTools: true,
+                                        command: 'referral propose --setup'
                                     )
                                 }
                             }
@@ -604,7 +601,8 @@ void call() {
                                 }
                                 steps {
                                     withDevopstools(
-                                        command: 'propose volume-discount --setup-volume-discount-program'
+                                        newDevopsTools: true,
+                                        command: 'volume-discount propose --setup'
                                     )
                                 }
                             }
@@ -619,7 +617,8 @@ void call() {
                                 }
                                 steps {
                                     withDevopstools(
-                                        command: 'incentive network-params'
+                                        newDevopsTools: true,
+                                        command: 'incentive network-params --update'
                                     )
                                 }
                             }
@@ -658,59 +657,24 @@ void call() {
                                     }
                                 }
                             }
-                            stage('Join bots to referral program') {
-                                when {
-                                    expression {
-                                        params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
-                                    }
-                                }
-                                options {
-                                    lock(resource: "ethereum-minter-${env.NET_NAME}")
-                                    retry(3)
-                                }
-                                steps {
-                                    withDevopstools(
-                                        command: 'bot referral --setup'
-                                    )
-                                }
-                            }
+                            // stage('Join bots to referral program') {
+                            //     when {
+                            //         expression {
+                            //             params.JOIN_BOTS_TO_REFERRAL_PROGRAM && params.PERFORM_NETWORK_OPERATIONS && params.ACTION != 'stop-network'
+                            //         }
+                            //     }
+                            //     options {
+                            //         lock(resource: "ethereum-minter-${env.NET_NAME}")
+                            //         retry(3)
+                            //     }
+                            //     steps {
+                            //         withDevopstools(
+                            //             command: 'bot referral --setup'
+                            //         )
+                            //     }
+                            // }
                         }
                     }
-                    stage('Update vegawallet service') {
-                        when {
-                            allOf {
-                                expression {
-                                    params.PERFORM_NETWORK_OPERATIONS
-                                }
-                                expression {
-                                    DOCKER_VERSION
-                                }
-                                expression {
-                                    params.ACTION != 'stop-network'
-                                }
-                                expression {
-                                    env.NET_NAME == 'fairground'
-                                }
-                            }
-                        }
-                        steps {
-                            script {
-                                ['vegawallet'].each { app ->
-                                    releaseKubernetesApp(
-                                        networkName: env.NET_NAME,
-                                        application: app,
-                                        directory: 'k8s',
-                                        makeCheckout: false,
-                                        version: DOCKER_VERSION,
-                                        forceRestart: false,
-                                        timeout: 5,
-                                        wait: false,
-                                    )
-                                }
-                            }
-                        }
-                    }
-
                 }
             }
         }
