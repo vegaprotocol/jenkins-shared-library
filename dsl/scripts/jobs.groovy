@@ -501,14 +501,8 @@ def vegavisorTopupBotsParams(args=[:]) {
     return {
         stringParam {
             name('DEVOPSTOOLS_BRANCH')
-            defaultValue('v0.75.8')
+            defaultValue('main')
             description('Git branch, tag or hash of the vegaprotocol/devopstools repository')
-            trim(true)
-        }
-        stringParam {
-            name('ADDITIONAL_TRADER_BOTS_IDS')
-            defaultValue(args.get('additionalTraderbotsIds',[]).join(","))
-            description('When there is one than more instane of traderbot, pass their ids(coma separated)')
             trim(true)
         }
         stringParam {
@@ -1637,7 +1631,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H/15 * * * *',
+        // cron: 'H/15 * * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1735,7 +1729,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 11 * * *',
+        // cron: 'H 11 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1818,7 +1812,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 10 * * *',
+        // cron: 'H 10 * * *',
         disableConcurrentBuilds: true,
     ],
     [
@@ -1928,7 +1922,7 @@ def jobs = [
         parameters: vegavisorTopupBotsParams(
             NODE_LABEL: 'ops-tasks-tiny',
         ),
-        cron: 'H 12 * * *',
+        // cron: 'H 12 * * *',
         disableConcurrentBuilds: true,
     ],
     [
