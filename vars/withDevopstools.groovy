@@ -1,5 +1,5 @@
 def call(args=[:]) {
-    networkname = args.netName ?: env.NET_NAME
+    networkName = args.netName ?: env.NET_NAME
     newDevopsTools = args.newDevopsTools ?: false
     
     withCredentials([
