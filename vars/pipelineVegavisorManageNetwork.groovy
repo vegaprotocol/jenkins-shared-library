@@ -168,8 +168,7 @@ void call() {
                             gitClone(
                                 directory: 'devopstools',
                                 vegaUrl: 'devopstools',
-                                // branch: params.DEVOPSTOOLS_BRANCH,
-                                branch: "devnet1-improvements"
+                                branch: params.DEVOPSTOOLS_BRANCH,
                             )
                             dir ('devopstools') {
                                 sh 'go mod download'
@@ -623,41 +622,41 @@ void call() {
                                     )
                                 }
                             }
-                            // stage('Top up bots') {
-                            //     when {
-                            //         allOf {
-                            //             expression {
-                            //                 params.TOP_UP_BOTS
-                            //             }
-                            //             expression {
-                            //                 params.ACTION != 'stop-network'
-                            //             }
-                            //         }
-                            //     }
-                            //     options {
-                            //         retry(3)
-                            //     }
-                            //     steps {
-                            //         // propagate result only when bots need to join referral program
-                            //         build(
-                            //             job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
-                            //             propagate: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
-                            //             wait: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
-                            //         )
-                            //     }
-                            //     post {
-                            //         success {
-                            //             script {
-                            //                 stagesStatus[stagesHeaders.bots] = statuses.ok
-                            //             }
-                            //         }
-                            //         unsuccessful {
-                            //             script {
-                            //                 stagesStatus[stagesHeaders.bots] = statuses.failed
-                            //             }
-                            //         }
-                            //     }
-                            // }
+                            stage('Top up bots') {
+                                when {
+                                    allOf {
+                                        expression {
+                                            params.TOP_UP_BOTS
+                                        }
+                                        expression {
+                                            params.ACTION != 'stop-network'
+                                        }
+                                    }
+                                }
+                                options {
+                                    retry(3)
+                                }
+                                steps {
+                                    // propagate result only when bots need to join referral program
+                                    build(
+                                        job: "private/Deployments/${env.NET_NAME}/Topup-Bots",
+                                        propagate: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
+                                        wait: params.JOIN_BOTS_TO_REFERRAL_PROGRAM,
+                                    )
+                                }
+                                post {
+                                    success {
+                                        script {
+                                            stagesStatus[stagesHeaders.bots] = statuses.ok
+                                        }
+                                    }
+                                    unsuccessful {
+                                        script {
+                                            stagesStatus[stagesHeaders.bots] = statuses.failed
+                                        }
+                                    }
+                                }
+                            }
                             // stage('Join bots to referral program') {
                             //     when {
                             //         expression {
