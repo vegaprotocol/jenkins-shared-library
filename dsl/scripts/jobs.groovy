@@ -501,7 +501,7 @@ def vegavisorTopupBotsParams(args=[:]) {
         }
         stringParam {
             name('TIMEOUT')
-            defaultValue('15')
+            defaultValue('35')
             description('Number of minutes after which the job will stop')
             trim(true)
         }
