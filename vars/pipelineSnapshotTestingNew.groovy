@@ -71,16 +71,16 @@ void call(Map config=[:]) {
                 String catchupDuration = "N/A"
                 String extraLogLines = ""
 
+                Map results = [:]
+                if (fileExists('./work-dir/results.json')) {
+                    results = readJSON file: './work-dir/results.json'
+                }
+                println(results)
+
                 if (failed == true) {
                     currentBuild.result = 'FAILURE'
                 } else {
                     try {
-                        Map results = [:]
-                        if (fileExists('./work-dir/results.json')) {
-                            results = readJSON file: './work-dir/results.json'
-                        }
-
-                        println(results)
                         switch (results["status"] ?: 'UNKNOWN') {
                             case 'HEALTHY':
                                 currentBuild.result = 'SUCCESS'
@@ -100,16 +100,23 @@ void call(Map config=[:]) {
                         
                         String snapshotsFrom = results["snapshot-min"] ?: 'UNKNOWN'
                         String snapshotsTo = results["snapshot-max"] ?: 'UNKNOWN'
-                        
-                        archiveArtifactsToS3(env.NET_NAME, './work-dir', snapshotsFrom, snapshotsTo)
+                        int buildNo = currentBuild.number as Integer
+
+                        archiveArtifactsToS3(buildNo, env.NET_NAME, './work-dir', snapshotsFrom, snapshotsTo)
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
                     }
                 }
-                    
-                sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
                 
+                // We have conditions (e.g: when the devnet1 network is dead) to not report it
+                Boolean shouldSkipSlackMessage = (results["should-skip-failure"] as Boolean) ?: false
+
+                if (!shouldSkipSlackMessage) {
+                    sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
+                } else {
+                    print("Not sending slack message. Snapshot testing binary decided to skip the results.")
+                }
             }
         }
 
@@ -134,9 +141,14 @@ void call(Map config=[:]) {
     }
 }
 
-void archiveArtifactsToS3(String envName, String dirName, String minSnapshot, String maxSnapshot) {
+void archiveArtifactsToS3(int buildNo, String envName, String dirName, String minSnapshot, String maxSnapshot) {
     // We are not interested in archiving non mainnet chain data
     if (envName != "mainnet") {
+        return
+    }
+
+    // We do not need to archive all artifacts. People can replay if needed.
+    if (buildNo % 4 != 0) {
         return
     }
 
