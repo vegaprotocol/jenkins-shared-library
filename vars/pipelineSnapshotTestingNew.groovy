@@ -111,8 +111,7 @@ void call(Map config=[:]) {
                 
                 // We have conditions (e.g: when the devnet1 network is dead) to not report it
                 Boolean shouldSkipSlackMessage = (results["should-skip-failure"] as Boolean) ?: false
-                println("SHOULD SKIP DEBUG")
-                println(shouldSkipSlackMessage)
+
                 if (!shouldSkipSlackMessage) {
                     sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
                 } else {
