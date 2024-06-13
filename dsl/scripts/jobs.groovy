@@ -2115,7 +2115,7 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineCapsuleSnapshotCompatibility()'),
         parameters: snapshotCompatibilityParams(
-            DEVOPSTOOLS_BRANCH: '0e2fb49648ec65ab6efa00c7979c3130ed3168d7',
+            DEVOPSTOOLS_BRANCH: 'main',
         ),
         copyArtifacts: true,
         daysToKeep: 10,
