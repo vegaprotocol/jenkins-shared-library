@@ -907,12 +907,6 @@ def systemTestsParamsGeneric(args=[:]) {
             trim(true)
         }
         stringParam {
-            name('DEVOPSSCRIPTS_BRANCH')
-            defaultValue('main')
-            description('Git branch, tag or hash of the vegaprotocol/devopsscripts repository')
-            trim(true)
-        }
-        stringParam {
             name('TEST_EXTRA_PYTEST_ARGS')
             defaultValue('')
             description('extra args passed to system tests execution')
