@@ -25,7 +25,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
   // params.SYSTEM_TESTS_BRANCH = params.SYSTEM_TESTS_BRANCH ?: 'develop'
   // params.VEGACAPSULE_BRANCH = params.VEGACAPSULE_BRANCH ?: 'main'
   // params.VEGATOOLS_BRANCH = params.VEGATOOLS_BRANCH ?: 'develop'
-  // params.DEVOPSSCRIPTS_BRANCH = params.DEVOPSSCRIPTS_BRANCH ?: 'main'
   // params.DEVOPSTOOLS_BRANCH = params.DEVOPSTOOLS_BRANCH ?: 'main'
   // params.BUILD_PROTOCOL_UPGRADE_VERSION = params.BUILD_PROTOCOL_UPGRADE_VERSION ?: false
   // params.CAPSULE_CONFIG = params.CAPSULE_CONFIG ?: 'capsule_config.hcl'
@@ -133,7 +132,6 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
               [ name: 'vegaprotocol/vegacapsule', branch: params.VEGACAPSULE_BRANCH ],
               [ name: 'vegaprotocol/vegatools', branch: params.VEGATOOLS_BRANCH ],
               // [ name: 'vegaprotocol/devops-infra', branch: params.DEVOPS_INFRA_BRANCH ?: ], // TODO: Remove me
-              [ name: 'vegaprotocol/devopsscripts', branch: params.DEVOPSSCRIPTS_BRANCH ],
               [ name: 'vegaprotocol/devopstools', branch: params.DEVOPSTOOLS_BRANCH ],
             ]
             def reposSteps = [failFast: true] + repositories.collectEntries{value -> [
@@ -169,17 +167,7 @@ void call(Map additionalConfig=[:], parametersOverride=[:]) {
       stage('prepare environment') {
         failFast true
         parallel {
-          stage('build devopsscripts') {
-            options {
-              timeout(time: 15, unit: 'MINUTES')
-              retry(3)
-            }
-            steps {
-              script {
-                vegautils.buildGoBinary('devopsscripts',  testNetworkDir + '/devopsscripts', './')
-              }
-            }
-          }
+          
           stage('build devopstools') {
             options {
               timeout(time: 15, unit: 'MINUTES')

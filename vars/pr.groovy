@@ -74,7 +74,6 @@ Map getConnectedChangesInOtherRepos(Map config = [:]) {
         'jenkins-shared-library': 'JENKINS_SHARED_LIB_BRANCH',
         'deploy-to-devnet': 'DEPLOY_TO_DEVNET',
         'devops-infra': 'DEVOPS_INFRA_BRANCH',
-        'devopsscripts': 'DEVOPSSCRIPTS_BRANCH',
         'devopstools': 'DEVOPSTOOLS_BRANCH',
         'vega-version': 'VEGA_VERSION',
         'node-label': 'NODE_LABEL',
