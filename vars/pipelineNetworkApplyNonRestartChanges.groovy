@@ -65,22 +65,6 @@ void call() {
                     }
                 }
             }
-            stage('Disable Alerts') {
-                when {
-                    not { expression { params.DRY_RUN } }
-                }
-                steps {
-                    retry (3) {
-                        script {
-                            ALERT_SILENCE_ID = alert.disableAlerts(
-                                environment: ALERT_DISABLE_ENV,
-                                node: ALERT_DISABLE_NODE,
-                                duration: params.TIMEOUT, // minutes
-                            )
-                        }
-                    }
-                }
-            }
             stage('Apply Changes') {
                 environment {
                     ANSIBLE_VAULT_PASSWORD_FILE = credentials('ansible-vault-password')
@@ -111,20 +95,7 @@ void call() {
             always {
                 cleanWs()
             }
-            success {
-                script {
-                    if (ALERT_SILENCE_ID) {
-                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 2)
-                    }
-                }
-            }
-            unsuccessful {
-                script {
-                    if (ALERT_SILENCE_ID) {
-                        alert.enableAlerts(silenceID: ALERT_SILENCE_ID, delay: 1)
-                    }
-                }
-            }
+          
         }
     }
 }
