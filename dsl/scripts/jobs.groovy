@@ -2517,7 +2517,7 @@ def jobs = [
             NET_NAME: 'fairground',
         ],
         parameters: snapshotParams(
-            NODE_LABEL: 'jenkins008-m1'
+            NODE_LABEL: 'snapshot-testing'
         ),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTestingNew()'),
