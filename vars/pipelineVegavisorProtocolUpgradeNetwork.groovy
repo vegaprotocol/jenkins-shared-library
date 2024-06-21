@@ -67,18 +67,6 @@ void call() {
                             )
                         }
                     }
-                    stage('k8s'){
-                        when {
-                            expression { DOCKER_VERSION }
-                        }
-                        steps {
-                            gitClone(
-                                directory: 'k8s',
-                                branch: 'main',
-                                vegaUrl: 'k8s',
-                            )
-                        }
-                    }
                 }
             }
             stage('Prepare'){
