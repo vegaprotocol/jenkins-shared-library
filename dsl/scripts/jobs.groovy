@@ -1375,12 +1375,6 @@ def vegaMarketSimParams(args=[:]) {
             trim(true)
         }
         stringParam {
-            name('NUM_RL_ITERATIONS')
-            defaultValue('200')
-            description('Number of iterations to run RL tests for')
-            trim(true)
-        }
-        stringParam {
             name('JENKINS_SHARED_LIB_BRANCH')
             defaultValue('main')
             description('Branch of jenkins-shared-library from which pipeline should be run')
