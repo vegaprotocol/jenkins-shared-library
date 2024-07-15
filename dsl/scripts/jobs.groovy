@@ -1168,11 +1168,16 @@ def approbationParams(def config=[:]) {
 
         stringParam {
             name('APPROBATION_TAG')
-            defaultValue('v4.7.0')
+            defaultValue('v4.8.0')
             description('Approbation image tag. latest or specific version with v prefix')
             trim(true)
         }
-
+        stringParam {
+            name('CURRENT_MILESTONE')
+            defaultValue('colosseo_II')
+            description('Current milestone to show result for in jenkins summary')
+            trim(true)
+        }
         stringParam {
             name('SPECS_BRANCH')
             defaultValue('colosseo_II')
