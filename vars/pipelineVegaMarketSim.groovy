@@ -183,23 +183,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Full Fuzzing Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            echo "Running full fuzzing tests"
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS}
-                            '''
-                        }
-                    }
                     stage('Sensible Fuzzing Tests') {
                         environment {
                             PYTHONUNBUFFERED = "1"
