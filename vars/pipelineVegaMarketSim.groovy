@@ -222,23 +222,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Generate Plots') {
-                        when {
-                            expression {
-                                params.RUN_LEARNING == false
-                            }
-                        }
-                        steps {
-                            sh label: 'Market Behaviour Plots', script: '''
-                                poetry run scripts/run-plot-gen.sh
-                            '''
-                        }
-                        post {
-                            success {
-                                archiveArtifacts artifacts: 'run.jpg'
-                            }
-                        }
-                    }
                 }
                 // TODO: Print logs files from the /test-logs/*.test.log in case of failure
                 //       This is required because by default logs are not printed when the
