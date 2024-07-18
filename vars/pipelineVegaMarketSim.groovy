@@ -183,23 +183,6 @@ void call() {
                             }
                         }
                     }
-                    stage('Full Fuzzing Tests') {
-                        environment {
-                            PYTHONUNBUFFERED = "1"
-                        }
-                        when {
-                            expression {
-                                params.RUN_LEARNING == true
-                            }
-                        }
-                        steps {
-                            echo "Running full fuzzing tests"
-                            /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Fuzz Test', script: '''
-                                poetry run scripts/run-fuzz-test.sh --steps ${NUM_FUZZ_STEPS}
-                            '''
-                        }
-                    }
                     stage('Sensible Fuzzing Tests') {
                         environment {
                             PYTHONUNBUFFERED = "1"
@@ -219,23 +202,6 @@ void call() {
                         post {
                             success {
                                 archiveArtifacts artifacts: 'plots/**/*.png'
-                            }
-                        }
-                    }
-                    stage('Generate Plots') {
-                        when {
-                            expression {
-                                params.RUN_LEARNING == false
-                            }
-                        }
-                        steps {
-                            sh label: 'Market Behaviour Plots', script: '''
-                                poetry run scripts/run-plot-gen.sh
-                            '''
-                        }
-                        post {
-                            success {
-                                archiveArtifacts artifacts: 'run.jpg'
                             }
                         }
                     }
