@@ -1268,7 +1268,7 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core') {
             stringParam {
                 name('TESTS_ARG')
-                defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/commands/*.{go,feature},/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js}')
+                defaultValue('{/workspace/system-tests/tests/**/*.py,/workspace/vega/commands/*.{go,feature},/workspace/vega/core/integration/**/*.{go,feature},/workspace/MultisigControl/test/*.js,/workspace/Vega_Token_V2/test/*.js,/workspace/Staking_Bridge/test/*.js,/workspace/vega/core/**/*_test.go}')
                 description('--tests argument value')
                 trim(true)
             }
