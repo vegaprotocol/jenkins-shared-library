@@ -1168,7 +1168,7 @@ def approbationParams(def config=[:]) {
 
         stringParam {
             name('APPROBATION_TAG')
-            defaultValue('v4.9.1')
+            defaultValue('v4.9.2')
             description('Approbation image tag. latest or specific version with v prefix')
             trim(true)
         }
@@ -1180,7 +1180,7 @@ def approbationParams(def config=[:]) {
         }
         stringParam {
             name('SPECS_BRANCH')
-            defaultValue('suzuka_castle')
+            defaultValue('suzukacastle')
             description('Git branch, tag or hash of the vegaprotocol/specs repository')
             trim(true)
         }
