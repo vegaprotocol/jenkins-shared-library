@@ -1168,19 +1168,19 @@ def approbationParams(def config=[:]) {
 
         stringParam {
             name('APPROBATION_TAG')
-            defaultValue('v4.8.0')
+            defaultValue('v4.9.1')
             description('Approbation image tag. latest or specific version with v prefix')
             trim(true)
         }
         stringParam {
             name('CURRENT_MILESTONE')
-            defaultValue('colosseo_II')
+            defaultValue('suzuka_castle')
             description('Current milestone to show result for in jenkins summary')
             trim(true)
         }
         stringParam {
             name('SPECS_BRANCH')
-            defaultValue('colosseo_II')
+            defaultValue('suzuka_castle')
             description('Git branch, tag or hash of the vegaprotocol/specs repository')
             trim(true)
         }
@@ -1302,7 +1302,7 @@ def approbationParams(def config=[:]) {
         if (config.type == 'core') {
             stringParam {
                 name('OTHER_ARG')
-                defaultValue('--show-branches --show-mystery --category-stats --show-files --verbose --output-csv --output-jenkins --show-file-stats')
+                defaultValue('--show-branches --show-files --verbose --output-jenkins --show-file-stats')
                 description('Other arguments')
                 trim(true)
             }
