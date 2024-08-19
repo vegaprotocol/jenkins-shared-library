@@ -226,7 +226,7 @@ void call(def config=[:]) {
                             docker run -v ${env.WORKSPACE}:/workspace -v ${env.WORKSPACE}/results:/app/results ghcr.io/vegaprotocol/approbation:${params.APPROBATION_TAG} check-references \
                                 --specs="${params.SPECS_ARG}" \
                                 --tests="${params.TESTS_ARG}" \
-                                --current-milestone="${params.CURRENT_MILESTONE}"
+                                --current-milestone="${params.CURRENT_MILESTONE}" \
                                 --categories="${params.CATEGORIES_ARG}" \
                                 --features="${params.FEATURES_ARG}" \
                                 ${params.IGNORE_ARG ? "--ignore='${params.IGNORE_ARG}'" : '' } ${params.OTHER_ARG}
