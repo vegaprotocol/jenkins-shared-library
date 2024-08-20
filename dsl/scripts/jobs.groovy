@@ -1374,9 +1374,15 @@ def vegaMarketSimParams(args=[:]) {
             description('Run a long reinforcement learning test')
         }
         stringParam {
-            name('NUM_FUZZ_STEPS')
+            name('NUM_RESEARCH_FUZZ_STEPS')
             defaultValue('1200')
-            description('Number of steps to run fuzz test for')
+            description('Number of steps to run research fuzz tests for')
+            trim(true)
+        }
+        stringParam {
+            name('NUM_NEBULA_FUZZ_STEPS')
+            defaultValue('6000')
+            description('Number of steps to run nebula fuzz tests for')
             trim(true)
         }
         stringParam {
