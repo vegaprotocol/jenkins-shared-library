@@ -196,7 +196,7 @@ void call() {
                             echo "Running research fuzz tests"
                             /* groovylint-disable-next-line GStringExpressionWithinString */
                             sh label: 'Research fuzz tests', script: '''
-                                poetry run python -m vega_sim.scenario.fuzzing.run --scenario research --steps ${NUM_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
+                                poetry run python -m vega_sim.scenario.fuzzing.run --scenario research --steps ${NUM_RESEARCH_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
                         post {
