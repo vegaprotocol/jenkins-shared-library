@@ -1374,9 +1374,15 @@ def vegaMarketSimParams(args=[:]) {
             description('Run a long reinforcement learning test')
         }
         stringParam {
-            name('NUM_FUZZ_STEPS')
+            name('NUM_RESEARCH_FUZZ_STEPS')
             defaultValue('1200')
-            description('Number of steps to run fuzz test for')
+            description('Number of steps to run research fuzz tests for')
+            trim(true)
+        }
+        stringParam {
+            name('NUM_NEBULA_FUZZ_STEPS')
+            defaultValue('6000')
+            description('Number of steps to run nebula fuzz tests for')
             trim(true)
         }
         stringParam {
@@ -2443,8 +2449,8 @@ def jobs = [
         daysToKeep: 5,
     ],
     [
-        name: 'common/vega-market-sim-reinforcement',
-        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
+        name: 'common/vega-market-sim-fuzzing-develop',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Overnight fuzz tests against develop',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: vegaMarketSimParams(),
@@ -2453,12 +2459,13 @@ def jobs = [
         cron: 'H 0 * * *',
     ],
     [
-        name: 'common/vega-market-sim-fuzzing-mainnet',
-        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Reinforcement learning tests',
+        name: 'common/vega-market-sim-fuzzing-release-candidate',
+        description: 'Simulate Markets on fully controllable Simulator of Vega Network - Overnight fuzz tests against release candidate',
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: vegaMarketSimParams(
-            VEGA_VERSION: 'master',
+            VEGA_VERSION: 'v0.80.0-preview.4',
+            VEGA_MARKET_SIM_BRANCH: 'v0.80.0-preview.4',
         ),
         copyArtifacts: true,
         daysToKeep: 5,

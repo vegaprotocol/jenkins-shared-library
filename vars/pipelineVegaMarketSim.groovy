@@ -183,7 +183,7 @@ void call() {
                             }
                         }
                     }
-                    stage('Sensible Fuzzing Tests') {
+                    stage('Research Fuzz Tests') {
                         environment {
                             PYTHONUNBUFFERED = "1"
                         }
@@ -193,10 +193,54 @@ void call() {
                             }
                         }
                         steps {
-                            echo "Running sensible fuzzing tests"
+                            echo "Running research fuzz tests"
                             /* groovylint-disable-next-line GStringExpressionWithinString */
-                            sh label: 'Sensible Fuzzing', script: '''
-                                poetry run python -m vega_sim.scenario.fuzzing.run -m overnight -s ${NUM_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
+                            sh label: 'Research fuzz tests', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run --scenario research --steps ${NUM_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
+                            '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: 'plots/**/*.png'
+                            }
+                        }
+                    }
+                    stage('Nebula Fuzz Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            echo "Running nebula fuzz tests"
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Nebula fuzz tests', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run --scenario nebula --steps ${NUM_NEBULA_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
+                            '''
+                        }
+                        post {
+                            success {
+                                archiveArtifacts artifacts: 'plots/**/*.png'
+                            }
+                        }
+                    }
+                    stage('Nebula (AMM) Fuzz Tests') {
+                        environment {
+                            PYTHONUNBUFFERED = "1"
+                        }
+                        when {
+                            expression {
+                                params.RUN_LEARNING == true
+                            }
+                        }
+                        steps {
+                            echo "Running nebula (AMM) fuzz tests"
+                            /* groovylint-disable-next-line GStringExpressionWithinString */
+                            sh label: 'Nebula (AMM) fuzz tests', script: '''
+                                poetry run python -m vega_sim.scenario.fuzzing.run --scenario nebula-amm --steps ${NUM_NEBULA_FUZZ_STEPS} -o --core-metrics-port 2102 --data-node-metrics-port 2123
                             '''
                         }
                         post {
