@@ -13,6 +13,7 @@ void call(Map config=[:]) {
     Map<String, String> extraVariables = config.extraVariables ?: [:]
     String ansibleTestnetAutomationBranch = config.ansibleTestnetAutomationBranch ?: 'main'
     String networksConfigPrivateBranch = config.networksConfigPrivateBranch ?: 'main'
+
     Bool withGitClone = config.withGitClone ?: false
     Bool applyChanges = config.applyChanges ?: false
 
@@ -49,11 +50,10 @@ void call(Map config=[:]) {
         )
     }
 
+    String ansibleFlagsCmd = ansibleFalgs.join(' ')
+
     dir('networks-config-private/ansible') {
         sh '''
-        ansible-playbook playbooks/''' + playbookName + '''.yaml
-        '''
+        ansible-playbook playbooks/''' + playbookName + '''.yaml ''' + ansibleFlagsCmd
     }
-
-            
 }
