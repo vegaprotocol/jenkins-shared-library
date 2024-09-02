@@ -15,14 +15,14 @@ void call(Map config=[:]) {
     String networksConfigPrivateBranch = config.networksConfigPrivateBranch ?: 'main'
 
     Bool withGitClone = config.withGitClone ?: false
-    Bool applyChanges = config.applyChanges ?: false
+    Bool dryRun = config.dryRun ?: false
 
     List<String> ansibleFalgs = [
         "--diff",
         '--limit "' + hostsLimit + '"',
     ]
 
-    if (!applyChanges) {
+    if (dryRun) {
         ansibleFalgs << "--check"
     }
 
