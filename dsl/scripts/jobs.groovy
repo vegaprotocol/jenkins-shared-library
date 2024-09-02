@@ -598,6 +598,103 @@ def networkApplyNonRestartChangesParams(args=[:]) {
     }
 }
 
+
+def zfsBackupParamsPublic(args=[:]) {
+    List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
+        "be.${args.name}.vega.rocks",
+        "be02.${args.name}.vega.rocks",
+        "metabase00.${args.name}.vega.rocks",
+        "metabase01.${args.name}.vega.rocks",
+    ]
+
+    if (args.name == "mainnet") {
+        nodesList = [
+            'All',
+            "api0.vega.community",
+            "api1.vega.community",
+            "api2.vega.community",
+            "api3.vega.community",
+            "api4.vega.community",
+            "api5.vega.community",
+            "be0.vega.community",
+            "be1.vega.community",
+            "be3.vega.community",
+            "m0.vega.community",
+            "m2.vega.community",
+            "m3.vega.community",
+            "m4.vega.community",
+            "metabase.vega.community",
+            "test.vega.community",
+        ]
+    }
+
+    return {
+        choiceParam {
+            name('NODE')
+            choices(nodesList)
+            description('Choose node to run job on')
+        }
+        booleanParam {
+            name('DRY_RUN')
+            defaultValue(false)
+            description('Run dry run without applying changes.')
+        }
+
+        booleanParam {
+            name('ENABLE_CREATE_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Enables snapshot creation step')
+        }
+        booleanParam {
+            name('ENABLE_ROLLBACK_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Enables snapshot rollback step')
+        }
+        booleanParam {
+            name('ENABLE_DESTROY_ZFS_SNAPSHOT')
+            defaultValue(false)
+            description('Enables snapshots destroy step')
+        }
+
+
+        stringParam {
+            name('CREATE_ZFS_SNAPSHOT_NAME')
+            defaultValue('')
+            description('Name of the snapshot to create')
+            trim(true)
+        }
+        booleanParam {
+            name('ROLLBACK_ZFS_SNAPSHOT_NAME')
+            defaultValue(true)
+            description('Name of the snapshot to rollback')
+        }
+        stringParam {
+            name('DESTROY_ZFS_SNAPSHOT_NAMES')
+            defaultValue('')
+            description('Comma separated list of snapshot name prefixes to destroy. Leave empty to not destroy anything. IMPORTANT: it is not full match, but prefix match')
+            trim(true)
+        }
+        stringParam {
+            name('ANSIBLE_TEST_AUTOMATION_BRANCH')
+            defaultValue('main')
+            description('Branch for the vegaprotocol/ansible-testnet-automation repository')
+            trim(true)
+        }
+        booleanParam {
+            name('NETWORKS_CONFIG_PRIVATE_BRANCH')
+            defaultValue(true)
+            description('Branch for the vegaprotocol/networks-config-private repository')
+        }
+        stringParam {
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'zfs-backup'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+    }
+}
+
+// Deprecated and will be removed soon
 def zfsBackupParams(args=[:]) {
 
     List nodesList = ['All'] + (0..9).collect { "n${it.toString().padLeft( 2, '0' )}.${args.name}.vega.rocks" } + [
@@ -1750,11 +1847,11 @@ def jobs = [
         numToKeep: 100,
         description: 'Perform zfs backup or restore tasks',
         useScmDefinition: false,
-        definition: libDefinition('pipelineZfsBackup()'),
+        definition: libDefinition('pipelineZfsBackupPublic()'),
         env: [
             NET_NAME: 'stagnet1',
         ],
-        parameters: zfsBackupParams(
+        parameters: zfsBackupParamsPublic(
             name: 'stagnet1',
         ),
         disableConcurrentBuilds: false,
@@ -1945,11 +2042,11 @@ def jobs = [
         numToKeep: 100,
         description: 'Perform zfs backup or restore tasks',
         useScmDefinition: false,
-        definition: libDefinition('pipelineZfsBackup()'),
+        definition: libDefinition('pipelineZfsBackupPublic()'),
         env: [
             NET_NAME: 'fairground',
         ],
-        parameters: zfsBackupParams(
+        parameters: zfsBackupParamsPublic(
             name: 'testnet',
         ),
         disableConcurrentBuilds: false,
