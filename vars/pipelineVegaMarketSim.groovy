@@ -306,7 +306,7 @@ void sendSlackMessage() {
 
     String msgTitle = 'Vega Market Sim'
     if (params.RUN_LEARNING == true) {
-        msgTitle = 'Vega Market Sim - Nightly Long Tests'
+        msgTitle = "Vega Market Sim - Nightly Long Tests - ${params.VEGA_VERSION}"
     }
 
     if (currentResult == 'SUCCESS') {
