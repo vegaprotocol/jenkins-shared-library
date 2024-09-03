@@ -680,9 +680,9 @@ def zfsBackupParamsPublic(args=[:]) {
             description('Branch for the vegaprotocol/ansible-testnet-automation repository')
             trim(true)
         }
-        booleanParam {
+        stringParam {
             name('NETWORKS_CONFIG_PRIVATE_BRANCH')
-            defaultValue(true)
+            defaultValue('main')
             description('Branch for the vegaprotocol/networks-config-private repository')
         }
         stringParam {
