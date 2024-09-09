@@ -3,7 +3,7 @@ void call(Map config=[:]) {
         error("Pass non empty config.playbookName to the pipelinePublicAnsible call")
     }
 
-    if !config.containsKey('hostsLimit') || config.hostsLimit.length() < 2 {
+    if (!config.containsKey('hostsLimit') || config.hostsLimit.length() < 2) {
         error("Pass non empty config.hostsLimit to the pipelinePublicAnsible call")
     }
 
