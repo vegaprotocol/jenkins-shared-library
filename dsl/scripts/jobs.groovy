@@ -667,6 +667,7 @@ def zfsBackupParamsPublic(args=[:]) {
             name('ROLLBACK_ZFS_SNAPSHOT_NAME')
             defaultValue('')
             description('Name of the snapshot to rollback')
+            trim(true)
         }
         stringParam {
             name('DESTROY_ZFS_SNAPSHOT_NAMES')
@@ -684,11 +685,18 @@ def zfsBackupParamsPublic(args=[:]) {
             name('NETWORKS_CONFIG_PRIVATE_BRANCH')
             defaultValue('main')
             description('Branch for the vegaprotocol/networks-config-private repository')
+            trim(true)
         }
         stringParam {
             name('NODE_LABEL')
             defaultValue(args.get('NODE_LABEL', 'zfs-backup'))
             description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
             trim(true)
         }
     }
