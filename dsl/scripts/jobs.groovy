@@ -663,9 +663,9 @@ def zfsBackupParamsPublic(args=[:]) {
             description('Name of the snapshot to create')
             trim(true)
         }
-        booleanParam {
+        stringParam {
             name('ROLLBACK_ZFS_SNAPSHOT_NAME')
-            defaultValue(true)
+            defaultValue('')
             description('Name of the snapshot to rollback')
         }
         stringParam {
