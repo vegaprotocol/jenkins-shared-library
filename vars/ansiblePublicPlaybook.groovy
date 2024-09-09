@@ -14,8 +14,8 @@ void call(Map config=[:]) {
     String ansibleTestnetAutomationBranch = config.ansibleTestnetAutomationBranch ?: 'main'
     String networksConfigPrivateBranch = config.networksConfigPrivateBranch ?: 'main'
 
-    Bool withGitClone = config.withGitClone ?: false
-    Bool dryRun = config.dryRun ?: false
+    Boolean withGitClone = config.withGitClone ?: false
+    Boolean dryRun = config.dryRun ?: false
 
     List<String> ansibleFalgs = [
         "--diff",
