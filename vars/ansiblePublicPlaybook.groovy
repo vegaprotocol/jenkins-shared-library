@@ -26,7 +26,7 @@ void call(Map config=[:]) {
         ansibleFalgs << "--check"
     }
 
-    if (extraVariables.length() > 0) {
+    if (extraVariables.size() > 0) {
         String extraFlagsEncoded = writeJSON(
             returnText: true,
             json: extraVariables
