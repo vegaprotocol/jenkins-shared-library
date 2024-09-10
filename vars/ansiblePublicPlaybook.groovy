@@ -32,7 +32,7 @@ void call(Map config=[:]) {
             json: extraVariables
         )
 
-        ansibleFalgs << "--extra-flags '"+ extraFlagsEncoded +"'"
+        ansibleFalgs << "--extra-vars '"+ extraFlagsEncoded +"'"
     }
 
     if (withGitClone) {
