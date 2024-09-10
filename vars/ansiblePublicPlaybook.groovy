@@ -17,6 +17,8 @@ void call(Map config=[:]) {
     Boolean withGitClone = config.withGitClone ?: false
     Boolean dryRun = config.dryRun ?: false
 
+    String sshSecretName = config.sshSecretName ?: 'ssh-vega-network'
+
     List<String> ansibleFalgs = [
         "--diff",
         '--limit "' + hostsLimit + '"',
@@ -52,8 +54,19 @@ void call(Map config=[:]) {
 
     String ansibleFlagsCmd = ansibleFalgs.join(' ')
 
-    dir('networks-config-private/ansible') {
-        sh '''
-        ansible-playbook playbooks/''' + playbookName + '''.yaml ''' + ansibleFlagsCmd
+    withCredentials([
+        sshUserPrivateKey(
+            credentialsId: sshSecretName,
+            keyFileVariable: 'PSSH_KEYFILE',
+            usernameVariable: 'PSSH_USER',
+        ),
+    ]) {
+        dir('networks-config-private/ansible') {
+            sh '''
+            ansible-playbook \
+            -u ''' + PSSH_USER + ''' \
+            --private-key ''' + PSSH_KEYFILE + ''' \
+            playbooks/''' + playbookName + '''.yaml ''' + ansibleFlagsCmd
+        }
     }
 }
