@@ -82,7 +82,7 @@ void call() {
 
             stage('Create snapshot') {
                 when {
-                    expression { params.DRY_RUN } 
+                    expression { enableCreateZfsSnapshot } 
                 }
 
                 steps {
@@ -102,7 +102,7 @@ void call() {
 
             stage('Rollback snapshot') {
                 when {
-                    expression { params.DRY_RUN } 
+                    expression { enableRollbackZfsSnapshot } 
                 }
 
                 steps {
@@ -122,7 +122,7 @@ void call() {
             
             stage('Destroy snapshot') {
                 when {
-                    expression { params.DRY_RUN } 
+                    expression { enableDestroyZfsSnapshot } 
                 }
 
                 steps {
