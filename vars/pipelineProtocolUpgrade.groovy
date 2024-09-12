@@ -63,7 +63,7 @@ void call() {
                             error("Version cannot be empty");
                         }
 
-                        int upgradeHeightI = uphradeBlock as int
+                        int upgradeHeightI = upgradeBlock as int
                         if (upgradeHeightI < 100) {
                             upgradeHeightI = networkHeight(environmentName)
                             if (upgradeHeightI < 100) {
