@@ -1708,7 +1708,7 @@ def jobs = [
         name: 'private/Deployments/devnet1/Protocol-Upgrade',
         numToKeep: 100,
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'devnet1',
             ANSIBLE_LIMIT: 'devnet1',
@@ -1811,7 +1811,7 @@ def jobs = [
         name: 'private/Deployments/stagnet1/Protocol-Upgrade',
         numToKeep: 100,
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'stagnet1',
             ANSIBLE_LIMIT: 'stagnet1',
@@ -1865,102 +1865,6 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     //
-    // Mainnet Mirror
-    //
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Network',
-        numToKeep: 100,
-        description: devopsInfraDocs,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNetwork()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_LIMIT: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-        ],
-        parameters: vegavisorRestartNetworkParams(
-            DEVOPSTOOLS_BRANCH: 'main',
-            NODE_LABEL: 'ops-tasks-tiny',
-        ),
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Manage-Node',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineNetworkManageNode71()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(
-            name: 'mainnet-mirror',
-        ),
-        disableConcurrentBuilds: false,
-        // restart a random node every 30min
-        //parameterizedCron: 'H/30 * * * * %RANDOM_NODE=true',
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Topup-Bots',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorTopupBots()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-        ],
-        parameters: vegavisorTopupBotsParams(
-            NODE_LABEL: 'ops-tasks-tiny',
-        ),
-        // cron: 'H 10 * * *',
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Non-Restart-Changes',
-        numToKeep: 100,
-        description: 'Apply changes not requiring restarting a node or network',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-        ],
-        parameters: networkApplyNonRestartChangesParams(
-            name: 'mainnet-mirror',
-        ),
-        disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/zfs-backup',
-        numToKeep: 100,
-        description: 'Perform zfs backup or restore tasks',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineZfsBackup()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-        ],
-        parameters: zfsBackupParams(
-            name: 'mainnet-mirror',
-        ),
-        disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/mainnet-mirror/Protocol-Upgrade',
-        numToKeep: 100,
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
-        env: [
-            NET_NAME: 'mainnet-mirror',
-            ANSIBLE_LIMIT: 'mainnet-mirror',
-        ],
-        parameters: vegavisorProtocolUpgradeParams(),
-        disableConcurrentBuilds: true,
-    ],
-    //
     // Fairground
     //
     [
@@ -2006,7 +1910,7 @@ def jobs = [
         name: 'private/Deployments/fairground/Protocol-Upgrade',
         numToKeep: 100,
         useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorProtocolUpgradeNetwork()'),
+        definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'fairground',
             ANSIBLE_LIMIT: 'fairground',
@@ -2607,19 +2511,6 @@ def jobs = [
         disableConcurrentBuilds: true,
     ],
     [
-        name: 'private/Snapshots/mainnet-mirror',
-        numToKeep: 500,
-        useScmDefinition: false,
-        env: [
-            NET_NAME: 'mainnet-mirror',
-        ],
-        parameters: snapshotParams(),
-        daysToKeep: 4,
-        definition: libDefinition('pipelineSnapshotTestingNew()'),
-        // cron: "H/12 * * * *",
-        disableConcurrentBuilds: true,
-    ],
-    [
         name: 'private/Snapshots/Fairground',
         // disabled: true,
         numToKeep: 500,
@@ -2716,7 +2607,7 @@ def jobs = [
         parameters: {
             choiceParam {
                 name('NETWORK_NAME')
-                choices(['devnet1', 'stagnet1', 'mainnet-mirror', 'fairground'])
+                choices(['devnet1', 'stagnet1', 'fairground'])
                 description('Network name')
             }
             stringParam {
