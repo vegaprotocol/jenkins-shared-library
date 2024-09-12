@@ -445,47 +445,42 @@ def vegavisorManageNodeParams(args=[:]) {
 }
 
 def vegavisorProtocolUpgradeParams(args=[:]) {
-    return vegavisorParamsBase(args + [
-        'UPDATE_CONFIGURATION': false,
-        'NODE_LABEL': 'protocol-upgrade',
-    ]) << {
+    return {
+        stringParam {
+            name('VEGA_VERSION')
+            defaultValue('main')
+            description('Vega version to upgrade')
+            trim(true)
+        }
         stringParam {
             name('UPGRADE_BLOCK')
-            defaultValue('')
-            description('Protocol upgrade block. Leave empty to use: current block + 400')
+            defaultValue('main')
+            description('Block upgrade happens on')
+            trim(true)
+        }
+
+        stringParam {
+            name('ANSIBLE_TEST_AUTOMATION_BRANCH')
+            defaultValue('main')
+            description('Branch for the vegaprotocol/ansible-testnet-automation repository')
             trim(true)
         }
         stringParam {
-            name('RELEASE_VERSION')
-            defaultValue('')
-            description('Specify which version of vega to deploy. Leave empty to restart network only.')
-            trim(true)
-        }
-        booleanParam {
-            name('MANUAL_INSTALL')
-            defaultValue(true)
-            description('If true, then config and binaries are uploaded manualy before protocol upgrade. When false, then visor automatically create everything.')
-        }
-        booleanParam {
-            name('RENDER_CONFIGS')
-            defaultValue(true)
-            description('If true, new configs are rendered and updated on the servers')
-        }
-        booleanParam {
-            name('DRY_RUN')
-            defaultValue(true)
-            description('If true, no action is taken on the network')
-        }
-        stringParam {
-            name('TIMEOUT')
-            defaultValue('40')
-            description('Number of minutes after which the job will stop')
+            name('NETWORKS_CONFIG_PRIVATE_BRANCH')
+            defaultValue('main')
+            description('Branch for the vegaprotocol/networks-config-private repository')
             trim(true)
         }
         stringParam {
-            name('DOCKER_VERSION')
-            defaultValue('')
-            description('Specify which version of docker images to deploy. Leave empty to not change.')
+            name('NODE_LABEL')
+            defaultValue(args.get('NODE_LABEL', 'zfs-backup'))
+            description('Jenkins label for running pipeline (empty means any node)')
+            trim(true)
+        }
+        stringParam {
+            name('JENKINS_SHARED_LIB_BRANCH')
+            defaultValue('main')
+            description('Branch of jenkins-shared-library from which pipeline should be run')
             trim(true)
         }
     }
@@ -1711,15 +1706,8 @@ def jobs = [
         definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'devnet1',
-            ANSIBLE_LIMIT: 'devnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            TOP_UP_BOTS: true,
-            SETUP_REFERRAL_PROGRAM: true,
-            SETUP_VOLUME_DISCOUNT_PROGRAM: true,
-            UPDATE_NETWORK_PARAMS: true,
-            JOIN_BOTS_TO_REFERRAL_PROGRAM: true,
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1814,11 +1802,8 @@ def jobs = [
         definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'stagnet1',
-            ANSIBLE_LIMIT: 'stagnet1',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            SETUP_REFERRAL_PROGRAM: false,
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
@@ -1913,11 +1898,8 @@ def jobs = [
         definition: libDefinition('pipelineProtocolUpgrade()'),
         env: [
             NET_NAME: 'fairground',
-            ANSIBLE_LIMIT: 'fairground',
         ],
-        parameters: vegavisorProtocolUpgradeParams(
-            SETUP_REFERRAL_PROGRAM: false,
-        ),
+        parameters: vegavisorProtocolUpgradeParams(),
         disableConcurrentBuilds: true,
     ],
     [
