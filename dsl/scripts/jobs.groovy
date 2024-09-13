@@ -448,13 +448,13 @@ def vegavisorProtocolUpgradeParams(args=[:]) {
     return {
         stringParam {
             name('VEGA_VERSION')
-            defaultValue('main')
+            defaultValue('vX.Y.Z')
             description('Vega version to upgrade')
             trim(true)
         }
         stringParam {
             name('UPGRADE_BLOCK')
-            defaultValue('main')
+            defaultValue('')
             description('Block upgrade happens on')
             trim(true)
         }
