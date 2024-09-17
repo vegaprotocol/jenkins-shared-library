@@ -4,8 +4,8 @@ void call(Map config=[:]) {
     Boolean failed = false
 
     int pipelineTimeout = 17
-    String snapshotTestingBranch = "1main"
-    String nodeLabel = "1snapshot-testing"
+    String snapshotTestingBranch = "main"
+    String nodeLabel = "snapshot-testing"
     String networkName = env.NET_NAME
 
     if (config.containsKey('networkName')) {
