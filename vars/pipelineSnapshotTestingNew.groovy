@@ -57,8 +57,17 @@ void call(Map config=[:]) {
             }
 
             stage('Run tests') {
+                List<String> snapshotTestingArgs = [
+                    '--duration ' + (params.TIMEOUT.toInteger()*60) + 's',
+                    ' --environment ' + env.NET_NAME,
+                    '--work-dir ./work-dir'
+                ]
+                if (config.containsKey('configPath')) {
+                    snapshotTestingArgs << '--config-path ' + config.configPath
+                }
+
                 try {
-                    sh './dist/snapshot-testing run --duration ' + (params.TIMEOUT.toInteger()*60) + 's --environment ' + env.NET_NAME + ' --work-dir ./work-dir'
+                    sh './dist/snapshot-testing run ' + snapshotTestingArgs.join(' ')
                 } catch (e) {
                     failed = true
                     print('FAILURE: ' + e)
