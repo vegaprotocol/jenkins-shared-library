@@ -1946,56 +1946,6 @@ def jobs = [
         disableConcurrentBuilds: false,
     ],
     //
-    // Validators-Testnet
-    //
-    [
-        name: 'private/Deployments/validators-testnet/Manage-Node-v0-68',
-        numToKeep: 100,
-        description: vegavisorManageNodeDescription(),
-        useScmDefinition: false,
-        definition: libDefinition('pipelineVegavisorManageNode()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode.yaml',
-            ANSIBLE_PLAYBOOK_COMMON: 'playbook-barenode-common.yaml',
-            ANSIBLE_PLAYBOOK_NON_RESTART_REQUIRED: 'playbook-barenode-non-restart-required.yaml',
-        ],
-        parameters: vegavisorManageNodeParams(
-            name: 'validators-testnet',
-            sentryNodes: true,
-        ),
-        disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/validators-testnet/Non-Restart-Changes',
-        numToKeep: 100,
-        description: 'Apply changes not requiring restarting a node or network',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineNetworkApplyNonRestartChanges()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-            ANSIBLE_PLAYBOOK: 'playbook-barenode-non-restart-required.yaml',
-        ],
-        parameters: networkApplyNonRestartChangesParams(
-            name: 'validators-testnet',
-        ),
-        disableConcurrentBuilds: false,
-    ],
-    [
-        name: 'private/Deployments/validators-testnet/zfs-backup',
-        numToKeep: 100,
-        description: 'Perform zfs backup or restore tasks',
-        useScmDefinition: false,
-        definition: libDefinition('pipelineZfsBackup()'),
-        env: [
-            NET_NAME: 'validators-testnet',
-        ],
-        parameters: zfsBackupParams(
-            name: 'validators-testnet',
-        ),
-        disableConcurrentBuilds: false,
-    ],
-    //
     // Mainnet
     //
     [
@@ -2503,20 +2453,6 @@ def jobs = [
         parameters: snapshotParams(
             NODE_LABEL: 'snapshot-testing'
         ),
-        daysToKeep: 4,
-        definition: libDefinition('pipelineSnapshotTestingNew()'),
-        cron: "H/20 * * * *",
-        disableConcurrentBuilds: true,
-    ],
-    [
-        name: 'private/Snapshots/Validators-Testnet',
-        // disabled: true,
-        numToKeep: 500,
-        useScmDefinition: false,
-        env: [
-            NET_NAME: 'validators-testnet',
-        ],
-        parameters: snapshotParams(),
         daysToKeep: 4,
         definition: libDefinition('pipelineSnapshotTestingNew()'),
         cron: "H/20 * * * *",
