@@ -61,7 +61,14 @@ void call(Map config=[:]) {
             echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
             echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
             echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+            echo "PARAMS"
+            echo "=================================="
+            echo "NODE_LABEL: " + nodeLabel
+            echo "SNAPSHOT_TESTING_BRANCH: " + snapshotTestingBranch
+            echo "TIMEOUT: " + pipelineTimeout
+            echo "NODE_LABEL: " + nodeLabel
         }
+
 
         // Give extra 5 minutes for setup
         timeout(time: pipelineTimeout + 5, unit: 'MINUTES') {
