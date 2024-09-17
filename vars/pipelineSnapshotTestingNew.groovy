@@ -68,7 +68,7 @@ void call(Map config=[:]) {
             stage('Clone snapshot-testing') {
                 gitClone([
                     url: 'git@github.com:vegaprotocol/snapshot-testing.git',
-                    branch: params.SNAPSHOT_TESTING_BRANCH,
+                    branch: snapshotTestingBranch,
                     credentialsId: 'vega-ci-bot',
                     directory: 'snapshot-testing'
                 ])
