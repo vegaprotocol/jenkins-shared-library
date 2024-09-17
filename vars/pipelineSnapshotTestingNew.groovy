@@ -3,7 +3,36 @@ import java.text.SimpleDateFormat
 void call(Map config=[:]) {
     Boolean failed = false
 
-    node(params.NODE_LABEL) {
+    int pipelineTimeout = 17
+    String snapshotTestingBranch = "main"
+    String nodeLabel = "snapshot-testing"
+    String networkName = env.NET_NAME
+
+    if (config.containsKey('networkName')) {
+        networkName = config.networkName
+    } 
+
+    if (config.containsKey('timeout')) {
+        pipelineTimeout = config.timeout.toInteger()
+    } else if (params.containsKey('TIMEOUT')) {
+        pipelineTimeout = params.TIMEOUT.toInteger()
+    }
+
+    if (config.containsKey('nodeLabel')) {
+        nodeLabel = config.nodeLabel
+    } else if (params.containsKey('NODE_LABEL')) {
+        nodeLabel = params.NODE_LABEL
+    }
+
+    if (config.containsKey('snapshotTestingBranch')) {
+        snapshotTestingBranch = config.snapshotTestingBranch
+    } else if (params.containsKey('SNAPSHOT_TESTING_BRANCH')) {
+        snapshotTestingBranch = params.SNAPSHOT_TESTING_BRANCH
+    }
+
+
+
+    node(nodeLabel) {
         stage('init') {
             skipDefaultCheckout()
             cleanWs()
@@ -12,7 +41,7 @@ void call(Map config=[:]) {
                 // initial cleanup
                 vegautils.commonCleanup()
                 // init global variables
-                monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${networkName}"])
                 jenkinsAgentIP = agent.getPublicIP()
                 echo "Jenkins Agent IP: ${jenkinsAgentIP}"
                 echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
@@ -22,7 +51,7 @@ void call(Map config=[:]) {
                 currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
                 // Setup grafana-agent
                 grafanaAgent.configure("snapshot", [
-                    JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                    JENKINS_JOB_NAME: "snapshot-${networkName}",
                 ])
                 grafanaAgent.restart()
             }
@@ -37,14 +66,21 @@ void call(Map config=[:]) {
             echo "GraphQL: http://${jenkinsAgentIP}:3008/graphql/"
             echo "Epoch: http://${jenkinsAgentIP}:3008/api/v2/epoch"
             echo "Data-Node stats: http://${jenkinsAgentIP}:3008/statistics"
+            echo "PARAMS"
+            echo "=================================="
+            echo "NODE_LABEL: " + nodeLabel
+            echo "SNAPSHOT_TESTING_BRANCH: " + snapshotTestingBranch
+            echo "TIMEOUT: " + pipelineTimeout
+            echo "NODE_LABEL: " + nodeLabel
         }
 
+
         // Give extra 5 minutes for setup
-        timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
+        timeout(time: pipelineTimeout + 5, unit: 'MINUTES') {
             stage('Clone snapshot-testing') {
                 gitClone([
                     url: 'git@github.com:vegaprotocol/snapshot-testing.git',
-                    branch: params.SNAPSHOT_TESTING_BRANCH,
+                    branch: snapshotTestingBranch,
                     credentialsId: 'vega-ci-bot',
                     directory: 'snapshot-testing'
                 ])
@@ -57,8 +93,17 @@ void call(Map config=[:]) {
             }
 
             stage('Run tests') {
+                List<String> snapshotTestingArgs = [
+                    '--duration ' + (pipelineTimeout*60) + 's',
+                    ' --environment ' + networkName,
+                    '--work-dir ./work-dir'
+                ]
+                if (config.containsKey('configPath')) {
+                    snapshotTestingArgs << '--config-path ' + config.configPath
+                }
+
                 try {
-                    sh './dist/snapshot-testing run --duration ' + (params.TIMEOUT.toInteger()*60) + 's --environment ' + env.NET_NAME + ' --work-dir ./work-dir'
+                    sh './dist/snapshot-testing run ' + snapshotTestingArgs.join(' ')
                 } catch (e) {
                     failed = true
                     print('FAILURE: ' + e)
@@ -102,7 +147,7 @@ void call(Map config=[:]) {
                         String snapshotsTo = results["snapshot-max"] ?: 'UNKNOWN'
                         int buildNo = currentBuild.number as Integer
 
-                        archiveArtifactsToS3(buildNo, env.NET_NAME, './work-dir', snapshotsFrom, snapshotsTo)
+                        archiveArtifactsToS3(buildNo, networkName, './work-dir', snapshotsFrom, snapshotsTo)
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
@@ -113,7 +158,7 @@ void call(Map config=[:]) {
                 Boolean shouldSkipSlackMessage = (results["should-skip-failure"] as Boolean) ?: false
 
                 if (!shouldSkipSlackMessage) {
-                    sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
+                    sendSlackMessage(networkName, reason, catchupDuration, extraLogLines)
                 } else {
                     print("Not sending slack message. Snapshot testing binary decided to skip the results.")
                 }
