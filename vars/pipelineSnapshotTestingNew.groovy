@@ -8,7 +8,7 @@ void call(Map config=[:]) {
     String nodeLabel = "1snapshot-testing"
 
     if (config.containsKey('timeout')) {
-        timeout = config.configPath.toInteger()
+        timeout = config.timeout.toInteger()
     } else if (params.containsKey('TIMEOUT')) {
         timeout = params.TIMEOUT.toInteger()
     }
