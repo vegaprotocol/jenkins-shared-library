@@ -6,6 +6,11 @@ void call(Map config=[:]) {
     int pipelineTimeout = 17
     String snapshotTestingBranch = "1main"
     String nodeLabel = "1snapshot-testing"
+    String networkName = env.NET_NAME
+
+    if (config.containsKey('networkName')) {
+        networkName = config.networkName
+    } 
 
     if (config.containsKey('timeout')) {
         pipelineTimeout = config.timeout.toInteger()
@@ -36,7 +41,7 @@ void call(Map config=[:]) {
                 // initial cleanup
                 vegautils.commonCleanup()
                 // init global variables
-                monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${env.NET_NAME}"])
+                monitoringDashboardURL = jenkinsutils.getMonitoringDashboardURL([job: "snapshot-${networkName}"])
                 jenkinsAgentIP = agent.getPublicIP()
                 echo "Jenkins Agent IP: ${jenkinsAgentIP}"
                 echo "Monitoring Dahsboard: ${monitoringDashboardURL}"
@@ -46,7 +51,7 @@ void call(Map config=[:]) {
                 currentBuild.description = "Monitoring: ${monitoringDashboardURL}, Jenkins Agent IP: ${jenkinsAgentIP} [${env.NODE_NAME}]"
                 // Setup grafana-agent
                 grafanaAgent.configure("snapshot", [
-                    JENKINS_JOB_NAME: "snapshot-${env.NET_NAME}",
+                    JENKINS_JOB_NAME: "snapshot-${networkName}",
                 ])
                 grafanaAgent.restart()
             }
@@ -90,7 +95,7 @@ void call(Map config=[:]) {
             stage('Run tests') {
                 List<String> snapshotTestingArgs = [
                     '--duration ' + (pipelineTimeout*60) + 's',
-                    ' --environment ' + env.NET_NAME,
+                    ' --environment ' + networkName,
                     '--work-dir ./work-dir'
                 ]
                 if (config.containsKey('configPath')) {
@@ -142,7 +147,7 @@ void call(Map config=[:]) {
                         String snapshotsTo = results["snapshot-max"] ?: 'UNKNOWN'
                         int buildNo = currentBuild.number as Integer
 
-                        archiveArtifactsToS3(buildNo, env.NET_NAME, './work-dir', snapshotsFrom, snapshotsTo)
+                        archiveArtifactsToS3(buildNo, networkName, './work-dir', snapshotsFrom, snapshotsTo)
                     } catch(e) {
                         print(e)
                         currentBuild.result = 'FAILURE'
@@ -153,7 +158,7 @@ void call(Map config=[:]) {
                 Boolean shouldSkipSlackMessage = (results["should-skip-failure"] as Boolean) ?: false
 
                 if (!shouldSkipSlackMessage) {
-                    sendSlackMessage(env.NET_NAME, reason, catchupDuration, extraLogLines)
+                    sendSlackMessage(networkName, reason, catchupDuration, extraLogLines)
                 } else {
                     print("Not sending slack message. Snapshot testing binary decided to skip the results.")
                 }
