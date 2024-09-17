@@ -3,7 +3,31 @@ import java.text.SimpleDateFormat
 void call(Map config=[:]) {
     Boolean failed = false
 
-    node(params.NODE_LABEL) {
+    int timeout = 17
+    String snapshotTestingBranch = "1main"
+    String nodeLabel = "1snapshot-testing"
+
+    if (config.containsKey('timeout')) {
+        timeout = config.configPath.toInteger()
+    } else if (params.containsKey('TIMEOUT')) {
+        timeout = params.TIMEOUT.toInteger()
+    }
+
+    if (config.containsKey('nodeLabel')) {
+        nodeLabel = config.nodeLabel
+    } else if (params.containsKey('NODE_LABEL')) {
+        nodeLabel = params.NODE_LABEL
+    }
+
+    if (config.containsKey('snapshotTestingBranch')) {
+        snapshotTestingBranch = config.snapshotTestingBranch
+    } else if (params.containsKey('SNAPSHOT_TESTING_BRANCH')) {
+        snapshotTestingBranch = params.SNAPSHOT_TESTING_BRANCH
+    }
+
+
+
+    node(nodeLabel) {
         stage('init') {
             skipDefaultCheckout()
             cleanWs()
@@ -40,7 +64,7 @@ void call(Map config=[:]) {
         }
 
         // Give extra 5 minutes for setup
-        timeout(time: params.TIMEOUT.toInteger() + 5, unit: 'MINUTES') {
+        timeout(time: timeout + 5, unit: 'MINUTES') {
             stage('Clone snapshot-testing') {
                 gitClone([
                     url: 'git@github.com:vegaprotocol/snapshot-testing.git',
@@ -58,7 +82,7 @@ void call(Map config=[:]) {
 
             stage('Run tests') {
                 List<String> snapshotTestingArgs = [
-                    '--duration ' + (params.TIMEOUT.toInteger()*60) + 's',
+                    '--duration ' + (timeout*60) + 's',
                     ' --environment ' + env.NET_NAME,
                     '--work-dir ./work-dir'
                 ]
