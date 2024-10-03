@@ -187,6 +187,8 @@ void call(Map config=[:]) {
 }
 
 void archiveArtifactsToS3(int buildNo, String envName, String dirName, String minSnapshot, String maxSnapshot) {
+    return // disabled for now.
+
     // We are not interested in archiving non mainnet chain data
     if (envName != "mainnet") {
         return
