@@ -2405,8 +2405,8 @@ def jobs = [
         useScmDefinition: false,
         definition: libDefinition('pipelineVegaMarketSim()'),
         parameters: vegaMarketSimParams(
-            VEGA_VERSION: 'v0.78.0-preview.4',
-            VEGA_MARKET_SIM_BRANCH: 'v0.78.0-preview.4',
+            VEGA_VERSION: 'v0.79.0-preview.2',
+            VEGA_MARKET_SIM_BRANCH: 'v0.79.0-preview.2',
         ),
         copyArtifacts: true,
         daysToKeep: 5,
