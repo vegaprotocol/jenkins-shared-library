@@ -1,0 +1,41 @@
+"jenkins":
+  "nodes":
+  - "permanent":
+      "labelString": "tiny tiny-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins001-tiny-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "tiny tiny-office snapshot-testing"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins002-tiny-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
+  - "permanent":
+      "labelString": "performance-tests"
+      "launcher":
+        "inbound":
+          "webSocket": true
+          "workDirSettings":
+            "disabled": false
+            "failIfWorkDirIsMissing": false
+            "internalDir": "remoting"
+      "mode": "EXCLUSIVE"
+      "name": "jenkins003-performance-1"
+      "remoteFS": "/jenkins"
+      "retentionStrategy": "always"
